@@ -1,0 +1,21 @@
+If, by running `/sr status` you get the following red message:
+> Plugin currently can't fetch new skins. You might check out our discord at [redacted]
+
+then this means your server cannot connect to the APIs the plugin requires to work.
+
+--- 
+
+### How to fix it?
+
+This is a good question, and you are the right place to get an answer.
+Our plugin needs the following APIs over the following ports to be functional
+
+| URL                       | Port     |
+|---------------------------|----------|
+| https://api.minetools.eu/ | 443 - 53 |
+| https://api.mojang.com/   | 443 - 53 |
+| https://api.ashcon.app/   | 443 - 53 |
+| https://api.mineskin.org/ | 443 - 53 |
+
+---
+**This page is currently a stub, thus it may be edited at any time.**

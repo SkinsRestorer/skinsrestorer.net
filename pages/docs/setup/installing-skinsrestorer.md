@@ -1,0 +1,117 @@
+## Creator notes
+
+In here you can find everything you need for your first time installation of SkinsRestorer as well as the recommended
+way of doing so. If you are having issues or questions while installing feel free to ask questions on
+our [discord server](https://skinsrestorer.net/discord).
+
+### Table of Contents
+
+- [Requirements](#Requirements)
+- [Installation](#Basic-Installation)
+    - [Spigot/Bukkit](#installing-spigot)
+    - [BungeeCord](#installing-Bungee)
+    - [SpongeVanilla](#installing-spongevanilla-not-spongeforge)
+    - [Velocity](#installing-velocity)
+- [Basic Installation](#basic-installation)
+    - [Setup Spigot](#installing-spigot)
+    - [Setup BungeeCord](#installing-bungee)
+- [Advanced Installation](#Advanced-Installation)
+    - [Securing Bungee Networks](#securing-bungee-networks)
+
+## Requirements
+
+To be able tho use SkinsRestorer on your server, little is needed:
+
+(note: Most Minecraft server hosting companies have all of this)
+
+* Java from at least version 8
+* Internet connection through ports 80 (http) & 443 (https) & 53 (dns) (
+  issues? > [troubleshoot connection](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Troubleshoot#connection))
+* Minecraft server versions and variants that we
+  support [[check overview](https://github.com/SkinsRestorer/SkinsRestorerX/blob/master/README.md)]
+
+## Basic Installation
+
+In this section you can read how to set up our plugin SkinsRestorer your for Spigot server, BungeeCord network or even
+for Sponge server!
+In here we only learn to implement the plugin, to set up OR Trouble shoot: WIP
+
+#### Installing Spigot
+
+[!] If you're using BungeeCord (or any other proxy system), you must follow the [BungeeCord](#installing-Bungee)
+installation process.
+
+1. Download the latest version from https://www.spigotmc.org/resources/skinsrestorer.2124/
+2. Place the SkinsRestorer.jar in the ./plugins/ folder.
+3. Restart the server. (Only use `/restart` or `/stop` Do NOT use `/reload`, As `/reload` will break
+   SR!)[Plugman is also not supported]
+4. That's it! Our plugin should now show in /plugins folder
+
+- [#] For information to set up / Configure the
+  plugin: [[Config Guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Configuration#config-guide)]
+
+### Installing Bungee
+
+1. Download the latest version from https://www.spigotmc.org/resources/skinsrestorer.2124/
+2. Place the SkinsRestorer.jar in ./plugins/ folders of **every spigot** server.
+3. Place the SkinsRestorer.jar in ./plugins/ folder of every **BungeeCord** server.
+4. Check & set on **every backend** server (spigot/paper) `spigot.yml` -> `bungeecord: true`
+5. (OPTIONAL) set in __bungee__ -> config.yml -> `ip_forward: true`
+6. Restart (`/restart` or `/stop`) all servers
+   [Plugman or /reload are NOT supported, use /stop or /end]
+7. BungeeCord now has SkinsRestorer installed with the integration of Spigot
+8. You may now **Configure SkinsRestorer on Bungee** (BungeeCord plugins folder `/plugins/SkinsRestorer`)
+
+- [#] For information to set up / Configure the plugin using
+  Bungee: [[Config Guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Configuration#config-guide)]
+
+### Installing SpongeVanilla (NOT SpongeForge)
+
+1. Download the latest version from https://www.spigotmc.org/resources/skinsrestorer.2124/
+2. Place the plugin in ./mods/ folder (where Sponge is located).
+3. Restart the server.
+4. That's it!
+
+### Installing Velocity
+
+**[!] Paper is suggested for velocity [!]**
+
+1. Download the latest version from https://www.spigotmc.org/resources/skinsrestorer.2124/
+2. Place the SkinsRestorer.jar in ./plugins/ folders of every Paper server.
+3. Place the SkinsRestorer.jar in ./plugins/ folder of every Velocity server.
+4. Check & set on every backend server (paper) paper.yml ->   velocity-support: enabled: true
+5. Restart (/restart or /stop) all servers [Plugman or /reload are NOT supported, use /stop or /end]
+6. You may now Configure SkinsRestorer on Velocity (Velocity plugins folder /plugins/SkinsRestorer)
+
+(if you're not using paper, use Proxy mode override file. Ask us on discord)
+
+- [#] For information to set up / Configure the plugin using
+  Bungee: [[Config Guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Configuration#config-guide)]
+
+## Advanced Installation
+
+### Securing Bungee Networks
+
+#### What happened?
+
+Because the plugin is open source and a lot of bungee network owners are not blocking off ports using firewall, we see
+hack client makers abusing a vulnerability caused by not securing bungee networks.
+
+This security issue comes from the channel we use between bungee and spigot for opening the GUI menu, getting selected
+actions back to bungee, and also sending skin data to bukkit to use for instaskinchange (so users don't need to rejoin)
+
+#### How should I secure my self?
+
+You should secure your backend servers by only allowing bungee to connect to it over the server port. this can be done
+by using iptables on both bungee and spigot, or other measurements that block off non-whitelisted connections over the
+port server ports. We advise you to host both bungee & spigot by your self and not use Minecraft server hosting where
+you can not secure your ports, or change firewall settings.
+
+We will create a step-by-step guide soon to educate bungee network owners and how to secure themselves for network
+related exploits.
+
+#### What if I can not secure myself?
+
+If you can not secure yourself, we advise you not to put the jar on the spigot side. This will mitigate the risk at the
+cost of skins GUI and instaskinchange (you would need to rejoin or change server)
+

@@ -1,0 +1,30 @@
+![](http://i.imgur.com/WsKJtUWg.png)
+
+Welcome to the official SkinsRestorer wiki page! Here you will (likely) find all the questions and information you need,
+and how to make the best usage of SkinsRestorer, so hop on and get started
+now: [[Setup Instructions](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer)]
+
+👋🏻 If you need help with SkinsRestorer, join our [[Discord](https://discord.me/skinsrestorer)] or read
+our [[Troubleshooting guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Troubleshoot)]
+
+# About SkinsRestorer
+
+SkinsRestorer is a plugin that restores skins for online & offline mode servers and gives the players ability to change
+their skins by typing a single command.
+
+[![Discord Banner](https://discord.com/api/guilds/186794372468178944/widget.png?style=banner2)](https://skinsrestorer.net/discord)
+
+## Links
+
+[Official SpigotMC page](https://www.spigotmc.org/resources/skinsrestorer.2124/)
+
+How to help? -> [Contribute on GitHub](https://github.com/SkinsRestorer/SkinsRestorerX)
+
+## Contributors:
+
+They can be found at the [GitHub Insights](https://github.com/SkinsRestorer/SkinsRestorerX/graphs/contributors)
+
+## Donations
+
+SkinsRestorer is free and is meant to stay like this. However, if you would like to show some love to the
+devs, you can [donate](https://skinsrestorer.net/donate).

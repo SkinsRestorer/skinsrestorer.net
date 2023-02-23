@@ -1,0 +1,161 @@
+[!] This doc is under highly construction [!]
+
+## Table Of Contents
+
+- [Basic Troubleshoot](#Basic-Troubleshoot)
+    - [Spigot](#Basic-Spigot-Troubleshooting)
+    - [Bungee](#Basic-Bungee-Troubleshooting)
+
+- [Advanced troubleshooting](#advanced-troubleshoot)
+
+  If skins won't download, see:
+    - [connection](#connection)
+
+      If skins won't apply but do download see:
+    - [plugin incompatibility](#plugin-incompatibility)
+
+## Basic Troubleshoot
+
+### Basic Spigot Troubleshooting
+
+- [!] Kindly check these steps below for asking support on discord!
+
+
+1. Check
+   the [Basic Installation](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer#basic-installation)
+   steps and see if they are the same for your server
+
+2. Remove your ./plugins/SkinsRestorer/plugin.yml & Messages.yml files
+
+3. Update the plugin if needed! [<Spigot>](https://spigotmc.org/resources/2124/)
+
+3. restart the server and see if this resolved your issue
+
+- [#] still having issues?
+  If you are a Basic server owner you can ask for support on our: [Discord](https://skinsrestorer.net/discord) or
+  on [Our spigot](https://www.spigotmc.org/threads/37225/)
+  For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can trouble
+  shoot
+
+### Basic Bungee Troubleshooting
+
+1. Check
+   the [Basic Installation](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer#installing-Bungee)
+   steps and see if they are the same for your server
+
+2. IF you *did configure spigot* than *remove the SkinsRestorer config.yml*
+   [SkinsRestorer should never make a config on spigot, if it does your spigot is not set to bungee mode!!]
+
+3. Update the plugin if needed on bungee [<Spigot>](https://spigotmc.org/resources/skinsrestorer.2124/)
+
+4. restart the server and see if this resolved your issue
+
+- [#] still having issues?
+  If you are a Basic server owner you can ask for support on our: [Discord](https://skinsrestorer.net/discord) or
+  on [Our spigot](https://www.spigotmc.org/threads/37225/)
+  For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can trouble
+  shoot
+
+# Advanced Troubleshoot
+
+### Commands not working
+
+If commands are not working, you need to make sure that you did follow our specific installation instructions. if it
+still does not work, try removing the config and messages and restart your bungee and if not bungee your spigot server.
+for perms check our permissions section.
+
+### Plugin incompatibility
+
+Some not well coded plugins or plugins that modify the user profile might not work well with SkinsRestorer.
+You can see this when you for example change a skin, and you see the chunks reload but your skin just won't apply...
+
+*List of known incompatibility's:*
+
+- MundoSK
+- scripting plugins in general
+- some mods
+- plugins that use ProtocoLib
+
+To figure out IF it's a plugin incompatibility the best thing to do is running your server with SkinsRestorer as the only plugin
+and see if it than works. if so you can try adding plugins and check each time if the plugin still works. this way you
+can identify the plugin that might cause this.
+
+### Server Incompatibility
+
+We do not support forge, only CatServer some times..
+
+we also don't support FlameCord as they change the loginresult.Property somehow and the sourcecode can not be found.
+
+# Connection
+
+*SkinsRestorer needs connection to download skin data, you can test your current connection using `/sr status`*
+
+[WARNING] WARNING ABOUT api.github.com? can be ignored for now! [WARNING]
+
+How are you hosting your server?
+[ [Local](#resolve-local-firewall) / [Minecraft server hosting (panel)](#resolve-mc-provider-firewall) / [VPS & Dedicated server hosting (root access)](#resolve-dedi-server-firewall) ]
+***
+
+## Resolve Local Firewall
+
+Please select System:
+
+[ [Linux](#resolve-local-firewall-linux) / [Windows](#resolve-local-firewall-windows) ]
+
+### Resolve Local Firewall Linux
+
+### Resolve Local Firewall Windows
+
+## Resolve MC Provider Firewall
+
+When you only have access to a panel like multicraft or cpanel, you are not able to change firewall settings.
+
+IF you do have access to ssh / root command line, go to -> [Dedi server](#resolve-dedi-server-firewall)
+
+Use Below template to create a ticket / send @ to your Minecraft hosting provider
+
+```
+Firewall issues - this is a email template copied from github:SkinsRestorer/SkinsRestorerX
+
+Dear Mc-Service provider,
+
+I believe that your firewall setup is restricting one of my plugins to work properly, namely, SkinsRestorer.
+In order to allow it to function properly, I need to be able to open new outgoing connections to specific HTTP API services. You can see the list of required traffic at https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Troubleshooting#firewall-passthrough-requirements.
+
+I kindly request that you permit such traffic for all Minecraft hosting services associated with my account.
+
+If you have any questions, feel free to contact SkinsRestorer's team via:
+Discord - https://skinsrestorer.net/discord
+Email - support@skinsrestorer.net
+
+Kind regards.
+```
+
+## Resolve dedi server Firewall
+
+The following script should allow new and established connections.
+
+```bash
+sudo iptables -I INPUT 1  -p udp -m state --state ESTABLISHED     -j ACCEPT
+sudo iptables -I INPUT 1 -p tcp -m state --state ESTABLISHED     -j ACCEPT
+sudo iptables -I OUTPUT 1 -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -I OUTPUT 1 -p udp -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo update-ca-certificates -f
+sudo /var/lib/dpkg/info/ca-certificates-java.postinst configure
+```
+
+Or you can see [Firewall pass through requirements](#firewall-pass-through-requirements) to manually allow api.
+
+#### Firewall pass through requirements
+
+> All the required rules are **outgoing**, the only incoming traffic that should be accepted is the one from already
+> established connections. Your server must be able to connect to the other networks. SkinsRestorer does **not** require
+> any incoming traffic from new connections to be accepted.
+
+| Address                           | protocol | port(s)     | Reason                                                                   |
+|-----------------------------------|----------|-------------|--------------------------------------------------------------------------|
+| https://api.mojang.com/           | TCP      | 443, 53     | API to request player uuid                                               |
+| https://sessionserver.mojang.com/ | TCP      | 443, 53     | Skin data is fetched from this API                                       |
+| https://api.minetools.eu/         | TCP      | 443, 80, 53 | The main API that SkinsRestorer uses before falling back to Mojang's API |
+| https://api.ashcon.app/           | TCP      | 443, 53     | Backup API for uuid & skin                                               |
+| https://api.mineskin.org/         | TCP      | 443, 53     | API for skinurl & custom skins.                                          |

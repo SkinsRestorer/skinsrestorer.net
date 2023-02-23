@@ -1,0 +1,64 @@
+To makes things more easy, we created an example plugin that connects to the coding API that can be found
+here: [[link](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)]
+
+#### When using BungeeCord/Velocity?
+
+If you are using BungeeCord/Velocity you must have a plugin that calls to the API on BungeeCord/Velocity. You would need
+to use in/out put channels to send this information across both of your custom plugins.
+
+Getting issues?
+
+* make sure to import the `net.skinsrestorer.api.SkinsRestorerAPI` & `net.skinsrestorer.api.PlayerWrapper` in your
+  code (see example code)
+* make sure to get the API using `skinsRestorerAPI = SkinsRestorerAPI.getApi()`  and define by
+  adding `private SkinsRestorerAPI skinsRestorerAPI;` at the start of your class.
+* if you don't know that the issue is causing, include a try catch, so you can print our exceptions using e.print... etc
+
+# Using Plugin Message Channel
+
+If you are using BungeeCord/Velocity, and you want your plugin to work from spigot. You could use [*Plugin Message
+Channel*](https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/) to send the commands to bungee cord.
+
+### Messages list
+
+sr:message is only to "forward" commands from spigot to bungee. This includes cooldown, permissions checks and always
+send feedback to player.
+If you want to run it as console (without checks) you will have to wait for sr:adminchannel
+
+to bungee:
+| Message (sr:messagechannel +) |
+|:-----------------------------:|
+| setSkin p skin/url |
+| clearSkin p |
+| getSkins page |
+
+to bukkit:
+| Message |
+|:---------------------------------------------:|
+| sr:messagechannel OPENGUI p |
+| sr:skinchange SkinUpdate name value signature |
+
+### Sending a message
+
+wip
+
+first you need to register the channel (on startup)
+`Bukkit.getMessenger().registerOutgoingPluginChannel(this, "sr:messagechannel");`
+
+example of how we send /skin set <player> <skin> over plugin message channel:
+
+```java
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(bytes);
+
+            out.writeUTF("setSkin");
+            out.writeUTF(p.getName());
+            out.writeUTF(skin);
+
+            p.sendPluginMessage(this, "sr:messagechannel", bytes.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+```

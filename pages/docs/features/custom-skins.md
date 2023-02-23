@@ -1,0 +1,74 @@
+### Table Of Contents
+
+- [Introduction](#introduction)
+
+    - [how to apply custom skin](#how-to-generate-custom-skin)
+
+    - [apply custom default skins](#apply-custom-default-skins)
+
+- [Skinfile Generator for dummies](#skinfile-generator-for-dummies)
+
+### Introduction
+
+Because SkinsRestorer does not have a public API, We have a Development providing 2 simple tools for uploading custom png
+files to SkinsRestorer!
+
+### How to generate custom skin
+
+#### Skinfile Generator
+
+we get a lot of questions about how to apply a custom skin, lucky riflowth got you covered!
+
+For small servers we have the following:
+[Skinfile Generator]( https://riflowth.github.io/SkinFile-Generator/)
+
+This web app allows you to convert .png skin files to .skin files that are used by SkinsRestorer.
+If you use the web application, upload the skin files in the directory where skin data is saved and rename the files to
+the usernames they belong to.
+[[Click here for the Website]](https://riflowth.github.io/SkinFile-Generator/)  [[Click here for the source code]](https://github.com/riflowth/SkinFile-Generator)
+
+### Skin System
+
+If you are a **BIG server network and use bungee** we have a website with **AuthMe integration**:
+
+- [!] Requires MYSQL
+
+"Skin System"
+This web app allows your players to upload .png skin files to the database that is used by SkinsRestorer to allow
+people can use their own skins without premium account!
+[[Click here for the Github]](https://github.com/riflowth/SkinSystem/)
+
+#### Manual Generating
+
+1. make sure the file and cape(optional) are online with a .png link
+2. decode a skin to use the template (for
+   example: [notch](https://sessionserver.mojang.com/session/minecraft/profile/069a79f444e94726a5befca90e38aaf5))
+3. replace it with your skin data and make sure all info matches
+4. encode it again with base64 and apply it to the matching .skin file
+5. make sure you set the 3rd line on 2524608000000 (the year 2050) which will avoid getting the skin invalid
+
+### Apply custom default skins
+
+if you want to apply a default skin for your server you can do the following:
+
+1. set the skin on your own using /skin to load it in the database
+
+2. set the defaultskins to true and add the desired skin
+
+3. restart the or do "/sr reload"
+
+Done!
+
+## Skinfile Generator for dummies
+
+1. Get your skin file in .png format
+2. go to the website (https://skinsrestorer.github.io/SkinFile-Generator/)
+3. hit browse and select your skin
+5. fill in the skin name in the optional skin name field
+   [!] Make sure it is lowercase & does not contain a space [!]
+6. Hit "Upload!"
+7. download the name.skin file
+8. upload / replace it on your bungee/plugins/skinsrestorer/skins folder
+9. if you don't have bungee, put it in your spigot
+   (if you use mysql, open the file and insert the data in your skins rows.)
+   done! you should now be able to do /skin <name> and it will appear!

@@ -1,7 +1,7 @@
 {
   "name": "skinsrestorer.net",
   "version": "1.0.0",
-  "description": "",
+  "description": "The code for our website and documentation!",
   "main": "index.js",
   "scripts": {
     "start": "next"
