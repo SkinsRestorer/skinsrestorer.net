@@ -8,7 +8,7 @@ const withNextra = nextra({
     defaultShowCopyCode: true
 })
 
-module.exports = withNextra({
+export default withNextra({
     reactStrictMode: true,
     redirects: async () => {
         return [
