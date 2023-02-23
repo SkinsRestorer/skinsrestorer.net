@@ -1,0 +1,14 @@
+{
+  "index": {
+    "title": "Home",
+    "type": "page"
+  },
+  "docs": {
+    "title": "Documentation",
+    "type": "page"
+  },
+  "github_link": {
+    "title": "SkinsRestorer",
+    "href": "https://github.com/SkinsRestorer/SkinsRestorerX"
+  }
+}

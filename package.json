@@ -1,0 +1,23 @@
+{
+  "name": "skinsrestorer.net",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "next"
+  },
+  "keywords": [],
+  "author": "SRTeam",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^13.1.6",
+    "nextra": "^2.2.15",
+    "nextra-theme-docs": "^2.2.15",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.14.1",
+    "typescript": "4.9.5"
+  }
+}
