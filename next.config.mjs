@@ -18,5 +18,8 @@ export default withNextra({
                 permanent: false,
             },
         ]
+    },
+    images: {
+        unoptimized: true
     }
 })
