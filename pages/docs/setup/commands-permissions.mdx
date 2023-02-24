@@ -1,3 +1,5 @@
+import { Callout } from 'nextra-theme-docs'
+
 # Commands and Permissions
 
 Below is a list of commands and permissions. For each permission, you need to have the parent's permission. so for
@@ -6,9 +8,13 @@ example:
 If you wish to give a player "`skinsrestorer.command.set.other`" make sure you also give
 BOTH `skinsrestorer.command.set` permission and the main "`skinsrestorer.command`" permission
 
-- [!] Command not working?
-  Read [installation](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer)
-- [!] Don't use wildcards `"*"` for permissions! It won't work!
+<Callout type="info" emoji="ℹ️">
+    Command not working? Read [installation](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer)
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
+    Don't use wildcards `"*"` for permissions! It won't work!
+</Callout>
 
 #### Player commands
 
@@ -28,19 +34,19 @@ BOTH `skinsrestorer.command.set` permission and the main "`skinsrestorer.command
 
 ¹ = OR when SKINWITHOUTPERM= True
 
-- [!] /sr reload ONLY works for some config options, mysql for example needs a FULL RESTART to apply
+- [!] /sr reload ONLY works for some config options; MySQL, for example, needs a FULL RESTART to apply
 
 #### Admin commands
 
-| Command and aliases             | Description                       | Permissions                               |
-|---------------------------------|-----------------------------------|-------------------------------------------|
-| `/sr`                           | shows the admin command           | `skinsrestorer.admincommand`              |
-| `/sr status`                    | test the Mojang API               | `skinsrestorer.admincommand.status`       |
-| `/sr applyskin <player>`        | re-apply skin of player           | `skinsrestorer.admincommand.applyskin`    |
-| `/sr CreateCustom <name> <url>` | Create custom skin from a url.png | `skinsrestorer.admincommand.createcustom` |
-| `/sr drop <player> skin> <target>` | removes the .skin OR .player file         | `skinsrestorer.admincommand.drop`
-| `/sr props <player>`            | gives the skinprops of the player | `skinsrestorer.admincommand.props`        |
-| `/sr reload`                    | reload config & Locale            | `skinsrestorer.admincommand.reload`       |
+| Command and aliases                | Description                       | Permissions                               |
+|------------------------------------|-----------------------------------|-------------------------------------------|
+| `/sr`                              | shows the admin command           | `skinsrestorer.admincommand`              |
+| `/sr status`                       | test the Mojang API               | `skinsrestorer.admincommand.status`       |
+| `/sr applyskin <player>`           | re-apply skin of player           | `skinsrestorer.admincommand.applyskin`    |
+| `/sr CreateCustom <name> <url>`    | Create custom skin from a url.png | `skinsrestorer.admincommand.createcustom` |
+| `/sr drop <player> skin> <target>` | removes the .skin OR .player file | `skinsrestorer.admincommand.drop`         |
+| `/sr props <player>`               | gives the skinprops of the player | `skinsrestorer.admincommand.props`        |
+| `/sr reload`                       | reload config & Locale            | `skinsrestorer.admincommand.reload`       |
 
 #### Per skin perms
 
@@ -58,13 +64,13 @@ on [CommandReplacements.java](https://github.com/SkinsRestorer/SkinsRestorerX/bl
 - [!] make sure you have the upper-class permission when giving a sub or all when using an additional
   example:
 
-```
+```yml
   - main
     - sub
-      - Addition 
+      - Addition
 ```
 
-```
+```yml
   - skinsrestorer.command
     - skinsrestorer.command.gui
     - skinsrestorer.command.set
@@ -76,7 +82,7 @@ on [CommandReplacements.java](https://github.com/SkinsRestorer/SkinsRestorerX/bl
       - skinsrestorer.command.update.other
 ```
 
-```
+```yml
   - skinsrestorer.admincommand
     - skinsrestorer.admincommand.status
     - skinsrestorer.admincommand.applyskin

@@ -1,10 +1,10 @@
-# SkinsRestorerAPI
-To makes things more easy, we created an example plugin that connects to the coding API that can be found
+# SkinsRestorer API
+To make things easy, we created an example plugin that connects to the coding API that can be found
 here: [[link](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)]
 
 #### When using BungeeCord/Velocity?
 
-If you are using BungeeCord/Velocity you must have a plugin that calls to the API on BungeeCord/Velocity. You would need
+If you are using BungeeCord/Velocity, you must have a plugin that calls to the API on BungeeCord/Velocity. You would need
 to use in/out put channels to send this information across both of your custom plugins.
 
 Getting issues?
@@ -24,7 +24,7 @@ Channel*](https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/)
 
 sr:message is only to "forward" commands from spigot to bungee. This includes cooldown, permissions checks and always
 send feedback to player.
-If you want to run it as console (without checks) you will have to wait for sr:adminchannel
+If you want to run it as a console (without checks), you will have to wait for sr:adminchannel
 
 To proxy:
 | Message (sr:messagechannel +) |
@@ -41,13 +41,13 @@ To bukkit:
 
 ### Sending a message
 
-First you need to register the channel (on startup)
+First, you need to register the channel (on startup)
 
 ```java
 Bukkit.getMessenger().registerOutgoingPluginChannel(this, "sr:messagechannel");
 ```
 
-Example of how we send `/skin set <player> <skin>` over plugin message channel:
+Example of how we send `/skin set <player> <skin>` over a plugin message channel:
 
 ```java
 try {

@@ -1,12 +1,12 @@
 # Configuration
 
 We want SkinsRestorer to be easy to use. That's why there is a little advanced config option.
-the plugin should be able to run without config needed but if you feel like you need it then you are at the right place
+The plugin should be able to run without config needed but if you feel like you need it then you're at the right place
 here.
 
 Here are some little tips:
 
-# Who can change skins?
+## Who can change skins?
 
 With SkinsRestorer, players have the ability to use `/skin <skin>` to change there look. Who should be able to do this?
 
@@ -16,7 +16,7 @@ With SkinsRestorer, players have the ability to use `/skin <skin>` to change the
 
 ### Everyone:
 
-If you wish to allow all your players to change their skin you are not required to change the configuration. Just make sure
+If you wish to allow all your players to change their skin, you aren't required to change the configuration. Just make sure
 that `SkinWithoutPerm` in your SkinsRestorer configuration is set to `true`.
 
 You can go to the [Next Step](#default-skins)
@@ -29,7 +29,7 @@ Step **1**: go to SkinsRestorer config.yml and set `SkinWithoutPerm: false`
 
 Step **2**: Give the desired rank the permissions:
 
-**[!]** IF you are using BungeeCord/Velocity, set permissions on BungeeCord/Velocity side **[!]**
+**[!]** If you're using BungeeCord/Velocity, set permissions on BungeeCord/Velocity side **[!]**
 
 To start off, you need to give the players the main command permission **skinsrestorer.command**, this is to perform
 /skin.
@@ -48,12 +48,12 @@ see [[cmds & perms](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/cmds-&-
 
 Step **3**: Restart your server (if BungeeCord, restart BungeeCord only)
 
-That's it! When adding players to the special rank they should be able to perform those commands. You can now go to
+That's it! When adding players to the special rank, they should be able to perform those commands. You can now go to
 the [Next Step](#default-skins)
 
 ### No one
 
-If you don't want your players to be able to perform commands you can simply disable the permissions on default:
+If you don't want your players to be able to perform commands, you can simply disable the permissions on default:
 
 go to SkinsRestorer config.yml and set `SkinWithoutPerm: false`
 
@@ -61,9 +61,10 @@ Now make sure to **restart your server **
 
 That's it! You can now go to the [Next Step](#default-skins)
 
-# Default skins
+## Default skins
 
-Do You hate it when your server fill's up with Steve / Alex skins? or do you want all your players to have the same skin?
+Do You hate it when your server fill's up with Steve / Alex skins?
+Or do you want all your players to have the same skin?
 
 [ [No Defaultskins](#dont-want-default-defined-skins) / [Only when no skin](#only-when-they-have-no-skin) / [Everyone](#all-players)]
 
@@ -80,7 +81,7 @@ following steps:
 
 Step **1**: go to SkinsRestorer config.yml and set the following configuration:
 
-```
+```yml
 DefaultSkins:
   Enabled: true
   ApplyForPremium: false
@@ -90,7 +91,7 @@ Step **2**: Define the default skins. You can set multiple default skins, sadly 
 not work (is worked on). The default skins will be given out randomly if you did fill in more than 1 skin. you can do this
 as followed:
 
-```
+```yml
 DefaultSkins:
   Enabled: true
   ApplyForPremium: false
@@ -108,7 +109,7 @@ Step **3**: Save the config & restart your server.
 
 Step **1**: go to SkinsRestorer config.yml and set the following configuration:
 
-```
+```yml
 DefaultSkins:
   Enabled: true
   ApplyForPremium: true
@@ -118,7 +119,7 @@ Step **2**: Define the default skins. You can set multiple default skins, sadly 
 not work (is worked on). The default skins will be given out randomly if you did fill in more than 1 skin. you can do this
 as followed:
 
-```
+```yml
 DefaultSkins:
   Enabled: true
   ApplyForPremium: true
@@ -130,7 +131,7 @@ DefaultSkins:
 
 Step **3**: Save the config & restart your server.
 
-# Which skin can players set?
+## Which skin can players set?
 
 [ [Custom skins](#custom-skins) / [All skins](#all-skins) / [Disallow some skins](#disallow-some-skins) / [Only there own skin](#only-their-own-skin) / [NO SKIN](#NO-SKIN) ]
 
@@ -185,11 +186,9 @@ wip PerSkinPermissions: true & skinsrestorer.ownskin
 
 SkinWithoutPerm: false
 
+---
 
-***
-
-
-In this Module we will show you the basics of using SkinsRestorer in your server, we will talk about the different
+In this Module we will show you the basics of using SkinsRestorer in your server. We will talk about the different
 futures SkinsRestorer can provide for your server.
 
 1. Configure the `/plugins/SkinsRestorer/config.yml` file the way you like.
@@ -215,11 +214,11 @@ DisabledSkins:
   - mclive
 ```
 
-# Admin guide
+## Admin guide
 
-## apply skin to all
+### Apply skin to all
 
-Here are some steps you can use for event's where you want to apply the skin to all users at once as well as for future players joining.
+Here are some steps you can use for events where you want to apply the skin to all users at once as well as for future players joining.
 
 **Preparations:**
 
@@ -253,7 +252,7 @@ This is tso the skin won't check for update
 6. change the skin of all online players:
 - run `sr setskinall <skin>` from **console**
 
------------------
+---
 
 ## Default Config
 

@@ -1,3 +1,5 @@
+import { Callout } from 'nextra-theme-docs'
+
 # Troubleshooting
 
 ## Basic Troubleshoot
@@ -10,25 +12,25 @@
 
 1. Check
    the [Basic Installation](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer#basic-installation)
-   steps and see if they are the same for your server
+   steps and see if they're the same for your server
 
 2. Remove your ./plugins/SkinsRestorer/plugin.yml & Messages.yml files
 
 3. Update the plugin if needed! [(SpigotMC)](https://spigotmc.org/resources/2124/)
 
-3. restart the server and see if this resolved your issue
+4. Restart the server and see if this resolved your issue
 
-- [#] still having issues?
-  If you are a Basic server owner you can ask for support on our: [Discord](https://skinsrestorer.net/discord) or
-  on [Our spigot](https://www.spigotmc.org/threads/37225/)
-  For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can trouble
-  shoot
+<Callout type="info" emoji="ℹ️">
+    Still having issues?
+    If you are a Basic server owner, you can ask for support on our [Discord](https://skinsrestorer.net/discord).
+    For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can troubleshoot.
+</Callout>
 
 ### Basic Bungee Troubleshooting
 
 1. Check
    the [Basic Installation](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Installing-SkinsRestorer#installing-Bungee)
-   steps and see if they are the same for your server
+   steps and see if they're the same for your server
 
 2. IF you *did configure spigot* than *remove the SkinsRestorer config.yml*
    [SkinsRestorer should never make a config on spigot, if it does your spigot is not set to bungee mode!!]
@@ -37,24 +39,24 @@
 
 4. restart the server and see if this resolved your issue
 
-- [#] still having issues?
-  If you are a Basic server owner you can ask for support on our: [Discord](https://skinsrestorer.net/discord) or
-  on [Our spigot](https://www.spigotmc.org/threads/37225/)
-  For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can trouble
-  shoot
+<Callout type="info" emoji="ℹ️">
+    Still having issues?
+    If you are a Basic server owner, you can ask for support on our [Discord](https://skinsrestorer.net/discord).
+    For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can troubleshoot.
+</Callout>
 
 ## Advanced Troubleshoot
 
 ### Commands not working
 
-If commands are not working, you need to make sure that you did follow our specific installation instructions. if it
-still does not work, try removing the config and messages and restart your bungee and if not bungee your spigot server.
-for perms check our permissions section.
+If commands aren't working, you need to make sure that you did follow our specific installation instructions. If it
+still doesn't work, try removing the config and messages and restart your bungee and if not bungee your spigot server.
+For perms check our permission section.
 
 ### Plugin incompatibility
 
-Some not well coded plugins or plugins that modify the user profile might not work well with SkinsRestorer.
-You can see this when you for example change a skin, and you see the chunks reload but your skin just won't apply...
+Some not well-coded plugins or plugins that modify the user profile mightn't work well with SkinsRestorer.
+You can see this when you, for example, change a skin, and you see the chunks reload but your skin just won't apply...
 
 *List of known incompatibility's:*
 
@@ -64,18 +66,18 @@ You can see this when you for example change a skin, and you see the chunks relo
 - plugins that use ProtocoLib
 
 To figure out IF it's a plugin incompatibility the best thing to do is running your server with SkinsRestorer as the only plugin
-and see if it than works. if so you can try adding plugins and check each time if the plugin still works. this way you
+and see if it then works.
+If so, you can try adding plugins and check each time if the plugin still works.
+This way you
 can identify the plugin that might cause this.
 
 ### Server Incompatibility
 
-We do not support forge, only CatServer some times..
+We don't support forge, only CatServer some times..
 
-we also don't support FlameCord as they change the loginresult.Property somehow and the sourcecode can not be found.
+we also don't support FlameCord as they change the loginresult.Property somehow and the sourcecode can't be found.
 
 # Connection
-
-import { Callout } from 'nextra-theme-docs'
 
 *SkinsRestorer needs connection to download skin data, you can test your current connection using `/sr status`*
 
@@ -99,13 +101,13 @@ Please select System:
 
 ## Resolve MC Provider Firewall
 
-When you only have access to a panel like multicraft or cpanel, you are not able to change firewall settings.
+When you only have access to a panel like multicraft or cpanel, you aren't able to change firewall settings.
 
 IF you do have access to ssh / root command line, go to -> [Dedi server](#resolve-dedi-server-firewall)
 
 Use Below template to create a ticket / send @ to your Minecraft hosting provider
 
-```
+```text
 Firewall issues - this is a email template copied from github:SkinsRestorer/SkinsRestorerX
 
 Dear Mc-Service provider,
@@ -140,7 +142,7 @@ Or you can see [Firewall pass through requirements](#firewall-pass-through-requi
 #### Firewall pass through requirements
 
 > All the required rules are **outgoing**, the only incoming traffic that should be accepted is the one from already
-> established connections. Your server must be able to connect to the other networks. SkinsRestorer does **not** require
+> established connections. Your server must be able to connect to the other networks. SkinsRestorer doesn't** require
 > any incoming traffic from new connections to be accepted.
 
 | Address                           | protocol | port(s)     | Reason                                                                   |

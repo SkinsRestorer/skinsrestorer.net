@@ -4,18 +4,18 @@
 
 SkinsRestorer uses .skin files to keep a cached version of the skin on your server.
 It contains the same data that Mojang would send to your server when you are in online mode.
-We cache the information in a file for you, so we need to make less requests to Mojangs' API and can allow skins even
-when Mojangs' servers are down.
+We cache the information in a file for you, so we need to make fewer requests to the Mojang API and can allow skins even
+when Mojang servers are down.
 
 ## The .skin file format
 
-The skin file uses a very simple format to store skin data. Here is an example:
+The skin file uses a basic format to store skin data. Here is an example:
 
 ```
 ewogICJ0aW1lc3RhbXAiIDogMTYzMzE2MDU3NDA3MCwKICAicHJvZmlsZUlkIiA6ICJiMWFlMDc3ODQ4MTc0MzZjOTZhM2E3MmM2N2NkYTA2MCIsCiAgInByb2ZpbGVOYW1lIiA6ICJQaXN0b25tYXN0ZXIiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjAxNWM4NGZkZWEwYjkxMTIzMmU5NGQ3MGU1ZjFmMzZmZWVhYmUzOTY2YTA5NmEyZTFkZDlmOGIzZDVkNTI5NSIKICAgIH0sCiAgICAiQ0FQRSIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjM0MGMwZTAzZGQyNGExMWIxNWE4YjMzYzJhN2U5ZTMyYWJiMjA1MWIyNDgxZDBiYTdkZWZkNjM1Y2E3YTkzMyIKICAgIH0KICB9Cn0=
 HH2edZrmWLesrC3CJtNdMnOpG23Mhq5NIKmLPJiDbmszlWhx7OevJlhZtfidQu44vvb97BapgLDH7Ei3y68984UMQ6z9F6KeYFfTifMYUUYKCZoEIV14vKNd3NGBfnojo1tc49SB71BJB52Ob6r70mZtFdm21Pf4YQtfzmpRzhjs4EvXCtk3HWIIROvYh3wX2V47aYqMhZKG7gfET8aQtMQRUZTanyCb5j6mDDHCruTe2pz6ITd54cE/tee3WNSy4egEFAGGP3b2FqSzb4zVKrxKynUknIJz/cCmcM8N5OluZ5nwqx3YQcyhOxl4P3bDhl95PZgdito0GBvRRwPbIUx9yauPjrflRjaXw29g7hqzBheXYAT2GpuaGZE5TogHqg1Cqm1mtC11QDC22tJSuFe8MqiOpkG1s59oikL8W50w9mNnw0Zne0Vk3Y899yiUYN/RysVC5Kly3RIBC1ZbOAYCy/uliHUIf/4MeI0r8gF+YdkV4uDEXmHKEmduDeTwqgV5hXmzbrU4UG+3aArnLScrsEIblvZgF7JfCz9nIaWRZqKK+59RsktCuTejtDJukL8OhkdhBv2srDYFl3UdtNuNVpIrHk/Pf0y+TZ3xmnkipiupP4IBMz8d181ZPzWam1a6NtX2P+Tpja/u6CuyEAxJ4e0A1gGYbCSdqDqzb4E=
 1633160574367
-``` 
+```
 
 1. `skin data/value` → Holds links to the Mojang texture servers for the client to download. Is stored in base64. Read
    more in the section below.
@@ -26,7 +26,7 @@ HH2edZrmWLesrC3CJtNdMnOpG23Mhq5NIKmLPJiDbmszlWhx7OevJlhZtfidQu44vvb97BapgLDH7Ei3
 ## How to decode skin data
 
 The output of the Mojang session server is encoded in Base64.
-You can use a base64 decoder on the skin data for the information about the skin:
+You can use a base64 decoder on the skin data for information about the skin:
 [[https://www.base64decode.org/live](https://www.base64decode.org/live)]
 
 The output should look like this:
@@ -46,8 +46,8 @@ Mojang:
 
 - https://api.mojang.com/users/profiles/minecraft/(playerName)
 
-after we gain the uuid we can use it to request a signed skin:
+After we gain the unique id we can use it to request a signed skin:
 
 Mojang:
 
-- https://sessionserver.mojang.com/session/minecraft/profile/(UUID)?unsigned=false
+- https://sessionserver.mojang.com/session/minecraft/profile/(uuid)?unsigned=false

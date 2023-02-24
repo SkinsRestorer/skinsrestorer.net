@@ -19,15 +19,15 @@ export const getStaticProps = ({ params }) => {
       revalidate: 60
     }))
 }
- 
+
 export const LatestRelease = () => {
   const {latest} = useSSG()
   console.log(latest)
-  return <Card title={latest.name} href={latest.url}>
+  return <zCard title={latest.name} href={latest.url}>
     <>
     <div>{latest.tag_name}</div>
     </>
-  </Card>
+  </zCard>
 }
 
 # SkinsRestorer
