@@ -23,7 +23,11 @@ export const getStaticProps = ({ params }) => {
 export const LatestRelease = () => {
   const {latest} = useSSG()
   console.log(latest)
-  return <Card title={latest.name} href={latest.url}><></></Card>
+  return <Card title={latest.name} href={latest.url}>
+    <>
+    <div>{latest.tag_name}</div>
+    </>
+  </Card>
 }
 
 # SkinsRestorer
