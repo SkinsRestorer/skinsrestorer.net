@@ -1,36 +1,68 @@
-import { useSSG } from 'nextra/ssg'
-import { Card } from 'nextra-theme-docs'
+---
+title: SkinsRestorer
+---
 
-export const getStaticProps = ({ params }) => {
-  return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorerX/releases/latest`)
-    .then(res => res.json())
-    .then(release => ({
-      props: {
-        ssg: {
-          latest: {
-            url: release.html_url,
-            name: release.name,
-            tag: release.tag_name,
-            download: release.assets[0].browser_download_url
-          }
-        }
-      },
-      // The page will be considered as stale and regenerated every 60 seconds.
-      revalidate: 60
-    }))
+
+import {useSSG} from 'nextra/ssg';
+
+export const getStaticProps = ({params}) => {
+    return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorerX/releases/latest`)
+        .then(res => res.json())
+        .then(release => ({
+            props: {
+                ssg: {
+                    latest: {
+                        url: release.html_url,
+                        name: release.name,
+                        tag: release.tag_name,
+                        download: release.assets[0].browser_download_url
+                    }
+                }
+            },
+            // The page will be considered as stale and regenerated every 60 seconds.
+            revalidate: 60
+        }))
 }
 
 export const LatestRelease = () => {
-  const {latest} = useSSG()
-  console.log(latest)
-  return <zCard title={latest.name} href={latest.url}>
-    <>
-    <div>{latest.tag_name}</div>
-    </>
-  </zCard>
+    const {latest} = useSSG()
+    console.log(latest)
+    return (
+        <div>
+            <div className="nextra-card mt-4  p-4 group flex flex-col justify-start overflow-hidden rounded-lg border border-gray-200 text-current no-underline dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900">
+                <div className="flex flex-row gap-1">
+                    <a
+                        href={latest.url}
+                        className="flex font-semibold items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{latest.name}</a>
+                    <span
+                        className="rounded-full border w-fit px-1 nx-text-xs border-green-400 text-green-400 my-auto justify-center">Latest Release</span>
+                    <span
+                        className="rounded-full border w-fit px-1 nx-text-xs border-gray-400 text-gray-400 my-auto justify-center">{latest.tag}</span>
+                </div>
+                <div className="flex flex-row gap-1">
+                    <a
+                        href={latest.download}
+                        className="flex font-semibold items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50
+                        border border-gray-200 dark:border-neutral-800 rounded-md px-2 py-1 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:hover:bg-neutral-800
+                        transition duration-150 ease-in-out
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                        active:bg-gray-100 dark:active:bg-neutral-800
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                        ">Download</a>
+                </div>
+            </div>
+        </div>
+    )
 }
 
-# SkinsRestorer
-SkinsRestorer is a Minecraft plugin that allows the modification of ingame skins. That also allows the restoring of skins on offline mode servers.
-
-<LatestRelease/>
+<article
+    className="w-full overflow-x-hidden break-words nextra-content flex min-h-[calc(100vh-var(--nextra-navbar-height))] min-w-0 justify-center pb-8 pr-[calc(env(safe-area-inset-right)-1.5rem)]">
+    <main className="w-full min-w-0 max-w-6xl px-6 pt-4 md:px-12">
+        <div className="mx-auto container">
+            <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">SkinsRestorer</h1>
+            <p className="mt-6 leading-7 first:mt-0">SkinsRestorer is a Minecraft plugin that allows the
+                modification of ingame skins. That also allows the restoring of skins on offline mode servers.</p>
+            <LatestRelease/>
+        </div>
+    </main>
+</article>

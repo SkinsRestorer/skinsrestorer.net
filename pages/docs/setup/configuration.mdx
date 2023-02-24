@@ -235,8 +235,8 @@ This is tso the skin won't check for update
 
 3. backup player files (if you wish to rollback skins after event is over)
 - Check if your using skinsrestorer with or without mysql in skinsrestorer config -> mysql.enabled
-  - with mysql: make a copy of the players table (plugins/skinsrestorer/players/)
-  - without mysql: copy the players folder
+- with mysql: make a copy of the players table (plugins/skinsrestorer/players/)
+- without mysql: copy the players folder
 
 4. if you want newly joining players to have the "event" skin:
 - Enable SkinsRestorer Defaultskins option for all players and use the generated event skin (see [Everyone](#all-players)).
@@ -246,8 +246,8 @@ This is tso the skin won't check for update
 - Perform all steps from "STEP 4" above
 - make sure & validate that you did "STEP 3" by backing up your player's selected skin
 - Check if your using skinsrestorer with or without mysql in skinsrestorer config -> mysql.enabled
-  - with mysql: clear the skin row of the player table
-  - without mysql: empty player folder in (plugins/skinsrestorer/players/) [**Make sure to not remove the folder**]
+- with mysql: clear the skin row of the player table
+- without mysql: empty player folder in (plugins/skinsrestorer/players/) [**Make sure to not remove the folder**]
 
 6. change the skin of all online players:
 - run `sr setskinall <skin>` from **console**
