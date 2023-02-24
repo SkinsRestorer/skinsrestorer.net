@@ -8,11 +8,11 @@ to use in/out put channels to send this information across both of your custom p
 
 Getting issues?
 
-* make sure to import the `net.skinsrestorer.api.SkinsRestorerAPI` & `net.skinsrestorer.api.PlayerWrapper` in your
+* Make sure to import the `net.skinsrestorer.api.SkinsRestorerAPI` & `net.skinsrestorer.api.PlayerWrapper` in your
   code (see example code)
-* make sure to get the API using `skinsRestorerAPI = SkinsRestorerAPI.getApi()`  and define by
+* Make sure to get the API using `skinsRestorerAPI = SkinsRestorerAPI.getApi()`  and define by
   adding `private SkinsRestorerAPI skinsRestorerAPI;` at the start of your class.
-* if you don't know that the issue is causing, include a try catch, so you can print our exceptions using e.print... etc
+* If you don't know that the issue is causing, include a try catch, so you can print our exceptions using e.print... etc
 
 # Using Plugin Message Channel
 
@@ -25,14 +25,14 @@ sr:message is only to "forward" commands from spigot to bungee. This includes co
 send feedback to player.
 If you want to run it as console (without checks) you will have to wait for sr:adminchannel
 
-to bungee:
+To proxy:
 | Message (sr:messagechannel +) |
 |:-----------------------------:|
 | setSkin p skin/url |
 | clearSkin p |
 | getSkins page |
 
-to bukkit:
+To bukkit:
 | Message |
 |:---------------------------------------------:|
 | sr:messagechannel OPENGUI p |
@@ -40,25 +40,25 @@ to bukkit:
 
 ### Sending a message
 
-wip
+First you need to register the channel (on startup)
 
-first you need to register the channel (on startup)
-`Bukkit.getMessenger().registerOutgoingPluginChannel(this, "sr:messagechannel");`
+ˋˋˋjava
+Bukkit.getMessenger().registerOutgoingPluginChannel(this, "sr:messagechannel");
+ˋˋ`
 
-example of how we send `/skin set <player> <skin>` over plugin message channel:
+Example of how we send `/skin set <player> <skin>` over plugin message channel:
 
 ```java
-        try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            DataOutputStream out = new DataOutputStream(bytes);
+try {
+  ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+  DataOutputStream out = new DataOutputStream(bytes);
 
-            out.writeUTF("setSkin");
-            out.writeUTF(p.getName());
-            out.writeUTF(skin);
+  out.writeUTF("setSkin");
+  out.writeUTF(p.getName());
+  out.writeUTF(skin);
 
-            p.sendPluginMessage(this, "sr:messagechannel", bytes.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+  p.sendPluginMessage(this, "sr:messagechannel", bytes.toByteArray());
+} catch (IOException e) {
+  e.printStackTrace();
+}
 ```
