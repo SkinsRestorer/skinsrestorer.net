@@ -79,7 +79,7 @@ We don't support forge, only CatServer some times..
 
 we also don't support FlameCord as they change the loginresult.Property somehow and the sourcecode can't be found.
 
-# Connection
+## Connection
 
 *SkinsRestorer needs connection to download skin data, you can test your current connection using `/sr status`*
 
@@ -91,17 +91,13 @@ How are you hosting your server?
 [ [Local](#resolve-local-firewall) / [Minecraft server hosting (panel)](#resolve-mc-provider-firewall) / [VPS & Dedicated server hosting (root access)](#resolve-dedi-server-firewall) ]
 ***
 
-## Resolve Local Firewall
+### Resolve Local Firewall
 
-Please select System:
+#### Resolve Local Firewall Linux
 
-[ [Linux](#resolve-local-firewall-linux) / [Windows](#resolve-local-firewall-windows) ]
+#### Resolve Local Firewall Windows
 
-### Resolve Local Firewall Linux
-
-### Resolve Local Firewall Windows
-
-## Resolve MC Provider Firewall
+### Resolve MC Provider Firewall
 
 When you only have access to a panel like multicraft or cpanel, you aren't able to change firewall settings.
 
@@ -126,7 +122,7 @@ Email - support@skinsrestorer.net
 Kind regards.
 ```
 
-## Resolve dedi server Firewall
+### Resolve dedicated server Firewall
 
 The following script should allow new and established connections.
 
@@ -141,7 +137,7 @@ sudo /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 Or you can see [Firewall pass through requirements](#firewall-pass-through-requirements) to manually allow api.
 
-#### Firewall pass through requirements
+### Firewall pass through requirements
 
 > All the required rules are **outgoing**, the only incoming traffic that should be accepted is the one from already
 > established connections. Your server must be able to connect to the other networks. SkinsRestorer doesn't** require

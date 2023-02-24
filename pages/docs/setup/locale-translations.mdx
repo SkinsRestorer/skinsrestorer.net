@@ -1,7 +1,6 @@
-# Locale and Translations
-
-
 import {Callout} from 'nextra-theme-docs'
+
+# Locale and Translations
 
 <Callout type="warning" emoji="⚠️">
     If you are using a Proxy (BungeeCord/Velocity), you must configure locale files on the proxy.
@@ -25,9 +24,9 @@ If a language is missing, you can contact support on our discord.
 
 You can download updated translations from our Dev branch here: [[link]](https://github.com/SkinsRestorer/SkinsRestorerX/tree/dev/shared/src/main/resources/languages)
 
-# Select language
+## Select language
 
-## Language codes
+### Language codes
 
 | Language (translated)               | Language            | config value | file name                                                                                                                                           |
 |-------------------------------------|---------------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -66,13 +65,12 @@ You can download updated translations from our Dev branch here: [[link]](https:/
 
 ## Change fallback language
 
-
-# Customization info
+## Customization info
 
 If you do not like the default translations, you can customize it to your own liking.
 In this section, you can find an overview of how to locate and info on when which locale is triggered.
 
-## help messages
+### Help mMssages
 
 In this section we will explain how you can change the help messages.
 
@@ -130,7 +128,7 @@ acf-core.help_detailed_parameter_format=<c2>{name}</c2>: <c3>{description}</c3>
 acf-core.help_search_header=&3[&2&lSkinsRestorer&r&3] &7- &bCommands matching <c2>{commandprefix}{command} {search}</c2>
 ```
 
-## permissions messages
+### Permissions messages
 
 ```.properties
 skinsrestorer.player_has_no_permission_skin={prefix} &4Error&8: &cYou don't have permission to set this skin.
@@ -144,7 +142,7 @@ acf-core.permission_denied=&3[&2&lSkinsRestorer&r&3] &cI'm sorry, but you do not
 
 ```
 
-## Success messages
+### Success messages
 
 SkinsRestorer has different Success messages when using different commands
 
@@ -166,7 +164,7 @@ Admin:
 | `/sr drop <player>`       | %data data dropped for %target   | `SKIN_DATA_DROPPED`           |
 | `/sr set <player> <skin>` | you set %player skin             | `ADMIN_SET_SKIN`              |
 
-## other useful messages
+### Other useful messages
 
 ```properties
 skinsrestorer.not_premium={prefix} &4Error&8: &cPremium player with that name does not exist.
@@ -176,7 +174,7 @@ skinsrestorer.wait_a_minute={prefix} &4Error&8: &cPlease wait a minute before re
 skinsrestorer.generic_error={prefix} &4Error&8: &cAn error occurred while requesting skin data, please try again later!
 ```
 
-## ERROR messages
+### ERROR messages
 
 In this section we list an overview of the error messages.
 
@@ -195,7 +193,7 @@ In this section we list an overview of the error messages.
 |     `NO_SKIN_DATA`      | When no skin data could be acquired                                  |                                         |
 
 
-## Prefix
+### Prefix
 
 The prefix (`messages.yml` `PREFIX`) is turned on by default. And can be disabled in SkinsRestorer folder `Config.yml`
 -> `DisablePrefix: false`
@@ -204,7 +202,7 @@ The default value is `&e[&2SkinsRestorer&e] `
 Keep in mind how it ends with a __white space__ "` `" at the end. Depending on your punctuation preferences you can
 change this also.
 
-## skins (gui)
+### SkinsGUI
 
 Some lines for the skins' menu can be found in the `messages.yml`.
 Below is a list with those lines:
