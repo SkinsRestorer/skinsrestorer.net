@@ -27,7 +27,7 @@
 
 2. Remove your ./plugins/SkinsRestorer/plugin.yml & Messages.yml files
 
-3. Update the plugin if needed! [<Spigot>](https://spigotmc.org/resources/2124/)
+3. Update the plugin if needed! [(SpigotMC)](https://spigotmc.org/resources/2124/)
 
 3. restart the server and see if this resolved your issue
 
@@ -46,7 +46,7 @@
 2. IF you *did configure spigot* than *remove the SkinsRestorer config.yml*
    [SkinsRestorer should never make a config on spigot, if it does your spigot is not set to bungee mode!!]
 
-3. Update the plugin if needed on bungee [<Spigot>](https://spigotmc.org/resources/skinsrestorer.2124/)
+3. Update the plugin if needed on bungee [(SpigotMC)](https://spigotmc.org/resources/skinsrestorer.2124/)
 
 4. restart the server and see if this resolved your issue
 
@@ -88,9 +88,13 @@ we also don't support FlameCord as they change the loginresult.Property somehow 
 
 # Connection
 
+import { Callout } from 'nextra-theme-docs'
+
 *SkinsRestorer needs connection to download skin data, you can test your current connection using `/sr status`*
 
-[WARNING] WARNING ABOUT api.github.com? can be ignored for now! [WARNING]
+<Callout type="warning" emoji="⚠️">
+  WARNING ABOUT api.github.com? can be ignored for now!
+</Callout>
 
 How are you hosting your server?
 [ [Local](#resolve-local-firewall) / [Minecraft server hosting (panel)](#resolve-mc-provider-firewall) / [VPS & Dedicated server hosting (root access)](#resolve-dedi-server-firewall) ]
