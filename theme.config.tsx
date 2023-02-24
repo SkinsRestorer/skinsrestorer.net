@@ -4,7 +4,7 @@ import {useRouter} from "next/router";
 
 const description = "SkinsRestorer is a Minecraft plugin that allows the modification of ingame skins. That also allows the restoring of skins on offline mode servers."
 const config: DocsThemeConfig = {
-    docsRepositoryBase: "https://github.com/SkinsRestorer/skinsrestorer.net/tree/main/pages",
+    docsRepositoryBase: "https://github.com/SkinsRestorer/skinsrestorer.net/tree/main",
     useNextSeoProps() {
         const { asPath } = useRouter()
         if (asPath !== '/') {
