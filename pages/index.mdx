@@ -1,3 +1,32 @@
+import { useSSG } from 'nextra/ssg'
+import { Card } from 'nextra-theme-docs'
+
+export const getStaticProps = ({ params }) => {
+  return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorerX/releases/latest`)
+    .then(res => res.json())
+    .then(release => ({
+      props: {
+        ssg: {
+          latest: {
+            url: release.html_url,
+            name: release.name,
+            tag: release.tag_name,
+            download: release.assets[0].browser_download_url
+          }
+        }
+      },
+      // The page will be considered as stale and regenerated every 60 seconds.
+      revalidate: 60
+    }))
+}
+ 
+export const LatestRelease = () => {
+  const {latest} = useSSG()
+  console.log(latest)
+  return <Card title={latest.name} href={latest.url}><></></Card>
+}
+
 # SkinsRestorer
 SkinsRestorer is a Minecraft plugin that allows the modification of ingame skins. That also allows the restoring of skins on offline mode servers.
 
+<LatestRelease/>
