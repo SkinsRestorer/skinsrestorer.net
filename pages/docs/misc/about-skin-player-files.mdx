@@ -31,7 +31,7 @@ The output should look like this:
 `{"timestamp":1552224010185,"profileId":"069a79f444e94726a5befca90e38aaf5","profileName":"Notch","signatureRequired":true,"textures":{"SKIN":{"url":"http://textures.minecraft.net/texture/292009a4925b58f02c77dadc3ecef07ea4c7472f64e0fdc32ce5522489362680"}}}`
 
 1. `timestamp` → shows the date in epoch time [see https://www.epochconverter.com/]
-2. `profileId` → The unique player Mojang uuid [see https://api.mojang.com/user/profiles/_**<ID>**_/names]
+2. `profileId` → The unique player Mojang uuid [see https://api.mojang.com/user/profiles/(id)/names]
 3. `profileName` → shows the player name (does not have to match the .skin name)
 4. `signatureRequired` → this **MUST** be true (as we need signed ones.)
 5. `url` → the skin data
@@ -42,10 +42,10 @@ We use multiple APIs to request the skin. Before we can request the skin, we nee
 
 Mojang:
 
-- https://api.mojang.com/users/profiles/minecraft/**<playerName>**
+- https://api.mojang.com/users/profiles/minecraft/(playerName)
 
 after we gain the uuid we can use it to request a signed skin:
 
 Mojang:
 
-- https://sessionserver.mojang.com/session/minecraft/profile/**<UUID>**?unsigned=false
+- https://sessionserver.mojang.com/session/minecraft/profile/(UUID)?unsigned=false
