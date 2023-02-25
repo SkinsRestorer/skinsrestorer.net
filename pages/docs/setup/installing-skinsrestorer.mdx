@@ -1,4 +1,4 @@
-import {Callout, Tab, Tabs} from "nextra-theme-docs";
+import {Callout, Steps, Tab, Tabs} from "nextra-theme-docs";
 
 # Installing SkinsRestorer
 
@@ -23,61 +23,119 @@ support [[check overview](https://github.com/SkinsRestorer/SkinsRestorerX/blob/m
 
 ## Basic Installation
 
-In this section, you can read how to set up our plugin SkinsRestorer your for Spigot server, BungeeCord network or even
-for Sponge server!
+In this section, you can read how to set up our plugin SkinsRestorer your for Minecraft Server/Network!
+Select your server type below to get started.
 
 <Tabs items={['Spigot', 'BungeeCord', 'Sponge', 'Velocity']}>
     <Tab>
         <Callout type="info" emoji="ℹ️">
-            If you're using BungeeCord/Velocity (or any other proxy system), you must follow the
-            [BungeeCord](#installing-Bungee) installation process.
+            If you're using BungeeCord/Velocity (or any other proxy system), you must install the plugin on your proxy as well!
         </Callout>
 
-        1. Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
-        2. Place the SkinsRestorer.jar in the ./plugins/ folder.
-        3. Restart the server. (Only use `/restart` or `/stop` Do NOT use `/reload`, As `/reload` will break
-        SR!)[Plugman is also not supported]
-        4. That's it! Our plugin should now show in /plugins folder
+        <Steps>
+            ### Download the plugin
+            Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
 
-        - [#] For information to set up / Configure the
-        plugin: [[Config Guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Configuration#config-guide)]
-    </Tab>
-    <Tab>
-        1. Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
-        2. Place the SkinsRestorer.jar in ./plugins/ folders of **every spigot** server.
-        3. Place the SkinsRestorer.jar in ./plugins/ folder of every **BungeeCord** server.
-        4. Check & set on **every backend** server (spigot/paper) `spigot.yml` -> `bungeecord: true`
-        5. (OPTIONAL) set in __bungee__ -> config.yml -> `ip_forward: true`
-        6. Restart (`/restart` or `/stop`) all servers
-        [Plugman or /reload are NOT supported, use /stop or /end]
-        7. BungeeCord now has SkinsRestorer installed with the integration of Spigot
-        8. You may now **Configure SkinsRestorer on Bungee** (BungeeCord plugins folder `/plugins/SkinsRestorer`)
+            ### Put it in the plugins folder
+            Place the `SkinsRestorer.jar` file in the ./plugins/ folder.
 
-        - [#] For information to set up / Configure the plugin using
-        Bungee: [[Config Guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Configuration#config-guide)]
+            ### Restart your server
+            Restart the server. (Only use `/restart` or `/stop` Do NOT use `/reload`, As `/reload` will break
+            SR!)[Plugman is also not supported]
+
+            ### Configure the plugin
+            You may now [configure SkinsRestorer](/setup/configuration#config-guide)
+
+            ### That's it!
+            Our plugin should now show via `/plugins`
+        </Steps>
     </Tab>
     <Tab>
-        1. Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
-        2. Place the plugin in ./mods/ folder (where Sponge is located).
-        3. Restart the server.
-        4. That's it!
+        <Callout type="info" emoji="ℹ️">
+            The plugin only works properly when you also install it on your backend (Spigot/Sponge) servers!
+        </Callout>
+
+        <Steps>
+            ### Download the plugin
+            Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
+
+            ### Put it in the BungeeCord folder
+            Place the `SkinsRestorer.jar` in the ./plugins/ folder of every **BungeeCord** server.
+
+            ### Put it into every Spigot folder
+            Place the `SkinsRestorer.jar` in the ./plugins/ folders of **every spigot** server.
+
+            ### Prepare your backend servers
+            Make sure you have the same `config.yml` file on every server. (You can use the same file on every server)
+            Also check & set on **every backend** server (spigot/paper) `spigot.yml` -> `bungeecord: true`
+
+            ### Set up your BungeeCord
+            (OPTIONAL) Set in __bungee__ -> config.yml -> `ip_forward: true`
+
+            ### Restart your servers
+            Restart (`/restart` or `/stop`) all servers [Plugman or /reload are NOT supported, use /stop or /end]
+
+            ### Configure the plugin
+            You may now [configure SkinsRestorer](/setup/configuration#config-guide) on the BungeeCord server.
+
+            ### That's it!
+            Our plugin should now work on your network!
+        </Steps>
     </Tab>
     <Tab>
+        <Callout type="info" emoji="ℹ️">
+            If you're using BungeeCord/Velocity (or any other proxy system), you must install the plugin on your proxy as well!
+        </Callout>
+
+        <Steps>
+            ### Download the plugin
+            Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
+
+            ### Put it in the plugins folder
+            Place the `SkinsRestorer.jar` file in the ./mods/ folder.
+
+            ### Restart your server
+            Restart the server. (Only use `/restart` or `/stop` Do NOT use `/reload`)
+
+            ### Configure the plugin
+            You may now [configure SkinsRestorer](/setup/configuration#config-guide)
+
+            ### That's it!
+            Our plugin should now show at `/sponge plugins list`
+        </Steps>
+    </Tab>
+    <Tab>
+        <Callout type="info" emoji="ℹ️">
+            The plugin only works properly when you also install it on your backend (Spigot/Sponge) servers!
+        </Callout>
+
         <Callout type="info" emoji="ℹ️">
             **Paper is suggested for velocity**
         </Callout>
 
-        1. Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
-        2. Place the SkinsRestorer.jar in ./plugins/ folders of every Paper server.
-        3. Place the SkinsRestorer.jar in ./plugins/ folder of every Velocity server.
-        4. Check & set on every backend server (paper) paper.yml -> velocity-support: enabled: true
-        5. Restart (/restart or /stop) all servers [Plugman or /reload are NOT supported, use /stop or /end]
-        6. You may now Configure SkinsRestorer on Velocity (Velocity plugins folder /plugins/SkinsRestorer)
+        <Steps>
+            ### Download the plugin
+            Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
 
-        (if you're not using paper, use Proxy mode override file. Ask us on discord)
+            ### Put it in the Velocity folder
+            Place the `SkinsRestorer.jar` in the ./plugins/ folder of every **BungeeCord** server.
 
-        - [#] For information to set up / Configure the plugin using
-        Bungee: [[Config Guide](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Configuration#config-guide)]
+            ### Put it into every Spigot folder
+            Place the `SkinsRestorer.jar` in the ./plugins/ folders of **every spigot** server.
+
+            ### Prepare your backend servers
+            Make sure you have the same `config.yml` file on every server. (You can use the same file on every server)
+            Also check & set on every backend server (paper) paper.yml -> velocity-support: enabled: true
+
+            ### Restart your servers
+            Restart (`/restart` or `/stop`) all servers [Plugman or /reload are NOT supported, use /stop or /end]
+
+            ### Configure the plugin
+            You may now [configure SkinsRestorer](/setup/configuration#config-guide) on the Velocity server.
+
+            ### That's it!
+            Our plugin should now work on your network!
+        </Steps>
     </Tab>
 </Tabs>
 
