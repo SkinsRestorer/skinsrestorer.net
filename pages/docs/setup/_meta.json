@@ -1,5 +1,10 @@
 {
-  "installing-skinsrestorer": "Installing SkinsRestorer",
+  "installing-skinsrestorer": {
+    "title": "Installing SkinsRestorer",
+    "theme": {
+      "layout": "full"
+    }
+  },
   "configuration": "Configuration",
   "commands-permissions": "Commands & Permissions",
   "locale-translations": "Locale and Translations",
