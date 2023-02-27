@@ -1,8 +1,5 @@
----
-title: SkinsRestorer
----
-
-import {useSSG} from 'nextra/ssg';
+import {ArrowDownTrayIcon} from "@heroicons/react/20/solid";
+import {useSSG} from 'nextra/ssg'; import Image from "next/image"; import TimeAgo from "react-timeago";
 
 export const getStaticProps = ({params}) => {
     return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorerX/releases/latest`)
@@ -14,7 +11,13 @@ export const getStaticProps = ({params}) => {
                         url: release.html_url,
                         name: release.name,
                         tag: release.tag_name,
-                        download: release.assets[0].browser_download_url
+                        download: release.assets[0].browser_download_url,
+                        author: {
+                            name: release.author.login,
+                            url: release.author.html_url,
+                            avatar: release.author.avatar_url
+                        },
+                        time: release.published_at
                     }
                 }
             },
@@ -25,26 +28,43 @@ export const getStaticProps = ({params}) => {
 
 export const LatestRelease = () => {
     const {latest} = useSSG()
-    console.log(latest)
     return (
-        <div>
-            <div className="nextra-card mt-4  p-4 group flex flex-col justify-start overflow-hidden rounded-lg border border-gray-200 text-current no-underline dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900">
-                <div className="flex flex-row gap-1">
+        <div
+            className="nextra-card mt-4 p-4 group flex flex-wrap gap-2 justify-between overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800">
+            <div className="flex flex-col">
+                <div className="flex flex-wrap gap-1">
                     <a
                         href={latest.url}
-                        className="flex font-semibold items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{latest.name}</a>
-                    <span
-                        className="rounded-full border w-fit px-1 nx-text-xs border-green-400 text-green-400 my-auto justify-center">Latest Release</span>
-                    <span
-                        className="rounded-full border w-fit px-1 nx-text-xs border-gray-400 text-gray-400 my-auto justify-center">{latest.tag}</span>
+                        className="flex font-semibold text-lg items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{latest.name}</a>
+                    <div className="flex flex-row gap-1">
+                        <div>
+                            <span
+                                className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
+                        </div>
+                        <div>
+                            <span
+                                className="rounded-full border w-fit px-1 text-xs border-gray-400 text-gray-400 justify-center">{latest.tag}</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex flex-row gap-1">
+                <div className="flex flex-row">
+                    <span className="flex flex-row cursor-pointer">Released by </span>
                     <a
-                        href={latest.download}
-                        className="flex font-semibold items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50
-                        border border-gray-200 dark:border-neutral-800 rounded-md px-2 py-1 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:hover:bg-neutral-800
-                        transition duration-150 ease-in-out">Download</a>
+                        href={latest.author.url}
+                        className="flex items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">
+                        <Image className="rounded-full w-6 h-6 my-auto mx-1" src={latest.author.avatar} width={16} height={16}/>
+                        <span className="font-semibold">{latest.author.name}</span>
+                        <span className="mx-1"><TimeAgo date={latest.time}/></span>
+                    </a>
                 </div>
+            </div>
+            <div className="flex flex-col justify-center">
+                <a
+                    href={latest.download}
+                    className="nextra-card p-2 group flex flex-row gap-1 justify-start overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900">
+                    <ArrowDownTrayIcon className="w-6 h-6 text-gray-500"/>
+                    <span>Download</span>
+                </a>
             </div>
         </div>
     )

@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@heroicons/react': ^2.0.16
   '@types/node': 18.14.1
   autoprefixer: ^10.4.13
   next: ^13.2.1
@@ -9,23 +10,26 @@ specifiers:
   postcss: ^8.4.21
   react: ^18.2.0
   react-dom: ^18.2.0
+  react-timeago: ^7.1.0
   sharp: ^0.31.3
   tailwindcss: ^3.2.7
   typescript: 4.9.5
 
 dependencies:
+  '@heroicons/react': 2.0.16_react@18.2.0
   next: 13.2.1_biqbaboplfbrettd7655fr4n2y
   nextra: 2.2.16_qgtcjgzkkjtbiyvnx7d32fl5vu
   nextra-theme-docs: 2.2.16_vew7vg7qzvsrfl7ub63f7u6dme
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
+  react-timeago: 7.1.0_react@18.2.0
   sharp: 0.31.3
 
 devDependencies:
   '@types/node': 18.14.1
   autoprefixer: 10.4.13_postcss@8.4.21
   postcss: 8.4.21
-  tailwindcss: 3.2.7
+  tailwindcss: 3.2.7_postcss@8.4.21
   typescript: 4.9.5
 
 packages:
@@ -47,6 +51,14 @@ packages:
       client-only: 0.0.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /@heroicons/react/2.0.16_react@18.2.0:
+    resolution: {integrity: sha512-x89rFxH3SRdYaA+JCXwfe+RkE1SFTo9GcOkZettHer71Y3T7V+ogKmfw5CjTazgS3d0ClJ7p1NA+SP7VQLQcLw==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@mdx-js/mdx/2.3.0:
@@ -2291,6 +2303,14 @@ packages:
       scheduler: 0.23.0
     dev: false
 
+  /react-timeago/7.1.0_react@18.2.0:
+    resolution: {integrity: sha512-rouF7MiEm55fH791Y8cg+VobIJgx8gtNJ+gjr86R4ZqO1WKPkXiXjdT/lRzrvEkUzsxT1exHqV2V+Zdi114H3A==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /react/18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
     engines: {node: '>=0.10.0'}
@@ -2631,10 +2651,12 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /tailwindcss/3.2.7:
+  /tailwindcss/3.2.7_postcss@8.4.21:
     resolution: {integrity: sha512-B6DLqJzc21x7wntlH/GsZwEXTBttVSl1FtCzC8WP4oBc/NKef7kaax5jeihkkCEWc831/5NDJ9gRNDK6NEioQQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
