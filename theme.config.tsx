@@ -19,8 +19,8 @@ const config: DocsThemeConfig = {
 
     return (
         <>
-          <meta name="msapplication-TileColor" content="#fff"/>
-          <meta name="theme-color" content="#fff"/>
+          <meta name="msapplication-TileColor" content="#B2A711"/>
+          <meta name="theme-color" content="#B2A711"/>
           <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
           <link rel="icon" href="/favicon.ico"/>
@@ -36,6 +36,7 @@ const config: DocsThemeConfig = {
           <meta property="og:description" content={description}/>
 
           <meta name="twitter:card" content="summary"/>
+          <meta name="twitter:image" content="/logo.png"/>
         </>
     )
   },
