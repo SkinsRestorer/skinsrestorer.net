@@ -1,5 +1,5 @@
 import Image from "next/image";
-import {DocsThemeConfig} from "nextra-theme-docs";
+import {DocsThemeConfig, useConfig} from "nextra-theme-docs";
 import {useRouter} from "next/router";
 
 const description = "SkinsRestorer is a Minecraft plugin that allows the modification of ingame skins. That also allows the restoring of skins on offline mode servers."
@@ -13,22 +13,32 @@ const config: DocsThemeConfig = {
       }
     }
   },
-  head: (
-      <>
-        <meta name="msapplication-TileColor" content="#fff"/>
-        <meta name="theme-color" content="#fff"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  head: function useHead() {
+    const { title } = useConfig()
+    const { route } = useRouter()
 
-        <link rel="icon" href="/favicon.ico"/>
+    return (
+        <>
+          <meta name="msapplication-TileColor" content="#fff"/>
+          <meta name="theme-color" content="#fff"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-        <meta httpEquiv="Content-Language" content="en"/>
+          <link rel="icon" href="/favicon.ico"/>
 
-        <meta name="description" content={description}/>
-        <meta property="og:description" content={description}/>
+          <meta httpEquiv="Content-Language" content="en"/>
 
-        <meta name="twitter:card" content="summary"/>
-      </>
-  ),
+          <meta
+              name="og:title"
+              content={title ? title + ' – SR' : 'SkinsRestorer'}
+          />
+
+          <meta name="description" content={description}/>
+          <meta property="og:description" content={description}/>
+
+          <meta name="twitter:card" content="summary"/>
+        </>
+    )
+  },
   // banner: {
   //  key: 'v15-release',
   //  text: (
