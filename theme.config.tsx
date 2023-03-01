@@ -27,11 +27,6 @@ const config: DocsThemeConfig = {
 
           <meta httpEquiv="Content-Language" content="en"/>
 
-          <meta
-              name="og:title"
-              content={title ? title + ' – SR' : 'SkinsRestorer'}
-          />
-
           <meta name="description" content={description}/>
           <meta property="og:description" content={description}/>
 

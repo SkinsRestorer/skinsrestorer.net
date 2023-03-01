@@ -2,6 +2,7 @@
 title: SkinsRestorer
 ---
 
+
 import {ArrowDownTrayIcon} from "@heroicons/react/20/solid";
 import {useSSG} from 'nextra/ssg'; import Image from "next/image"; import TimeAgo from "react-timeago";
 
@@ -78,10 +79,12 @@ export const LatestRelease = () => {
     className="w-full overflow-x-hidden break-words nextra-content flex min-h-[calc(100vh-var(--nextra-navbar-height))] min-w-0 justify-center pb-8 pr-[calc(env(safe-area-inset-right)-1.5rem)]">
     <main className="w-full min-w-0 max-w-6xl px-6 pt-4 md:px-12">
         <div className="mx-auto container">
-            <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">SkinsRestorer</h1>
-            <p className="mt-6 leading-7 first:mt-0">SkinsRestorer is a Minecraft plugin that allows the
-                modification of ingame skins. That also allows the restoring of skins on offline mode servers.</p>
             <LatestRelease/>
+            <div className="p-4">
+                <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">SkinsRestorer</h1>
+                <p className="mt-6 leading-7 first:mt-0">SkinsRestorer is a Minecraft plugin that allows the
+                    modification of ingame skins. That also allows the restoring of skins on offline mode servers.</p>
+            </div>
         </div>
     </main>
 </article>
