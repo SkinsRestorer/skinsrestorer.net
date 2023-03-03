@@ -3,6 +3,7 @@ title: SkinsRestorer
 ---
 
 
+
 import {ArrowDownTrayIcon} from "@heroicons/react/20/solid";
 import {useSSG} from 'nextra/ssg'; import Image from "next/image"; import TimeAgo from "react-timeago";
 
@@ -67,7 +68,7 @@ export const LatestRelease = () => {
                 <a
                     href={latest.download}
                     className="nextra-card p-2 group flex flex-row gap-1 justify-start overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900">
-                    <ArrowDownTrayIcon className="w-6 h-6 text-gray-500"/>
+                    <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
                     <span>Download</span>
                 </a>
             </div>
