@@ -25,8 +25,8 @@ dependencies:
 
 devDependencies:
   '@types/node':
-    specifier: 18.16.13
-    version: 18.16.13
+    specifier: 18.16.14
+    version: 18.16.14
   autoprefixer:
     specifier: ^10.4.14
     version: 10.4.14(postcss@8.4.21)
@@ -421,8 +421,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: false
 
-  /@types/node@18.16.13:
-    resolution: {integrity: sha512-uZRomboV1vBL61EBXneL4j9/hEn+1Yqa4LQdpGrKmXFyJmVfWc9JV9+yb2AlnOnuaDnb2PDO3hC6/LKmzJxP1A==}
+  /@types/node@18.16.14:
+    resolution: {integrity: sha512-+ImzUB3mw2c5ISJUq0punjDilUQ5GnUim0ZRvchHIWJmOC0G+p0kzhXBqj6cDjK0QdPFwzrHWgrJp3RPvCG5qg==}
     dev: true
 
   /@types/prop-types@15.7.5:
