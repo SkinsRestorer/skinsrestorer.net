@@ -3,10 +3,10 @@ title: SkinsRestorer
 ---
 
 
-
-
 import {ArrowDownTrayIcon} from "@heroicons/react/20/solid";
-import {useSSG} from 'nextra/ssg'; import Image from "next/image"; import TimeAgo from "react-timeago";
+import {useSSG} from 'nextra/ssg';
+import Image from "next/image";
+import TimeAgo from "react-timeago";
 
 export const getStaticProps = ({params}) => {
     return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorerX/releases/latest`)
