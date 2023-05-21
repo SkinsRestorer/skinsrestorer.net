@@ -1,10 +1,9 @@
 {
-  "installing-skinsrestorer": {
-    "title": "Installing SkinsRestorer",
-    "theme": {
-      "layout": "full"
-    }
-  },
+  "install-skinsrestorer": "Install SkinsRestorer",
+  "install-bukkit": "Install on Bukkit",
+  "install-bungee": "Install on Bungee",
+  "install-sponge": "Install on Sponge",
+  "install-velocity": "Install on Velocity",
   "configuration": "Configuration",
   "commands-permissions": "Commands & Permissions",
   "locale-translations": "Locale and Translations",
