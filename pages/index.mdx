@@ -3,7 +3,9 @@ title: SkinsRestorer
 ---
 
 
+import Link from "next/link";
 import {ArrowDownTrayIcon} from "@heroicons/react/20/solid";
+import {BoltIcon, CloudArrowDownIcon, PhotoIcon, RocketLaunchIcon, Squares2X2Icon} from "@heroicons/react/24/solid";
 import {useSSG} from 'nextra/ssg';
 import Image from "next/image";
 import TimeAgo from "react-timeago";
@@ -59,7 +61,8 @@ export const LatestRelease = () => {
                     <a
                         href={latest.author.url}
                         className="flex items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">
-                        <Image className="rounded-full w-6 h-6 my-auto mx-1" src={latest.author.avatar} width={16} height={16}/>
+                        <Image className="rounded-full w-6 h-6 my-auto mx-1" src={latest.author.avatar} width={16}
+                               height={16}/>
                         <span className="font-semibold">{latest.author.name}</span>
                         <span className="mx-1"><TimeAgo date={latest.time}/></span>
                     </a>
@@ -68,10 +71,23 @@ export const LatestRelease = () => {
             <div className="flex flex-col justify-center">
                 <a
                     href={latest.download}
-                    className="nextra-card p-2 group flex flex-row gap-1 justify-start overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900">
+                    className="nextra-card front-button p-2 group">
                     <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
                     <span>Download</span>
                 </a>
+            </div>
+        </div>
+    )
+}
+
+export const FeatureCard = ({title, description, icon}) => {
+    return (
+        <div
+            className="nextra-card feature-card group">
+            <div className="flex flex-col">
+                {icon}
+                <h2 className="text-center text-xl font-semibold">{title}</h2>
+                <p className="text-center">{description}</p>
             </div>
         </div>
     )
@@ -82,26 +98,57 @@ export const LatestRelease = () => {
     <main className="w-full min-w-0 max-w-6xl px-6 pt-4 md:px-12">
         <div className="mx-auto container">
             <LatestRelease/>
-            <div className="p-4 main-content">
-                # SkinsRestorer
-                SkinsRestorer is a Minecraft plugin that allows the modification of ingame skins. That also allows the restoring of skins on offline mode servers.
-
-                [![Discord Banner](https://discord.com/api/guilds/186794372468178944/widget.png?style=banner2)](https://skinsrestorer.net/discord)
-
-                ## Links
-
-                [Official SpigotMC page](https://www.spigotmc.org/resources/skinsrestorer.2124/)
-
-                How to help? -> [Contribute on GitHub](https://github.com/SkinsRestorer/SkinsRestorerX)
-
-                ## Contributors
-
-                They can be found at the [GitHub Insights](https://github.com/SkinsRestorer/SkinsRestorerX/graphs/contributors)
-
-                ## Donations
-
-                SkinsRestorer is free and is meant to stay like this. However, if you would like to show some love to the
-                devs, you can [donate](https://skinsrestorer.net/donate).
+            <div className="p-4 flex flex-col">
+                <div className="mt-32 flex flex-row mx-auto gap-2">
+                    <Image src="/logo.png" width={128} height={128} className="w-16 h-16" alt="SkinsRestorer Logo"/>
+                    <h1 className="my-auto text-center text-5xl font-bold">
+                        SkinsRestorer
+                    </h1>
+                </div>
+                <p className="text-center mt-2 text-lg">The most popular skin plugin for Minecraft</p>
+                <Link href="/docs/installation"
+                      className="nextra-card front-button mt-6 p-2 group">
+                    <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
+                    <span>Get Started</span>
+                </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-16">
+                    <FeatureCard
+                        title="Easy to use"
+                        description="SkinsRestorer is easy to use, just install it and you're ready to go!"
+                        icon={<RocketLaunchIcon className="w-6 h-6 mx-auto my-2"/>}
+                    />
+                    <FeatureCard
+                        title="Change your skin"
+                        description={<span>Just run <code className="highlight-code">/skin &lt;name&gt;</code> to change your skin! It's that easy!</span>}
+                        icon={<BoltIcon className="w-6 h-6 mx-auto my-2"/>}
+                    />
+                    <FeatureCard
+                        title="Restore your skins"
+                        description="SkinsRestorer can restore your skins on offline mode servers!"
+                        icon={<CloudArrowDownIcon
+                            className="w-6 h-6 mx-auto my-2"/>}
+                    />
+                    <FeatureCard
+                        title="Open Source"
+                        description="SkinsRestorer is open source, you can contribute to it on GitHub!"
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" height="32.666666666666664" width="32"
+                                   viewBox="0 0 98 96" className="w-6 h-6 mx-auto my-2">
+                            <path fillRule="evenodd" clipRule="evenodd"
+                                  d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"
+                                  fill="currentColor"></path>
+                        </svg>}
+                    />
+                    <FeatureCard
+                        title="Use your own skin"
+                        description={<span>Use <code className="highlight-code">/skin url &lt;url&gt;</code> to use a skin from the internet!</span>}
+                        icon={<PhotoIcon className="w-6 h-6 mx-auto my-2"/>}
+                    />
+                    <FeatureCard
+                        title="Use our GUI"
+                        description={<span>SkinsRestorer has a GUI to change your skin, just run <code className="highlight-code">/skins</code>!</span>}
+                        icon={<Squares2X2Icon className="w-6 h-6 mx-auto my-2"/>}
+                    />
+                </div>
             </div>
         </div>
     </main>

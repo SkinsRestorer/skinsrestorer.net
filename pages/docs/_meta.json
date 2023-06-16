@@ -1,6 +1,8 @@
 {
   "why-skinsrestorer": "Why SkinsRestorer?",
-  "setup": "Setup",
+  "installation": "Installation",
+  "configuration": "Configuration",
   "features": "Features",
-  "misc": "Miscellaneous"
+  "troubleshooting": "Troubleshooting",
+  "development": "Developer Guides"
 }
