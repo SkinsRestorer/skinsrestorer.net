@@ -2,31 +2,19 @@ import {Callout, Steps} from "nextra-theme-docs";
 
 # Installation on Velocity
 
-## Requirements
-
-To be able to use SkinsRestorer on your server, little is needed:
-
-<Callout emoji="📔">
-    Most Minecraft server hosting companies have all of this.
-</Callout>
-
-* Java from at least version 8
-* Internet connection through ports 80 (http) & 443 (https) & 53 (dns) (
-issues? > [troubleshoot connection](https://github.com/SkinsRestorer/SkinsRestorerX/wiki/Troubleshoot#connection))
-* Minecraft server versions and variants that we
-support [[check overview](https://github.com/SkinsRestorer/SkinsRestorerX/blob/master/README.md)]
+Before installing, we recommend you to read the [main installation page](/docs/installation).
 
 ## Basic Installation
 
-In this section, you can read how to set up our plugin SkinsRestorer your for Minecraft Server/Network!
-Select your server type below to get started.
+In this section, you can read how to set up SkinsRestorer on your Velocity proxy.
 
 <Callout type="info" emoji="ℹ️">
-    The plugin only works properly when you also install it on your backend (Spigot/Sponge) servers!
+    Heads up! SkinsRestorer works best when you also install it on your backend servers.
+    This is not required, but you will miss out on some features. Read more below.
 </Callout>
 
 <Callout type="info" emoji="ℹ️">
-    **Paper is suggested for velocity**
+    **Paper (or a fork) is suggested for Velocity**
 </Callout>
 
 <Steps>
@@ -34,47 +22,44 @@ Select your server type below to get started.
     Download the latest version from [SpigotMC](https://www.spigotmc.org/resources/skinsrestorer.2124/)
 
     ### Put it in the Velocity folder
-    Place the `SkinsRestorer.jar` in the ./plugins/ folder of every **Velocity** server.
+    Place the `SkinsRestorer.jar` in the `plugins` folder of the **Velocity proxy**.
 
     ### Put it into every Spigot folder
-    Place the `SkinsRestorer.jar` in the ./plugins/ folders of **every Spigot** server.
+    Place the `SkinsRestorer.jar` in the `plugins` folders of **every Spigot server**.
 
-    ### Prepare your backend servers
-    Make sure you have the same `config.yml` file on every server. (You can use the same file on every server)
-    Also check & set on every backend server (paper) paper.yml -> velocity-support: enabled: true
+    ### Setup player information forwarding
+    You need to setup player information forwarding in order for SkinsRestorer to communicate with your backend servers.
+    For that, follow the [Velocity forwarding guide](https://docs.papermc.io/velocity/player-information-forwarding).
+    This step is required for the plugin to work correctly on your network.
+    If this step is not done correctly, the plugin will not work correctly.
 
     ### Restart your servers
-    Restart (`/restart` or `/stop`) all servers [Plugman or /reload are NOT supported, use /stop or /end]
+    Restart (`/restart`, `/stop` or `/end`) all Spigot servers and the Velocity proxy.
+
+    ### Ensure the plugin is in Proxy Mode on the servers
+    In every Spigot server, check the server logs for the messages like these:
+    ```
+    [SkinsRestorer] ----------------------------------------------
+    [SkinsRestorer]     +==================+
+    [SkinsRestorer]     |   SkinsRestorer  |
+    [SkinsRestorer]     |------------------|
+    [SkinsRestorer]     |    Proxy Mode    |
+    [SkinsRestorer]     +==================+
+    [SkinsRestorer] ----------------------------------------------
+    ```
+    The plugin has to say that it is using "Proxy Mode". If you see this message, you're good to go!
+
+    If you don't see this message, make sure you you set up player information forwarding correctly.
+    SkinsRestorer will not work correctly if you don't see this message.
 
     ### Configure the plugin
-    You may now [configure SkinsRestorer](/setup/configuration#config-guide) on the Velocity server.
+    You may now [configure SkinsRestorer](/setup/configuration#config-guide) on the Velocity proxy.
+
+    ### Sync configs
+    Make sure you have the same `plugins/SkinsRestorer/config.yml` file on all servers and the Velocity proxy.
+    This file contains important settings that are required for the plugin to work the same on all servers.
+    If you don't have the same `config.yml` file on all servers, you may experience issues.
 
     ### That's it!
     Our plugin should now work on your network!
 </Steps>
-
-## Advanced Installation
-
-### Securing Velocity Networks
-
-#### What happened?
-
-Because the plugin is open source and a lot of Velocity network owners aren't blocking off ports using firewall, we see
-hack client makers abusing a vulnerability caused by not securing Velocity networks.
-
-This security issue comes from the channel we use between Velocity and Spigot for opening the GUI menu, getting selected
-actions back to Velocity, and also sending skin data to bukkit to use for instaskinchange (so users don't need to rejoin)
-
-#### How should I secure my self?
-
-You should secure your backend servers by only allowing Velocity to connect to it over the server port. This can be done
-by using iptables on both Velocity and Spigot, or other measurements that block off non-whitelisted connections over the
-port server ports. We advise you to host both Velocity & Spigot by your self and not use Minecraft server hosting where
-you can't secure your ports, or change firewall settings.
-
-We will create a step-by-step guide soon to educate Velocity network owners and how to secure themselves for network-related exploits.
-
-#### What if I can't secure myself?
-
-If you can't secure yourself, we advise you not to put the jar on the Spigot side. This will mitigate the risk at the
-cost of SkinsGUI and instaskinchange (you would need to rejoin or change server)
