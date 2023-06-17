@@ -3,6 +3,7 @@ title: SkinsRestorer
 ---
 
 
+
 import Link from "next/link";
 import {ArrowDownTrayIcon} from "@heroicons/react/20/solid";
 import {BoltIcon, CloudArrowDownIcon, PhotoIcon, RocketLaunchIcon, Squares2X2Icon} from "@heroicons/react/24/solid";
@@ -56,13 +57,13 @@ export const LatestRelease = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-row mt-1">
                     <span className="flex flex-row cursor-pointer">Released by </span>
                     <a
                         href={latest.author.url}
                         className="flex items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">
-                        <Image className="rounded-full w-6 h-6 my-auto mx-1" src={latest.author.avatar} width={16}
-                               height={16}/>
+                        <Image className="rounded-full w-6 h-6 my-auto mx-1" src={latest.author.avatar}
+                               width={16} height={16} alt={latest.author.name}/>
                         <span className="font-semibold">{latest.author.name}</span>
                         <span className="mx-1"><TimeAgo date={latest.time}/></span>
                     </a>
@@ -99,8 +100,8 @@ export const FeatureCard = ({title, description, icon}) => {
         <div className="mx-auto container">
             <LatestRelease/>
             <div className="p-4 flex flex-col">
-                <div className="mt-32 flex flex-row mx-auto gap-2">
-                    <Image src="/logo.png" width={128} height={128} className="w-16 h-16" alt="SkinsRestorer Logo"/>
+                <div className="mt-8 md:mt-32 flex flex-col md:flex-row mx-auto gap-2">
+                    <Image src="/logo.png" width={128} height={128} className="w-24 md:w-16 h-24 md:h-16 mx-auto" alt="SkinsRestorer Logo"/>
                     <h1 className="my-auto text-center text-5xl font-bold">
                         SkinsRestorer
                     </h1>
@@ -111,7 +112,7 @@ export const FeatureCard = ({title, description, icon}) => {
                     <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
                     <span>Get Started</span>
                 </Link>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8 md:mt-16">
                     <FeatureCard
                         title="Easy to use"
                         description="SkinsRestorer is easy to use, just install it and you're ready to go!"

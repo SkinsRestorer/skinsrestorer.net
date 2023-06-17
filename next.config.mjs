@@ -27,11 +27,7 @@ const securityHeaders = [
     },
     {
         key: 'Content-Security-Policy',
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com; font-src 'self'; frame-src 'self'; img-src 'self' data:; manifest-src 'self'; media-src 'self'; worker-src 'self';"
-    },
-    {
-        key: 'Clear-Site-Data',
-        value: "'storage'" // To wipe service workers, remove this if it causes problems
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com; font-src 'self'; frame-src 'self'; img-src 'self' data: https://avatars.githubusercontent.com; manifest-src 'self'; media-src 'self'; worker-src 'self';"
     }
 ]
 
