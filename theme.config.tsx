@@ -51,7 +51,7 @@ const config: DocsThemeConfig = {
     <span>SkinsRestorer</span>
   </div>,
   project: {
-    link: 'https://github.com/SkinsRestorer/SkinsRestorerX',
+    link: process.env.NEXT_PUBLIC_GITHUB_ORG_LINK,
   },
   editLink: {
     text: 'Edit this page on GitHub →'

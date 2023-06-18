@@ -54,6 +54,36 @@ export default withNextra({
                 source: '/donate',
                 destination: process.env.NEXT_PUBLIC_DONATE_LINK,
                 permanent: false,
+            },
+            {
+                source: '/bstats',
+                destination: process.env.NEXT_PUBLIC_BSTATS_LINK,
+                permanent: false,
+            },
+            {
+                source: '/perms',
+                destination: "/docs/configuration/commands-permissions",
+                permanent: false,
+            },
+            {
+                source: '/skinurl',
+                destination: "/docs/features/skin-url",
+                permanent: false,
+            },
+            {
+                source: '/unicode',
+                destination: "https://www.mobilefish.com/services/unicode_escape_sequence_converter/unicode_escape_sequence_converter.php",
+                permanent: false,
+            },
+            {
+                source: '/firewall',
+                destination: "/docs/troubleshooting",
+                permanent: false,
+            },
+            {
+                source: '/install',
+                destination: "/docs/installation",
+                permanent: false,
             }
         ]
     },
