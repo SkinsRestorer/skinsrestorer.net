@@ -1,10 +1,22 @@
+import {Callout} from "nextra-theme-docs";
+
 # Configuration
 
-We want SkinsRestorer to be easy to use. That's why there is a little advanced config option.
-The plugin should be able to run without config needed but if you feel like you need it then you're at the right place
-here.
+The plugin tries to make using it simple.
+That's why there are few advanced configuration options.
+The plugin should be able to run without extra configuration needed,
+but if you need to change the plugin behavior, you're in the right place here.
 
-Here are some little tips:
+<Callout type="info" emoji="ℹ️">
+    After changing the configuration, you need to either reload the plugin with the command `/sr reload` or restart the server.
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
+    If you run a proxy network (BungeeCord/Velocity), you need to have the exact same `config.yml` file on the proxy and all servers.
+    If you make a change to the config on the proxy, you need to make the same change on all servers.
+    Make sure to reload the plugin on the proxy and all servers after changing the configuration.
+    The `/sr reload` command is only available on the proxy, you'll need to restart the servers to use the new config.
+</Callout>
 
 ## Who can change skins?
 
