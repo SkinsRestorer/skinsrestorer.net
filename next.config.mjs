@@ -27,7 +27,7 @@ const securityHeaders = [
     },
     {
         key: 'Content-Security-Policy',
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com; font-src 'self'; frame-src 'self' https://www.youtube.com; img-src 'self' data: https://avatars.githubusercontent.com; manifest-src 'self'; media-src 'self'; worker-src 'self';"
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com; font-src 'self'; frame-src 'self' https://www.youtube.com; img-src 'self' data: https://avatars.githubusercontent.com https://img.shields.io; manifest-src 'self'; media-src 'self'; worker-src 'self';"
     }
 ]
 
