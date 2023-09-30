@@ -80,6 +80,50 @@ Latest Version (Without the v):
     </Tab>
 </Tabs>
 
+## Add SkinsRestorer as a dependency
+
+If you want to use the API in your plugin, you will need to add SkinsRestorer as a dependency of your plugin.
+This is used, so SkinsRestorer is loaded BEFORE your plugin, so you can use the API in your `onEnable()` method.
+In the example below we will use a soft dependency, so your plugin will still work if SkinsRestorer is not installed,
+but in order to use the API, SkinsRestorer will need to be installed.
+Errors will be thrown if SkinsRestorer is not installed, but you use the API.
+The process below may vary depending on your build configuration. (e.g. you have a build plugin that generates plugin configs)
+
+<Tabs items={['Bukkit', 'BungeeCord', 'Velocity', 'Sponge']}>
+    <Tab>
+        Add the following dependency to your `plugin.yml` file:
+
+        ```yml
+        softdepend: [ "SkinsRestorer" ]
+        ```
+    </Tab>
+    <Tab>
+        BungeeCord uses `softDepends` instead of `softdepend` like Bukkit/Spigot.
+        Add the following dependency to your `bungee.yml` or `plugin.yml` file:
+
+        ```yml
+        softDepends: ["SkinsRestorer"]
+        ```
+    </Tab>
+    <Tab>
+        Add the following dependency to your plugin entry file annotation:
+
+        ```java
+        @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
+        ```
+    </Tab>
+    <Tab>
+        Add the following dependency to your `build.gradle.kts` file inside the sponge dependency block:
+
+        ```kotlin
+        dependency("skinsrestorer") {
+          loadOrder(PluginDependency.LoadOrder.AFTER)
+          optional(true)
+        }
+        ```
+    </Tab>
+</Tabs>
+
 ## When using BungeeCord/Velocity?
 
 If you are using BungeeCord/Velocity, you must have a plugin that calls the API on BungeeCord/Velocity.
