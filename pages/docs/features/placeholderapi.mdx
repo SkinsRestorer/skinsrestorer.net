@@ -1,0 +1,33 @@
+import {Steps} from "nextra-theme-docs";
+
+# PlaceholderAPI
+
+SkinsRestorer supports PlaceholderAPI placeholders. These placeholders are automatically registered with
+PlaceholderAPI when both SkinsRestorer and PlaceholderAPI are installed on the server.
+
+## Placeholders
+
+Here is a list of all possible placeholders. If a database error occurs, the placeholder will be replaced with
+`Error` and an error message will be logged to the console.
+
+| Placeholder                                | Description                                                                                         |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `%skinsrestorer_skin_name%`                | The name of the skin set by the player or `Error` if no skin is set.                                |
+| `%skinsrestorer_skin_name_or_empty%`       | The name of the skin set by the player or a empty string if no skin is set.                         |
+| `%skinsrestorer_skin_name_or_player_name%` | The name of the skin set by the player or the player name if no skin is set.                        |
+| `%skinsrestorer_texture_url%`              | The texture url of the skin applied to a player on join or `Error` if no skin was found.            |
+| `%skinsrestorer_texture_url_or_empty%`     | The texture url of the skin applied to a player on join or a empty string if no skin was found.     |
+| `%skinsrestorer_texture_url_or_steve%`     | The texture url of the skin applied to a player on join or the steve skin url if no skin was found. |
+| `%skinsrestorer_texture_url_or_alex%`      | The texture url of the skin applied to a player on join or the alex skin url if no skin was found.  |
+| `%skinsrestorer_texture_id%`               | The texture id of the skin applied to a player on join or `Error` if no skin was found.             |
+| `%skinsrestorer_texture_id_or_empty%`      | The texture id of the skin applied to a player on join or a empty string if no skin was found.      |
+| `%skinsrestorer_texture_id_or_steve%`      | The texture id of the skin applied to a player on join or the steve skin id if no skin was found.   |
+| `%skinsrestorer_texture_id_or_alex%`       | The texture id of the skin applied to a player on join or the alex skin id if no skin was found.    |
+
+## What is a texture id and url?
+
+A texture id is a unique identifier for a skin on the Minecraft Content Delivery Network (CDN). It is used by the
+Minecraft client to download the skin from the CDN. The texture url is the url to the skin on the CDN.
+
+For example, the texture url of the steve skin is, `https://textures.minecraft.net/texture/6d3b06c38504ffc0229b9492147c69fcf59fd2ed7885f78502152f77b4d50de1`
+and the texture id therefore is `6d3b06c38504ffc0229b9492147c69fcf59fd2ed7885f78502152f77b4d50de1`.
