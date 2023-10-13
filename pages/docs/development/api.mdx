@@ -84,10 +84,11 @@ Latest Version (Without the v):
 
 If you want to use the API in your plugin, you will need to add SkinsRestorer as a dependency of your plugin.
 This is used, so SkinsRestorer is loaded BEFORE your plugin, so you can use the API in your `onEnable()` method.
-In the example below we will use a soft dependency, so your plugin will still work if SkinsRestorer is not installed,
-but in order to use the API, SkinsRestorer will need to be installed.
+In the example below, we will use a soft dependency, so your plugin will still work if SkinsRestorer is not installed,
+but to use the API, SkinsRestorer will need to be installed.
 Errors will be thrown if SkinsRestorer is not installed, but you use the API.
-The process below may vary depending on your build configuration. (e.g. you have a build plugin that generates plugin configs)
+The process below may vary depending on your build configuration.
+(E.g., you have a build plugin that generates plugin configs)
 
 <Tabs items={['Bukkit', 'BungeeCord', 'Velocity', 'Sponge']}>
     <Tab>
@@ -129,18 +130,19 @@ The process below may vary depending on your build configuration. (e.g. you have
 If you are using BungeeCord/Velocity, you must have a plugin that calls the API on BungeeCord/Velocity.
 You would need to use in/out put channels to send this information across both of your custom plugins.
 
-Getting issues?
+## Getting issues?
 
-* Make sure to import the `net.skinsrestorer.api.SkinsRestorerAPI` & `net.skinsrestorer.api.PlayerWrapper` in your
-code (see example code)
-* Make sure to get the API using `skinsRestorerAPI = SkinsRestorerAPI.getApi()`  and define by
+* Make sure to import all your classes if you see the message "Cannot find symbol" or "Cannot resolve symbol"
+* Make sure to get the API using `skinsRestorerAPI = SkinsRestorerProvider.get()` and define by
 adding `private SkinsRestorerAPI skinsRestorerAPI;` at the start of your class.
-* If you don't know that the issue is causing, include a try catch, so you can print our exceptions using e.print... etc
+* Make sure to add the dependency to your build file as described above.
+* Make sure to add the dependency to your plugin.yml as described above.
+* Make sure SkinsRestorer is not in "Proxy Mode" if you are using BungeeCord/Velocity.
 
 ## Using Plugin Message Channel
 
 If you are using BungeeCord/Velocity, and you want your plugin to work from spigot. You could use [*Plugin Message
-Channel*](https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/) to send the commands to bungee cord.
+Channel*](https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/) to send the commands to BungeeCord.
 
 ### Messages list
 
