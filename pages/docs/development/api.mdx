@@ -50,16 +50,16 @@ Latest Version (Without the v):
 
         ```groovy
         repositories {
-            maven {
-                name 'codemc'
-                url 'https://repo.codemc.org/repository/maven-public/'
-            }
-        }
+        maven {
+        name 'codemc'
+        url 'https://repo.codemc.org/repository/maven-public/'
+    }
+    }
 
         dependencies {
-            // SkinsRestorer API
-            compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
-        }
+        // SkinsRestorer API
+        compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
+    }
         ```
     </Tab>
     <Tab>
@@ -67,15 +67,15 @@ Latest Version (Without the v):
 
         ```kotlin
         repositories {
-            maven("https://repo.codemc.org/repository/maven-public/") {
-                name = "codemc"
-            }
-        }
+        maven("https://repo.codemc.org/repository/maven-public/") {
+        name = "codemc"
+    }
+    }
 
         dependencies {
-            // SkinsRestorer API
-            compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
-        }
+        // SkinsRestorer API
+        compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
+    }
         ```
     </Tab>
 </Tabs>
@@ -118,9 +118,9 @@ The process below may vary depending on your build configuration.
 
         ```kotlin
         dependency("skinsrestorer") {
-          loadOrder(PluginDependency.LoadOrder.AFTER)
-          optional(true)
-        }
+        loadOrder(PluginDependency.LoadOrder.AFTER)
+        optional(true)
+    }
         ```
     </Tab>
 </Tabs>
@@ -133,8 +133,7 @@ You would need to use in/out put channels to send this information across both o
 ## Getting issues?
 
 * Make sure to import all your classes if you see the message "Cannot find symbol" or "Cannot resolve symbol"
-* Make sure to get the API using `skinsRestorerAPI = SkinsRestorerProvider.get()` and define by
-adding `private SkinsRestorerAPI skinsRestorerAPI;` at the start of your class.
+* Make sure to get the API using `skinsRestorer = SkinsRestorerProvider.get()` and you have the field `private SkinsRestorer skinsRestorer;` at the start of your class.
 * Make sure to add the dependency to your build file as described above.
 * Make sure to add the dependency to your plugin.yml as described above.
 * Make sure SkinsRestorer is not in "Proxy Mode" if you are using BungeeCord/Velocity.
