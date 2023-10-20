@@ -84,6 +84,11 @@ export default withNextra({
                 source: '/install',
                 destination: "/docs/installation",
                 permanent: false,
+            },
+            {
+                source: '/contributors',
+                destination: "https://github.com/SkinsRestorer/SkinsRestorerX/graphs/contributors",
+                permanent: false,
             }
         ]
     },
