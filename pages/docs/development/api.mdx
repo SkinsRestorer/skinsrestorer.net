@@ -51,16 +51,16 @@ Latest Version (Without the v):
 
         ```groovy
         repositories {
-        maven {
-        name 'codemc'
-        url 'https://repo.codemc.org/repository/maven-public/'
-    }
-    }
+            maven {
+                name 'codemc'
+                url 'https://repo.codemc.org/repository/maven-public/'
+            }
+        }
 
         dependencies {
-        // SkinsRestorer API
-        compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
-    }
+            // SkinsRestorer API
+            compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
+        }
         ```
     </Tab>
     <Tab>
@@ -68,15 +68,15 @@ Latest Version (Without the v):
 
         ```kotlin
         repositories {
-        maven("https://repo.codemc.org/repository/maven-public/") {
-        name = "codemc"
-    }
-    }
+            maven("https://repo.codemc.org/repository/maven-public/") {
+                name = "codemc"
+            }
+        }
 
         dependencies {
-        // SkinsRestorer API
-        compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
-    }
+            // SkinsRestorer API
+            compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
+        }
         ```
     </Tab>
 </Tabs>
@@ -119,9 +119,9 @@ The process below may vary depending on your build configuration.
 
         ```kotlin
         dependency("skinsrestorer") {
-        loadOrder(PluginDependency.LoadOrder.AFTER)
-        optional(true)
-    }
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(true)
+        }
         ```
     </Tab>
 </Tabs>
