@@ -1,4 +1,4 @@
-import {Callout} from "nextra-theme-docs";
+import {Callout, Steps} from "nextra-theme-docs";
 
 # Avatar URL
 
@@ -8,17 +8,21 @@ Do you want to show a player's head in, for example, a Discord message sent by a
     We also have a guide specifically [for DiscordSRV](/docs/integrations/discordsrv)
 </Callout>
 
-## Prepare your server
+<Steps>
+    ### Prepare your server
+    Ensure [SkinsRestorer](/docs/installation) and [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) are installed on your server, are the latest version and are working correctly.
 
-Ensure both SkinsRestorer and PlaceholderAPI are installed on your server and are working correctly.
+    Make sure the plugin you want to set the avatar URL in, supports using PlaceholderAPI placeholders in the place where you want to use the avatar URL.
 
-Make sure the plugin supports using PlaceholderAPI placeholders in the place where you want to use the avatar URL.
+    ### Configure the plugin
+    Find the place where you can put a URL in the plugin. This is usually a config file or a message file.
+    Put the following URL in the place where you want the avatar URL to be used:
 
-## Configure the plugin
+    `https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png`
 
-Find the place where you can put a URL in the plugin. This is usually a config file or a message file.
-Put the following text in the place where you want the avatar URL to be used:
+    ### Reload the plugin
+    Reload the plugin to apply the changes.
 
-`https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png`
-
-Now reload the plugin and you're done! 🎉
+    ### That's it!
+    Now all SkinsRestorer avatars will be displayed in the plugins messages! 🎉
+</Steps>
