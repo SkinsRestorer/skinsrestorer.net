@@ -35,14 +35,14 @@ const config: DocsThemeConfig = {
         </>
     )
   },
-  // banner: {
-  //  key: 'v15-release',
-  //  text: (
-  //      <a href="https://github.com/SkinsRestorer/SkinsRestorerX" target="_blank" rel="noreferrer">
-  //        🎉 SkinsRestorer v15 is released. Read more →
-  //      </a>
-  //  )
-  // },
+  banner: {
+    key: 'v15-release',
+    text: (
+        <a href="https://github.com/SkinsRestorer/SkinsRestorerX/releases/tag/15.0.0" target="_blank" rel="noreferrer">
+          🎉 SkinsRestorer v15 is released. Read more →
+        </a>
+    )
+  },
   sidebar: {
     toggleButton: true
   },
