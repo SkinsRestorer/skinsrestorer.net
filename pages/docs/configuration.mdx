@@ -1,4 +1,4 @@
-import {Callout} from "nextra-theme-docs";
+import {Callout, FileTree} from "nextra-theme-docs";
 
 # Configuration
 
@@ -22,6 +22,35 @@ but if you need to change the plugin behavior, you're in the right place here.
     The `/sr reload` command is only available on the proxy (Because all backend servers are in Proxy Mode),
     you'll need to restart the servers to use the new config.
 </Callout>
+
+## File structure
+
+<FileTree>
+    <FileTree.Folder name="plugins" defaultOpen>
+        <FileTree.Folder name="SkinsRestorer" defaultOpen>
+            <FileTree.File name="config.yml" active />
+            <FileTree.Folder name="locales" defaultOpen>
+                <FileTree.Folder name="repository">
+                    <FileTree.File name="locale.json" />
+                    <FileTree.File name="locale_es.json" />
+                    <FileTree.File name="locale_fr.json" />
+                    <FileTree.File name="locale_it.json" />
+                    <FileTree.File name="locale_nl.json" />
+                </FileTree.Folder>
+                <FileTree.Folder name="custom"/>
+            </FileTree.Folder>
+            <FileTree.Folder name="cache">
+                <FileTree.File name="Pistonmaster.mojangcache" />
+            </FileTree.Folder>
+            <FileTree.Folder name="players">
+                <FileTree.File name="b1ae0778-4817-436c-96a3-a72c67cda060.player" />
+            </FileTree.Folder>
+            <FileTree.Folder name="skins">
+                <FileTree.File name="b1ae0778-4817-436c-96a3-a72c67cda060.playerskin" />
+            </FileTree.Folder>
+        </FileTree.Folder>
+    </FileTree.Folder>
+</FileTree>
 
 ## Who can change skins?
 
