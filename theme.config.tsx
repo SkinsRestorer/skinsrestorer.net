@@ -2,7 +2,7 @@ import Image from "next/image";
 import {DocsThemeConfig, useConfig} from "nextra-theme-docs";
 import {useRouter} from "next/router";
 
-const description = "SkinsRestorer is a Minecraft plugin that allows the modification of ingame skins. That also allows the restoring of skins on offline mode servers."
+const description = "SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins."
 const config: DocsThemeConfig = {
   docsRepositoryBase: "https://github.com/SkinsRestorer/skinsrestorer.net/tree/main/",
   useNextSeoProps() {
