@@ -1,26 +1,22 @@
 import Image from "next/image";
 import {DocsThemeConfig, useConfig} from "nextra-theme-docs";
-import {useRouter} from "next/router";
 
+const themeColor = "#B2A711"
 const description = "SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins."
 const config: DocsThemeConfig = {
   docsRepositoryBase: "https://github.com/SkinsRestorer/skinsrestorer.net/tree/main/",
   useNextSeoProps() {
-    const {pathname} = useRouter()
-    if (pathname !== '/') {
-      return {
-        titleTemplate: '%s – SR'
-      }
+    return {
+      titleTemplate: '%s – SR'
     }
   },
   head: function useHead() {
     const {title} = useConfig()
-    const {route} = useRouter()
 
     return (
         <>
-          <meta name="msapplication-TileColor" content="#B2A711"/>
-          <meta name="theme-color" content="#B2A711"/>
+          <meta name="msapplication-TileColor" content={themeColor}/>
+          <meta name="theme-color" content={themeColor}/>
           <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
           <link rel="icon" href="/favicon.ico"/>
@@ -28,10 +24,13 @@ const config: DocsThemeConfig = {
           <meta httpEquiv="Content-Language" content="en"/>
 
           <meta name="description" content={description}/>
-          <meta property="og:description" content={description}/>
 
           <meta name="twitter:card" content="summary"/>
           <meta name="twitter:image" content="/logo.png"/>
+
+          <meta property="og:title" content={title}/>
+          <meta property="og:description" content={description}/>
+          <meta property="og:image" content="/logo.png"/>
         </>
     )
   },
@@ -59,6 +58,9 @@ const config: DocsThemeConfig = {
   feedback: {
     content: 'Question? Give us feedback →',
     labels: 'feedback'
+  },
+  toc: {
+    float: true
   },
   navbar: {
     extraContent: (

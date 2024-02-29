@@ -4,7 +4,11 @@
   "description": "The code for our website and documentation!",
   "main": "index.js",
   "scripts": {
-    "start": "next"
+    "dev": "next dev",
+    "build": "next build",
+    "postbuild": "next-sitemap",
+    "start": "next start",
+    "lint": "next lint"
   },
   "keywords": [],
   "author": "SRTeam",
@@ -12,6 +16,7 @@
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "next": "^13.4.6",
+    "next-sitemap": "^4.2.3",
     "nextra": "^2.7.1",
     "nextra-theme-docs": "^2.7.1",
     "react": "^18.2.0",

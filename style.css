@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
 @tailwind utilities;
+
+[data-reach-skip-link] {
+    @apply sr-only;
+}
+
+[data-reach-skip-link]:focus {
+    @apply not-sr-only fixed ml-6 top-0 bg-white text-lg px-6 py-2 mt-2 outline-none focus:ring z-50;
+}
 
 .nextra-card img {
     user-select: none;
