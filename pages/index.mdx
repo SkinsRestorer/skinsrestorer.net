@@ -10,7 +10,7 @@ import Image from "next/image";
 import TimeAgo from "react-timeago";
 
 export const getStaticProps = ({params}) => {
-    return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorerX/releases/latest`)
+    return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest`)
         .then(res => res.json())
         .then(release => ({
             props: {

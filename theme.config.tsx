@@ -37,7 +37,7 @@ const config: DocsThemeConfig = {
   banner: {
     key: 'v15-release',
     text: (
-        <a href="https://github.com/SkinsRestorer/SkinsRestorerX/releases" target="_blank" rel="noreferrer">
+        <a href="https://github.com/SkinsRestorer/SkinsRestorer/releases" target="_blank" rel="noreferrer">
           🎉 SkinsRestorer v15 is released. Read more →
         </a>
     )

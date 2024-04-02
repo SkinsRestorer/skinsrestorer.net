@@ -92,7 +92,7 @@ export default withNextra({
             },
             {
                 source: '/contributors',
-                destination: "https://github.com/SkinsRestorer/SkinsRestorerX/graphs/contributors",
+                destination: "https://github.com/SkinsRestorer/SkinsRestorer/graphs/contributors",
                 permanent: false,
             }
         ]
