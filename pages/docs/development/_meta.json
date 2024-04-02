@@ -1,4 +1,5 @@
 {
   "api": "SkinsRestorer API",
-  "storage": "Data Storage"
+  "storage": "Data Storage",
+  "inner-workings": "Inner workings"
 }
