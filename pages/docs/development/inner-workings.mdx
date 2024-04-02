@@ -1,4 +1,4 @@
-import {Callout, Tab, Tabs} from "nextra-theme-docs";
+import {Callout} from "nextra-theme-docs";
 
 # Inner workings of SkinsRestorer
 
@@ -35,9 +35,9 @@ Here is a simple flowchart:
 sequenceDiagram
     create participant U as User
     create participant SR as SkinsRestorer
-    U->>SR: /skin Pistonmaster
+    U->>SR: /skin <name>
     create participant M as Mojang
-    SR->>M: UUID of Pistonmaster?
+    SR->>M: UUID of <name>?
     M->>SR: <uuid>
     SR->>M: Skin of <uuid>?
     destroy M
