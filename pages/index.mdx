@@ -2,6 +2,7 @@
 title: Restore player skins
 ---
 
+
 import Link from "next/link";
 import {ArrowDownTrayIcon, ChevronDoubleRightIcon} from "@heroicons/react/20/solid";
 import {BoltIcon, CloudArrowDownIcon, PhotoIcon, RocketLaunchIcon, Squares2X2Icon} from "@heroicons/react/24/solid";
@@ -94,16 +95,16 @@ export const FeatureCard = ({title, description, icon}) => {
 
 export const TeamCard = ({githubUsername, description}) => {
     return (
-        <div className="nextra-card feature-card group flex-col md:flex-row gap-4">
-            <Image src={`https://github.com/${githubUsername}.png`} width={64} height={64} className="rounded-lg"
-                   alt={githubUsername}/>
-            <div className="flex flex-col">
-                <a
-                    href={`https://github.com/${githubUsername}`}
-                    className="font-semibold text-lg">{githubUsername}</a>
-                <p>{description}</p>
+        <a href={`https://github.com/${githubUsername}`}>
+            <div className="nextra-card feature-card group flex-col md:flex-row gap-4">
+                <Image src={`https://github.com/${githubUsername}.png`} width={64} height={64} className="rounded-lg"
+                       alt={githubUsername}/>
+                <div className="flex flex-col">
+                    <p className="font-semibold text-lg">{githubUsername}</p>
+                    <p>{description}</p>
+                </div>
             </div>
-        </div>
+        </a>
     )
 }
 
