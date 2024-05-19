@@ -90,7 +90,7 @@ Errors will be thrown if SkinsRestorer is not installed, but you use the API.
 The process below may vary depending on your build configuration.
 (E.g., you have a build plugin that generates plugin configs)
 
-<Tabs items={['Bukkit', 'BungeeCord', 'Velocity', 'Sponge']}>
+<Tabs items={['Bukkit', 'BungeeCord', 'Velocity']}>
     <Tab>
         Add the following dependency to your `plugin.yml` file:
 
@@ -111,16 +111,6 @@ The process below may vary depending on your build configuration.
 
         ```java
         @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
-        ```
-    </Tab>
-    <Tab>
-        Add the following dependency to your `build.gradle.kts` file inside the sponge dependency block:
-
-        ```kotlin
-        dependency("skinsrestorer") {
-            loadOrder(PluginDependency.LoadOrder.AFTER)
-            optional(true)
-        }
         ```
     </Tab>
 </Tabs>
