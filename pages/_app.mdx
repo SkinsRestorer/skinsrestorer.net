@@ -1,5 +1,10 @@
 import '../style.css'
+import PlausibleProvider from "next-plausible";
 
 export default function App({ Component, pageProps }) {
-    return <Component {...pageProps} />
+    return (
+        <PlausibleProvider trackOutboundLinks domain="skinsrestorer.net">
+            <Component {...pageProps} />
+        </PlausibleProvider>
+    )
 }
