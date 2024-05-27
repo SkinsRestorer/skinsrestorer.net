@@ -34,7 +34,7 @@ const securityHeaders = [
 
 export default withPlausibleProxy({
     customDomain: process.env.PLAUSIBLE_URL
-})>(withNextra({
+})(withNextra({
     reactStrictMode: true,
     cleanDistDir: true,
     i18n: {
