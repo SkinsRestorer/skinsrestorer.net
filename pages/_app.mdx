@@ -3,7 +3,7 @@ import PlausibleProvider from "next-plausible";
 
 export default function App({ Component, pageProps }) {
     return (
-        <PlausibleProvider trackOutboundLinks domain="skinsrestorer.net">
+        <PlausibleProvider trackOutboundLinks trackFileDownloads domain="skinsrestorer.net">
             <Component {...pageProps} />
         </PlausibleProvider>
     )
