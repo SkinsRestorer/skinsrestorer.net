@@ -1,0 +1,89 @@
+import {Callout, FileTree} from "nextra-theme-docs";
+
+# Configuration Options
+
+The plugin should be able to run without extra configuration needed,
+but if you need to change the plugin behavior, you're in the right place here.
+
+<Callout type="info" emoji="ℹ️">
+    After changing the configuration, you need to either reload the plugin with the command `/sr reload` or restart the
+    server.
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
+    If you run a proxy network (BungeeCord/Velocity), you need to have the exact same `config.yml` file on the proxy and
+    all servers.
+    If you make a change to the config on the proxy, you need to make the same change on all servers.
+    Make sure to reload the plugin on the proxy and all servers after changing the configuration.
+    The `/sr reload` command is only available on the proxy (Because all backend servers are in Proxy Mode),
+    you'll need to restart the servers to use the new config.
+</Callout>
+
+## File structure
+
+<FileTree>
+    <FileTree.Folder name="plugins" defaultOpen>
+        <FileTree.Folder name="SkinsRestorer" defaultOpen>
+            <FileTree.File name="config.yml" active />
+            <FileTree.Folder name="locales" defaultOpen>
+                <FileTree.Folder name="repository">
+                    <FileTree.File name="locale.json" />
+                    <FileTree.File name="locale_es.json" />
+                    <FileTree.File name="locale_fr.json" />
+                    <FileTree.File name="locale_it.json" />
+                    <FileTree.File name="locale_nl.json" />
+                </FileTree.Folder>
+                <FileTree.Folder name="custom"/>
+            </FileTree.Folder>
+            <FileTree.Folder name="cache">
+                <FileTree.File name="Pistonmaster.mojangcache" />
+            </FileTree.Folder>
+            <FileTree.Folder name="players">
+                <FileTree.File name="b1ae0778-4817-436c-96a3-a72c67cda060.player" />
+            </FileTree.Folder>
+            <FileTree.Folder name="skins">
+                <FileTree.File name="b1ae0778-4817-436c-96a3-a72c67cda060.playerskin" />
+            </FileTree.Folder>
+        </FileTree.Folder>
+    </FileTree.Folder>
+</FileTree>
+
+## Who can change skins?
+
+With SkinsRestorer, players can use `/skin <skin>` to change their look.
+You will have to use a permissions plugin to control who can change their skin.
+
+You can read the [commands and permissions](/docs/configuration/commands-permissions) guide to learn how to control who can change skins.
+
+## Default skins
+
+By default,
+SkinsRestorer applies players the skin that belongs to their Minecraft account that was set via the launcher.
+Some players who join your server may not own their own Minecraft account where they can set their skin.
+So for those cases, SkinsRestorer will set their skin to a steve skin.
+
+Default skins are base skins set for players who did not explicitly set a skin using `/skin <skin>`.
+If a player joins the server and did set a skin using `/skin <skin>`,
+SkinsRestorer will not set their skin to a default skin and instead use the skin they set.
+
+If you want to change this behavior,
+you can do so by changing the `storage.defaultSkins` configuration in the `config.yml` file.
+Changing it allows you to set
+what skin players will have when they join your server
+and don't have a Minecraft account associated with their username.
+
+Additionally, if you set `applyForPremium` to `true`, SkinsRestorer will apply default skins for every player,
+even if they own a Minecraft account.
+
+## Disabled skins
+
+If you want to disable certain skins from being used on your server using `/skin <skin>`,
+you can do so by changing the `commands.disabledSkins` configuration in the `config.yml` file.
+
+This feature is useful if you want to prevent players from using, for example, explicit or inappropriate skins.
+
+## Permissions per skin
+
+By default, SkinsRestorer allows players to set any skin when they have access to the `/skin <skin>` command.
+You can override this behavior by setting up `commands.perSkinPermissions` in the `config.yml` file.
+Any skin in that list will force the player to have the permissions `skinsrestorer.skin.<name>` to use that skin.
