@@ -1,0 +1,92 @@
+# Skin Designs
+
+SkinsRestorer allows players and admins to apply custom skins. Skins are basically just `64x64` PNG images stored on the Minecraft CDN and signed via the yggdrasil private key.
+Confused what that means? Don't worry, we got you covered. You don't need to know exactly how it works internally to use it. All you need to know is how to get an arbitrary skin you can use in-game.
+
+Continue reading to learn how skin PNG files are working internally and how to get or make a custom skin to use in the launcher/with SkinsRestorer.
+
+## Technical info
+
+Skins allow you to express your personality in Minecraft. But you need to know a few things about skins before you can use them.
+
+### How do skins need to be formatted?
+
+Skins are `64x64` pixel images in `.png` format. The skin always consists of two layers: the outer layer and the inner layer.
+The inner layer __must__ be fully opaque, while the outer layer can have transparent pixels. The outer layer is used to add details like hats, glasses, or other accessories on top of the inner layer.
+
+Minecraft allows you to toggle parts of the outer layer on and off in the launcher. This is useful if you want to see the full skin without any accessories.
+To see that feature in action, see this [YouTube video](https://youtu.be/ib8SllVoRy0?t=192) by [@Jonas_Jones](https://www.youtube.com/@Jonas_Jones).
+The client sets this feature, so it also works on skins used with SkinsRestorer! Go to your skin settings in your client and toggle the body parts on and off where the outer layer should be hidden.
+
+Skin pixels need to be arranged in a specific way. The skin is divided into different parts, like the head, body, arms, and legs.
+There is empty space in the file because a `64x64` image has more pixels than are needed to display the skin.
+Some people like to write their name or a message in the empty space, but it is not necessary as it's unlikely anyone will ever see it.
+
+### How are skins stored?
+
+When you apply a skin via the launcher or SkinsRestorer, they are stored on the [Minecraft CDN](https://textures.minecraft.net).
+The skin is signed with the yggdrasil private key. This is a mechanism Mojang introduced to be able to regulate what skins can be used in the game.
+A signature is like Mojang saying "yes, I approve this skin", and the game will only display skins that are signed by Mojang.
+Signatures never expire and cannot be revoked by Mojang unless they remove the skin manually from the CDN.
+Mojang has introduced a skin banning feature, which is used to report players with inappropriate skins.
+Mojang will then review the report, and if the skin is inappropriate, they will remove it from the CDN and ban the player for a certain amount of time from Multiplayer.
+Then no player can use the skin anymore, even if they have the skin file on their computer because Mojang prevents the game from displaying the skin by having it removed from the CDN.
+The Minecraft CDN is a secure place to store skins, and it is not possible to upload skins to the CDN without Mojang's approval.
+While yes, Mojang does not review every skin, they review reported skins and skins.
+
+You do not get banned for having an inappropriate skin set using SkinsRestorer.
+Only if you manually upload the skin via the launcher.
+THe way SkinsRestorer works is that it takes the skin from an existing player and applies it to you.
+This way you wear the skin of a different player and not the skin set in your launcher.
+If you get reported for having an inappropriate skin, the player you got the skin (the other player manually put that skin in their launcher) from will be banned, not you.
+
+Fun fact: URL skins use a pool of Minecraft accounts to generate skins. So you also won't get banned for using an inappropriate URL skin.
+
+### What is a classic/slim or alex/steve skin?
+
+Minecraft uses two types of skin formats. The first format is known as the classic/steve skin format.
+What differentiates it from the slim/alex skin format is that the classic skin format has a 3-pixel wide arm, while the slim skin format has a 4-pixel wide arm.
+
+### More info?
+
+You can read more about skins on the [Minecraft Wiki](https://minecraft.wiki/w/Skin) and the [official Minecraft website](https://help.minecraft.net/hc/en-us/articles/4408894664461-Minecraft-Skins-for-Java-Edition).
+
+Both websites contain downloadable templates for the classic and slim skin format to use as a base for your skin.
+
+## Get or make a custom skin
+
+Now that you know how skins work, you can either get a premade skin or make your own skin.
+
+### Premade skins
+
+If you want to use premade skins, there are literally thousands of skins available on the internet.
+You can find them on websites like [NameMC](https://namemc.com) or [The Skindex](https://minecraftskins.com).
+
+### Make your own skin
+
+There are multiple ways you could create a skin, here we have two popular methods.
+
+#### Use a skin editor
+
+You can use a skin editor like [Novaskin](https://novaskin.me) to create your own skin.
+It takes care of the technical details and allows you to design your skin in a user-friendly interface and draw directly on a 3D model.
+It also allows you to use a skin as a template from the internet or its own library.
+
+#### Design your skin
+
+You can design your skin in an image editor like [GIMP](https://www.gimp.org/) (free & open-source) or [Adobe Photoshop](https://www.adobe.com/products/photoshop.html) (paid, but more professional).
+You can even use a simple image editor like [Paint.net](https://getpaint.net) or [Pixlr](https://pixlr.com).
+
+You need to absolutely make sure that the skin is `64x64` pixels in size and saved as a `.png` file.
+You can get templates for the classic and slim skin format from the [official Minecraft website](https://help.minecraft.net/hc/en-us/articles/4408894664461-Minecraft-Skins-for-Java-Edition).
+
+## Skin problems
+
+Sometimes you might encounter problems with skins. Here are some common issues and how to fix them.
+
+### Your skin looks blurry
+
+It is a known problem that skins can appear blurry in your **file explorer** or **image viewer**.
+It is an automatic scaling issue that happens when the image viewer tries to scale the image to fit the window.
+Instead of scaling linearly, it uses a nearest neighbor algorithm, which makes the image appear blurry.
+Most image editors like GIMP or Photoshop do not have this issue, so you can check the skin in there to see if it is actually blurry or not.
