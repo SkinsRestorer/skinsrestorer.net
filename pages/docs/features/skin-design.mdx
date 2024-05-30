@@ -32,20 +32,28 @@ Mojang has introduced a skin banning feature, which is used to report players wi
 Mojang will then review the report, and if the skin is inappropriate, they will remove it from the CDN and ban the player for a certain amount of time from Multiplayer.
 Then no player can use the skin anymore, even if they have the skin file on their computer because Mojang prevents the game from displaying the skin by having it removed from the CDN.
 The Minecraft CDN is a secure place to store skins, and it is not possible to upload skins to the CDN without Mojang's approval.
-While yes, Mojang does not review every skin, they review reported skins and skins.
+While yes, Mojang does not review every skin, they review reported skins.
 
 You do not get banned for having an inappropriate skin set using SkinsRestorer.
 Only if you manually upload the skin via the launcher.
-THe way SkinsRestorer works is that it takes the skin from an existing player and applies it to you.
+The way SkinsRestorer works is that it takes the skin from an existing player and applies it to you.
 This way you wear the skin of a different player and not the skin set in your launcher.
 If you get reported for having an inappropriate skin, the player you got the skin (the other player manually put that skin in their launcher) from will be banned, not you.
 
-Fun fact: URL skins use a pool of Minecraft accounts to generate skins. So you also won't get banned for using an inappropriate URL skin.
+Fun fact: URL skins use a pool of community-provided Minecraft accounts to generate skins.
+So you also won't get banned for using an inappropriate URL skin.
 
 ### What is a classic/slim or alex/steve skin?
 
 Minecraft uses two types of skin formats. The first format is known as the classic/steve skin format.
-What differentiates it from the slim/alex skin format is that the classic skin format has a 3-pixel wide arm, while the slim skin format has a 4-pixel wide arm.
+What differentiates it from the slim/alex skin format is that the classic skin format has 4-pixel wide arms, while the slim skin format has a 3-pixel wide arms.
+Therefore, you may see some skins that look weird when applied to your player model because they are not in the correct format.
+If the pixels are not in the correct format, the skin will likely have black lines or other artifacts on the arms.
+You can usually find what skin format a skin is by looking at the arms. If the arms are 4 pixels wide, it is a classic skin. If the arms are 3 pixels wide, it is a slim skin.
+
+Fun fact:
+The classic skin format is also known as the steve skin format because the default skin in Minecraft is a classic skin.
+The slim skin format is also known as the alex skin format because the default skin in Minecraft is a slim skin.
 
 ### More info?
 
@@ -90,3 +98,11 @@ It is a known problem that skins can appear blurry in your **file explorer** or 
 It is an automatic scaling issue that happens when the image viewer tries to scale the image to fit the window.
 Instead of scaling linearly, it uses a nearest neighbor algorithm, which makes the image appear blurry.
 Most image editors like GIMP or Photoshop do not have this issue, so you can check the skin in there to see if it is actually blurry or not.
+
+### Your skin has black lines
+
+If your skin has black lines on the arms or other parts, it is likely that the skin is in the wrong format.
+Classic skins have 4-pixel wide arms, while slim skins have 3-pixel wide arms.
+You can fix this by selecting the correct skin format in the launcher,
+by editing the skin in an image editor to match the correct format
+or by overriding the requested format in the SkinsRestorer command.
