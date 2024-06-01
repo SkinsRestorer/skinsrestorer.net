@@ -14,7 +14,8 @@ Skins allow you to express your personality in Minecraft. But you need to know a
 Skins are `64x64` pixel images in `.png` format. The skin always consists of two layers: the outer layer and the inner layer.
 The inner layer __must__ be fully opaque, while the outer layer can have transparent pixels. The outer layer is used to add details like hats, glasses, or other accessories on top of the inner layer.
 
-Minecraft allows you to toggle parts of the outer layer on and off in the launcher. This is useful if you want to see the full skin without any accessories.
+Minecraft allows you to toggle parts of the outer layer on and off in the client.
+This is useful if you want to see the full skin without any accessories.
 To see that feature in action, see this [YouTube video](https://youtu.be/ib8SllVoRy0?t=192) by [@Jonas_Jones](https://www.youtube.com/@Jonas_Jones).
 The client sets this feature, so it also works on skins used with SkinsRestorer! Go to your skin settings in your client and toggle the body parts on and off where the outer layer should be hidden.
 
@@ -22,38 +23,13 @@ Skin pixels need to be arranged in a specific way. The skin is divided into diff
 There is empty space in the file because a `64x64` image has more pixels than are needed to display the skin.
 Some people like to write their name or a message in the empty space, but it is not necessary as it's unlikely anyone will ever see it.
 
-### How are skins stored?
-
-When you apply a skin via the launcher or SkinsRestorer, they are stored on the [Minecraft CDN](https://textures.minecraft.net).
-The skin is signed with the yggdrasil private key. This is a mechanism Mojang introduced to be able to regulate what skins can be used in the game.
-A signature is like Mojang saying "yes, I approve this skin", and the game will only display skins that are signed by Mojang.
-Signatures never expire and cannot be revoked by Mojang unless they remove the skin manually from the CDN.
-Mojang has introduced a skin banning feature, which is used to report players with inappropriate skins.
-Mojang will then review the report, and if the skin is inappropriate, they will remove it from the CDN and ban the player for a certain amount of time from Multiplayer.
-Then no player can use the skin anymore, even if they have the skin file on their computer because Mojang prevents the game from displaying the skin by having it removed from the CDN.
-The Minecraft CDN is a secure place to store skins, and it is not possible to upload skins to the CDN without Mojang's approval.
-While yes, Mojang does not review every skin, they review reported skins.
-
-You do not get banned for having an inappropriate skin set using SkinsRestorer.
-Only if you manually upload the skin via the launcher.
-The way SkinsRestorer works is that it takes the skin from an existing player and applies it to you.
-This way you wear the skin of a different player and not the skin set in your launcher.
-If you get reported for having an inappropriate skin, the player you got the skin (the other player manually put that skin in their launcher) from will be banned, not you.
-
-Fun fact: URL skins use a pool of community-provided Minecraft accounts to generate skins.
-So you also won't get banned for using an inappropriate URL skin.
-
-### What is a classic/slim or alex/steve skin?
+### What is a classic/slim or steve/alex skin?
 
 Minecraft uses two types of skin formats. The first format is known as the classic/steve skin format.
 What differentiates it from the slim/alex skin format is that the classic skin format has 4-pixel wide arms, while the slim skin format has a 3-pixel wide arms.
 Therefore, you may see some skins that look weird when applied to your player model because they are not in the correct format.
 If the pixels are not in the correct format, the skin will likely have black lines or other artifacts on the arms.
 You can usually find what skin format a skin is by looking at the arms. If the arms are 4 pixels wide, it is a classic skin. If the arms are 3 pixels wide, it is a slim skin.
-
-Fun fact:
-The classic skin format is also known as the steve skin format because the default skin in Minecraft is a classic skin.
-The slim skin format is also known as the alex skin format because the default skin in Minecraft is a slim skin.
 
 ### More info?
 
@@ -106,3 +82,10 @@ Classic skins have 4-pixel wide arms, while slim skins have 3-pixel wide arms.
 You can fix this by selecting the correct skin format in the launcher,
 by editing the skin in an image editor to match the correct format
 or by overriding the requested format in the SkinsRestorer command.
+
+### My HD skin is not working
+
+HD skins are not supported by the Minecraft client.
+The vanilla client only supports `64x64` skins.
+HD skins were invented by modders, not by Mojang themselves.
+Therefore, you can't use HD skins in the vanilla client or with SkinsRestorer.

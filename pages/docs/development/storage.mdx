@@ -17,6 +17,27 @@ When Dinnerbone changes his skin, SkinsRestorer will automatically update the sk
 If you run `/sr createcustom`,
 SkinsRestorer will generate a skin that will never change and store it in a file/the database.
 
+### How are skins PNGs stored?
+
+When you apply a skin via the launcher or SkinsRestorer, they are stored on the [Minecraft CDN](https://textures.minecraft.net).
+The skin is signed with the yggdrasil private key. This is a mechanism Mojang introduced to be able to regulate what skins can be used in the game.
+A signature is like Mojang saying "yes, I approve this skin", and the game will only display skins that are signed by Mojang.
+Signatures never expire and cannot be revoked by Mojang unless they remove the skin manually from the CDN.
+Mojang has introduced a skin banning feature, which is used to report players with inappropriate skins.
+Mojang will then review the report, and if the skin is inappropriate, they will remove it from the CDN and ban the player for a certain amount of time from Multiplayer.
+Then no player can use the skin anymore, even if they have the skin file on their computer because Mojang prevents the game from displaying the skin by having it removed from the CDN.
+The Minecraft CDN is a secure place to store skins, and it is not possible to upload skins to the CDN without Mojang's approval.
+While yes, Mojang does not review every skin, they review reported skins.
+
+You do not get banned for having an inappropriate skin set using SkinsRestorer.
+Only if you manually upload the skin via the launcher.
+The way SkinsRestorer works is that it takes the skin from an existing player and applies it to you.
+This way you wear the skin of a different player and not the skin set in your launcher.
+If you get reported for having an inappropriate skin, the player you got the skin (the other player manually put that skin in their launcher) from will be banned, not you.
+
+Fun fact: URL skins use a pool of community-provided Minecraft accounts to generate skins.
+So you also won't get banned for using an inappropriate URL skin.
+
 ## What is skin data?
 
 Skin data is a Base64 encoded string that contains information about the skin/cape textures.
