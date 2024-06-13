@@ -39,7 +39,7 @@ const config: DocsThemeConfig = {
     key: 'skinfile-generator',
     text: (
         <Link href="/generator">
-          🎉 SkinFile Generator is now part of the main page. Visit →
+          🎉 SkinFile Generator is now part of the main page. Check it out →
         </Link>
     )
   },
