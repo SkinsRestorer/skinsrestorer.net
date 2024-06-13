@@ -41,27 +41,27 @@ export default withPlausibleProxy({
         return [
             {
                 source: '/discord',
-                destination: process.env.NEXT_PUBLIC_DISCORD_LINK,
+                destination: process.env.NEXT_PUBLIC_DISCORD_LINK ?? "",
                 permanent: false,
             },
             {
                 source: '/github',
-                destination: process.env.NEXT_PUBLIC_GITHUB_LINK,
+                destination: process.env.NEXT_PUBLIC_GITHUB_LINK ?? "",
                 permanent: false,
             },
             {
                 source: '/spigot',
-                destination: process.env.NEXT_PUBLIC_SPIGOT_LINK,
+                destination: process.env.NEXT_PUBLIC_SPIGOT_LINK ?? "",
                 permanent: false,
             },
             {
                 source: '/donate',
-                destination: process.env.NEXT_PUBLIC_DONATE_LINK,
+                destination: process.env.NEXT_PUBLIC_DONATE_LINK ?? "",
                 permanent: false,
             },
             {
                 source: '/bstats',
-                destination: process.env.NEXT_PUBLIC_BSTATS_LINK,
+                destination: process.env.NEXT_PUBLIC_BSTATS_LINK ?? "",
                 permanent: false,
             },
             {
@@ -91,7 +91,7 @@ export default withPlausibleProxy({
             },
             {
                 source: '/contributors',
-                destination: `${process.env.NEXT_PUBLIC_GITHUB_LINK}/graphs/contributors`,
+                destination: `${process.env.NEXT_PUBLIC_GITHUB_LINK ?? ""}/graphs/contributors`,
                 permanent: false,
             }
         ]
