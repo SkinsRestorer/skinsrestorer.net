@@ -28,7 +28,7 @@ const securityHeaders = [
     },
     {
         key: 'Content-Security-Policy',
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com; font-src 'self'; frame-src 'self' https://www.youtube.com; img-src 'self' data: https://avatars.githubusercontent.com https://img.shields.io https://github.com; manifest-src 'self'; media-src 'self'; worker-src 'self';"
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com https://api.mineskin.org; font-src 'self'; frame-src 'self' https://www.youtube.com; img-src 'self' data: blob: https://avatars.githubusercontent.com https://img.shields.io https://github.com; manifest-src 'self'; media-src 'self'; worker-src 'self';"
     }
 ]
 
@@ -37,10 +37,6 @@ export default withPlausibleProxy({
 })(withNextra({
     reactStrictMode: true,
     cleanDistDir: true,
-    i18n: {
-        locales: ['en-US'],
-        defaultLocale: 'en-US'
-    },
     redirects: async () => {
         return [
             {
@@ -95,7 +91,7 @@ export default withPlausibleProxy({
             },
             {
                 source: '/contributors',
-                destination: "https://github.com/SkinsRestorer/SkinsRestorer/graphs/contributors",
+                destination: `${process.env.NEXT_PUBLIC_GITHUB_LINK}/graphs/contributors`,
                 permanent: false,
             }
         ]

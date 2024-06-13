@@ -1,5 +1,6 @@
 import Image from "next/image";
 import {DocsThemeConfig, useConfig} from "nextra-theme-docs";
+import Link from "next/link";
 
 const themeColor = "#B2A711"
 const description = "SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins."
@@ -35,11 +36,11 @@ const config: DocsThemeConfig = {
     )
   },
   banner: {
-    key: 'v15-release',
+    key: 'skinfile-generator',
     text: (
-        <a href="https://github.com/SkinsRestorer/SkinsRestorer/releases" target="_blank" rel="noreferrer">
-          🎉 SkinsRestorer v15 is released. Read more →
-        </a>
+        <Link href="/generator">
+          🎉 SkinFile Generator is now part of the main page. Visit →
+        </Link>
     )
   },
   sidebar: {
