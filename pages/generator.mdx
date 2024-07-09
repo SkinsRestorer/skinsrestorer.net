@@ -176,7 +176,7 @@ export const ReverseFileCard = () => {
             <div className="flex flex-col gap-4">
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                     <Label htmlFor="skin-file">Select skin file to reverse</Label>
-                    <Input id="skin-file" type="file" accept=".playerskin,.urlskin,.customskin,.legacyskin"
+                    <Input id="skin-file" type="file" accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
                            onChange={(e) => {
                                setSelectedFile(e.target.files[0])
                            }}/>
@@ -188,8 +188,18 @@ export const ReverseFileCard = () => {
                     }
 
                     toast.promise(selectedFile.text().then(text => {
-                        const textJson = JSON.parse(text);
-                        const decodedValue = JSON.parse(window.atob(textJson.value));
+                        let rawValue;
+                        try {
+                            const textJson = JSON.parse(text);
+                            rawValue = textJson["value"];
+                        } catch (e) {
+                            toast.warning("Please update SkinsRestorer as soon as possible.", {
+                                title: "Falling back to legacy skin format."
+                            })
+
+                            rawValue = text.split("\n")[0];
+                        }
+                        const decodedValue = JSON.parse(window.atob(rawValue));
 
                         const skinUrl = decodedValue["textures"]["SKIN"]["url"];
                         window.open(skinUrl);
