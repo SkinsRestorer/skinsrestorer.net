@@ -124,8 +124,8 @@ export const GenerateFileCard = () => {
                         return
                     }
 
-                    if (customName && !/^[a-zA-Z0-9_]+$/.test(customName)) {
-                        toast.warning("Invalid skin name. Skin name can only contain letters, numbers and underscores. (a-zA-Z0-9_)")
+                    if (customName && !/^[a-z0-9_]+$/.test(customName)) {
+                        toast.warning("Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)")
                         return
                     }
 
