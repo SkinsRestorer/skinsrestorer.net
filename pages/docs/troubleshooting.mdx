@@ -1,166 +1,37 @@
-import {Callout} from 'nextra-theme-docs'
+import {Card, Cards} from "nextra-theme-docs";
+import {ComputerDesktopIcon, ExclamationTriangleIcon, FireIcon} from "@heroicons/react/24/solid";
 
-# Troubleshooting
+# Fixing issues with SkinsRestorer
 
-SkinsRestorer may sometimes have issues working properly. On this page, you can find some common issues and how to fix them.
+SkinsRestorer may sometimes have issues working properly, it is important to know how to troubleshoot these issues.
 
-## Basic Troubleshoot
+## Troubleshooting
 
-First good steps to make sure you did everything right.
+In these sections, you can read on different ways to troubleshoot issues with SkinsRestorer.
 
-### Basic Spigot Troubleshooting
-
-<Callout type="info" emoji="ℹ️">
-    Kindly check these steps below before asking for support on Discord!
-</Callout>
-
-1. Check
-the [Basic Installation](https://github.com/SkinsRestorer/SkinsRestorer/wiki/Installing-SkinsRestorer#basic-installation)
-steps and see if they're the same for your server
-
-2. Remove your ./plugins/SkinsRestorer/plugin.yml & Messages.yml files
-
-3. Update the plugin if needed! [(SpigotMC)](https://spigotmc.org/resources/2124/)
-
-4. Restart the server and see if this resolved your issue
-
-<Callout type="info" emoji="ℹ️">
-    Still having issues?
-    If you are a Basic server owner, you can ask for support on our [Discord](https://skinsrestorer.net/discord).
-    For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can
-    troubleshoot.
-</Callout>
-
-### Basic BungeeCord Troubleshooting
-
-1. Check
-the [Basic Installation](/docs/installation/bungeecord)
-steps and see if they're the same for your server
-
-2. If you *did configure spigot* than *remove the SkinsRestorer config.yml*
-[SkinsRestorer should never make a config on spigot, if it does your spigot is not set to bungee mode!!]
-
-3. Update the plugin if needed on BungeeCord [(SpigotMC)](https://spigotmc.org/resources/skinsrestorer.2124/)
-
-4. restart the server and see if this resolved your issue
-
-<Callout type="info" emoji="ℹ️">
-    Still having issues?
-    If you are a Basic server owner, you can ask for support on our [Discord](https://skinsrestorer.net/discord).
-    For Advanced owners, feel free to check [Advanced Troubleshoot](#Advanced-Troubleshoot) for what else you can
-    troubleshoot.
-</Callout>
-
-## Advanced Troubleshoot
-
-For advanced troubleshooting, you need to have access to your server files and know how to use them.
-
-### Commands not working
-
-If commands aren't working, you need to make sure that you did follow our specific installation instructions. If it
-still doesn't work, try removing the config and messages and restart your proxy, and if you don't have a proxy, your Spigot server.
-
-### Plugin incompatibility
-
-Some not-well-coded plugins or plugins that modify the user profile mightn't work well with SkinsRestorer.
-You can see this when you, for example, change a skin, and you see the chunks reload, but your skin just won't apply.
-
-*List of known incompatibilities:*
-
-- MundoSK
-- Scripting plugins in general
-- some mods
-
-To figure out if it is a plugin incompatibility,
-the best thing to do is running your server with SkinsRestorer as the only plugin
-and see if it then works.
-If so, you can try adding plugins and check each time if the plugin still works.
-This way you can identify the plugin that might cause the issue.
-
-### Server Incompatibility
-
-We do not work on some Paper forks as well as some BungeeCord forks because they break the platforms API somehow.
-We have only limited support for forge servers because they are usually breaking things as well.
-Very commonly issues happen with:
-
-- Aegis
-- FlameCord
-- Magma
-- Mohist
-- Cardboard
-
-We want to support these platforms, but we can't do it alone if you are a developer and want to help us,
-feel free to open a PR on our GitHub.
-
-## Connection
-
-*SkinsRestorer needs connection to download skin data, you can test your current connection using `/sr status`*
-
-<Callout type="warning" emoji="⚠️">
-    WARNING ABOUT api.github.com? can be ignored for now!
-</Callout>
-
-How are you hosting your server?
-[ [Local](#resolve-local-firewall) / [Minecraft server hosting (panel)](#resolve-mc-provider-firewall) / [VPS & Dedicated server hosting (root access)](#resolve-dedi-server-firewall) ]
-***
-
-### Resolve Local Firewall
-
-#### Resolve Local Firewall Linux
-
-#### Resolve Local Firewall Windows
-
-### Resolve MC Provider Firewall
-
-When you only have access to a panel like multicraft or cpanel, you aren't able to change firewall settings.
-
-If you do have access to ssh / root command line, go to -> [Dedicated server](#resolve-dedicated-server-firewall)
-
-Use the below template to create a ticket / send @ to your Minecraft hosting provider
-
-```text
-Firewall issues - this is a email template copied from github:SkinsRestorer/SkinsRestorer
-
-Dear Mc-Service provider,
-
-I believe that your firewall setup is restricting one of my plugins to work properly, namely, SkinsRestorer.
-In order to allow it to function properly, I need to be able to open new outgoing connections to specific HTTP API services.
-You can see the list of required traffic at: https://skinsrestorer.net/docs/troubleshooting#firewall-pass-through-requirements
-
-I kindly request that you permit such traffic for all Minecraft hosting services associated with my account.
-
-If you have any questions, feel free to contact SkinsRestorer's team via:
-Discord - https://skinsrestorer.net/discord
-Email - support@skinsrestorer.net
-
-Kind regards.
-```
-
-### Resolve dedicated server Firewall
-
-The following script should allow new and established connections.
-
-```bash
-sudo iptables -I INPUT 1  -p udp -m state --state ESTABLISHED     -j ACCEPT
-sudo iptables -I INPUT 1 -p tcp -m state --state ESTABLISHED     -j ACCEPT
-sudo iptables -I OUTPUT 1 -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
-sudo iptables -I OUTPUT 1 -p udp -m state --state NEW,ESTABLISHED -j ACCEPT
-sudo update-ca-certificates -f
-sudo /var/lib/dpkg/info/ca-certificates-java.postinst configure
-```
-
-Or you can see [Firewall pass through requirements](#firewall-pass-through-requirements) to manually allow api.
-
-### Firewall pass through requirements
-
-> All the required rules are **outgoing**, the only incoming traffic that should be accepted is the one from already
-> established connections. Your server must be able to connect to the other networks. SkinsRestorer doesn't** require
-> any incoming traffic from new connections to be accepted.
-
-| Address                           | Protocol | Ports       | Reason                                                                   |
-|-----------------------------------|----------|-------------|--------------------------------------------------------------------------|
-| https://api.mojang.com/           | TCP      | 443, 53     | API to request player UUID                                               |
-| https://sessionserver.mojang.com/ | TCP      | 443, 53     | Skin data is fetched from this API                                       |
-| https://api.minetools.eu/         | TCP      | 443, 80, 53 | The main API that SkinsRestorer uses before falling back to Mojang's API |
-| https://api.ashcon.app/           | TCP      | 443, 53     | Backup API for UUID and Skins                                            |
-| https://api.mineskin.org/         | TCP      | 443, 53     | API for generating skins from external links                             |
+<Cards>
+    <Card
+        icon={
+            <FireIcon/>
+        }
+        title="Firewall"
+        href="/docs/troubleshooting/firewall"
+    >
+    </Card>
+    <Card
+        icon={
+            <ExclamationTriangleIcon/>
+        }
+        title="Incompatibility list"
+        href="/docs/troubleshooting/incompatibility-list"
+    >
+    </Card>
+    <Card
+        icon={
+            <ComputerDesktopIcon/>
+        }
+        title="Launcher issues"
+        href="/docs/troubleshooting/launcher-issues"
+    >
+    </Card>
+</Cards>

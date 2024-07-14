@@ -93,6 +93,11 @@ export default withPlausibleProxy({
                 source: '/contributors',
                 destination: `${process.env.NEXT_PUBLIC_GITHUB_LINK ?? ""}/graphs/contributors`,
                 permanent: false,
+            },
+            {
+                source: '/docs/troubleshooting/cannot-fetch-new-skins',
+                destination: "/docs/troubleshooting/firewall",
+                permanent: false,
             }
         ]
     },

@@ -1,30 +1,56 @@
 # Incompatibility list
 
 SkinsRestorer may collide with third-party software such as plugins, mods, launchers, etc.
-Here is a list of known incompatible software.
+Here we share common reasons for issues.
 
 ## Incompatible clients
 
 Launchers that have built-in skin mods or other game-altering mods that block SkinsRestorer.
+We have a [page](/docs/troubleshooting/launcher-issues) dedicated to these issues.
 
-* `TLauncher`
+## General server plugin types causing issues
 
-## General plugin types causing issues
+Some not-well-coded plugins or plugins that modify the user profile mightn't work well with SkinsRestorer.
+You can see this when you, for example, change a skin, and you see the chunks reload, but your skin just won't apply.
 
 * Other skin plugins like `MySKin`
 * `Skript` (They can also hook into skins)
 * Custom world plugins
 * Some TabList plugins
 
-## Plugins that need config change
+To figure out if it is a plugin incompatibility,
+the best thing to do is running your server with SkinsRestorer as the only plugin
+and see if it then works.
+If so, you can try adding plugins and check each time if the plugin still works.
+This way you can identify the plugin that might cause the issue.
+
+## Server plugins that need config change
 
 * `FastLogin` -> FastLogin `config.yml` -> `forwardSkin: false`
 * `MundoSK` -> MundoSK `config.yml` -> `usecustomskins: false`
 
-## Known plugin list
+## Server plugin incompatibility
+
+Some plugins are known to cause issues with SkinsRestorer. Here is a list of known incompatible plugins:
 
 * `AntiBotDeluxe`
 * `Nicknamer`
 * `OldCombatMechanics` (older versions)
 * `Tablisknu`
 * `WorldChangeScreenRemover`
+
+### Server software incompatibility
+
+We do not work on some Paper forks as well as some BungeeCord forks because they break the platforms API somehow.
+We have only limited support for forge servers because they are usually breaking things as well.
+Very commonly issues happen with:
+
+- `Aegis`
+- `FlameCord`
+- `Magma`
+- `Mohist`
+- `Cardboard`
+
+We want to support these platforms, but we can't do it alone if you are a developer and want to help us,
+feel free to open a PR on our GitHub.
+
