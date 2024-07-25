@@ -1,0 +1,32 @@
+import {Steps} from "nextra-theme-docs";
+
+# Discord-MC-Chat
+
+SkinsRestorer skins can be used for Discord-MC-Chat messages using the textures placeholder.
+
+## Setup instructions
+
+<Steps>
+    ### Prepare your server
+    Ensure [SkinsRestorer](/docs/installation), [Discord-MC-Chat](https://modrinth.com/mod/discord-mc-chat) are installed on your server, are the latest version and are working correctly.
+
+    ### Configure Discord-MC-Chat
+    Open your Discord-MC-Chat `./config/discord-mc-chat.json` and search for the `avatarApi` section.
+    The config setting looks like this:
+
+    ```json
+    "avatarApi": "https://mc-heads.net/avatar/{player_uuid}.png",
+    ```
+
+    You have to replace it with the following:
+
+    ```json
+    "avatarApi": "https://mc-heads.net/avatar/{player_textures}.png",
+    ```
+
+    ### Reload Discord-MC-Chat
+    Run `/dmcc reload` in-game or in console, or `/reload` in Discord to reload.
+
+    ### That's it!
+    Now all SkinsRestorer avatars will be displayed in Discord-MC-Chat messages! 🎉
+</Steps>
