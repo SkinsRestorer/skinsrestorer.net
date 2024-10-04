@@ -8,11 +8,11 @@ title: Restore player skins
 import Link from "next/link";
 import {ArrowDownTrayIcon, ChevronDoubleRightIcon} from "@heroicons/react/20/solid";
 import {BoltIcon, CloudArrowDownIcon, PhotoIcon, RocketLaunchIcon, Squares2X2Icon} from "@heroicons/react/24/solid";
-import {useSSG} from 'nextra/ssg';
+import { useData } from 'nextra/hooks';
 import Image from "next/image";
 import TimeAgo from "react-timeago";
 
-export const getStaticProps = ({params}) => {
+export const getStaticProps = () => {
     return fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest`)
         .then(res => res.json())
         .then(release => ({
@@ -38,7 +38,7 @@ export const getStaticProps = ({params}) => {
 }
 
 export const LatestRelease = () => {
-    const {latest} = useSSG()
+    const {latest} = useData()
     return (
         <div
             className="nextra-card mt-4 p-4 group flex flex-wrap gap-2 justify-between overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800">
