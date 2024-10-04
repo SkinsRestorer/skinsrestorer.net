@@ -14,13 +14,13 @@ SkinsRestorer skins can be used for DiscordSRV messages using the PlaceholderAPI
     Open your DiscordSRV `config.yml` and search for the `Embed & webhook image/avatar url format` section.
     The config setting looks like this:
 
-    ```yaml
+    ```yaml filename="plugins/DiscordSRV/config.yml"
     AvatarUrl: https://crafatar.com/avatars/{uuid-nodashes}.png?size={size}&overlay#{texture}
     ```
 
     You have to replace it with the following:
 
-    ```yaml
+    ```yaml filename="plugins/DiscordSRV/config.yml"
     AvatarUrl: https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png#{username}
     ```
 

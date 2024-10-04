@@ -1,157 +1,157 @@
 @tailwind utilities;
 
 :root {
-    --background: 0, 0%, 100%;
-    --foreground: 240 10% 3.9%;
+  --background: 0, 0%, 100%;
+  --foreground: 240 10% 3.9%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 240 10% 3.9%;
 
-    --radius: 0.5rem;
+  --radius: 0.5rem;
 }
 
 .dark {
-    --background: 0, 0%, 7%;
-    --foreground: 0 0% 98%;
+  --background: 0, 0%, 7%;
+  --foreground: 0 0% 98%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
 }
 
 * {
-    @apply border-border;
+  @apply border-border;
 }
 
 body {
-    @apply bg-background text-foreground;
+  @apply bg-background text-foreground;
 }
 
 [data-reach-skip-link] {
-    @apply sr-only;
+  @apply sr-only;
 }
 
 [data-reach-skip-link]:focus {
-    @apply not-sr-only fixed ml-6 top-0 bg-white text-lg px-6 py-2 mt-2 outline-none focus:ring z-50;
+  @apply not-sr-only fixed ml-6 top-0 bg-white text-lg px-6 py-2 mt-2 outline-none focus:ring z-50;
 }
 
 .nextra-card img {
-    user-select: none;
+  user-select: none;
 }
 
 .nextra-card:hover svg {
-    color: currentColor;
+  color: currentColor;
 }
 
 .nextra-card svg {
-    width: 1.5rem;
-    color: #00000033;
-    transition: color 0.3s ease;
+  width: 1.5rem;
+  color: #00000033;
+  transition: color 0.3s ease;
 }
 
 .nextra-card p {
-    margin-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .dark .nextra-card svg {
-    color: #ffffff66;
+  color: #ffffff66;
 }
 
 .dark .nextra-card:hover svg {
-    color: currentColor;
+  color: currentColor;
 }
 
 .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
-    @apply mt-2 font-bold tracking-tight text-slate-900 dark:text-slate-100;
+  @apply mt-2 font-bold tracking-tight text-slate-900 dark:text-slate-100;
 }
 
 .main-content h1 {
-    @apply text-4xl;
+  @apply text-4xl;
 }
 
 .main-content h2 {
-    @apply text-3xl;
+  @apply text-3xl;
 }
 
 .main-content h3 {
-    @apply text-2xl;
+  @apply text-2xl;
 }
 
 .main-content h4 {
-    @apply text-xl;
+  @apply text-xl;
 }
 
 .main-content h5 {
-    @apply text-lg;
+  @apply text-lg;
 }
 
 .main-content h6 {
-    @apply text-base;
+  @apply text-base;
 }
 
 .main-content h1:first-child, .main-content h2:first-child, .main-content h3:first-child, .main-content h4:first-child, .main-content h5:first-child, .main-content h6:first-child {
-    @apply mt-0;
+  @apply mt-0;
 }
 
 .main-content p {
-    @apply mt-6 leading-7 first:mt-0;
+  @apply mt-6 leading-7 first:mt-0;
 }
 
 .main-content a {
-    @apply text-blue-600 underline;
+  @apply text-blue-600 underline;
 }
 
 .feature-card {
-    @apply p-4 flex flex-col overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900;
+  @apply p-4 flex flex-col overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900;
 }
 
 .front-button {
-    @apply mx-auto flex flex-row gap-1 justify-start overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900;
+  @apply mx-auto flex flex-row gap-1 justify-start overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-sm active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-sm dark:border-neutral-800 hover:bg-slate-50 hover:shadow-md dark:hover:border-neutral-700 dark:hover:bg-neutral-900;
 }
 
 .highlight-code {
-    @apply border-black border-opacity-[0.04] bg-opacity-[0.03] bg-black break-words rounded-md border py-0.5 px-[.25em] text-[.9em] dark:border-white/10 dark:bg-white/10;
+  @apply border-black border-opacity-[0.04] bg-opacity-[0.03] bg-black break-words rounded-md border py-0.5 px-[.25em] text-[.9em] dark:border-white/10 dark:bg-white/10;
 }
