@@ -1,4 +1,4 @@
-{
+export default {
   "placeholderapi": "PlaceholderAPI",
   "discordsrv": "DiscordSRV",
   "discord-mc-chat": "Discord-MC-Chat",

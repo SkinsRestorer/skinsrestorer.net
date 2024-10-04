@@ -1,4 +1,4 @@
-import {Card, Cards} from "nextra-theme-docs";
+import {Cards} from "nextra/components";
 import {ComputerDesktopIcon, ExclamationTriangleIcon, FireIcon} from "@heroicons/react/24/solid";
 
 # Fixing issues with SkinsRestorer
@@ -10,28 +10,28 @@ SkinsRestorer may sometimes have issues working properly, it is important to kno
 In these sections, you can read on different ways to troubleshoot issues with SkinsRestorer.
 
 <Cards>
-    <Card
+    <Cards.Card
         icon={
             <FireIcon/>
         }
         title="Firewall"
         href="/docs/troubleshooting/firewall"
     >
-    </Card>
-    <Card
+    </Cards.Card>
+    <Cards.Card
         icon={
             <ExclamationTriangleIcon/>
         }
         title="Incompatibility list"
         href="/docs/troubleshooting/incompatibility-list"
     >
-    </Card>
-    <Card
+    </Cards.Card>
+    <Cards.Card
         icon={
             <ComputerDesktopIcon/>
         }
         title="Launcher issues"
         href="/docs/troubleshooting/launcher-issues"
     >
-    </Card>
+    </Cards.Card>
 </Cards>

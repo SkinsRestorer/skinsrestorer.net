@@ -1,4 +1,4 @@
-import {Callout, Card, Cards} from "nextra-theme-docs";
+import {Callout, Cards} from "nextra/components";
 import Image from "next/image";
 
 # Installing SkinsRestorer
@@ -26,7 +26,7 @@ In this section, you can read how to set up SkinsRestorer on your Minecraft Serv
 Select your server type below to get started.
 
 <Cards>
-    <Card
+    <Cards.Card
         icon={
             <Image
                 src="/platform/bukkit.png"
@@ -37,8 +37,8 @@ Select your server type below to get started.
         title="Bukkit/Spigot/Paper"
         href="/docs/installation/bukkit"
     >
-    </Card>
-    <Card
+    </Cards.Card>
+    <Cards.Card
         icon={
             <Image
                 src="/platform/bungeecord.png"
@@ -49,8 +49,8 @@ Select your server type below to get started.
         title="BungeeCord"
         href="/docs/installation/bungeecord"
     >
-    </Card>
-    <Card
+    </Cards.Card>
+    <Cards.Card
         icon={
             <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g >
@@ -66,5 +66,5 @@ Select your server type below to get started.
         title="Velocity"
         href="/docs/installation/velocity"
     >
-    </Card>
+    </Cards.Card>
 </Cards>

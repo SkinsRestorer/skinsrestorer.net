@@ -1,4 +1,4 @@
-import {Callout, FileTree} from "nextra-theme-docs";
+import {Callout, FileTree} from "nextra/components";
 
 # Configuration Options
 
@@ -35,7 +35,9 @@ Below is an example of what the file structure of the SkinsRestorer plugin looks
                     <FileTree.File name="locale_it.json" />
                     <FileTree.File name="locale_nl.json" />
                 </FileTree.Folder>
-                <FileTree.Folder name="custom"/>
+                <FileTree.Folder name="custom">
+                    <></>
+                </FileTree.Folder>
             </FileTree.Folder>
             <FileTree.Folder name="cache">
                 <FileTree.File name="Pistonmaster.mojangcache" />
