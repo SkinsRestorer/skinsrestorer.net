@@ -36,12 +36,12 @@ In this section, you can read how to set up SkinsRestorer on your BungeeCord pro
 
     Ensure that you have the done the following settings:
 
-    ```yaml filename="spigot.yml"
+    ```yaml filename="spigot.yml" /true/
     settings:
       bungeecord: true
     ```
 
-    ```properties filename="server.properties"
+    ```properties filename="server.properties" /false/
     online-mode=false
     ```
 
@@ -50,14 +50,14 @@ In this section, you can read how to set up SkinsRestorer on your BungeeCord pro
 
     ### Ensure the plugin is in Proxy Mode on the servers
     In every Spigot server, check the server logs for the messages like these:
-    ```text filename="logs/latest.log"
-    [SkinsRestorer] ----------------------------------------------
-    [SkinsRestorer]     +==================+
-    [SkinsRestorer]     |   SkinsRestorer  |
-    [SkinsRestorer]     |------------------|
-    [SkinsRestorer]     |    Proxy Mode    |
-    [SkinsRestorer]     +==================+
-    [SkinsRestorer] ----------------------------------------------
+    ```ansi filename="logs/latest.log"
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    +==================+
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    |   SkinsRestorer  |
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    |------------------|
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    |    [33;1mProxy Mode[32;22m    |
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    +==================+
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
     ```
     The plugin has to say that it is using "Proxy Mode". If you see this message, you're good to go!
 

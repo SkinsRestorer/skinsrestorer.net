@@ -123,7 +123,7 @@ You would need to use in/out put channels to send this information across both o
 ## Getting issues?
 
 * Make sure to import all your classes if you see the message "Cannot find symbol" or "Cannot resolve symbol"
-* Make sure to get the API using `skinsRestorer = SkinsRestorerProvider.get()` and you have the field `private SkinsRestorer skinsRestorer;` at the start of your class.
+* Make sure to get the API using `this.skinsRestorer = SkinsRestorerProvider.get();{:java}` and you have the field `private SkinsRestorer skinsRestorer;{:java}` at the start of your class.
 * Make sure to add the dependency to your build file as described above.
 * Make sure to add the dependency to your plugin.yml as described above.
 * Make sure SkinsRestorer is not in "Proxy Mode" if you are using BungeeCord/Velocity.
