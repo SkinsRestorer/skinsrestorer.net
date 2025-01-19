@@ -22,7 +22,6 @@ export const metadata = {
     title: 'SkinsRestorer'
   },
   other: {
-    'msapplication-TileImage': '/ms-icon-144x144.png',
     'msapplication-TileColor': "#B2A711"
   },
   twitter: {
