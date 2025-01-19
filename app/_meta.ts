@@ -3,7 +3,7 @@ export default {
     "title": "Home",
     "type": "page",
     "theme": {
-      "layout": "raw"
+      "layout": "full"
     }
   },
   "docs": {
@@ -14,14 +14,7 @@ export default {
     "title": "Generator",
     "type": "page",
     "theme": {
-      "layout": "raw"
-    }
-  },
-  "404": {
-    "title": "Page not found",
-    "type": "page",
-    "theme": {
-      "layout": "raw"
+      "layout": "full"
     }
   }
 }
