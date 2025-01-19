@@ -87,6 +87,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.0
         version: 19.0.3(@types/react@19.0.7)
+      '@types/react-timeago':
+        specifier: ^4.1.7
+        version: 4.1.7
       postcss:
         specifier: ^8.4.38
         version: 8.5.1
@@ -980,6 +983,9 @@ packages:
     resolution: {integrity: sha512-0Knk+HJiMP/qOZgMyNFamlIjw9OFCsyC2ZbigmEEyXXixgre6IQpm/4V+r3qH4GC1JPvRJKInw+on2rV6YZLeA==}
     peerDependencies:
       '@types/react': ^19.0.0
+
+  '@types/react-timeago@4.1.7':
+    resolution: {integrity: sha512-ogD4Ror/hDG+pQggCX+TgPgJ8W2jeeUxsgNU485Qpm0Ma+E2TND2EJuKwK5+sxlkDXDEgsHradO0zWBkTgLzNg==}
 
   '@types/react@19.0.7':
     resolution: {integrity: sha512-MoFsEJKkAtZCrC1r6CM8U22GzhG7u2Wir8ons/aCKH6MBdD1ibV24zOSSkdZVUKqN5i396zG5VKLYZ3yaUZdLA==}
@@ -3333,6 +3339,10 @@ snapshots:
       undici-types: 6.20.0
 
   '@types/react-dom@19.0.3(@types/react@19.0.7)':
+    dependencies:
+      '@types/react': 19.0.7
+
+  '@types/react-timeago@4.1.7':
     dependencies:
       '@types/react': 19.0.7
 

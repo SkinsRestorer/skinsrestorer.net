@@ -2,7 +2,7 @@ import Link from "next/link";
 import {ArrowDownTrayIcon, ChevronDoubleRightIcon} from "@heroicons/react/20/solid";
 import {BoltIcon, CloudArrowDownIcon, PhotoIcon, RocketLaunchIcon, Squares2X2Icon} from "@heroicons/react/24/solid";
 import Image from "next/image";
-import TimeAgo from "react-timeago";
+import {CustomTimeAgo} from "~/components/time-ago";
 
 export const metadata = {}
 
@@ -54,7 +54,7 @@ const LatestRelease = async () => {
             <Image className="rounded-full w-6 h-6 my-auto mx-1" src={latest.author.avatar}
                    width={16} height={16} alt={latest.author.name}/>
             <span className="font-semibold">{latest.author.name}</span>
-            <span className="mx-1"><TimeAgo date={latest.time}/></span>
+            <span className="mx-1"><CustomTimeAgo date={latest.time}/></span>
           </a>
         </div>
       </div>

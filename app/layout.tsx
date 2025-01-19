@@ -2,6 +2,7 @@ import {Footer, Layout, Navbar} from 'nextra-theme-docs'
 import {Banner, Head} from 'nextra/components'
 import {getPageMap} from 'nextra/page-map'
 import 'nextra-theme-docs/style.css'
+import '~/style.css'
 import PlausibleProvider from "next-plausible";
 import {Toaster} from "~/components/ui/sonner";
 import Link from "next/link";

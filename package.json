@@ -20,6 +20,7 @@
     "@theguild/remark-mermaid": "^0.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "file-saver": "^2.0.5",
     "lucide-react": "^0.473.0",
     "next": "^15.0.0",
     "next-plausible": "^3.12.0",
@@ -32,8 +33,7 @@
     "react-timeago": "^7.2.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7",
-    "file-saver": "^2.0.5"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.0.0-beta.9",
@@ -41,6 +41,7 @@
     "@types/node": "22.10.7",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/react-timeago": "^4.1.7",
     "postcss": "^8.4.38",
     "tailwindcss": "4.0.0-beta.9",
     "typescript": "5.7.3"
