@@ -195,8 +195,8 @@ export const ReverseFileCard = () => {
               const textJson = JSON.parse(text);
               rawValue = textJson["value"];
             } catch (e) {
-              toast.warning("Please update SkinsRestorer as soon as possible.", {
-                title: "Falling back to legacy skin format.",
+              toast.warning("Falling back to legacy skin format.", {
+                description: "Please update SkinsRestorer as soon as possible.",
               })
 
               rawValue = text.split("\n")[0];

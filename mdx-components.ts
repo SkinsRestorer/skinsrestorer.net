@@ -1,5 +1,5 @@
-import { useMDXComponents as getDocsMDXComponents } from 'nextra-theme-docs'
-import {MDXComponents} from "nextra/dist/client/mdx-components";
+import {useMDXComponents as getDocsMDXComponents} from 'nextra-theme-docs'
+import {MDXComponents} from "nextra/mdx-components";
 
 const docsComponents = getDocsMDXComponents()
 
