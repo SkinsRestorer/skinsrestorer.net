@@ -12,7 +12,7 @@ import {Metadata, Viewport} from "next";
 export const metadata = {
   metadataBase: new URL('https://skinsrestorer.net'),
   title: {
-    default: 'SkinsRestorer',
+    default: 'SkinsRestorer - Minecraft Skin Plugin',
     template: '%s - SR'
   },
   description: 'SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins.',
