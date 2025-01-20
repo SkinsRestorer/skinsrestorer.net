@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://skinsrestorer.net
-
-# Sitemaps
-Sitemap: https://skinsrestorer.net/sitemap.xml
