@@ -49,7 +49,7 @@ const rehypeOpenGraphImage = () => ast => {
   }
   const [prop] = createAstObject({
     openGraph: createAstObject({
-      images: `https://net.skinsrestorer.net/og?title=${title}`
+      images: `https://skinsrestorer.net/og?title=${title}`
     })
   }).properties
   properties.push(prop)
