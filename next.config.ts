@@ -65,6 +65,7 @@ const withNextra = nextra({
       process.env.NODE_ENV === 'production' && rehypeOpenGraphImage
     ]
   },
+  contentDirBasePath: '/docs',
 })
 
 const securityHeaders = [
