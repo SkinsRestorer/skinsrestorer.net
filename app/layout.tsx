@@ -25,7 +25,8 @@ export const metadata = {
     'msapplication-TileColor': "#B2A711"
   },
   twitter: {
-    site: 'https://skinsrestorer.net'
+    site: 'https://skinsrestorer.net',
+    card: "summary_large_image"
   },
   openGraph: {
     // https://github.com/vercel/next.js/discussions/50189#discussioncomment-10826632
