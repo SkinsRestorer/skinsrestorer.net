@@ -48,15 +48,15 @@ const LatestRelease = async () => {
         </div>
         <div className="flex mt-1">
           <a
-            href={data.url}
+            href={latest.url}
             className="flex flex-col md:flex-row gap-1 text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">
             <span className="flex flex-row cursor-pointer">Released by</span>
             <div className="flex flex-row gap-1">
-              <Image className="rounded-full w-6 h-6 my-auto" src={data.author.avatar}
-                     width={16} height={16} alt={data.author.name}/>
-              <span className="font-semibold">{data.author.name}</span>
+              <Image className="rounded-full w-6 h-6 my-auto" src={latest.author.avatar}
+                     width={16} height={16} alt={latest.author.name}/>
+              <span className="font-semibold">{latest.author.name}</span>
             </div>
-            <span><CustomTimeAgo date={data.time}/></span>
+            <span><CustomTimeAgo date={latest.time}/></span>
           </a>
         </div>
       </div>
