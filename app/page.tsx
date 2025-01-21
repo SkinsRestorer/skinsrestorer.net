@@ -3,8 +3,13 @@ import {ArrowDownTrayIcon, ChevronDoubleRightIcon} from "@heroicons/react/20/sol
 import {BoltIcon, CloudArrowDownIcon, PhotoIcon, RocketLaunchIcon, Squares2X2Icon} from "@heroicons/react/24/solid";
 import Image from "next/image";
 import {CustomTimeAgo} from "~/components/time-ago";
+import {Metadata} from "next";
 
-export const metadata = {}
+export const metadata: Metadata = {
+  openGraph: {
+    images: "https://skinsrestorer.net/og?title=SkinsRestorer"
+  }
+}
 
 const getReleaseData = async () => {
   const res = await fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest`);
@@ -37,12 +42,11 @@ const LatestRelease = async () => {
             className="flex font-semibold text-lg items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{latest.name}</a>
           <div className="flex flex-row gap-1">
             <div>
-                            <span
-                              className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
+              <span className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
             </div>
             <div>
-                            <span
-                              className="rounded-full border w-fit px-1 text-xs border-gray-400 text-gray-400 justify-center">{latest.tag}</span>
+              <span
+                className="rounded-full border w-fit px-1 text-xs border-gray-400 text-gray-400 justify-center">{latest.tag}</span>
             </div>
           </div>
         </div>

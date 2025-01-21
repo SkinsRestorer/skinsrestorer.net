@@ -1,6 +1,11 @@
 import {GenerateFileCard, OnlineCard, ReverseFileCard} from "./generator-card";
+import {Metadata} from "next";
 
-export const metadata = {}
+export const metadata: Metadata = {
+  openGraph: {
+    images: "https://skinsrestorer.net/og?title=Generator"
+  }
+}
 
 export default function RootComponent() {
   return (

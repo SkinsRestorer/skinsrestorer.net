@@ -9,7 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {Metadata, Viewport} from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL('https://skinsrestorer.net'),
   title: {
     default: 'SkinsRestorer - Minecraft Skin Plugin',
@@ -39,11 +39,11 @@ export const metadata = {
     // https://github.com/vercel/next.js/discussions/50189#discussioncomment-10826632
     canonical: './'
   }
-} satisfies Metadata
+}
 
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: "#B2A711"
-} satisfies Viewport
+}
 
 export default async function RootLayout({children}) {
   const navbar = (
