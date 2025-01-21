@@ -1,5 +1,12 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  openGraph: {
+    images: "https://skinsrestorer.net/og?title=404"
+  }
+}
 
 export default function RootComponent() {
   return (
