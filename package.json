@@ -33,7 +33,7 @@
     "react-dom": "^19.0.0",
     "react-timeago": "^7.2.0",
     "sonner": "^1.5.0",
-    "tailwind-merge": "^2.3.0",
+    "tailwind-merge": "^3.0.0",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
