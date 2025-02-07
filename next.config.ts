@@ -177,6 +177,11 @@ export default withPlausibleProxy({
         permanent: false,
       },
       {
+        source: '/skinedit',
+        destination: "/docs/features/skin-edit",
+        permanent: false,
+      },
+      {
         source: '/unicode',
         destination: "https://www.mobilefish.com/services/unicode_escape_sequence_converter/unicode_escape_sequence_converter.php",
         permanent: false,
