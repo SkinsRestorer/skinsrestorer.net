@@ -167,6 +167,11 @@ export default withPlausibleProxy({
         permanent: false,
       },
       {
+        source: '/modrinth',
+        destination: process.env.NEXT_PUBLIC_MODRINTH_LINK ?? "",
+        permanent: false,
+      },
+      {
         source: '/perms',
         destination: "/docs/configuration/commands-permissions",
         permanent: false,
