@@ -7,7 +7,6 @@ import {Metadata} from "next";
 import {SiGithub} from "@icons-pack/react-simple-icons";
 
 export const metadata: Metadata = {
-  description: "SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins.",
   openGraph: {
     images: "https://skinsrestorer.net/og?title=SkinsRestorer"
   }
