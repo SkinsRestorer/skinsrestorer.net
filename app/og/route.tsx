@@ -22,6 +22,11 @@ export async function GET(req) {
   const title = hasTitle
     ? searchParams.get('title')?.slice(0, 100)
     : 'SkinsRestorer Documentation'
+  // &description=<description>
+  const hasDescription = searchParams.has('description')
+  const description = hasDescription
+    ? searchParams.get('description')?.slice(0, 200)
+    : 'SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins.'
 
   return new ImageResponse(
     (
@@ -43,7 +48,8 @@ export async function GET(req) {
           color: 'white'
         }}
       >
-        <img alt="SkinsRestorer Logo" src={logo as never} width={80} height={80} style={{position: 'absolute', top: 70, left: 80}}/>
+        <img alt="SkinsRestorer Logo" src={logo as never} width={80} height={80}
+             style={{position: 'absolute', top: 70, left: 80}}/>
         <p
           style={{
             position: 'absolute',
@@ -54,7 +60,7 @@ export async function GET(req) {
             letterSpacing: -1
           }}
         >
-          SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins.
+          {description}
         </p>
         <h1
           style={{

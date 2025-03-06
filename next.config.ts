@@ -78,9 +78,13 @@ const rehypeOpenGraphImage = () => ast => {
   if (!title) {
     return
   }
+  const description = properties.find(o => o.key.value === 'description')?.value.value
+  if (!description) {
+    return
+  }
   const [prop] = createAstObject({
     openGraph: createAstObject({
-      images: `https://skinsrestorer.net/og?title=${title}`
+      images: `https://skinsrestorer.net/og?title=${title}&description=${description}`
     })
   }).properties
   properties.push(prop)

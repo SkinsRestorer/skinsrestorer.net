@@ -2,6 +2,7 @@ import {GenerateFileCard, OnlineCard, ReverseFileCard} from "./generator-card";
 import {Metadata} from "next";
 
 export const metadata: Metadata = {
+  description: "Generate or reverse skin files to use with SkinsRestorer.",
   openGraph: {
     images: "https://skinsrestorer.net/og?title=Generator"
   }
