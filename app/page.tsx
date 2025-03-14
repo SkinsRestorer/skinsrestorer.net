@@ -5,6 +5,11 @@ import Image from "next/image";
 import {CustomTimeAgo} from "~/components/time-ago";
 import {Metadata} from "next";
 import {SiGithub} from "@icons-pack/react-simple-icons";
+import {paths} from "@octokit/openapi-types";
+
+type LatestReleaseResponse = paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
+
+export const revalidate = 120; // 2 minutes
 
 export const metadata: Metadata = {
   openGraph: {
@@ -12,66 +17,56 @@ export const metadata: Metadata = {
   }
 }
 
-const getReleaseData = async () => {
-  const res = await fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest`);
-  const release = await res.json();
-  return ({
-    latest: {
-      url: release["html_url"],
-      name: release["name"],
-      tag: release["tag_name"],
-      download: release.assets[0]["browser_download_url"],
-      author: {
-        name: release.author["login"],
-        url: release.author["html_url"],
-        avatar: release.author["avatar_url"]
-      },
-      time: release["published_at"]
-    }
-  });
+async function getReleaseData(): Promise<LatestReleaseResponse> {
+  const response = await fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest`);
+  return await response.json();
 }
 
-const LatestRelease = async () => {
-  const {latest} = await getReleaseData()
+async function LatestRelease() {
+  const data: LatestReleaseResponse = await getReleaseData()
   return (
     <div
-      className="nextra-card mt-4 p-4 group flex flex-wrap gap-2 justify-between overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-xs active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-xs dark:border-neutral-800">
+      className="nextra-card mt-4 p-4 group flex max-md:flex-wrap md:flex-row gap-2 justify-between overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-xs active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-xs dark:border-neutral-800">
       <div className="flex flex-col">
         <div className="flex flex-wrap gap-1">
           <a
-            href={latest.url}
-            className="flex font-semibold text-lg items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{latest.name}</a>
+            href={data.html_url}
+            className="flex font-semibold text-lg items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{data.name}</a>
           <div className="flex flex-row gap-1">
             <div>
               <span className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
             </div>
             <div>
               <span
-                className="rounded-full border w-fit px-1 text-xs border-gray-400 text-gray-400 justify-center">{latest.tag}</span>
+                className="rounded-full border w-fit px-1 text-xs border-gray-400 text-gray-400 justify-center">
+                {data.tag_name}
+              </span>
             </div>
           </div>
         </div>
         <div className="flex mt-1">
           <a
-            href={latest.url}
+            href={data.html_url}
             className="flex flex-col md:flex-row gap-1 text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">
             <span className="flex flex-row cursor-pointer">Released by</span>
             <div className="flex flex-row gap-1">
-              <Image className="rounded-full w-6 h-6 my-auto" src={latest.author.avatar}
-                     width={16} height={16} alt={latest.author.name}/>
-              <span className="font-semibold">{latest.author.name}</span>
+              <Image className="rounded-full w-6 h-6 my-auto" src={data.author.avatar_url}
+                     width={16} height={16} alt={data.author.login}/>
+              <span className="font-semibold">{data.author.login}</span>
             </div>
-            <span><CustomTimeAgo date={latest.time}/></span>
+            <span><CustomTimeAgo date={data.published_at}/></span>
           </a>
         </div>
       </div>
-      <div className="flex flex-col justify-center">
-        <a
-          href={latest.download}
-          className="nextra-card front-button p-2 group">
-          <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
-          <span>Download</span>
-        </a>
+      <div className="min-w-fit flex max-md:flex-wrap md:flex-row gap-4 justify-start">
+        <div className="flex flex-col grow-0 justify-center">
+          <a
+            href={data.html_url}
+            className="nextra-card front-button p-2 group w-full">
+            <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
+            <span>Download</span>
+          </a>
+        </div>
       </div>
     </div>
   )

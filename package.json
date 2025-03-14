@@ -38,6 +38,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@octokit/openapi-types": "^24.0.0",
     "@tailwindcss/postcss": "4.0.10",
     "@types/file-saver": "^2.0.7",
     "@types/node": "22.13.9",
