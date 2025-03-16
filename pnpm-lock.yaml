@@ -13,7 +13,7 @@ importers:
         version: 2.2.0(react@19.0.0)
       '@icons-pack/react-simple-icons':
         specifier: ^12.0.0
-        version: 12.2.0(react@19.0.0)
+        version: 12.3.0(react@19.0.0)
       '@radix-ui/react-label':
         specifier: ^2.0.2
         version: 2.1.2(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -181,8 +181,8 @@ packages:
   '@iconify/utils@2.2.1':
     resolution: {integrity: sha512-0/7J7hk4PqXmxo5PDBDxmnecw5PxklZJfNjIVG9FM0mEfVrvfudS22rYWsqVk6gR3UJ/mSYS90X4R3znXnqfNA==}
 
-  '@icons-pack/react-simple-icons@12.2.0':
-    resolution: {integrity: sha512-fhTX7hlMJzAmolYvqmE28qf+LEkzc79aqiM8GI251eLAdLmSPnN8v25wYxCHXoQGBJmlLvm34GA+SkX1I64VqQ==}
+  '@icons-pack/react-simple-icons@12.3.0':
+    resolution: {integrity: sha512-71KKdd2tg36Pctg5pQTAmPRIdFrtxsLccoSexkZLztn46eV6Ek6ov69o0Ph4t4ZPs6n4+Fw4sBnIzEsKssnXxg==}
     peerDependencies:
       react: ^16.13 || ^17 || ^18 || ^19
 
@@ -2703,7 +2703,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@icons-pack/react-simple-icons@12.2.0(react@19.0.0)':
+  '@icons-pack/react-simple-icons@12.3.0(react@19.0.0)':
     dependencies:
       react: 19.0.0
 
