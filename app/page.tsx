@@ -24,13 +24,14 @@ async function getReleaseData(): Promise<LatestReleaseResponse> {
 
 async function LatestRelease() {
   const data: LatestReleaseResponse = await getReleaseData()
+  const releaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${data.tag_name}`
   return (
     <div
       className="nextra-card mt-4 p-4 group flex max-md:flex-wrap md:flex-row gap-2 justify-between overflow-hidden rounded-lg border border-gray-200 text-current dark:shadow-none hover:shadow-gray-100 dark:hover:shadow-none shadow-gray-100 active:shadow-xs active:shadow-gray-200 transition-all duration-200 hover:border-gray-300 bg-transparent shadow-xs dark:border-neutral-800">
       <div className="flex flex-col">
         <div className="flex flex-wrap gap-1">
           <a
-            href={data.html_url}
+            href={releaseLink}
             className="flex font-semibold text-lg items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{data.name}</a>
           <div className="flex flex-row gap-1">
             <div>
@@ -46,7 +47,7 @@ async function LatestRelease() {
         </div>
         <div className="flex mt-1">
           <a
-            href={data.html_url}
+            href={releaseLink}
             className="flex flex-col md:flex-row gap-1 text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">
             <span className="flex flex-row cursor-pointer">Released by</span>
             <div className="flex flex-row gap-1">
@@ -61,7 +62,7 @@ async function LatestRelease() {
       <div className="min-w-fit flex max-md:flex-wrap md:flex-row gap-4 justify-start">
         <div className="flex flex-col grow-0 justify-center">
           <a
-            href={data.html_url}
+            href={releaseLink}
             className="nextra-card front-button p-2 group w-full">
             <ArrowDownTrayIcon className="w-6 h-6 fill-gray-500 dark:fill-neutral-400"/>
             <span>Download</span>
