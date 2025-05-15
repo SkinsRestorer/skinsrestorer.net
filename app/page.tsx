@@ -33,10 +33,8 @@ async function LatestRelease() {
           <a
             href={releaseLink}
             className="flex font-semibold text-lg items-start text-gray-700 hover:text-gray-900 dark:text-neutral-200 dark:hover:text-neutral-50">{data.name}</a>
-          <div className="flex flex-row gap-1">
-            <div>
-              <span className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
-            </div>
+          <div className="flex flex-row items-center gap-1">
+            <span className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
           </div>
         </div>
         <div className="flex mt-1">
