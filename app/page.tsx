@@ -37,12 +37,6 @@ async function LatestRelease() {
             <div>
               <span className="rounded-full border w-fit px-1 text-xs border-green-400 text-green-400 justify-center">Latest Release</span>
             </div>
-            <div>
-              <span
-                className="rounded-full border w-fit px-1 text-xs border-gray-400 text-gray-400 justify-center">
-                {data.tag_name}
-              </span>
-            </div>
           </div>
         </div>
         <div className="flex mt-1">
