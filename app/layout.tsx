@@ -72,7 +72,7 @@ export default async function RootLayout({children}) {
       <PlausibleProvider trackOutboundLinks trackFileDownloads scriptProps={{"add-file-types": "jar"} as never}
                          domain="skinsrestorer.net"/>
     </Head>
-    <body>
+    <body suppressHydrationWarning>
     <Layout
       toc={{
         float: true

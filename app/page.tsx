@@ -18,7 +18,11 @@ export const metadata: Metadata = {
 }
 
 async function getReleaseData(): Promise<LatestReleaseResponse> {
-  const response = await fetch(`https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest`);
+  const response = await fetch('https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest', {
+    next: {
+      revalidate: 120,
+    }
+  });
   return await response.json();
 }
 
