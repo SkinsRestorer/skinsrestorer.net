@@ -27,7 +27,7 @@ export const OnlineCard = () => {
           API Status
         </h2>
         <div
-          className={`rounded-lg p-1 text-xs my-auto ${status === "loading" ? "bg-green-700" : status === "online" ? "bg-green-700" : "bg-red-700"}`}>
+          className={`rounded-lg p-1 text-xs my-auto ${status === "loading" ? "bg-green-500" : status === "online" ? "bg-green-500" : "bg-red-700"}`}>
           {status === "loading" ? "" : status === "online" ? "ONLINE" : "OFFLINE"}
         </div>
       </div>
