@@ -4,12 +4,7 @@ description: Learn how to set up SkinsRestorer on your server.
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card';
-import {
-  ArrowPathIcon,
-  ChatBubbleLeftEllipsisIcon,
-  Cog6ToothIcon,
-  CommandLineIcon,
-} from '@heroicons/react/24/solid';
+import { RefreshCw, MessageSquare, Settings, Terminal } from 'lucide-react';
 
 While SkinsRestorer works out-of-the-box, you might want to change some settings to fit your needs.
 
@@ -19,22 +14,22 @@ In these sections, you can read on the different aspects of the SkinsRestorer co
 
 <Cards>
   <Card
-    icon={<Cog6ToothIcon />}
+    icon={<Settings />}
     title="Configuration Options"
     href="/docs/configuration/options"
   ></Card>
   <Card
-    icon={<CommandLineIcon />}
+    icon={<Terminal />}
     title="Commands and Permissions"
     href="/docs/configuration/commands-permissions"
   ></Card>
   <Card
-    icon={<ChatBubbleLeftEllipsisIcon />}
+    icon={<MessageSquare />}
     title="Locale and Translations"
     href="/docs/configuration/locale-translations"
   ></Card>
   <Card
-    icon={<ArrowPathIcon />}
+    icon={<RefreshCw />}
     title="Auto update"
     href="/docs/configuration/auto-update"
   ></Card>

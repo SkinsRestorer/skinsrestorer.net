@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import {
-  ArrowDownTrayIcon,
-  ChevronDoubleRightIcon,
-} from '@heroicons/react/20/solid';
-import {
-  BoltIcon,
-  CloudArrowDownIcon,
-  PhotoIcon,
-  RocketLaunchIcon,
-  Squares2X2Icon,
-} from '@heroicons/react/24/solid';
+  Download,
+  ChevronsRight,
+  Zap,
+  CloudDownload,
+  Image as ImageIcon,
+  Rocket,
+  Grid3X3,
+} from 'lucide-react';
 import Image from 'next/image';
 import { CustomTimeAgo } from '~/components/time-ago';
 import { Metadata } from 'next';
@@ -87,7 +85,7 @@ async function LatestRelease() {
       <CardFooter>
         <Button asChild variant="outline" className="w-full sm:w-auto">
           <a href={releaseLink}>
-            <ArrowDownTrayIcon className="w-4 h-4" />
+            <Download className="w-4 h-4" />
             Download
           </a>
         </Button>
@@ -176,7 +174,7 @@ export default function IndexPage() {
             <Button asChild size="lg" className="text-base px-8 py-3">
               <Link href="/docs/installation">
                 Get Started
-                <ChevronDoubleRightIcon className="w-5 h-5 ml-2" />
+                <ChevronsRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 md:mt-24">
@@ -184,7 +182,7 @@ export default function IndexPage() {
                 <FeatureCard
                   title="Easy to use"
                   description="SkinsRestorer is easy to use, just install it and you're ready to go!"
-                  icon={<RocketLaunchIcon className="w-6 h-6 mx-auto my-2" />}
+                  icon={<Rocket className="w-6 h-6 mx-auto my-2" />}
                 />
               </Link>
               <FeatureCard
@@ -196,12 +194,12 @@ export default function IndexPage() {
                     to change your skin! It's that easy!
                   </span>
                 }
-                icon={<BoltIcon className="w-6 h-6 mx-auto my-2" />}
+                icon={<Zap className="w-6 h-6 mx-auto my-2" />}
               />
               <FeatureCard
                 title="Restore your skins"
                 description="SkinsRestorer can restore your skins on offline mode servers!"
-                icon={<CloudArrowDownIcon className="w-6 h-6 mx-auto my-2" />}
+                icon={<CloudDownload className="w-6 h-6 mx-auto my-2" />}
               />
               <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
                 <FeatureCard
@@ -221,7 +219,7 @@ export default function IndexPage() {
                     to use a skin from the internet!
                   </span>
                 }
-                icon={<PhotoIcon className="w-6 h-6 mx-auto my-2" />}
+                icon={<ImageIcon className="w-6 h-6 mx-auto my-2" />}
               />
               <FeatureCard
                 title="Use our GUI"
@@ -231,7 +229,7 @@ export default function IndexPage() {
                     <code className="highlight-code">/skins</code>!
                   </span>
                 }
-                icon={<Squares2X2Icon className="w-6 h-6 mx-auto my-2" />}
+                icon={<Grid3X3 className="w-6 h-6 mx-auto my-2" />}
               />
             </div>
             <h2 className="text-center text-3xl md:text-4xl font-bold mt-20 md:mt-32 mb-12">
