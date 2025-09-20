@@ -1,0 +1,61 @@
+---
+description: Learn about the auto-update feature in SkinsRestorer.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Auto update
+
+The plugin uses a built-in auto-update system to check for updates every time the server starts.
+If a new version is available, the plugin will automatically download and install it on the next server restart.
+
+<Callout type="info" emoji="ℹ️">
+  If you run a proxy network (BungeeCord/Velocity), the plugin will not auto-update on the proxy, but only on the
+  backend servers.
+  When you get prompted to update the plugin, you need to always manually update it on the proxy
+</Callout>
+
+### Why is auto update enabled by default?
+
+Auto update is a security feature that ensures you always have the latest version of the plugin.
+SkinsRestorer ensures that the plugin stays operational and is not vulnerable to any security issues.
+
+Auto update also ensures that you always have the latest features and bug fixes.
+Support for older versions is not provided, and you will be asked to update to the latest version if you encounter any issues.
+Very often, the issue you're facing has already been fixed in the latest version.
+We get a lot of duplicate issues that have already been fixed in the latest version because people don't update.
+
+### Why should I always use the latest version?
+
+- Security: The latest version of the plugin is always the most secure version.
+- Features: The latest version of the plugin has the latest features and bug fixes.
+- Support: We only provide support for the latest version of the plugin.
+- Compatibility: The latest version of the plugin is always compatible with the latest & older version of Minecraft and other plugins.
+
+### Is auto updates secure?
+
+SkinsRestorer does verify the downloaded file using hash verification to check and make sure the file downloaded is not corrupt and the exact copy as the one from our GitHub releases.
+Before we release any update, we test it using unit testing as well as by our testers team by giving them enough time to test for things that may break your server and or other plugins.
+
+### How to disable auto update
+
+You should not disable auto update. If you disable it, you will void getting support for any issues.
+We have a strict policy on this, and we will not provide support for any issues if you disable the auto-update feature.
+
+Reasons why you think you should turn it off:
+
+- You don't want the plugin to update automatically:
+  - We understand you may not like this behaviour, however, it's for your and our own good.
+    We ensure that the updates are secure and tested before we release them.
+- You want to manually update SkinsRestorer:
+  - You don't need to manually update SkinsRestorer, we do it for you. You will also be messaged in-game when an update is available.
+- You never want SkinsRestorer to be updated:
+  - We only provide support for the latest version of the plugin. If you're not on the latest version, we will ask you to update.
+    We do not have the resources to support older versions.
+- You're against auto-updates:
+  - We make it intentionally hard to turn off auto-updates because we want to ensure that you always have the latest version of the plugin.
+    We do not have the resources to help someone without the latest version. We have a strict policy on this.
+    Please reconsider your decision to disable auto-update.
+
+Instructions on how to disable auto update can be found at the bottom of the `config.yml` file.
+If you don't understand how to disable it, you probably shouldn't disable it.
