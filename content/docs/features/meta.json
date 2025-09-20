@@ -1,5 +1,4 @@
 {
-  "title": "Features",
-  "pages": ["index", "custom-skins", "skin-url", "skin-edit", "skin-design"],
+  "pages": ["custom-skins", "skin-url", "skin-edit", "skin-design"],
   "defaultOpen": false
 }

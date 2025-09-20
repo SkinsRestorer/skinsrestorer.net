@@ -1,7 +1,5 @@
 {
-  "title": "Troubleshooting",
   "pages": [
-    "index",
     "common-issues",
     "proxy-mode",
     "firewall",

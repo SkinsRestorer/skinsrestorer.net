@@ -1,18 +1,16 @@
 ---
+title: Commands and Permissions
 description: Learn how to use commands and permissions in SkinsRestorer.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Commands and Permissions
 
 Below is a list of commands and permissions. For each permission, you need to have the parent's permission.
 So, for example, if you wish to give a player "`skinsrestorer.command.set.other`" make sure you also give
 BOTH `skinsrestorer.command.set` permission and the main "`skinsrestorer.command`" permission
 
 <Callout type="info" emoji="ℹ️">
-  Commands not working? Read the
-  [installation guide](/docs/installation)
+  Commands not working? Read the [installation guide](/docs/installation)
 </Callout>
 
 ## Commands
@@ -25,7 +23,7 @@ The commands below can also be accessed when having one of these permissions:
 `skinsrestorer.player` / `skinsrestorer.command.*`
 
 | Command                                       | Description                          | Permission                           |
-|-----------------------------------------------|--------------------------------------|--------------------------------------|
+| --------------------------------------------- | ------------------------------------ | ------------------------------------ |
 | `/skin`                                       | Changes your own skin.               | `skinsrestorer.command`              |
 | `/skin set <skinName>`                        | Changes your skin.                   | `skinsrestorer.command.set`          |
 | `/skin set <skinName> <target>`               | Sets the skin for a target player.   | `skinsrestorer.command.set.other`    |
@@ -47,7 +45,7 @@ The commands below can also be accessed when having one of these permissions:
 `skinsrestorer.admin` / `skinsrestorer.admincommand.*`
 
 | Command                                                 | Description                                    | Permission                                |
-|---------------------------------------------------------|------------------------------------------------|-------------------------------------------|
+| ------------------------------------------------------- | ---------------------------------------------- | ----------------------------------------- |
 | `/sr`                                                   | Admin commands for SkinsRestorer.              | `skinsrestorer.admincommand`              |
 | `/sr createcustom <skinName> <skinInput>`               | Create a custom server wide skin.              | `skinsrestorer.admincommand.createcustom` |
 | `/sr createcustom <skinName> <skinInput> <skinVariant>` | Create a custom server wide skin.              | `skinsrestorer.admincommand.createcustom` |
@@ -79,7 +77,7 @@ you can use the `/sr dump` command to generate a link you can send to the develo
 SkinsRestorer has a variety of extra permissions that you can use to control access to certain features.
 
 | Permission                     | Description                                                          |
-|--------------------------------|----------------------------------------------------------------------|
+| ------------------------------ | -------------------------------------------------------------------- |
 | `skinsrestorer.bypasscooldown` | Bypasses any command cooldown set in the config.                     |
 | `skinsrestorer.bypassdisabled` | Bypasses any disabled skins set in the config.                       |
 | `skinsrestorer.ownskin`        | Allows access to set your own skin.                                  |

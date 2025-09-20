@@ -1,7 +1,5 @@
 {
-  "title": "Integrations",
   "pages": [
-    "index",
     "placeholderapi",
     "discordsrv",
     "discord-mc-chat",

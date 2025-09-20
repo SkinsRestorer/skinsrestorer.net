@@ -1,7 +1,5 @@
 {
-  "title": "Configuration",
   "pages": [
-    "index",
     "options",
     "commands-permissions",
     "locale-translations",

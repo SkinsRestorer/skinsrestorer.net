@@ -1,8 +1,7 @@
 ---
+title: Incompatibility list
 description: Learn about known incompatibilities with SkinsRestorer.
 ---
-
-# Incompatibility list
 
 SkinsRestorer may collide with third-party software such as plugins, mods, launchers, etc.
 Here we share common reasons for issues.
@@ -17,10 +16,10 @@ We have a [page](/docs/troubleshooting/launcher-issues) dedicated to these issue
 Some not-well-coded plugins or plugins that modify the user profile mightn't work well with SkinsRestorer.
 You can see this when you, for example, change a skin, and you see the chunks reload, but your skin just won't apply.
 
-* Other skin plugins like `MySKin`
-* `Skript` (They can also hook into skins)
-* Custom world plugins
-* Some TabList plugins
+- Other skin plugins like `MySKin`
+- `Skript` (They can also hook into skins)
+- Custom world plugins
+- Some TabList plugins
 
 To figure out if it is a plugin incompatibility,
 the best thing to do is running your server with SkinsRestorer as the only plugin
@@ -30,18 +29,18 @@ This way you can identify the plugin that might cause the issue.
 
 ## Server plugins that need config change
 
-* `FastLogin` -> FastLogin `config.yml` -> `forwardSkin: false{:yaml}`
-* `MundoSK` -> MundoSK `config.yml` -> `usecustomskins: false{:yaml}`
+- `FastLogin` -> FastLogin `config.yml` -> `forwardSkin: false{:yaml}`
+- `MundoSK` -> MundoSK `config.yml` -> `usecustomskins: false{:yaml}`
 
 ## Server plugin incompatibility
 
 Some plugins are known to cause issues with SkinsRestorer. Here is a list of known incompatible plugins:
 
-* `AntiBotDeluxe`
-* `Nicknamer`
-* `OldCombatMechanics` (older versions)
-* `Tablisknu`
-* `WorldChangeScreenRemover`
+- `AntiBotDeluxe`
+- `Nicknamer`
+- `OldCombatMechanics` (older versions)
+- `Tablisknu`
+- `WorldChangeScreenRemover`
 
 ### Server software incompatibility
 
@@ -57,4 +56,3 @@ Very commonly issues happen with:
 
 We want to support these platforms, but we can't do it alone if you are a developer and want to help us,
 feel free to open a PR on our GitHub.
-

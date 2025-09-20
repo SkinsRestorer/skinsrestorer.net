@@ -1,14 +1,15 @@
 ---
+title: Inner workings of SkinsRestorer
 description: Learn how SkinsRestorer works under the hood.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Inner workings of SkinsRestorer
+import { Mermaid } from '../../../src/components/mdx/mermaid';
 
 <Callout type="info">
-  We recommend reading the [storage page](/docs/development/storage) before reading this page,
-  it explains a few basic concepts that are used in this page.
+  We recommend reading the [storage page](/docs/development/storage) before
+  reading this page, it explains a few basic concepts that are used in this
+  page.
 </Callout>
 
 Want to know what SkinsRestorer does under the hood? This page touches on a few things that SkinsRestorer does, so you can understand how it works.
@@ -21,8 +22,8 @@ The reason for this is likely that they want to prevent servers from setting exp
 They also use this to make capes exclusive to certain players, like Minecon attendees.
 
 <Callout emoji="📔">
-  Extra note: You can set any skin you want on Minecraft heads, the restrictions are only for player skins. (This also
-  includes NPCs from Citizens)
+  Extra note: You can set any skin you want on Minecraft heads, the restrictions
+  are only for player skins. (This also includes NPCs from Citizens)
 </Callout>
 
 We're using two methods to get you the skin you want.
@@ -36,7 +37,7 @@ For 2. we use [MineSkin](https://mineskin.org) to apply the skin data to the pla
 
 Here is a simple flowchart:
 
-```mermaid
+<Mermaid chart="
 sequenceDiagram
     create participant U as User
     create participant SR as SkinsRestorer
@@ -48,7 +49,7 @@ sequenceDiagram
     destroy M
     M->>SR: Skin <value> & <signature>
     SR->>U: Skin <value> & <signature>
-```
+" />
 
 ## How does Ashcon help?
 

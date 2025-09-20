@@ -1,10 +1,9 @@
 ---
+title: Firewall
 description: Learn how to resolve SkinRestorer firewall issues.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Firewall
 
 If, by running `/sr status` you get the following red message:
 
@@ -15,18 +14,19 @@ Then this means your server cannot connect to the APIs the plugin requires to wo
 ## How to fix it?
 
 <Callout type="info" emoji="ℹ️">
-  The list on this page may change, so make sure to check back if you are still having issues.
+  The list on this page may change, so make sure to check back if you are still
+  having issues.
 </Callout>
 
 This is a good question, and you are the right place to get an answer.
 Our plugin needs the following domains at the following ports to be fully reachable:
 
 > All the required rules are **outgoing**, the only incoming traffic that should be accepted is the one from already
-> established connections. Your server must be able to connect to the other networks. SkinsRestorer doesn't** require
+> established connections. Your server must be able to connect to the other networks. SkinsRestorer doesn't\*\* require
 > any incoming traffic from new connections to be accepted.
 
 | Domain                          | Port  |
-|---------------------------------|-------|
+| ------------------------------- | ----- |
 | `eclipse.skinsrestorer.net`     | `443` |
 | `cool-skins.skinsrestorer.net`  | `443` |
 | `api.mojang.com`                | `443` |
@@ -62,4 +62,3 @@ Email - support@skinsrestorer.net
 
 Kind regards
 ```
-

@@ -1,5 +1,4 @@
 {
-  "title": "Developer Guides",
-  "pages": ["index", "api", "storage", "inner-workings"],
+  "pages": ["api", "storage", "inner-workings"],
   "defaultOpen": false
 }

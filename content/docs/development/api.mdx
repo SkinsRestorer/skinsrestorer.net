@@ -1,11 +1,10 @@
 ---
+title: SkinsRestorer API
 description: Learn how to use the SkinsRestorer developer API.
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# SkinsRestorer API
 
 SkinsRestorer has a public API that can be used by other plugins to interact with SkinsRestorer.
 
@@ -17,8 +16,8 @@ SkinsRestorer has a public API that can be used by other plugins to interact wit
 
 You can find useful resources to the SkinsRestorer API below:
 
-* [Example Plugin](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)
-* [Javadocs](https://jd.skinsrestorer.net)
+- [Example Plugin](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)
+- [Javadocs](https://jd.skinsrestorer.net)
 
 ## Add to your build file
 
@@ -49,6 +48,7 @@ Latest Version (Without the v):
       </dependency>
     </dependencies>
     ```
+
   </Tab>
   <Tab>
     Add the following repository and dependency to your `build.gradle` file:
@@ -58,14 +58,17 @@ Latest Version (Without the v):
     maven {
     name 'codemc'
     url 'https://repo.codemc.org/repository/maven-public/'
-  }
-  }
+
+}
+}
 
     dependencies {
     // SkinsRestorer API
     compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
-  }
-    ```
+
+}
+```
+
   </Tab>
   <Tab>
     Add the following repository and dependency to your `build.gradle.kts` file:
@@ -74,14 +77,17 @@ Latest Version (Without the v):
     repositories {
     maven("https://repo.codemc.org/repository/maven-public/") {
     name = "codemc"
-  }
-  }
+
+}
+}
 
     dependencies {
     // SkinsRestorer API
     compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
-  }
-    ```
+
+}
+```
+
   </Tab>
 </Tabs>
 
@@ -102,6 +108,7 @@ The process below may vary depending on your build configuration.
     ```yml filename="plugin.yml"
     softdepend: [ "SkinsRestorer" ]
     ```
+
   </Tab>
   <Tab>
     BungeeCord uses `softDepends` instead of `softdepend` like Bukkit/Spigot.
@@ -110,6 +117,7 @@ The process below may vary depending on your build configuration.
     ```yml filename="bungee.yml"
     softDepends: [ "SkinsRestorer" ]
     ```
+
   </Tab>
   <Tab>
     Add the following dependency to your plugin entry file annotation:
@@ -117,6 +125,7 @@ The process below may vary depending on your build configuration.
     ```java filename="YourPluginClass.java"
     @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
     ```
+
   </Tab>
 </Tabs>
 
@@ -127,8 +136,8 @@ You would need to use in/out put channels to send this information across both o
 
 ## Getting issues?
 
-* Make sure to import all your classes if you see the message "Cannot find symbol" or "Cannot resolve symbol"
-* Make sure to get the API using `this.skinsRestorer = SkinsRestorerProvider.get();{:java}` and you have the field `private SkinsRestorer skinsRestorer;{:java}` at the start of your class.
-* Make sure to add the dependency to your build file as described above.
-* Make sure to add the dependency to your plugin.yml as described above.
-* Make sure SkinsRestorer is not in "Proxy Mode" if you are using BungeeCord/Velocity.
+- Make sure to import all your classes if you see the message "Cannot find symbol" or "Cannot resolve symbol"
+- Make sure to get the API using `this.skinsRestorer = SkinsRestorerProvider.get();{:java}` and you have the field `private SkinsRestorer skinsRestorer;{:java}` at the start of your class.
+- Make sure to add the dependency to your build file as described above.
+- Make sure to add the dependency to your plugin.yml as described above.
+- Make sure SkinsRestorer is not in "Proxy Mode" if you are using BungeeCord/Velocity.

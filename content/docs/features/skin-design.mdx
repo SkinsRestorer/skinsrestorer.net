@@ -1,8 +1,7 @@
 ---
+title: Skin Design
 description: Learn how to design skins for SkinsRestorer.
 ---
-
-# Skin Design
 
 SkinsRestorer allows players and admins to apply custom skins. Skins are basically just `64x64` PNG images stored on the Minecraft CDN and signed via the yggdrasil private key.
 Confused what that means? Don't worry, we got you covered. You don't need to know exactly how it works internally to use it. All you need to know is how to get an arbitrary skin you can use in-game.
@@ -16,7 +15,7 @@ Skins allow you to express your personality in Minecraft. But you need to know a
 ### How do skins need to be formatted?
 
 Skins are `64x64` pixel images in `.png` format. The skin always consists of two layers: the outer layer and the inner layer.
-The inner layer __must__ be fully opaque, while the outer layer can have transparent pixels. The outer layer is used to add details like hats, glasses, or other accessories on top of the inner layer.
+The inner layer **must** be fully opaque, while the outer layer can have transparent pixels. The outer layer is used to add details like hats, glasses, or other accessories on top of the inner layer.
 
 Minecraft allows you to toggle parts of the outer layer on and off in the client.
 This is useful if you want to see the full skin without any accessories.
