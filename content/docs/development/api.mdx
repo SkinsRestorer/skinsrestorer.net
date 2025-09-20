@@ -10,7 +10,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 SkinsRestorer has a public API that can be used by other plugins to interact with SkinsRestorer.
 
 <Callout type="warning" emoji="🚨">
-    Please note that this API is still work-in-progress. Expect breaking changes!
+  Please note that this API is still work-in-progress. Expect breaking changes!
 </Callout>
 
 ## Resources
@@ -28,61 +28,61 @@ Latest Version (Without the v):
 ![Latest Version](https://img.shields.io/github/v/tag/SkinsRestorer/SkinsRestorer?label=version)
 
 <Tabs items={['Maven', 'Gradle (Groovy)', 'Gradle (Kotlin)']}>
-    <Tab>
-        Add the following repository and dependency to your `pom.xml` file:
+  <Tab>
+    Add the following repository and dependency to your `pom.xml` file:
 
-        ```xml filename="pom.xml"
-        <repositories>
-            <repository>
-                <id>codemc</id>
-                <url>https://repo.codemc.org/repository/maven-public/</url>
-            </repository>
-        </repositories>
+    ```xml filename="pom.xml"
+    <repositories>
+      <repository>
+        <id>codemc</id>
+        <url>https://repo.codemc.org/repository/maven-public/</url>
+      </repository>
+    </repositories>
 
-        <dependencies>
-            <!-- SkinsRestorer API -->
-            <dependency>
-                <groupId>net.skinsrestorer</groupId>
-                <artifactId>skinsrestorer-api</artifactId>
-                <version>VERSION</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-        ```
-    </Tab>
-    <Tab>
-        Add the following repository and dependency to your `build.gradle` file:
+    <dependencies>
+      <!-- SkinsRestorer API -->
+      <dependency>
+        <groupId>net.skinsrestorer</groupId>
+        <artifactId>skinsrestorer-api</artifactId>
+        <version>VERSION</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+    ```
+  </Tab>
+  <Tab>
+    Add the following repository and dependency to your `build.gradle` file:
 
-        ```groovy filename="build.gradle"
-        repositories {
-            maven {
-                name 'codemc'
-                url 'https://repo.codemc.org/repository/maven-public/'
-            }
-        }
+    ```groovy filename="build.gradle"
+    repositories {
+    maven {
+    name 'codemc'
+    url 'https://repo.codemc.org/repository/maven-public/'
+  }
+  }
 
-        dependencies {
-            // SkinsRestorer API
-            compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
-        }
-        ```
-    </Tab>
-    <Tab>
-        Add the following repository and dependency to your `build.gradle.kts` file:
+    dependencies {
+    // SkinsRestorer API
+    compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
+  }
+    ```
+  </Tab>
+  <Tab>
+    Add the following repository and dependency to your `build.gradle.kts` file:
 
-        ```kotlin filename="build.gradle.kts"
-        repositories {
-            maven("https://repo.codemc.org/repository/maven-public/") {
-                name = "codemc"
-            }
-        }
+    ```kotlin filename="build.gradle.kts"
+    repositories {
+    maven("https://repo.codemc.org/repository/maven-public/") {
+    name = "codemc"
+  }
+  }
 
-        dependencies {
-            // SkinsRestorer API
-            compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
-        }
-        ```
-    </Tab>
+    dependencies {
+    // SkinsRestorer API
+    compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
+  }
+    ```
+  </Tab>
 </Tabs>
 
 ## Add SkinsRestorer as a dependency
@@ -96,28 +96,28 @@ The process below may vary depending on your build configuration.
 (E.g., you have a build plugin that generates plugin configs)
 
 <Tabs items={['Bukkit', 'BungeeCord', 'Velocity']}>
-    <Tab>
-        Add the following dependency to your `plugin.yml` file:
+  <Tab>
+    Add the following dependency to your `plugin.yml` file:
 
-        ```yml filename="plugin.yml"
-        softdepend: [ "SkinsRestorer" ]
-        ```
-    </Tab>
-    <Tab>
-        BungeeCord uses `softDepends` instead of `softdepend` like Bukkit/Spigot.
-        Add the following dependency to your `bungee.yml` or `plugin.yml` file:
+    ```yml filename="plugin.yml"
+    softdepend: [ "SkinsRestorer" ]
+    ```
+  </Tab>
+  <Tab>
+    BungeeCord uses `softDepends` instead of `softdepend` like Bukkit/Spigot.
+    Add the following dependency to your `bungee.yml` or `plugin.yml` file:
 
-        ```yml filename="bungee.yml"
-        softDepends: [ "SkinsRestorer" ]
-        ```
-    </Tab>
-    <Tab>
-        Add the following dependency to your plugin entry file annotation:
+    ```yml filename="bungee.yml"
+    softDepends: [ "SkinsRestorer" ]
+    ```
+  </Tab>
+  <Tab>
+    Add the following dependency to your plugin entry file annotation:
 
-        ```java filename="YourPluginClass.java"
-        @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
-        ```
-    </Tab>
+    ```java filename="YourPluginClass.java"
+    @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
+    ```
+  </Tab>
 </Tabs>
 
 ## When using BungeeCord/Velocity?
