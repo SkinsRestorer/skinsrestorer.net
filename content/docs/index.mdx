@@ -2,6 +2,9 @@
 description: Introduction to SkinsRestorer and its features.
 ---
 
+import { DownloadIcon } from 'lucide-react';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
 # Introduction
 
 SkinsRestorer is a plugin that restores skins for offline mode servers & networks that gives the players the ability to
@@ -27,9 +30,7 @@ So, what is it in for you?
 
 ## Getting started
 
-import {Cards} from "nextra/components"
-
-<div className="mt-4">
-    <Cards.Card arrow title="Install SkinsRestorer" href="/docs/installation">
-    </Cards.Card>
-</div>
+<Cards>
+    <Card icon={<DownloadIcon/>} title="Install SkinsRestorer" href="/docs/installation">
+    </Card>
+</Cards>

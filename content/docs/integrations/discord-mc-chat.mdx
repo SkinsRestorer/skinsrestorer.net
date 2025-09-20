@@ -2,7 +2,8 @@
 description: Learn how to integrate SkinsRestorer with Discord-MC-Chat.
 ---
 
-import {Steps} from "nextra/components";
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # Discord-MC-Chat
 
@@ -11,9 +12,13 @@ SkinsRestorer skins can be used for Discord-MC-Chat messages using the textures 
 ## Setup instructions
 
 <Steps>
+  <Step>
     ### Prepare your server
-    Ensure [SkinsRestorer](/docs/installation) and [Discord-MC-Chat](https://modrinth.com/mod/discord-mc-chat) are installed on your server, are the latest version and are working correctly.
+    Ensure [SkinsRestorer](/docs/installation) and [Discord-MC-Chat](https://modrinth.com/mod/discord-mc-chat) are
+    installed on your server, are the latest version and are working correctly.
+  </Step>
 
+  <Step>
     ### Configure Discord-MC-Chat
     Open your Discord-MC-Chat `./config/discord-mc-chat.json` and search for the `avatarApi` section.
     The config setting looks like this:
@@ -21,16 +26,23 @@ SkinsRestorer skins can be used for Discord-MC-Chat messages using the textures 
     ```json filename="config/discord-mc-chat.json"
     "avatarApi": "https://mc-heads.net/avatar/{player_uuid}.png",
     ```
+  </Step>
 
+  <Step>
     You have to replace it with the following:
 
     ```json filename="config/discord-mc-chat.json"
     "avatarApi": "https://mc-heads.net/avatar/{player_textures}.png",
     ```
+  </Step>
 
+  <Step>
     ### Reload Discord-MC-Chat
     Run `/dmcc reload` in-game or in console, or `/reload` in Discord to reload.
+  </Step>
 
+  <Step>
     ### That's it!
     Now all SkinsRestorer avatars will be displayed in Discord-MC-Chat messages! 🎉
+  </Step>
 </Steps>

@@ -2,7 +2,7 @@
 description: Learn how to use a custom skin by using a URL with SkinsRestorer.
 ---
 
-import {Steps} from "nextra/components";
+import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # Skin URL
 
@@ -24,19 +24,24 @@ You can see the image below as reference:
 This time we are going to upload your custom skin format to imgur. Follow the following steps:
 
 <Steps>
+  <Step>
     ### Download the file
 
     You need to get a skin file in `.png` format. You can use the skin you created or downloaded from the internet.
     We have a [skin design](/docs/features/skin-design) guide if you need help with that.
 
     ![Image in download folder](/assets/imgur/download-folder.png)
+    </Step>
 
+    <Step>
     ### Go to https://imgur.com/upload
 
     Upload the file to **imgur** (see image below)
 
     ![Dropping skin image into imgur](/assets/imgur/upload-image.png)
+    </Step>
 
+      <Step>
     ### Getting the URL
 
     The Skin URL **__must__** end with `.png`, so make sure that you have the right URL!
@@ -50,4 +55,5 @@ This time we are going to upload your custom skin format to imgur. Follow the fo
     That's it! You can now set the skin by using your **imgur** URL!
     The command to set the skin is `/skin url "<url>"`.
     Make sure the URL is in quotes.
+      </Step>
 </Steps>

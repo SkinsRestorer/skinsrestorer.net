@@ -2,7 +2,7 @@
 description: Learn how to use the SkinsRestorer developer API.
 ---
 
-import {Tabs} from "nextra/components";
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
 # SkinsRestorer API
@@ -28,7 +28,7 @@ Latest Version (Without the v):
 ![Latest Version](https://img.shields.io/github/v/tag/SkinsRestorer/SkinsRestorer?label=version)
 
 <Tabs items={['Maven', 'Gradle (Groovy)', 'Gradle (Kotlin)']}>
-    <Tabs.Tab>
+    <Tab>
         Add the following repository and dependency to your `pom.xml` file:
 
         ```xml filename="pom.xml"
@@ -49,8 +49,8 @@ Latest Version (Without the v):
             </dependency>
         </dependencies>
         ```
-    </Tabs.Tab>
-    <Tabs.Tab>
+    </Tab>
+    <Tab>
         Add the following repository and dependency to your `build.gradle` file:
 
         ```groovy filename="build.gradle"
@@ -66,8 +66,8 @@ Latest Version (Without the v):
             compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
         }
         ```
-    </Tabs.Tab>
-    <Tabs.Tab>
+    </Tab>
+    <Tab>
         Add the following repository and dependency to your `build.gradle.kts` file:
 
         ```kotlin filename="build.gradle.kts"
@@ -82,7 +82,7 @@ Latest Version (Without the v):
             compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
         }
         ```
-    </Tabs.Tab>
+    </Tab>
 </Tabs>
 
 ## Add SkinsRestorer as a dependency
@@ -96,28 +96,28 @@ The process below may vary depending on your build configuration.
 (E.g., you have a build plugin that generates plugin configs)
 
 <Tabs items={['Bukkit', 'BungeeCord', 'Velocity']}>
-    <Tabs.Tab>
+    <Tab>
         Add the following dependency to your `plugin.yml` file:
 
         ```yml filename="plugin.yml"
         softdepend: [ "SkinsRestorer" ]
         ```
-    </Tabs.Tab>
-    <Tabs.Tab>
+    </Tab>
+    <Tab>
         BungeeCord uses `softDepends` instead of `softdepend` like Bukkit/Spigot.
         Add the following dependency to your `bungee.yml` or `plugin.yml` file:
 
         ```yml filename="bungee.yml"
         softDepends: [ "SkinsRestorer" ]
         ```
-    </Tabs.Tab>
-    <Tabs.Tab>
+    </Tab>
+    <Tab>
         Add the following dependency to your plugin entry file annotation:
 
         ```java filename="YourPluginClass.java"
         @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
         ```
-    </Tabs.Tab>
+    </Tab>
 </Tabs>
 
 ## When using BungeeCord/Velocity?

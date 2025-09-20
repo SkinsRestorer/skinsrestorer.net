@@ -1,9 +1,8 @@
 ---
-asIndexPage: true
 description: Learn how to integrate your application with SkinsRestorer.
 ---
 
-import {Cards} from "nextra/components";
+import { Cards, Card } from 'fumadocs-ui/components/card';
 import {CommandLineIcon, CircleStackIcon, Cog6ToothIcon} from "@heroicons/react/24/solid";
 
 # SkinsRestorer Development
@@ -16,28 +15,28 @@ This page will help you to integrate them with SkinsRestorer.
 In these sections, you can read about how to develop with the SkinsRestorer API.
 
 <Cards>
-  <Cards.Card
+  <Card
     icon={
       <CommandLineIcon/>
     }
     title="API"
     href="/docs/development/api"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <CircleStackIcon/>
     }
     title="Data Storage"
     href="/docs/development/data-storage"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <Cog6ToothIcon/>
     }
     title="Inner workings"
     href="/docs/development/inner-workings"
   >
-  </Cards.Card>
+  </Card>
 </Cards>

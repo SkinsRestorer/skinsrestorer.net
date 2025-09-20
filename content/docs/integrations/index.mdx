@@ -1,9 +1,8 @@
 ---
-asIndexPage: true
 description: Learn how to integrate third-party software with SkinsRestorer.
 ---
 
-import {Cards} from "nextra/components";
+import { Cards, Card } from 'fumadocs-ui/components/card';
 import {ChatBubbleBottomCenterTextIcon, ChatBubbleLeftRightIcon, UserCircleIcon, CodeBracketIcon} from "@heroicons/react/24/solid";
 
 # SkinsRestorer Integrations
@@ -15,36 +14,36 @@ SkinsRestorer is compatible with much third-party software. This page will help 
 In these sections, you can read on different possible integrations with third-party software.
 
 <Cards>
-  <Cards.Card
+  <Card
     icon={
       <CodeBracketIcon/>
     }
     title="PlaceholderAPI"
     href="/docs/integrations/placeholderapi"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <ChatBubbleLeftRightIcon/>
     }
     title="DiscordSRV"
     href="/docs/integrations/discordsrv"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <ChatBubbleBottomCenterTextIcon/>
     }
     title="Discord MC Chat"
     href="/docs/integrations/discord-mc-chat"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <UserCircleIcon/>
     }
     title="Avatar URL"
     href="/docs/integrations/avatar-url"
   >
-  </Cards.Card>
+  </Card>
 </Cards>

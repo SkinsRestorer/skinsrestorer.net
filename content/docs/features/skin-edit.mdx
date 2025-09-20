@@ -2,7 +2,7 @@
 description: Learn how to edit your skin with SkinsRestorer.
 ---
 
-import {Steps} from "nextra/components";
+import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # Skin Edit
 
@@ -14,29 +14,38 @@ Learn how to edit and update your local skin.
 This time we are going to upload your edited skin to imgur. Follow the following steps:
 
 <Steps>
+    <Step>
     ### Run the command
 
     Run the command `/skin edit` in the chat. This will give you a link to the skin editor.
+    </Step>
 
+    <Step>
     ### Edit the skin
 
     Use the skin editor to make changes to your skin. Once you are done, click on save the skin.
 
     ![Save edited skin](/assets/edit/save.png)
+    </Step>
 
+    <Step>
     ### Save the skin image
 
     Go to the left side and right click on the skin template shown in 2D.
     Right click the image and click on "save image as"
 
     ![Save image](/assets/edit/save-as.png)
+    </Step>
 
+    <Step>
     ### Go to https://imgur.com/upload
 
     Upload the file to **imgur** (see image below)
 
     ![Dropping skin image into imgur](/assets/imgur/upload-image.png)
+    </Step>
 
+    <Step>
     ### Getting the URL
 
     The Skin URL **__must__** end with `.png`, so make sure that you have the right URL!
@@ -50,4 +59,5 @@ This time we are going to upload your edited skin to imgur. Follow the following
     That's it! You can now set the skin by using your **imgur** URL!
     The command to set the skin is `/skin url "<url>"`.
     Make sure the URL is in quotes.
+    </Step>
 </Steps>

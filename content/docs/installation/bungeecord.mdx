@@ -1,0 +1,114 @@
+---
+description: Learn how to install SkinsRestorer on your BungeeCord proxy.
+---
+
+
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Installation on BungeeCord
+
+Before installing, we recommend you to read the [main installation page](/docs/installation).
+
+## Basic Installation
+
+In this section, you can read how to set up SkinsRestorer on your BungeeCord proxy.
+
+<Callout type="info" emoji="ℹ️">
+  Heads up! SkinsRestorer works best when you also install it on your backend servers.
+  This is not required, but you will miss out on some features. Read more below.
+</Callout>
+
+<Callout type="info" emoji="ℹ️">
+  We also support Waterfall instead of BungeeCord. The installation process is the same.
+  Other BungeeCord-like proxies like FlameCord and and Aegis are not "officially" supported, but they should work.
+</Callout>
+
+<Steps>
+  <Step>
+    ### Download the plugin
+    Download the latest version from [Modrinth](https://modrinth.com/plugin/skinsrestorer)
+  </Step>
+
+  <Step>
+    ### Put it in the BungeeCord folder
+    Place the `SkinsRestorer.jar` in the `plugins` folder of the **BungeeCord proxy**.
+  </Step>
+
+  <Step>
+    ### Put it into every Spigot folder
+    Place the `SkinsRestorer.jar` in the `plugins` folders of **every Spigot server**.
+  </Step>
+
+  <Step>
+    ### Setup player information forwarding
+    You need to setup player information forwarding in order for SkinsRestorer to communicate with your backend servers.
+    For that, follow the [BungeeCord forwarding
+    guide](https://www.spigotmc.org/wiki/bungeecord-installation/#post-installation).
+    This step is required for the plugin to work correctly on your network.
+    If this step is not done correctly, the plugin will not work correctly.
+
+    Ensure that you have the done the following settings:
+
+    ```yaml filename="spigot.yml" /true/
+    settings:
+    bungeecord: true
+    ```
+
+    ```properties filename="server.properties" /false/
+    online-mode=false
+    ```
+  </Step>
+
+  <Step>
+    ### Restart your servers
+    Restart (`/restart`, `/stop` or `/end`) all Spigot servers and the BungeeCord proxy.
+  </Step>
+
+  <Step>
+    ### Ensure the plugin is in Proxy Mode on the servers
+    In every Spigot server, check the server logs for the messages like these:
+    ```ansi filename="logs/latest.log"
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m +==================+
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m | SkinsRestorer |
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m |------------------|
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m | [33;1mProxy Mode[32;22m |
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m +==================+
+    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
+    ```
+    The plugin has to say that it is using "Proxy Mode". If you see this message, you're good to go!
+
+    If you don't see this message, make sure you you set up player information forwarding correctly.
+    SkinsRestorer will not work correctly if you don't see this message.
+  </Step>
+
+  <Step>
+    ### Configure the plugin
+    You may now [configure SkinsRestorer](/docs/configuration) on the BungeeCord server.
+  </Step>
+
+  <Step>
+    ### Sync configs
+    Make sure you have the same `plugins/SkinsRestorer/config.yml` file on all servers and the BungeeCord proxy.
+    This file contains important settings that are required for the plugin to work the same on all servers.
+    If you don't have the same `config.yml` file on all servers, you may experience issues.
+  </Step>
+
+  <Step>
+    ### Restart your servers
+    Restart (`/restart`, `/stop` or `/end`) all Spigot servers and the BungeeCord proxy.
+  </Step>
+
+  <Step>
+    ### Check console for errors
+    Check the console logs of BungeeCord and all servers for errors
+    If you see any errors, report them to us on Discord.
+  </Step>
+
+  <Step>
+    ### That's it!
+    Our plugin should now work on your network!
+  </Step>
+</Steps>

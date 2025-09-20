@@ -2,7 +2,7 @@
 description: Learn how to install SkinsRestorer on your Bukkit/Spigot/Paper server.
 ---
 
-import {Steps} from "nextra/components";
+import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Callout } from 'fumadocs-ui/components/callout';
 
 # Installation on Bukkit/Spigot/Paper
@@ -19,20 +19,30 @@ Before installing, we recommend you to read the [main installation page](/docs/i
 In this section, you can read how to set up SkinsRestorer on your Bukkit/Spigot/Paper server.
 
 <Steps>
+    <Step>
     ### Download the plugin
     Download the latest version from [Modrinth](https://modrinth.com/plugin/skinsrestorer)
+      </Step>
 
+      <Step>
     ### Put it in the plugins folder
     Place the `SkinsRestorer.jar` file in the `plugins` folder.
+      </Step>
 
+        <Step>
     ### Restart your server
     Restart the server. (Only use `/restart` or `/stop` Do NOT use `/reload`, As `/reload` will break
     SR!)[Plugman is also not supported]
+        </Step>
 
+          <Step>
     ### Verify the plugin is installed
     The plugin should now show as green in the `/plugins` command.
     If it's red or missing, please check your console logs for errors.
+          </Step>
 
+            <Step>
     ### That's it!
     You may now [configure SkinsRestorer](/docs/configuration).
+            </Step>
 </Steps>

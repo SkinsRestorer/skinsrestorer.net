@@ -2,7 +2,7 @@
 description: Learn the various configuration options in SkinsRestorer.
 ---
 
-import {FileTree} from "nextra/components";
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
 import { Callout } from 'fumadocs-ui/components/callout';
 
 # Configuration Options
@@ -28,34 +28,34 @@ but if you need to change the plugin behavior, you're in the right place here.
 
 Below is an example of what the file structure of the SkinsRestorer plugin looks like. Click a folder to expand it.
 
-<FileTree>
-    <FileTree.Folder name="plugins" defaultOpen>
-        <FileTree.Folder name="SkinsRestorer" defaultOpen>
-            <FileTree.File name="config.yml" active />
-            <FileTree.Folder name="locales" defaultOpen>
-                <FileTree.Folder name="repository">
-                    <FileTree.File name="locale.json" />
-                    <FileTree.File name="locale_es.json" />
-                    <FileTree.File name="locale_fr.json" />
-                    <FileTree.File name="locale_it.json" />
-                    <FileTree.File name="locale_nl.json" />
-                </FileTree.Folder>
-                <FileTree.Folder name="custom">
+<Files>
+    <Folder name="plugins" defaultOpen>
+        <Folder name="SkinsRestorer" defaultOpen>
+            <File name="config.yml" active />
+            <Folder name="locales" defaultOpen>
+                <Folder name="repository">
+                    <File name="locale.json" />
+                    <File name="locale_es.json" />
+                    <File name="locale_fr.json" />
+                    <File name="locale_it.json" />
+                    <File name="locale_nl.json" />
+                </Folder>
+                <Folder name="custom">
                     <></>
-                </FileTree.Folder>
-            </FileTree.Folder>
-            <FileTree.Folder name="cache">
-                <FileTree.File name="Pistonmaster.mojangcache" />
-            </FileTree.Folder>
-            <FileTree.Folder name="players">
-                <FileTree.File name="b1ae0778-4817-436c-96a3-a72c67cda060.player" />
-            </FileTree.Folder>
-            <FileTree.Folder name="skins">
-                <FileTree.File name="b1ae0778-4817-436c-96a3-a72c67cda060.playerskin" />
-            </FileTree.Folder>
-        </FileTree.Folder>
-    </FileTree.Folder>
-</FileTree>
+                </Folder>
+            </Folder>
+            <Folder name="cache">
+                <File name="Pistonmaster.mojangcache" />
+            </Folder>
+            <Folder name="players">
+                <File name="b1ae0778-4817-436c-96a3-a72c67cda060.player" />
+            </Folder>
+            <Folder name="skins">
+                <File name="b1ae0778-4817-436c-96a3-a72c67cda060.playerskin" />
+            </Folder>
+        </Folder>
+    </Folder>
+</Files>
 
 ## Who can change skins?
 

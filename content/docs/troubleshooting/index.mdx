@@ -1,9 +1,8 @@
 ---
-asIndexPage: true
 description: Learn how to troubleshoot issues with SkinsRestorer.
 ---
 
-import {Cards} from "nextra/components";
+import { Cards, Card } from 'fumadocs-ui/components/card';
 import {ComputerDesktopIcon, ExclamationTriangleIcon, FireIcon, GlobeAltIcon, LifebuoyIcon} from "@heroicons/react/24/solid";
 
 # Fixing issues with SkinsRestorer
@@ -15,44 +14,44 @@ SkinsRestorer may sometimes have issues working properly, it is important to kno
 In these sections, you can read on different ways to troubleshoot issues with SkinsRestorer.
 
 <Cards>
-  <Cards.Card
+  <Card
     icon={
       <LifebuoyIcon/>
     }
     title="Common issues"
     href="/docs/troubleshooting/common-issues"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <GlobeAltIcon/>
     }
     title="Proxy Mode"
     href="/docs/troubleshooting/proxy-mode"
   >
-  </Cards.Card>
-  <Cards.Card
+  </Card>
+  <Card
     icon={
       <FireIcon/>
     }
     title="Firewall"
     href="/docs/troubleshooting/firewall"
   >
-  </Cards.Card>
-    <Cards.Card
+  </Card>
+    <Card
         icon={
             <ExclamationTriangleIcon/>
         }
         title="Incompatibility list"
         href="/docs/troubleshooting/incompatibility-list"
     >
-    </Cards.Card>
-    <Cards.Card
+    </Card>
+    <Card
         icon={
             <ComputerDesktopIcon/>
         }
         title="Launcher issues"
         href="/docs/troubleshooting/launcher-issues"
     >
-    </Cards.Card>
+    </Card>
 </Cards>
