@@ -1,7 +1,12 @@
 {
-  "common-issues": "Common issues",
-  "proxy-mode": "Proxy Mode",
-  "firewall": "Firewall",
-  "incompatibility-list": "Incompatibility list",
-  "launcher-issues": "Launcher issues"
+  "title": "Troubleshooting",
+  "pages": [
+    "index",
+    "common-issues",
+    "proxy-mode",
+    "firewall",
+    "incompatibility-list",
+    "launcher-issues"
+  ],
+  "defaultOpen": false
 }

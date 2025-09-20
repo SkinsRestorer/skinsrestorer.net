@@ -1,6 +1,5 @@
 {
-  "custom-skins": "Custom Skins",
-  "skin-url": "Skin URL",
-  "skin-edit": "Skin Edit",
-  "skin-design": "Skin Design"
+  "title": "Features",
+  "pages": ["index", "custom-skins", "skin-url", "skin-edit", "skin-design"],
+  "defaultOpen": false
 }

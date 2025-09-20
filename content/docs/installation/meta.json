@@ -1,5 +1,5 @@
 {
-  "bukkit": "Install on Bukkit",
-  "bungeecord": "Install on BungeeCord",
-  "velocity": "Install on Velocity"
+  "title": "Installation",
+  "pages": ["index", "bukkit", "bungeecord", "velocity"],
+  "defaultOpen": false
 }

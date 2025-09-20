@@ -1,5 +1,5 @@
 {
-  "api": "SkinsRestorer API",
-  "storage": "Data Storage",
-  "inner-workings": "Inner workings"
+  "title": "Developer Guides",
+  "pages": ["index", "api", "storage", "inner-workings"],
+  "defaultOpen": false
 }

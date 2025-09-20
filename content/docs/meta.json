@@ -1,9 +1,16 @@
 {
-  "index": "Introduction",
-  "installation": "Installation",
-  "configuration": "Configuration",
-  "features": "Features",
-  "integrations": "Integrations",
-  "troubleshooting": "Troubleshooting",
-  "development": "Developer Guides"
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "---Getting Started---",
+    "installation",
+    "configuration",
+    "---Features & Integrations---",
+    "features",
+    "integrations",
+    "---Advanced---",
+    "development",
+    "troubleshooting"
+  ],
+  "defaultOpen": true
 }

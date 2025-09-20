@@ -4,9 +4,21 @@ import { useEffect, useState } from 'react';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import { toast } from 'sonner';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
 import FileSaver from 'file-saver';
 
 export const OnlineCard = () => {
@@ -62,12 +74,12 @@ export const OnlineCard = () => {
 };
 
 export const GenerateFileCard = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [skinType, setSkinType] = useState('classic');
   const [customName, setCustomName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function skinChecker(skinURL) {
+  async function skinChecker(skinURL: string) {
     return new Promise((resolve, reject) => {
       const image = new Image();
       image.crossOrigin = 'Anonymous';
@@ -76,6 +88,7 @@ export const GenerateFileCard = () => {
       image.onload = () => {
         const detectCanvas = document.createElement('canvas');
         const detectCtx = detectCanvas.getContext('2d');
+        if (!detectCtx) return reject('Failed to get canvas context.');
         detectCanvas.width = image.width;
         detectCanvas.height = image.height;
         detectCtx.drawImage(image, 0, 0);
@@ -117,20 +130,22 @@ export const GenerateFileCard = () => {
             type="file"
             accept=".png"
             onChange={(e) => {
-              const file = e.target.files[0];
-              setSelectedFile(file);
+              const file = e.target.files?.[0];
+              if (file) {
+                setSelectedFile(file);
 
-              toast.promise(
-                skinChecker(URL.createObjectURL(file)).then((slim) => {
-                  setSkinType(slim ? 'slim' : 'classic');
-                  return slim ? 'slim' : 'classic';
-                }),
-                {
-                  loading: 'Detecting skin type...',
-                  success: (v) => `Skin file detected as a ${v} skin.`,
-                  error: (e) => `Failed to detect skin type: ${e}`,
-                },
-              );
+                toast.promise(
+                  skinChecker(URL.createObjectURL(file)).then((slim) => {
+                    setSkinType(slim ? 'slim' : 'classic');
+                    return slim ? 'slim' : 'classic';
+                  }),
+                  {
+                    loading: 'Detecting skin type...',
+                    success: (v) => `Skin file detected as a ${v} skin.`,
+                    error: (e) => `Failed to detect skin type: ${e}`,
+                  },
+                );
+              }
             }}
           />
         </div>
@@ -223,7 +238,7 @@ export const GenerateFileCard = () => {
 };
 
 export const ReverseFileCard = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -241,7 +256,7 @@ export const ReverseFileCard = () => {
             type="file"
             accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
             onChange={(e) => {
-              setSelectedFile(e.target.files[0]);
+              setSelectedFile(e.target.files?.[0] || null);
             }}
           />
         </div>
@@ -253,7 +268,7 @@ export const ReverseFileCard = () => {
             }
 
             toast.promise(
-              selectedFile.text().then((text) => {
+              selectedFile.text().then((text: string) => {
                 let rawValue;
                 try {
                   const textJson = JSON.parse(text);

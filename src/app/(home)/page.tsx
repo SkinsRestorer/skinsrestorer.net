@@ -80,7 +80,7 @@ async function LatestRelease() {
               />
               <span className="font-medium">{data.author.login}</span>
             </div>
-            <CustomTimeAgo date={data.published_at} />
+            <CustomTimeAgo date={data.published_at || new Date()} />
           </div>
         </CardDescription>
       </CardHeader>
@@ -96,7 +96,15 @@ async function LatestRelease() {
   );
 }
 
-const FeatureCard = ({ title, description, icon }) => {
+const FeatureCard = ({
+  title,
+  description,
+  icon,
+}: {
+  title: string;
+  description: string | React.ReactNode;
+  icon: React.ReactNode;
+}) => {
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardContent className="flex flex-col items-center text-center p-6">
@@ -112,7 +120,13 @@ const FeatureCard = ({ title, description, icon }) => {
   );
 };
 
-const TeamCard = ({ githubUsername, description }) => {
+const TeamCard = ({
+  githubUsername,
+  description,
+}: {
+  githubUsername: string;
+  description: string;
+}) => {
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-6">

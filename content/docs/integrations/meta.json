@@ -1,6 +1,11 @@
 {
-  "placeholderapi": "PlaceholderAPI",
-  "discordsrv": "DiscordSRV",
-  "discord-mc-chat": "Discord-MC-Chat",
-  "avatar-url": "Avatar URL"
+  "title": "Integrations",
+  "pages": [
+    "index",
+    "placeholderapi",
+    "discordsrv",
+    "discord-mc-chat",
+    "avatar-url"
+  ],
+  "defaultOpen": false
 }
