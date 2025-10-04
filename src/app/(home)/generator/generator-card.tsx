@@ -25,7 +25,11 @@ export const OnlineCard = () => {
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {
-    fetch('https://api.mineskin.org/get/delay')
+    fetch('https://api.mineskin.org/v2/delay', {
+      headers: {
+        'User-Agent': 'SkinsRestorer-Generator/1.0',
+      },
+    })
       .then(() => {
         setStatus('online');
       })
@@ -195,20 +199,66 @@ export const GenerateFileCard = () => {
             const formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('variant', skinType);
+            if (customName) {
+              formData.append('name', customName);
+            }
 
             setLoading(true);
             toast.promise(
-              fetch('https://api.mineskin.org/generate/upload', {
+              fetch('https://api.mineskin.org/v2/queue', {
                 method: 'POST',
+                headers: {
+                  'User-Agent': 'SkinsRestorer-Generator/1.0',
+                },
                 body: formData,
               })
                 .then((response) => response.json())
-                .then((response) => {
-                  const signature = response['data']['texture']['signature'];
-                  const value = response['data']['texture']['value'];
+                .then(async (response) => {
+                  if (!response.success) {
+                    throw new Error(
+                      response.errors?.[0]?.message || 'API request failed',
+                    );
+                  }
+
+                  const jobId = response.job.id;
+
+                  // Poll for job completion
+                  const pollJob = async (): Promise<any> => {
+                    const jobResponse = await fetch(
+                      `https://api.mineskin.org/v2/queue/${jobId}`,
+                      {
+                        headers: {
+                          'User-Agent': 'SkinsRestorer-Generator/1.0',
+                        },
+                      },
+                    );
+                    const jobData = await jobResponse.json();
+
+                    if (!jobData.success) {
+                      throw new Error(
+                        jobData.errors?.[0]?.message || 'Job failed',
+                      );
+                    }
+
+                    const job = jobData.job;
+                    if (job.status === 'completed') {
+                      return jobData;
+                    } else if (job.status === 'failed') {
+                      throw new Error('Job failed to complete');
+                    } else {
+                      // Wait and try again
+                      await new Promise((resolve) => setTimeout(resolve, 1000));
+                      return pollJob();
+                    }
+                  };
+
+                  const completedJob = await pollJob();
+                  const skin = completedJob.skin;
+
+                  const signature = skin.texture.data.signature;
+                  const value = skin.texture.data.value;
                   const fileData = {
-                    skinName:
-                      customName === '' ? String(response['id']) : customName,
+                    skinName: customName || skin.name || String(skin.uuid),
                     value: value,
                     signature: signature,
                     dataVersion: 1,
