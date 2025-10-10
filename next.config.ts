@@ -169,7 +169,7 @@ const config: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/:path*{/}?',
         headers: securityHeaders,
       },
     ];
