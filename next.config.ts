@@ -118,7 +118,7 @@ const config: NextConfig = {
       },
       {
         source: '/skinurl',
-        destination: '/docs/features/skin-url',
+        destination: '/upload',
         permanent: false,
       },
       {
