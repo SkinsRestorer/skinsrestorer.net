@@ -58,8 +58,8 @@ export default async function RootLayout({ children }: {
       suppressHydrationWarning
     >
     <RootProvider>
-      <Banner id="new-website-design">
-        🎉 Our website now has a new design!
+      <Banner id="upload-now-website">
+        🎉 You can now upload skin .png files directly here!
       </Banner>
       {children}
       <Toaster richColors />
