@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: {
     >
     <RootProvider>
       <Banner id="upload-now-website">
-        🎉 You can now upload skin .png files directly here!
+        🎉 You can now upload skin .png files here!
       </Banner>
       {children}
       <Toaster richColors />
