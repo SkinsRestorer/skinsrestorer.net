@@ -16,6 +16,12 @@ export default function Layout({ children }: { children: ReactNode }) {
       url: "/generator",
       description: "Generate skin files for SkinsRestorer",
     },
+    {
+      type: "main",
+      text: "Upload",
+      url: "/upload",
+      description: "Upload a PNG and get /skin url",
+    },
     ...(baseOptions.links || []),
   ]}>{children}</HomeLayout>;
 }
