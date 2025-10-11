@@ -6,6 +6,7 @@ import { cn } from '~/lib/utils';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { Banner } from 'fumadocs-ui/components/banner';
+import { Toaster } from '~/components/ui/sonner';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://skinsrestorer.net'),
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }: {
         🎉 Our website now has a new design!
       </Banner>
       {children}
+      <Toaster richColors />
     </RootProvider>
     <PlausibleProvider
       trackOutboundLinks
