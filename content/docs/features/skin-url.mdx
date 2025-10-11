@@ -1,61 +1,49 @@
 ---
-title: Skin URL
-description: Learn how to use a custom skin by using a URL with SkinsRestorer.
+title: Skin URL Upload
+description: Learn how to use the SkinsRestorer /upload page to generate a /skin url command.
 ---
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-SkinsRestorer allows you to use a custom skin by using a URL.
-This way you can use a skin not from another player, but from a URL.
+SkinsRestorer provides an [/upload](/upload) page that turns your skin PNG into a ready-to-use `/skin url` command.
+Use it to safely upload your file to MineSkin and copy the command in just a few clicks.
 
-## Confirm a valid skin
+## Before you start
 
-Make sure the URL points to only the valid skin PNG file.
-If you are using imgur, make sure that the url ends with `.png`.
-A valid skin url should look like this: https://i.imgur.com/QuoWt6B.png
+Make sure your skin file is a valid Minecraft skin PNG (typically 64×64 or 64×32) and that it is saved locally on your computer.
+If you do not have one yet, our [skin design guide](/docs/features/skin-design) can help you create it.
 
-You can see the image below as reference:
-
-![Image explaining the right image format](/assets/imgur/valid-format.png)
-
-## Uploading to imgur
-
-This time we are going to upload your custom skin format to imgur. Follow the following steps:
+## Generate the command with /upload
 
 <Steps>
   <Step>
-    ### Download the file
+    ### Open the /upload page
 
-    You need to get a skin file in `.png` format. You can use the skin you created or downloaded from the internet.
-    We have a [skin design](/docs/features/skin-design) guide if you need help with that.
-
-    ![Image in download folder](/assets/imgur/download-folder.png)
-
+    Visit the [/upload](/upload) page on skinsrestorer.net.
+    The page shows the uploader card with instructions and a button labelled **Generate /skin url**.
   </Step>
 
   <Step>
-    ### Go to https://imgur.com/upload
+    ### Select your skin PNG
 
-    Upload the file to **imgur** (see image below)
-
-    ![Dropping skin image into imgur](/assets/imgur/upload-image.png)
-
+    Drag and drop the file onto the uploader card or click **Choose file** to browse for it.
+    The preview updates once the file is selected so you can confirm the correct skin.
   </Step>
 
   <Step>
-    ### Getting the URL
+    ### Copy the generated command
 
-    The Skin URL **__must__** end with `.png`, so make sure that you have the right URL!
+    Click **Generate /skin url**. The site uploads the PNG to MineSkin and returns a URL.
+    Once the command appears, press the copy button next to it or manually copy the `/skin url "https://..."` text.
 
-    Below you can see the skin I just uploaded to imgur, now right-click on the image and hit "Copy image address"
-
-    It should copy an URL like `https://i.imgur.com/abcdefgh.png`
-
-    ![Copy link from uploaded image](/assets/imgur/copy-link.png)
-
-    That's it! You can now set the skin by using your **imgur** URL!
-    The command to set the skin is `/skin url "url"`.
-    Make sure the URL is in quotes.
-
+    Paste the command in game or console to apply the skin. Make sure the URL stays wrapped in quotes.
   </Step>
 </Steps>
+
+## Troubleshooting
+
+- **Upload fails**: Ensure the PNG is under 3 MB and matches the standard Minecraft skin dimensions.
+- **Command missing quotes**: Always keep the generated quotes to avoid issues with special characters in the URL.
+- **Need to redo the skin**: You can upload again at any time; each upload generates a fresh URL.
+
+That's it! Using the /upload page you no longer need to rely on third-party hosts—SkinsRestorer and MineSkin handle the heavy lifting for you.
