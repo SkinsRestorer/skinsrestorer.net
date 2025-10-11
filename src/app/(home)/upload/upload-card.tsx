@@ -1,76 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
-import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
-import { Button } from '~/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
-
-export const OnlineCard = () => {
-  const [status, setStatus] = useState<'loading' | 'online' | 'offline'>('loading');
-
-  useEffect(() => {
-    fetch('https://api.mineskin.org/v2/delay', {
-      headers: {
-        'User-Agent': 'SkinsRestorer-Generator/1.0',
-      },
-    })
-      .then(() => {
-        setStatus('online');
-      })
-      .catch(() => {
-        setStatus('offline');
-      });
-  }, []);
-
-  return (
-    <Card className="group hover:shadow-lg transition-shadow duration-200">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">API Status</CardTitle>
-          <div
-            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-              status === 'loading'
-                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                : status === 'online'
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                  : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-            }`}
-          >
-            {status === 'loading' ? 'LOADING' : status === 'online' ? 'ONLINE' : 'OFFLINE'}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <CardDescription>
-          Powered by{' '}
-          <a
-            href="https://mineskin.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-primary transition-colors"
-          >
-            MineSkin
-          </a>
-        </CardDescription>
-      </CardContent>
-    </Card>
-  );
-};
+import {useState} from 'react';
+import {Label} from '~/components/ui/label';
+import {Input} from '~/components/ui/input';
+import {toast} from 'sonner';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '~/components/ui/select';
+import {Button} from '~/components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '~/components/ui/card';
 
 export const UploadCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -164,7 +100,7 @@ export const UploadCard = () => {
           <Label htmlFor="skin-type">Skin type</Label>
           <Select value={skinType} onValueChange={(v) => setSkinType(v as 'classic' | 'slim')}>
             <SelectTrigger id="skin-type">
-              <SelectValue placeholder="Skin type" />
+              <SelectValue placeholder="Skin type"/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="classic">Classic</SelectItem>
@@ -181,7 +117,7 @@ export const UploadCard = () => {
           <div className="space-y-2">
             <Label htmlFor="skin-command">Copy this command</Label>
             <div className="flex gap-2 items-center">
-              <Input id="skin-command" readOnly value={command} className="flex-1" />
+              <Input id="skin-command" readOnly value={command} className="flex-1"/>
               <Button
                 type="button"
                 variant="outline"
@@ -198,7 +134,8 @@ export const UploadCard = () => {
               </Button>
             </div>
             <div className="text-xs text-muted-foreground break-all">
-              MineSkin URL: <a className="underline" href={resultUrl} target="_blank" rel="noreferrer noopener">{resultUrl}</a>
+              MineSkin URL: <a className="underline" href={resultUrl} target="_blank"
+                               rel="noreferrer noopener">{resultUrl}</a>
             </div>
           </div>
         )}

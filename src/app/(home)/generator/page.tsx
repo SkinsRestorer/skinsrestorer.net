@@ -1,8 +1,5 @@
-import {
-  GenerateFileCard,
-  OnlineCard,
-  ReverseFileCard,
-} from './generator-card';
+import { GenerateFileCard, ReverseFileCard } from './generator-card';
+import { OnlineCard } from '~/components/online-card';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -25,7 +22,7 @@ export default function RootComponent() {
               Generate or reverse skin files to use with SkinsRestorer
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
             <OnlineCard />
             <GenerateFileCard />
             <ReverseFileCard />

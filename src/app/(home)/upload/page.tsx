@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import { OnlineCard, UploadCard } from './upload-card';
+import { UploadCard } from './upload-card';
+import { OnlineCard } from '~/components/online-card';
 
 export const metadata: Metadata = {
   description: 'Upload a skin PNG and get a copyable /skin url command using MineSkin.',
@@ -22,7 +23,7 @@ export default function UploadPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
             <OnlineCard />
             <UploadCard />
           </div>
@@ -31,4 +32,3 @@ export default function UploadPage() {
     </article>
   );
 }
-
