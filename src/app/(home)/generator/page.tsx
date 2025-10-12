@@ -1,11 +1,11 @@
-import { GenerateFileCard, ReverseFileCard } from './generator-card';
-import { OnlineCard } from '~/components/online-card';
-import { Metadata } from 'next';
+import type { Metadata } from "next";
+import { OnlineCard } from "~/components/online-card";
+import { GenerateFileCard, ReverseFileCard } from "./generator-card";
 
 export const metadata: Metadata = {
-  description: 'Generate or reverse skin files to use with SkinsRestorer.',
+  description: "Generate or reverse skin files to use with SkinsRestorer.",
   openGraph: {
-    images: 'https://skinsrestorer.net/og?title=Generator',
+    images: "https://skinsrestorer.net/og?title=Generator",
   },
 };
 

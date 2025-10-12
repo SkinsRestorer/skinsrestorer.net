@@ -1,11 +1,12 @@
-import { Metadata } from 'next';
-import { UploadCard } from './upload-card';
-import { OnlineCard } from '~/components/online-card';
+import type { Metadata } from "next";
+import { OnlineCard } from "~/components/online-card";
+import { UploadCard } from "./upload-card";
 
 export const metadata: Metadata = {
-  description: 'Upload a skin PNG and get a copyable /skin url command using MineSkin.',
+  description:
+    "Upload a skin PNG and get a copyable /skin url command using MineSkin.",
   openGraph: {
-    images: 'https://skinsrestorer.net/og?title=Upload',
+    images: "https://skinsrestorer.net/og?title=Upload",
   },
 };
 

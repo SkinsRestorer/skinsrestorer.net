@@ -1,44 +1,44 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
-import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
-import { Button } from '~/components/ui/button';
+import FileSaver from "file-saver";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card';
-import FileSaver from 'file-saver';
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 // OnlineCard moved to ~/components/online-card and is used directly by pages
 
 export const GenerateFileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [skinType, setSkinType] = useState('classic');
-  const [customName, setCustomName] = useState('');
+  const [skinType, setSkinType] = useState("classic");
+  const [customName, setCustomName] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function skinChecker(skinURL: string) {
     return new Promise((resolve, reject) => {
       const image = new Image();
-      image.crossOrigin = 'Anonymous';
+      image.crossOrigin = "Anonymous";
       image.src = skinURL;
 
       image.onload = () => {
-        const detectCanvas = document.createElement('canvas');
-        const detectCtx = detectCanvas.getContext('2d');
-        if (!detectCtx) return reject('Failed to get canvas context.');
+        const detectCanvas = document.createElement("canvas");
+        const detectCtx = detectCanvas.getContext("2d");
+        if (!detectCtx) return reject("Failed to get canvas context.");
         detectCanvas.width = image.width;
         detectCanvas.height = image.height;
         detectCtx.drawImage(image, 0, 0);
@@ -56,7 +56,7 @@ export const GenerateFileCard = () => {
       };
 
       image.onerror = () => {
-        reject('Failed to load image.');
+        reject("Failed to load image.");
       };
     });
   }
@@ -86,11 +86,11 @@ export const GenerateFileCard = () => {
 
                 toast.promise(
                   skinChecker(URL.createObjectURL(file)).then((slim) => {
-                    setSkinType(slim ? 'slim' : 'classic');
-                    return slim ? 'slim' : 'classic';
+                    setSkinType(slim ? "slim" : "classic");
+                    return slim ? "slim" : "classic";
                   }),
                   {
-                    loading: 'Detecting skin type...',
+                    loading: "Detecting skin type...",
                     success: (v) => `Skin file detected as a ${v} skin.`,
                     error: (e) => `Failed to detect skin type: ${e}`,
                   },
@@ -131,30 +131,30 @@ export const GenerateFileCard = () => {
         <Button
           onClick={() => {
             if (!selectedFile) {
-              toast.warning('Please select a file to generate.');
+              toast.warning("Please select a file to generate.");
               return;
             }
 
             if (customName && !/^[a-z0-9_]+$/.test(customName)) {
               toast.warning(
-                'Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)',
+                "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
               );
               return;
             }
 
             const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('variant', skinType);
+            formData.append("file", selectedFile);
+            formData.append("variant", skinType);
             if (customName) {
-              formData.append('name', customName);
+              formData.append("name", customName);
             }
 
             setLoading(true);
             toast.promise(
-              fetch('https://api.mineskin.org/v2/queue', {
-                method: 'POST',
+              fetch("https://api.mineskin.org/v2/queue", {
+                method: "POST",
                 headers: {
-                  'User-Agent': 'SkinsRestorer-Generator/1.0',
+                  "User-Agent": "SkinsRestorer-Generator/1.0",
                 },
                 body: formData,
               })
@@ -162,7 +162,7 @@ export const GenerateFileCard = () => {
                 .then(async (response) => {
                   if (!response.success) {
                     throw new Error(
-                      response.errors?.[0]?.message || 'API request failed',
+                      response.errors?.[0]?.message || "API request failed",
                     );
                   }
 
@@ -174,7 +174,7 @@ export const GenerateFileCard = () => {
                       `https://api.mineskin.org/v2/queue/${jobId}`,
                       {
                         headers: {
-                          'User-Agent': 'SkinsRestorer-Generator/1.0',
+                          "User-Agent": "SkinsRestorer-Generator/1.0",
                         },
                       },
                     );
@@ -182,15 +182,15 @@ export const GenerateFileCard = () => {
 
                     if (!jobData.success) {
                       throw new Error(
-                        jobData.errors?.[0]?.message || 'Job failed',
+                        jobData.errors?.[0]?.message || "Job failed",
                       );
                     }
 
                     const job = jobData.job;
-                    if (job.status === 'completed') {
+                    if (job.status === "completed") {
                       return jobData;
-                    } else if (job.status === 'failed') {
-                      throw new Error('Job failed to complete');
+                    } else if (job.status === "failed") {
+                      throw new Error("Job failed to complete");
                     } else {
                       // Wait and try again
                       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -211,13 +211,13 @@ export const GenerateFileCard = () => {
                   };
 
                   const blob = new Blob([JSON.stringify(fileData)], {
-                    type: 'text/plain;charset=utf-8',
+                    type: "text/plain;charset=utf-8",
                   });
-                  FileSaver.saveAs(blob, fileData.skinName + '.customskin');
+                  FileSaver.saveAs(blob, `${fileData.skinName}.customskin`);
                 }),
               {
-                loading: 'Generating skin file...',
-                success: 'Skin file generated successfully.',
+                loading: "Generating skin file...",
+                success: "Skin file generated successfully.",
                 error: (e) => `Failed to generate skin file: ${e}`,
                 finally: () => setLoading(false),
               },
@@ -259,7 +259,7 @@ export const ReverseFileCard = () => {
         <Button
           onClick={() => {
             if (!selectedFile) {
-              toast.warning('Please select a file to reverse.');
+              toast.warning("Please select a file to reverse.");
               return;
             }
 
@@ -268,23 +268,23 @@ export const ReverseFileCard = () => {
                 let rawValue;
                 try {
                   const textJson = JSON.parse(text);
-                  rawValue = textJson['value'];
-                } catch (e) {
-                  toast.warning('Falling back to legacy skin format.', {
+                  rawValue = textJson.value;
+                } catch (_e) {
+                  toast.warning("Falling back to legacy skin format.", {
                     description:
-                      'Please update SkinsRestorer as soon as possible.',
+                      "Please update SkinsRestorer as soon as possible.",
                   });
 
-                  rawValue = text.split('\n')[0];
+                  rawValue = text.split("\n")[0];
                 }
                 const decodedValue = JSON.parse(window.atob(rawValue));
 
-                const skinUrl = decodedValue['textures']['SKIN']['url'];
+                const skinUrl = decodedValue.textures.SKIN.url;
                 window.open(skinUrl);
               }),
               {
-                loading: 'Reversing skin file...',
-                success: 'Skin file reversed successfully.',
+                loading: "Reversing skin file...",
+                success: "Skin file reversed successfully.",
                 error: (e) => `Failed to reverse skin file: ${e}`,
               },
             );

@@ -1,18 +1,19 @@
-import Link from 'next/link';
+import { SiGithub } from "@icons-pack/react-simple-icons";
+import type { paths } from "@octokit/openapi-types";
 import {
-  Download,
   ChevronsRight,
-  Zap,
   CloudDownload,
+  Download,
+  Grid3X3,
   Image as ImageIcon,
   Rocket,
-  Grid3X3,
-} from 'lucide-react';
-import Image from 'next/image';
-import { CustomTimeAgo } from '~/components/time-ago';
-import { Metadata } from 'next';
-import { SiGithub } from '@icons-pack/react-simple-icons';
-import { paths } from '@octokit/openapi-types';
+  Zap,
+} from "lucide-react";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { CustomTimeAgo } from "~/components/time-ago";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -20,23 +21,22 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card';
-import { Button } from '~/components/ui/button';
+} from "~/components/ui/card";
 
 type LatestReleaseResponse =
-  paths['/repos/{owner}/{repo}/releases/latest']['get']['responses']['200']['content']['application/json'];
+  paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
 
 export const revalidate = 120; // 2 minutes
 
 export const metadata: Metadata = {
   openGraph: {
-    images: 'https://skinsrestorer.net/og?title=SkinsRestorer',
+    images: "https://skinsrestorer.net/og?title=SkinsRestorer",
   },
 };
 
 async function getReleaseData(): Promise<LatestReleaseResponse> {
   const response = await fetch(
-    'https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest',
+    "https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest",
     {
       next: {
         revalidate: 120,
@@ -189,8 +189,8 @@ export default function IndexPage() {
                 title="Change your skin"
                 description={
                   <span>
-                    Just run{' '}
-                    <code className="highlight-code">/skin &lt;name&gt;</code>{' '}
+                    Just run{" "}
+                    <code className="highlight-code">/skin &lt;name&gt;</code>{" "}
                     to change your skin! It's that easy!
                   </span>
                 }
@@ -212,10 +212,10 @@ export default function IndexPage() {
                 title="Use your own skin"
                 description={
                   <span>
-                    Use{' '}
+                    Use{" "}
                     <code className="highlight-code">
                       /skin url "&lt;url&gt;"
-                    </code>{' '}
+                    </code>{" "}
                     to use a skin from the internet!
                   </span>
                 }
@@ -225,7 +225,7 @@ export default function IndexPage() {
                 title="Use our GUI"
                 description={
                   <span>
-                    SkinsRestorer has a GUI to change your skin, just run{' '}
+                    SkinsRestorer has a GUI to change your skin, just run{" "}
                     <code className="highlight-code">/skins</code>!
                   </span>
                 }

@@ -1,10 +1,10 @@
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return (process.env.SITEMAP_PAGES || '').split('|').map((page) => ({
+  return (process.env.SITEMAP_PAGES || "").split("|").map((page) => ({
     url: `https://skinsrestorer.net${page}`,
     lastModified: new Date(),
-    changeFrequency: 'daily',
+    changeFrequency: "daily",
     priority: 0.7,
   }));
 }

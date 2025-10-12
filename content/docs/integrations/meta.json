@@ -1,9 +1,4 @@
 {
-  "pages": [
-    "placeholderapi",
-    "discordsrv",
-    "discord-mc-chat",
-    "avatar-url"
-  ],
+  "pages": ["placeholderapi", "discordsrv", "discord-mc-chat", "avatar-url"],
   "defaultOpen": false
 }
