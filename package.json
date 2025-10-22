@@ -34,7 +34,7 @@
     "file-saver": "^2.0.5",
     "fumadocs-core": "^15.6.12",
     "fumadocs-mdx": "^13.0.0",
-    "fumadocs-ui": "^15.6.12",
+    "fumadocs-ui": "^16.0.0",
     "geist": "^1.5.1",
     "hast-util-to-jsx-runtime": "^2.3.6",
     "lucide-react": "^0.546.0",
