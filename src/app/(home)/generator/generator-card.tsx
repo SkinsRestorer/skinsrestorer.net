@@ -20,6 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import {
+  getMineSkinErrorMessage,
+  MINESKIN_USER_AGENT,
+  type MineSkinEnqueueResponse,
+  pollMineSkinJob,
+} from "~/lib/mineskin";
 
 // OnlineCard moved to ~/components/online-card and is used directly by pages
 
@@ -154,51 +160,20 @@ export const GenerateFileCard = () => {
               fetch("https://api.mineskin.org/v2/queue", {
                 method: "POST",
                 headers: {
-                  "User-Agent": "SkinsRestorer-Generator/1.0",
+                  "User-Agent": MINESKIN_USER_AGENT,
                 },
                 body: formData,
               })
                 .then((response) => response.json())
-                .then(async (response) => {
+                .then(async (rawResponse) => {
+                  const response = rawResponse as MineSkinEnqueueResponse;
+
                   if (!response.success) {
-                    throw new Error(
-                      response.errors?.[0]?.message || "API request failed",
-                    );
+                    throw new Error(getMineSkinErrorMessage(response.errors));
                   }
 
                   const jobId = response.job.id;
-
-                  // Poll for job completion
-                  const pollJob = async (): Promise<any> => {
-                    const jobResponse = await fetch(
-                      `https://api.mineskin.org/v2/queue/${jobId}`,
-                      {
-                        headers: {
-                          "User-Agent": "SkinsRestorer-Generator/1.0",
-                        },
-                      },
-                    );
-                    const jobData = await jobResponse.json();
-
-                    if (!jobData.success) {
-                      throw new Error(
-                        jobData.errors?.[0]?.message || "Job failed",
-                      );
-                    }
-
-                    const job = jobData.job;
-                    if (job.status === "completed") {
-                      return jobData;
-                    } else if (job.status === "failed") {
-                      throw new Error("Job failed to complete");
-                    } else {
-                      // Wait and try again
-                      await new Promise((resolve) => setTimeout(resolve, 1000));
-                      return pollJob();
-                    }
-                  };
-
-                  const completedJob = await pollJob();
+                  const completedJob = await pollMineSkinJob(jobId);
                   const skin = completedJob.skin;
 
                   const signature = skin.texture.data.signature;
@@ -265,7 +240,7 @@ export const ReverseFileCard = () => {
 
             toast.promise(
               selectedFile.text().then((text: string) => {
-                let rawValue;
+                let rawValue: string;
                 try {
                   const textJson = JSON.parse(text);
                   rawValue = textJson.value;

@@ -96,6 +96,7 @@ export function Rate({
       <div className="flex flex-row items-center gap-2">
         <p className="text-sm font-medium pe-2">How is this guide?</p>
         <button
+          type="button"
           disabled={previous !== null}
           className={cn(
             rateButtonVariants({
@@ -110,6 +111,7 @@ export function Rate({
           Good
         </button>
         <button
+          type="button"
           disabled={previous !== null}
           className={cn(
             rateButtonVariants({
@@ -144,6 +146,7 @@ export function Rate({
               </a>
 
               <button
+                type="button"
                 className={cn(
                   buttonVariants({
                     color: "secondary",
