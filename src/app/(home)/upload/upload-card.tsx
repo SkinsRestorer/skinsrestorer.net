@@ -19,6 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import {
+  getMineSkinErrorMessage,
+  MINESKIN_USER_AGENT,
+  type MineSkinEnqueueResponse,
+  pollMineSkinJob,
+} from "~/lib/mineskin";
 
 export const UploadCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -43,40 +49,19 @@ export const UploadCard = () => {
       fetch("https://api.mineskin.org/v2/queue", {
         method: "POST",
         headers: {
-          "User-Agent": "SkinsRestorer-Generator/1.0",
+          "User-Agent": MINESKIN_USER_AGENT,
         },
         body: formData,
       })
         .then(async (res) => {
-          const body = await res.json();
+          const body = (await res.json()) as MineSkinEnqueueResponse;
           if (!body.success) {
-            throw new Error(body.errors?.[0]?.message || "API request failed");
+            throw new Error(getMineSkinErrorMessage(body.errors));
           }
 
-          const jobId = body.job.id as string;
+          const jobId = body.job.id;
 
-          const pollJob = async (): Promise<any> => {
-            const jobResponse = await fetch(
-              `https://api.mineskin.org/v2/queue/${jobId}`,
-              {
-                headers: {
-                  "User-Agent": "SkinsRestorer-Generator/1.0",
-                },
-              },
-            );
-            const jobData = await jobResponse.json();
-            if (!jobData.success) {
-              throw new Error(jobData.errors?.[0]?.message || "Job failed");
-            }
-            const job = jobData.job;
-            if (job.status === "completed") return jobData;
-            if (job.status === "failed")
-              throw new Error("Job failed to complete");
-            await new Promise((r) => setTimeout(r, 1000));
-            return pollJob();
-          };
-
-          const completed = await pollJob();
+          const completed = await pollMineSkinJob(jobId);
           const url = `https://minesk.in/${completed.skin.uuid}`;
 
           if (!url) throw new Error("Could not extract skin URL from response");

@@ -7,14 +7,14 @@
   user-select: none;
 }
 
-.nextra-card:hover svg {
-  color: currentColor;
-}
-
 .nextra-card svg {
   width: 1.5rem;
   color: #00000033;
   transition: color 0.3s ease;
+}
+
+.nextra-card:hover svg {
+  color: currentColor;
 }
 
 .nextra-card p {

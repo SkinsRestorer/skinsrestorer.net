@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { use, useEffect, useId, useState } from "react";
+import { use, useEffect, useId, useRef, useState } from "react";
 
 export function Mermaid({ chart }: { chart: string }) {
   const [mounted, setMounted] = useState(false);
@@ -49,12 +49,15 @@ function MermaidContent({ chart }: { chart: string }) {
     }),
   );
 
-  return (
-    <div
-      ref={(container) => {
-        if (container) bindFunctions?.(container);
-      }}
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
-  );
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.innerHTML = svg;
+    bindFunctions?.(container);
+  }, [bindFunctions, svg]);
+
+  return <div ref={containerRef} />;
 }
