@@ -37,7 +37,7 @@
     "fumadocs-ui": "^15.6.12",
     "geist": "^1.5.1",
     "hast-util-to-jsx-runtime": "^2.3.6",
-    "lucide-react": "^0.545.0",
+    "lucide-react": "^0.546.0",
     "mermaid": "^11.10.0",
     "next": "^15.0.0",
     "next-plausible": "^3.12.0",
@@ -56,14 +56,14 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.5",
+    "@biomejs/biome": "2.2.7",
     "@octokit/openapi-types": "^26.0.0",
-    "@tailwindcss/postcss": "4.1.14",
+    "@tailwindcss/postcss": "4.1.15",
     "@types/file-saver": "^2.0.7",
-    "@types/node": "22.18.10",
+    "@types/node": "22.18.12",
     "@types/react": "19.2.2",
     "postcss": "^8.4.35",
-    "tailwindcss": "4.1.14",
+    "tailwindcss": "4.1.15",
     "tw-animate-css": "^1.3.7",
     "typescript": "5.9.3"
   },
