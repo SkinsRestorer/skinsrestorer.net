@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { ReactSkinview3d } from "react-skinview3d";
 import {
+  CrouchAnimation,
   FlyingAnimation,
+  HitAnimation,
   IdleAnimation,
   RunningAnimation,
   type SkinViewer,
   WalkingAnimation,
+  WaveAnimation,
 } from "skinview3d";
 import type { PlayerAnimation } from "skinview3d/libs/animation";
 import {
@@ -18,7 +21,14 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 
-export type AnimationType = "walking" | "idle" | "running" | "flying";
+export type AnimationType =
+  | "walking"
+  | "idle"
+  | "running"
+  | "flying"
+  | "wave"
+  | "crouch"
+  | "hit";
 
 function makeAnimation(
   type: AnimationType,
@@ -48,6 +58,24 @@ function makeAnimation(
         return oldAnimation;
       } else {
         return new FlyingAnimation();
+      }
+    case "wave":
+      if (oldAnimation && oldAnimation instanceof WaveAnimation) {
+        return oldAnimation;
+      } else {
+        return new WaveAnimation();
+      }
+    case "crouch":
+      if (oldAnimation && oldAnimation instanceof CrouchAnimation) {
+        return oldAnimation;
+      } else {
+        return new CrouchAnimation();
+      }
+    case "hit":
+      if (oldAnimation && oldAnimation instanceof HitAnimation) {
+        return oldAnimation;
+      } else {
+        return new HitAnimation();
       }
   }
 }
