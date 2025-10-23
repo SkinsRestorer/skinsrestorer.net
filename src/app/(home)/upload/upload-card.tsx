@@ -66,7 +66,7 @@ export const UploadCard = () => {
     );
   }
 
-  const command = resultUrl ? `/skin url "${resultUrl}"` : "";
+  const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
 
   return (
     <>
@@ -97,7 +97,10 @@ export const UploadCard = () => {
             <Label htmlFor="skin-type">Skin type</Label>
             <Select
               value={skinType}
-              onValueChange={(v) => setSkinType(v as SkinVariant)}
+              onValueChange={(v) => {
+                setSkinType(v as SkinVariant);
+                setResultUrl(null);
+              }}
             >
               <SelectTrigger id="skin-type">
                 <SelectValue placeholder="Skin type" />
