@@ -193,6 +193,7 @@ export const GenerateFileCard = () => {
       <SkinCard
         model={skinType === "slim" ? "slim" : "default"}
         skinUrl={skinUrl || undefined}
+        animationType="walking"
       />
     </>
   );

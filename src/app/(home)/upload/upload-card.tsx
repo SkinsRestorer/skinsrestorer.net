@@ -159,6 +159,7 @@ export const UploadCard = () => {
       <SkinCard
         model={skinType === "slim" ? "slim" : "default"}
         skinUrl={skinUrl || undefined}
+        animationType="walking"
       />
     </>
   );
