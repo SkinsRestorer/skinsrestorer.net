@@ -41,7 +41,7 @@ export const GenerateFileCard = () => {
   } | null>(null);
 
   const command = result
-    ? `/sr createcustom ${result.name} ${result.url} ${result.variant}`
+    ? `/sr createcustom ${result.name} "${result.url}" ${result.variant}`
     : "";
 
   return (
@@ -129,8 +129,7 @@ export const GenerateFileCard = () => {
                   },
                 }).then((completedJob) => {
                   const skin = completedJob.skin;
-                  const skinName =
-                    customName || skin.name || String(skin.uuid);
+                  const skinName = customName || skin.name || String(skin.uuid);
                   const url = `https://minesk.in/${skin.uuid}`;
 
                   setResult({
