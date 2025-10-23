@@ -22,7 +22,7 @@ export default function RootComponent() {
               Generate or reverse skin files to use with SkinsRestorer
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-5xl mx-auto items-start">
             <OnlineCard />
             <GenerateFileCard />
             <ReverseFileCard />

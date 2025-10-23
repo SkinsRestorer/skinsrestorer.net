@@ -3,6 +3,7 @@
 import FileSaver from "file-saver";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SkinCard } from "~/components/skin-card";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -31,6 +32,7 @@ import {
 
 export const GenerateFileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [skinUrl, setSkinUrl] = useState<string | null>(null);
   const [skinType, setSkinType] = useState("classic");
   const [customName, setCustomName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,143 +70,151 @@ export const GenerateFileCard = () => {
   }
 
   return (
-    <Card className="group hover:shadow-lg transition-shadow duration-200">
-      <CardHeader>
-        <CardTitle>Generate Skin File</CardTitle>
-        <CardDescription>
-          Upload a PNG skin file to generate a custom skin file for
-          SkinsRestorer
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="skin-png-file">
-            Select skin .png file to generate
-          </Label>
-          <Input
-            id="skin-png-file"
-            type="file"
-            accept=".png"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
+    <>
+      <Card className="group hover:shadow-lg transition-shadow duration-200">
+        <CardHeader>
+          <CardTitle>Generate Skin File</CardTitle>
+          <CardDescription>
+            Upload a PNG skin file to generate a custom skin file for
+            SkinsRestorer
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="skin-png-file">
+              Select skin .png file to generate
+            </Label>
+            <Input
+              id="skin-png-file"
+              type="file"
+              accept=".png"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
                 setSelectedFile(file);
-
-                toast.promise(
-                  skinChecker(URL.createObjectURL(file)).then((slim) => {
-                    setSkinType(slim ? "slim" : "classic");
-                    return slim ? "slim" : "classic";
-                  }),
-                  {
-                    loading: "Detecting skin type...",
-                    success: (v) => `Skin file detected as a ${v} skin.`,
-                    error: (e) => `Failed to detect skin type: ${e}`,
-                  },
-                );
+                if (file) {
+                  setSkinUrl(URL.createObjectURL(file));
+                  toast.promise(
+                    skinChecker(URL.createObjectURL(file)).then((slim) => {
+                      setSkinType(slim ? "slim" : "classic");
+                      return slim ? "slim" : "classic";
+                    }),
+                    {
+                      loading: "Detecting skin type...",
+                      success: (v) => `Skin file detected as a ${v} skin.`,
+                      error: (e) => `Failed to detect skin type: ${e}`,
+                    },
+                  );
+                } else {
+                  setSkinUrl(null);
+                }
+              }}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="skin-type">Skin type</Label>
+            <Select
+              value={skinType}
+              onValueChange={(value) => {
+                setSkinType(value);
+              }}
+            >
+              <SelectTrigger id="skin-type">
+                <SelectValue placeholder="Skin type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="classic">Classic</SelectItem>
+                <SelectItem value="slim">Slim</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="custom-name">Desired /skin name (optional)</Label>
+            <Input
+              id="custom-name"
+              type="text"
+              placeholder="cool_skin_name"
+              value={customName}
+              onChange={(e) => {
+                setCustomName(e.target.value);
+              }}
+            />
+          </div>
+          <Button
+            onClick={() => {
+              if (!selectedFile) {
+                toast.warning("Please select a file to generate.");
+                return;
               }
-            }}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="skin-type">Skin type</Label>
-          <Select
-            value={skinType}
-            onValueChange={(value) => {
-              setSkinType(value);
-            }}
-          >
-            <SelectTrigger id="skin-type">
-              <SelectValue placeholder="Skin type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="classic">Classic</SelectItem>
-              <SelectItem value="slim">Slim</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="custom-name">Desired /skin name (optional)</Label>
-          <Input
-            id="custom-name"
-            type="text"
-            placeholder="cool_skin_name"
-            value={customName}
-            onChange={(e) => {
-              setCustomName(e.target.value);
-            }}
-          />
-        </div>
-        <Button
-          onClick={() => {
-            if (!selectedFile) {
-              toast.warning("Please select a file to generate.");
-              return;
-            }
 
-            if (customName && !/^[a-z0-9_]+$/.test(customName)) {
-              toast.warning(
-                "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
-              );
-              return;
-            }
+              if (customName && !/^[a-z0-9_]+$/.test(customName)) {
+                toast.warning(
+                  "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
+                );
+                return;
+              }
 
-            const formData = new FormData();
-            formData.append("file", selectedFile);
-            formData.append("variant", skinType);
-            if (customName) {
-              formData.append("name", customName);
-            }
+              const formData = new FormData();
+              formData.append("file", selectedFile);
+              formData.append("variant", skinType);
+              if (customName) {
+                formData.append("name", customName);
+              }
 
-            setLoading(true);
-            toast.promise(
-              fetch("https://api.mineskin.org/v2/queue", {
-                method: "POST",
-                headers: {
-                  "User-Agent": MINESKIN_USER_AGENT,
+              setLoading(true);
+              toast.promise(
+                fetch("https://api.mineskin.org/v2/queue", {
+                  method: "POST",
+                  headers: {
+                    "User-Agent": MINESKIN_USER_AGENT,
+                  },
+                  body: formData,
+                })
+                  .then((response) => response.json())
+                  .then(async (rawResponse) => {
+                    const response = rawResponse as MineSkinEnqueueResponse;
+
+                    if (!response.success) {
+                      throw new Error(getMineSkinErrorMessage(response.errors));
+                    }
+
+                    const jobId = response.job.id;
+                    const completedJob = await pollMineSkinJob(jobId);
+                    const skin = completedJob.skin;
+
+                    const signature = skin.texture.data.signature;
+                    const value = skin.texture.data.value;
+                    const fileData = {
+                      skinName: customName || skin.name || String(skin.uuid),
+                      value: value,
+                      signature: signature,
+                      dataVersion: 1,
+                    };
+
+                    const blob = new Blob([JSON.stringify(fileData)], {
+                      type: "text/plain;charset=utf-8",
+                    });
+                    FileSaver.saveAs(blob, `${fileData.skinName}.customskin`);
+                  }),
+                {
+                  loading: "Generating skin file...",
+                  success: "Skin file generated successfully.",
+                  error: (e) => `Failed to generate skin file: ${e}`,
+                  finally: () => setLoading(false),
                 },
-                body: formData,
-              })
-                .then((response) => response.json())
-                .then(async (rawResponse) => {
-                  const response = rawResponse as MineSkinEnqueueResponse;
-
-                  if (!response.success) {
-                    throw new Error(getMineSkinErrorMessage(response.errors));
-                  }
-
-                  const jobId = response.job.id;
-                  const completedJob = await pollMineSkinJob(jobId);
-                  const skin = completedJob.skin;
-
-                  const signature = skin.texture.data.signature;
-                  const value = skin.texture.data.value;
-                  const fileData = {
-                    skinName: customName || skin.name || String(skin.uuid),
-                    value: value,
-                    signature: signature,
-                    dataVersion: 1,
-                  };
-
-                  const blob = new Blob([JSON.stringify(fileData)], {
-                    type: "text/plain;charset=utf-8",
-                  });
-                  FileSaver.saveAs(blob, `${fileData.skinName}.customskin`);
-                }),
-              {
-                loading: "Generating skin file...",
-                success: "Skin file generated successfully.",
-                error: (e) => `Failed to generate skin file: ${e}`,
-                finally: () => setLoading(false),
-              },
-            );
-          }}
-          disabled={loading}
-          className="w-full"
-        >
-          Generate
-        </Button>
-      </CardContent>
-    </Card>
+              );
+            }}
+            disabled={loading}
+            className="w-full"
+          >
+            Generate
+          </Button>
+        </CardContent>
+      </Card>
+      <SkinCard
+        model={skinType === "slim" ? "slim" : "default"}
+        skinUrl={skinUrl || undefined}
+      />
+    </>
   );
 };
 
