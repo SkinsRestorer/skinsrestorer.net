@@ -20,17 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  getMineSkinErrorMessage,
-  MINESKIN_USER_AGENT,
-  type MineSkinEnqueueResponse,
-  pollMineSkinJob,
-} from "~/lib/mineskin";
+import { useSkinFile } from "~/lib/hooks/use-skin-file";
+import { uploadMineSkinFile } from "~/lib/mineskin";
+import type { SkinVariant } from "~/lib/skin";
 
 export const UploadCard = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [skinUrl, setSkinUrl] = useState<string | null>(null);
-  const [skinType, setSkinType] = useState<"classic" | "slim">("classic");
+  const {
+    file: selectedFile,
+    skinUrl,
+    skinType,
+    setSkinType,
+    handleFileChange,
+  } = useSkinFile();
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
 
@@ -40,36 +41,23 @@ export const UploadCard = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("variant", skinType);
-
-    setLoading(true);
     setResultUrl(null);
 
     toast.promise(
-      fetch("https://api.mineskin.org/v2/queue", {
-        method: "POST",
-        headers: {
-          "User-Agent": MINESKIN_USER_AGENT,
+      uploadMineSkinFile({
+        file: selectedFile,
+        variant: skinType,
+        callbacks: {
+          onStart: () => setLoading(true),
+          onComplete: () => setLoading(false),
+          onError: () => setLoading(false),
         },
-        body: formData,
-      })
-        .then(async (res) => {
-          const body = (await res.json()) as MineSkinEnqueueResponse;
-          if (!body.success) {
-            throw new Error(getMineSkinErrorMessage(body.errors));
-          }
+      }).then((completed) => {
+        const url = `https://minesk.in/${completed.skin.uuid}`;
 
-          const jobId = body.job.id;
-
-          const completed = await pollMineSkinJob(jobId);
-          const url = `https://minesk.in/${completed.skin.uuid}`;
-
-          if (!url) throw new Error("Could not extract skin URL from response");
-          setResultUrl(url);
-        })
-        .finally(() => setLoading(false)),
+        if (!url) throw new Error("Could not extract skin URL from response");
+        setResultUrl(url);
+      }),
       {
         loading: "Uploading skin to MineSkin...",
         success: "Skin uploaded successfully.",
@@ -99,12 +87,8 @@ export const UploadCard = () => {
               accept=".png"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
-                setSelectedFile(file);
-                if (file) {
-                  setSkinUrl(URL.createObjectURL(file));
-                } else {
-                  setSkinUrl(null);
-                }
+                handleFileChange(file);
+                setResultUrl(null);
               }}
             />
           </div>
@@ -113,7 +97,7 @@ export const UploadCard = () => {
             <Label htmlFor="skin-type">Skin type</Label>
             <Select
               value={skinType}
-              onValueChange={(v) => setSkinType(v as "classic" | "slim")}
+              onValueChange={(v) => setSkinType(v as SkinVariant)}
             >
               <SelectTrigger id="skin-type">
                 <SelectValue placeholder="Skin type" />

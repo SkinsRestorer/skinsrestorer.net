@@ -1,3 +1,5 @@
+import type { SkinVariant } from "./skin";
+
 export interface MineSkinError {
   message?: string;
 }
@@ -87,14 +89,21 @@ async function requestMineSkinJob(
   return jobData;
 }
 
+export type PollMineSkinJobOptions = {
+  waitMs?: number;
+  onStatusChange?: (status: MineSkinJobStatus) => void;
+};
+
 export async function pollMineSkinJob(
   jobId: string,
-  waitMs = 1000,
+  options: PollMineSkinJobOptions = {},
 ): Promise<MineSkinJobSuccessResponse> {
+  const waitMs = options.waitMs ?? 1000;
   // Loop until the job is completed or failed.
   for (;;) {
     const jobData = await requestMineSkinJob(jobId);
     const { status } = jobData.job;
+    options.onStatusChange?.(status);
 
     if (status === "completed") {
       return jobData;
@@ -112,4 +121,67 @@ export async function pollMineSkinJob(
 
 export function getMineSkinErrorMessage(errors?: MineSkinError[]): string {
   return getMineSkinError(errors);
+}
+
+export type MineSkinUploadCallbacks = {
+  onStart?: () => void;
+  onEnqueue?: (job: MineSkinJobDetails) => void;
+  onStatusChange?: (status: MineSkinJobStatus) => void;
+  onComplete?: (result: MineSkinJobSuccessResponse) => void;
+  onError?: (error: unknown) => void;
+};
+
+export interface MineSkinUploadOptions {
+  file: File;
+  variant: SkinVariant;
+  name?: string;
+  waitMs?: number;
+  callbacks?: MineSkinUploadCallbacks;
+}
+
+export async function uploadMineSkinFile({
+  file,
+  variant,
+  name,
+  waitMs,
+  callbacks,
+}: MineSkinUploadOptions): Promise<MineSkinJobSuccessResponse> {
+  callbacks?.onStart?.();
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("variant", variant);
+    if (name) {
+      formData.append("name", name);
+    }
+
+    const response = await fetch("https://api.mineskin.org/v2/queue", {
+      method: "POST",
+      headers: MINESKIN_HEADERS,
+      body: formData,
+    });
+
+    const rawResponse = (await response.json()) as MineSkinEnqueueResponse;
+
+    if (!rawResponse.success) {
+      throw new Error(getMineSkinError(rawResponse.errors));
+    }
+
+    const job = rawResponse.job;
+    callbacks?.onEnqueue?.(job);
+    callbacks?.onStatusChange?.(job.status);
+
+    const completedJob = await pollMineSkinJob(job.id, {
+      waitMs,
+      onStatusChange: callbacks?.onStatusChange,
+    });
+
+    callbacks?.onComplete?.(completedJob);
+
+    return completedJob;
+  } catch (error) {
+    callbacks?.onError?.(error);
+    throw error;
+  }
 }

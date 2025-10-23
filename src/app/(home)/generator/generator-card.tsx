@@ -21,53 +21,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  getMineSkinErrorMessage,
-  MINESKIN_USER_AGENT,
-  type MineSkinEnqueueResponse,
-  pollMineSkinJob,
-} from "~/lib/mineskin";
-
-// OnlineCard moved to ~/components/online-card and is used directly by pages
+import { useSkinFile } from "~/lib/hooks/use-skin-file";
+import { uploadMineSkinFile } from "~/lib/mineskin";
+import { isValidSkinName, type SkinVariant } from "~/lib/skin";
 
 export const GenerateFileCard = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [skinUrl, setSkinUrl] = useState<string | null>(null);
-  const [skinType, setSkinType] = useState("classic");
+  const {
+    file: selectedFile,
+    skinUrl,
+    skinType,
+    setSkinType,
+    handleFileChange,
+  } = useSkinFile();
   const [customName, setCustomName] = useState("");
   const [loading, setLoading] = useState(false);
-
-  async function skinChecker(skinURL: string) {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      image.crossOrigin = "Anonymous";
-      image.src = skinURL;
-
-      image.onload = () => {
-        const detectCanvas = document.createElement("canvas");
-        const detectCtx = detectCanvas.getContext("2d");
-        if (!detectCtx) return reject("Failed to get canvas context.");
-        detectCanvas.width = image.width;
-        detectCanvas.height = image.height;
-        detectCtx.drawImage(image, 0, 0);
-        const px1 = detectCtx.getImageData(46, 52, 1, 12).data;
-        const px2 = detectCtx.getImageData(54, 20, 1, 12).data;
-        let allTransparent = true;
-        for (let i = 3; i < 12 * 4; i += 4) {
-          if (px1[i] === 255 || px2[i] === 255) {
-            allTransparent = false;
-            break;
-          }
-        }
-
-        resolve(allTransparent);
-      };
-
-      image.onerror = () => {
-        reject("Failed to load image.");
-      };
-    });
-  }
 
   return (
     <>
@@ -90,23 +57,7 @@ export const GenerateFileCard = () => {
               accept=".png"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
-                setSelectedFile(file);
-                if (file) {
-                  setSkinUrl(URL.createObjectURL(file));
-                  toast.promise(
-                    skinChecker(URL.createObjectURL(file)).then((slim) => {
-                      setSkinType(slim ? "slim" : "classic");
-                      return slim ? "slim" : "classic";
-                    }),
-                    {
-                      loading: "Detecting skin type...",
-                      success: (v) => `Skin file detected as a ${v} skin.`,
-                      error: (e) => `Failed to detect skin type: ${e}`,
-                    },
-                  );
-                } else {
-                  setSkinUrl(null);
-                }
+                handleFileChange(file);
               }}
             />
           </div>
@@ -115,7 +66,7 @@ export const GenerateFileCard = () => {
             <Select
               value={skinType}
               onValueChange={(value) => {
-                setSkinType(value);
+                setSkinType(value as SkinVariant);
               }}
             >
               <SelectTrigger id="skin-type">
@@ -146,60 +97,44 @@ export const GenerateFileCard = () => {
                 return;
               }
 
-              if (customName && !/^[a-z0-9_]+$/.test(customName)) {
+              if (customName && !isValidSkinName(customName)) {
                 toast.warning(
                   "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
                 );
                 return;
               }
 
-              const formData = new FormData();
-              formData.append("file", selectedFile);
-              formData.append("variant", skinType);
-              if (customName) {
-                formData.append("name", customName);
-              }
-
-              setLoading(true);
               toast.promise(
-                fetch("https://api.mineskin.org/v2/queue", {
-                  method: "POST",
-                  headers: {
-                    "User-Agent": MINESKIN_USER_AGENT,
+                uploadMineSkinFile({
+                  file: selectedFile,
+                  variant: skinType,
+                  name: customName || undefined,
+                  callbacks: {
+                    onStart: () => setLoading(true),
+                    onError: () => setLoading(false),
+                    onComplete: () => setLoading(false),
                   },
-                  body: formData,
-                })
-                  .then((response) => response.json())
-                  .then(async (rawResponse) => {
-                    const response = rawResponse as MineSkinEnqueueResponse;
+                }).then((completedJob) => {
+                  const skin = completedJob.skin;
 
-                    if (!response.success) {
-                      throw new Error(getMineSkinErrorMessage(response.errors));
-                    }
+                  const signature = skin.texture.data.signature;
+                  const value = skin.texture.data.value;
+                  const fileData = {
+                    skinName: customName || skin.name || String(skin.uuid),
+                    value: value,
+                    signature: signature,
+                    dataVersion: 1,
+                  };
 
-                    const jobId = response.job.id;
-                    const completedJob = await pollMineSkinJob(jobId);
-                    const skin = completedJob.skin;
-
-                    const signature = skin.texture.data.signature;
-                    const value = skin.texture.data.value;
-                    const fileData = {
-                      skinName: customName || skin.name || String(skin.uuid),
-                      value: value,
-                      signature: signature,
-                      dataVersion: 1,
-                    };
-
-                    const blob = new Blob([JSON.stringify(fileData)], {
-                      type: "text/plain;charset=utf-8",
-                    });
-                    FileSaver.saveAs(blob, `${fileData.skinName}.customskin`);
-                  }),
+                  const blob = new Blob([JSON.stringify(fileData)], {
+                    type: "text/plain;charset=utf-8",
+                  });
+                  FileSaver.saveAs(blob, `${fileData.skinName}.customskin`);
+                }),
                 {
                   loading: "Generating skin file...",
                   success: "Skin file generated successfully.",
                   error: (e) => `Failed to generate skin file: ${e}`,
-                  finally: () => setLoading(false),
                 },
               );
             }}
