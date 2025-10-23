@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ReactSkinview3d } from "react-skinview3d";
 import {
   CrouchAnimation,
@@ -20,6 +20,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 export type AnimationType =
   | "walking"
@@ -84,18 +92,17 @@ export function SkinCard(props: {
   skinUrl?: string;
   capeUrl?: string;
   model: "default" | "slim";
-  animationType: AnimationType;
 }) {
+  const [animationType, setAnimationType] = useState<AnimationType>("walking");
   const [animation, setAnimation] = useState<PlayerAnimation>(
-    makeAnimation(props.animationType, null),
+    makeAnimation(animationType, null),
   );
   const [viewer, setViewer] = useState<SkinViewer | null>(null);
+  const animationSelectId = useId();
 
   useEffect(() => {
-    setAnimation((oldAnimation) =>
-      makeAnimation(props.animationType, oldAnimation),
-    );
-  }, [props.animationType]);
+    setAnimation((oldAnimation) => makeAnimation(animationType, oldAnimation));
+  }, [animationType]);
 
   useEffect(() => {
     if (viewer !== null) {
@@ -112,7 +119,29 @@ export function SkinCard(props: {
           See a preview of your skin before uploading it.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-row justify-center">
+      <CardContent className="flex flex-col gap-4 items-center">
+        <div className="w-full max-w-xs space-y-2">
+          <Label htmlFor={animationSelectId}>Animation</Label>
+          <Select
+            value={animationType}
+            onValueChange={(value) => {
+              setAnimationType(value as AnimationType);
+            }}
+          >
+            <SelectTrigger id={animationSelectId}>
+              <SelectValue placeholder="Choose an animation" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="walking">Walking</SelectItem>
+              <SelectItem value="idle">Idle</SelectItem>
+              <SelectItem value="running">Running</SelectItem>
+              <SelectItem value="flying">Flying</SelectItem>
+              <SelectItem value="wave">Wave</SelectItem>
+              <SelectItem value="crouch">Crouch</SelectItem>
+              <SelectItem value="hit">Hit</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <ReactSkinview3d
           height={300}
           width={200}
