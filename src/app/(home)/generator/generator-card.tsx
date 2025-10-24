@@ -2,27 +2,27 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { SkinCard } from "~/components/skin-card";
-import { Button } from "~/components/ui/button";
+import { SkinCard } from "@/components/skin-card";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
-import { useSkinFile } from "~/lib/hooks/use-skin-file";
-import { uploadMineSkinFile } from "~/lib/mineskin";
-import { isValidSkinName, type SkinVariant } from "~/lib/skin";
+} from "@/components/ui/select";
+import { useSkinFile } from "@/lib/hooks/use-skin-file";
+import { uploadMineSkinFile } from "@/lib/mineskin";
+import { isValidSkinName, type SkinVariant } from "@/lib/skin";
 
 export const GenerateFileCard = () => {
   const {

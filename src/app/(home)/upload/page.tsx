@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { OnlineCard } from "~/components/online-card";
+import { OnlineCard } from "@/components/online-card";
 import { UploadCard } from "./upload-card";
 
 export const metadata: Metadata = {

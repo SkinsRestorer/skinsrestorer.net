@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { detectSkinVariant, type SkinVariant } from "~/lib/skin";
+import { detectSkinVariant, type SkinVariant } from "@/lib/skin";
 
 type UseSkinFileOptions = {
   /**

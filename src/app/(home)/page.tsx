@@ -12,8 +12,8 @@ import {
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { CustomTimeAgo } from "~/components/time-ago";
-import { Button } from "~/components/ui/button";
+import { CustomTimeAgo } from "@/components/time-ago";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@/components/ui/card";
 
 type LatestReleaseResponse =
   paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];

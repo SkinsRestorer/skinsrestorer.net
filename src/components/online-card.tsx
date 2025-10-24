@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@/components/ui/card";
 
 export function OnlineCard() {
   const [status, setStatus] = useState<"loading" | "online" | "offline">(
