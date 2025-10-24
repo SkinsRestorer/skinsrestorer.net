@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { MineSkinApiKeyManager } from "@/components/mineskin-api-key-manager";
 import { SkinCard } from "@/components/skin-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useMineSkin } from "@/lib/hooks/use-mineskin";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
 import { uploadMineSkinFile } from "@/lib/mineskin";
 import { isValidSkinName, type SkinVariant } from "@/lib/skin";
@@ -32,6 +34,18 @@ export const GenerateFileCard = () => {
     setSkinType,
     handleFileChange,
   } = useSkinFile();
+  const {
+    apiKey,
+    setApiKey,
+    clearApiKey,
+    capes,
+    loadingCapes,
+    capesError,
+    hasCapesGrant,
+    loadingGrants,
+    grantsError,
+    refreshGrants,
+  } = useMineSkin();
   const [customName, setCustomName] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -39,10 +53,36 @@ export const GenerateFileCard = () => {
     url: string;
     variant: SkinVariant;
   } | null>(null);
+  const [selectedCapeUuid, setSelectedCapeUuid] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (!hasCapesGrant) {
+      setSelectedCapeUuid(undefined);
+    }
+  }, [hasCapesGrant]);
+
+  useEffect(() => {
+    if (
+      selectedCapeUuid &&
+      !capes.some((cape) => cape.uuid === selectedCapeUuid)
+    ) {
+      setSelectedCapeUuid(undefined);
+    }
+  }, [selectedCapeUuid, capes]);
 
   const command = result
     ? `/sr createcustom ${result.name} "${result.url}" ${result.variant}`
     : "";
+
+  const selectedCape = useMemo(
+    () =>
+      selectedCapeUuid
+        ? capes.find((cape) => cape.uuid === selectedCapeUuid)
+        : undefined,
+    [selectedCapeUuid, capes],
+  );
+
+  const capeSelectValue = selectedCapeUuid ?? "none";
 
   return (
     <>
@@ -57,14 +97,29 @@ export const GenerateFileCard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <MineSkinApiKeyManager
+              apiKey={apiKey}
+              onSave={(value) => {
+                setApiKey(value);
+                refreshGrants();
+              }}
+              onClear={() => {
+                clearApiKey();
+                refreshGrants();
+              }}
+              hasCapesGrant={hasCapesGrant}
+              loadingGrants={loadingGrants}
+              grantsError={grantsError}
+              onRefreshGrants={refreshGrants}
+            />
             <div className="space-y-2">
               <Label htmlFor="skin-png-file">Select skin .png file</Label>
               <Input
                 id="skin-png-file"
                 type="file"
                 accept=".png"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] ?? null;
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
                   handleFileChange(file);
                   setResult(null);
                 }}
@@ -89,6 +144,59 @@ export const GenerateFileCard = () => {
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="cape-select">Cape (optional)</Label>
+              <Select
+                value={capeSelectValue}
+                onValueChange={(value) => {
+                  if (value === "none") {
+                    setSelectedCapeUuid(undefined);
+                    return;
+                  }
+
+                  if (!hasCapesGrant) {
+                    toast.warning("Capes require an API key with the capes grant.");
+                    return;
+                  }
+
+                  setSelectedCapeUuid(value);
+                }}
+              >
+                <SelectTrigger id="cape-select">
+                  <SelectValue
+                    placeholder={
+                      loadingCapes ? "Loading capes..." : "Select a cape"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No cape</SelectItem>
+                  {capes.map((cape) => (
+                    <SelectItem
+                      key={cape.uuid}
+                      value={cape.uuid}
+                      disabled={!hasCapesGrant}
+                    >
+                      {cape.alias}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!hasCapesGrant ? (
+                <p className="text-xs text-muted-foreground">
+                  Connect an API key with the capes grant to enable cape selection.
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Selected capes will be applied to the preview and generation.
+                </p>
+              )}
+              {capesError && (
+                <p className="text-xs text-destructive">
+                  Failed to load capes: {capesError}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="custom-name">
                 Desired custom skin name (optional)
               </Label>
@@ -97,8 +205,8 @@ export const GenerateFileCard = () => {
                 type="text"
                 placeholder="cool_skin_name"
                 value={customName}
-                onChange={(e) => {
-                  setCustomName(e.target.value);
+                onChange={(event) => {
+                  setCustomName(event.target.value);
                 }}
               />
             </div>
@@ -123,6 +231,11 @@ export const GenerateFileCard = () => {
                     file: selectedFile,
                     variant: skinType,
                     name: customName || undefined,
+                    apiKey,
+                    capeUuid:
+                      hasCapesGrant && selectedCapeUuid
+                        ? selectedCapeUuid
+                        : undefined,
                     callbacks: {
                       onStart: () => setLoading(true),
                       onError: () => setLoading(false),
@@ -143,7 +256,8 @@ export const GenerateFileCard = () => {
                   {
                     loading: "Generating custom skin...",
                     success: "Command ready to copy.",
-                    error: (e) => `Failed to generate custom skin: ${e}`,
+                    error: (error) =>
+                      `Failed to generate custom skin: ${error}`,
                   },
                 );
               }}
@@ -169,7 +283,7 @@ export const GenerateFileCard = () => {
                       try {
                         await navigator.clipboard.writeText(command);
                         toast.success("Copied to clipboard");
-                      } catch (_e) {
+                      } catch (_error) {
                         toast.error("Failed to copy");
                       }
                     }}
@@ -197,6 +311,7 @@ export const GenerateFileCard = () => {
         <SkinCard
           model={skinType === "slim" ? "slim" : "default"}
           skinUrl={skinUrl || undefined}
+          capeUrl={hasCapesGrant ? selectedCape?.url : undefined}
         />
       </div>
     </>
@@ -221,8 +336,8 @@ export const ReverseFileCard = () => {
             id="skin-file"
             type="file"
             accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
-            onChange={(e) => {
-              setSelectedFile(e.target.files?.[0] || null);
+            onChange={(event) => {
+              setSelectedFile(event.target.files?.[0] || null);
             }}
           />
         </div>
@@ -239,7 +354,7 @@ export const ReverseFileCard = () => {
                 try {
                   const textJson = JSON.parse(text);
                   rawValue = textJson.value;
-                } catch (_e) {
+                } catch (_error) {
                   toast.warning("Falling back to legacy skin format.", {
                     description:
                       "Please update SkinsRestorer as soon as possible.",
@@ -255,15 +370,15 @@ export const ReverseFileCard = () => {
               {
                 loading: "Reversing skin file...",
                 success: "Skin file reversed successfully.",
-                error: (e) => `Failed to reverse skin file: ${e}`,
+                error: (error) => `Failed to reverse skin file: ${error}`,
               },
             );
           }}
-          className="w-full"
         >
-          Reverse
+          Reverse skin file
         </Button>
       </CardContent>
     </Card>
   );
 };
+

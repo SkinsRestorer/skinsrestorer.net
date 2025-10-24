@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { MineSkinApiKeyManager } from "@/components/mineskin-api-key-manager";
 import { SkinCard } from "@/components/skin-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useMineSkin } from "@/lib/hooks/use-mineskin";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
 import { uploadMineSkinFile } from "@/lib/mineskin";
 import type { SkinVariant } from "@/lib/skin";
@@ -32,8 +34,36 @@ export const UploadCard = () => {
     setSkinType,
     handleFileChange,
   } = useSkinFile();
+  const {
+    apiKey,
+    setApiKey,
+    clearApiKey,
+    capes,
+    loadingCapes,
+    capesError,
+    hasCapesGrant,
+    loadingGrants,
+    grantsError,
+    refreshGrants,
+  } = useMineSkin();
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [selectedCapeUuid, setSelectedCapeUuid] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (!hasCapesGrant) {
+      setSelectedCapeUuid(undefined);
+    }
+  }, [hasCapesGrant]);
+
+  useEffect(() => {
+    if (
+      selectedCapeUuid &&
+      !capes.some((cape) => cape.uuid === selectedCapeUuid)
+    ) {
+      setSelectedCapeUuid(undefined);
+    }
+  }, [selectedCapeUuid, capes]);
 
   async function uploadSkin() {
     if (!selectedFile) {
@@ -47,6 +77,9 @@ export const UploadCard = () => {
       uploadMineSkinFile({
         file: selectedFile,
         variant: skinType,
+        apiKey,
+        capeUuid:
+          hasCapesGrant && selectedCapeUuid ? selectedCapeUuid : undefined,
         callbacks: {
           onStart: () => setLoading(true),
           onComplete: () => setLoading(false),
@@ -61,12 +94,22 @@ export const UploadCard = () => {
       {
         loading: "Uploading skin to MineSkin...",
         success: "Skin uploaded successfully.",
-        error: (e) => `Failed to upload skin: ${e}`,
+        error: (error) => `Failed to upload skin: ${error}`,
       },
     );
   }
 
   const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
+
+  const selectedCape = useMemo(
+    () =>
+      selectedCapeUuid
+        ? capes.find((cape) => cape.uuid === selectedCapeUuid)
+        : undefined,
+    [selectedCapeUuid, capes],
+  );
+
+  const capeSelectValue = selectedCapeUuid ?? "none";
 
   return (
     <>
@@ -79,14 +122,29 @@ export const UploadCard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <MineSkinApiKeyManager
+            apiKey={apiKey}
+            onSave={(value) => {
+              setApiKey(value);
+              refreshGrants();
+            }}
+            onClear={() => {
+              clearApiKey();
+              refreshGrants();
+            }}
+            hasCapesGrant={hasCapesGrant}
+            loadingGrants={loadingGrants}
+            grantsError={grantsError}
+            onRefreshGrants={refreshGrants}
+          />
           <div className="space-y-2">
             <Label htmlFor="skin-png-file">Select skin .png file</Label>
             <Input
               id="skin-png-file"
               type="file"
               accept=".png"
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
                 handleFileChange(file);
                 setResultUrl(null);
               }}
@@ -97,8 +155,8 @@ export const UploadCard = () => {
             <Label htmlFor="skin-type">Skin type</Label>
             <Select
               value={skinType}
-              onValueChange={(v) => {
-                setSkinType(v as SkinVariant);
+              onValueChange={(value) => {
+                setSkinType(value as SkinVariant);
                 setResultUrl(null);
               }}
             >
@@ -110,6 +168,60 @@ export const UploadCard = () => {
                 <SelectItem value="slim">Slim</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cape-select">Cape (optional)</Label>
+            <Select
+              value={capeSelectValue}
+              onValueChange={(value) => {
+                if (value === "none") {
+                  setSelectedCapeUuid(undefined);
+                  return;
+                }
+
+                if (!hasCapesGrant) {
+                  toast.warning("Capes require an API key with the capes grant.");
+                  return;
+                }
+
+                setSelectedCapeUuid(value);
+              }}
+            >
+              <SelectTrigger id="cape-select">
+                <SelectValue
+                  placeholder={
+                    loadingCapes ? "Loading capes..." : "Select a cape"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No cape</SelectItem>
+                {capes.map((cape) => (
+                  <SelectItem
+                    key={cape.uuid}
+                    value={cape.uuid}
+                    disabled={!hasCapesGrant}
+                  >
+                    {cape.alias}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!hasCapesGrant ? (
+              <p className="text-xs text-muted-foreground">
+                Connect an API key with the capes grant to enable cape selection.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Selected capes will be applied to the preview and upload.
+              </p>
+            )}
+            {capesError && (
+              <p className="text-xs text-destructive">
+                Failed to load capes: {capesError}
+              </p>
+            )}
           </div>
 
           <Button onClick={uploadSkin} disabled={loading} className="w-full">
@@ -133,7 +245,7 @@ export const UploadCard = () => {
                     try {
                       await navigator.clipboard.writeText(command);
                       toast.success("Copied to clipboard");
-                    } catch (_e) {
+                    } catch (_error) {
                       toast.error("Failed to copy");
                     }
                   }}
@@ -159,7 +271,9 @@ export const UploadCard = () => {
       <SkinCard
         model={skinType === "slim" ? "slim" : "default"}
         skinUrl={skinUrl || undefined}
+        capeUrl={hasCapesGrant ? selectedCape?.url : undefined}
       />
     </>
   );
 };
+
