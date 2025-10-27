@@ -1,0 +1,66 @@
+---
+title: Installation on Fabric
+description: Learn how to install the SkinsRestorer mod on Fabric-based Minecraft servers.
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Before installing, we recommend you to read the [main installation page](/docs/installation).
+
+<Callout type="warning" emoji="🆕">
+  The Fabric mod build of SkinsRestorer currently targets **only the latest Minecraft release**. Running it on older
+  Minecraft versions is not supported.
+</Callout>
+
+<Callout type="info" emoji="🔁">
+  The mod build behaves exactly like the Bukkit plugin as long as you are on a supported Minecraft version. Commands,
+  configuration options, and permissions work the same way.
+</Callout>
+
+## Basic Installation
+
+In this section, you can read how to set up SkinsRestorer on a Fabric (or Quilt) dedicated server.
+
+<Steps>
+  <Step>
+    ### Prepare your server
+    Install the [Fabric Loader](https://fabricmc.net/use/server/) for the latest Minecraft version on your server. If you
+    already maintain a Fabric installation, make sure it is updated to the newest release.
+  </Step>
+
+  <Step>
+    ### Install dependencies
+    Download the matching version of [Fabric API](https://modrinth.com/mod/fabric-api) (most Fabric servers already have
+    it) and place it inside the `mods` folder of your server files.
+  </Step>
+
+  <Step>
+    ### Add SkinsRestorer
+    Download the latest SkinsRestorer mod file from [Modrinth](https://modrinth.com/mod/skinsrestorer) and copy it into
+    the same `mods` folder.
+  </Step>
+
+  <Step>
+    ### Start the server
+    Start or restart your Fabric server so the new mods are loaded. Watch the console for any warnings or dependency
+    messages.
+  </Step>
+
+  <Step>
+    ### Verify everything works
+    Join the server and run `/skinsrestorer status`. If you previously used the Bukkit plugin, you should notice the
+    same behaviour and configuration.
+  </Step>
+
+  <Step>
+    ### Configure SkinsRestorer
+    Adjust the configuration files inside `config/SkinsRestorer/` just like you would on Bukkit. Refer to the
+    [configuration guide](/docs/configuration) if you need help.
+  </Step>
+</Steps>
+
+## Need help?
+
+If you run into problems, collect the latest server log and head to our [Discord server](https://skinsrestorer.net/discord)
+for support. Remember to mention the Fabric loader version you are running.
