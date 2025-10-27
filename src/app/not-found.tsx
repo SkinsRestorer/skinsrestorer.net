@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   openGraph: {
@@ -27,10 +27,7 @@ export default function RootComponent() {
             />
           </div>
           <Button asChild>
-            <Link
-              href="/"
-              className="w-fit m-auto"
-            >
+            <Link href="/" className="w-fit m-auto">
               <span>Go back</span>
             </Link>
           </Button>
