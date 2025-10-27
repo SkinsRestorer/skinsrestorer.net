@@ -48,7 +48,12 @@ async function getReleaseData(): Promise<LatestReleaseResponse> {
 
 async function LatestRelease() {
   const data: LatestReleaseResponse = await getReleaseData();
-  const releaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${data.tag_name}`;
+  const versionTag = data.tag_name.startsWith("v")
+    ? data.tag_name.slice(1)
+    : data.tag_name;
+  const releaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}`;
+  const fabricReleaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}-fabric`;
+  const neoforgeReleaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}-neoforge`;
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -82,11 +87,23 @@ async function LatestRelease() {
           </div>
         </CardDescription>
       </CardHeader>
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2 sm:flex-row">
         <Button asChild variant="outline" className="w-full sm:w-auto">
           <a href={releaseLink}>
             <Download className="w-4 h-4" />
-            Download
+            Download (Bukkit / Velocity)
+          </a>
+        </Button>
+        <Button asChild variant="outline" className="w-full sm:w-auto">
+          <a href={fabricReleaseLink}>
+            <Download className="w-4 h-4" />
+            Download (Fabric)
+          </a>
+        </Button>
+        <Button asChild variant="outline" className="w-full sm:w-auto">
+          <a href={neoforgeReleaseLink}>
+            <Download className="w-4 h-4" />
+            Download (NeoForge)
           </a>
         </Button>
       </CardFooter>
