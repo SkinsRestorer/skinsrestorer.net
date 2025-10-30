@@ -91,7 +91,7 @@ async function LatestRelease() {
         <Button asChild variant="outline" className="w-full sm:w-auto">
           <a href={releaseLink}>
             <Download className="w-4 h-4" />
-            Download (Bukkit / Velocity)
+            Download (Server / Proxy)
           </a>
         </Button>
         <Button asChild variant="outline" className="w-full sm:w-auto">
