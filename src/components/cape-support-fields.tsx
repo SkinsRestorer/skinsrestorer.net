@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,7 +79,10 @@ export function CapeSupportFields({
                 value={cape.uuid}
                 disabled={capeOptionsDisabled}
               >
-                {cape.alias}
+                <div className="flex items-center gap-2">
+                  <CapePreview texture={cape.url} />
+                  <span>{cape.alias}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -89,5 +94,63 @@ export function CapeSupportFields({
         )}
       </div>
     </>
+  );
+}
+
+function CapePreview({ texture }: { texture: string }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      return;
+    }
+
+    const width = 10;
+    const height = 16;
+
+    canvas.width = width;
+    canvas.height = height;
+    context.imageSmoothingEnabled = false;
+    context.clearRect(0, 0, width, height);
+
+    if (!texture) {
+      return;
+    }
+
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      const currentCanvas = canvasRef.current;
+      const currentContext = currentCanvas?.getContext("2d");
+      if (!currentCanvas || !currentContext) {
+        return;
+      }
+
+      currentCanvas.width = width;
+      currentCanvas.height = height;
+      currentContext.imageSmoothingEnabled = false;
+      currentContext.clearRect(0, 0, width, height);
+      currentContext.drawImage(image, 1, 1, width, height, 0, 0, width, height);
+    };
+    image.src = texture;
+
+    return () => {
+      image.onload = null;
+    };
+  }, [texture]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={10}
+      height={16}
+      className="h-8 w-5 shrink-0 rounded border border-border bg-muted [image-rendering:pixelated]"
+    />
   );
 }
