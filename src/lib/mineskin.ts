@@ -258,7 +258,7 @@ export async function fetchMineSkinCapeGrant(apiKey: string): Promise<boolean> {
 }
 
 export async function fetchMineSkinSupportedCapes(
-  apiKey: string,
+  apiKey?: string,
 ): Promise<MineSkinCape[]> {
   const response = await fetch("https://api.mineskin.org/v2/capes", {
     headers: createMineSkinHeaders(apiKey),

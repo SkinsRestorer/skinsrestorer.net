@@ -1,7 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { fetchCapeSupport, type MineSkinCape } from "@/lib/mineskin";
+import {
+  fetchCapeSupport,
+  fetchMineSkinSupportedCapes,
+  type MineSkinCape,
+} from "@/lib/mineskin";
 
 export const NO_CAPE_VALUE = "__no_cape__" as const;
 
@@ -25,10 +29,40 @@ export function useCapeSelection() {
     return supportedCapes.find((cape) => cape.uuid === selectedCapeUuid);
   }, [selectedCapeUuid, supportedCapes]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    const loadSupportedCapes = async () => {
+      try {
+        const capes = await fetchMineSkinSupportedCapes();
+        if (!isActive) {
+          return;
+        }
+
+        setSupportedCapes(capes);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to load available capes",
+        );
+      }
+    };
+
+    loadSupportedCapes();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
     setCapeStatus("idle");
-    setSupportedCapes([]);
     setSelectedCapeUuid(null);
   };
 
@@ -53,7 +87,6 @@ export function useCapeSelection() {
     }
 
     setCapeStatus("loading");
-    setSupportedCapes([]);
     setSelectedCapeUuid(null);
 
     try {
