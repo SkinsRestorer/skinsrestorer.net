@@ -10,8 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { CapeStatus } from "@/lib/hooks/use-cape-selection";
-import { NO_CAPE_VALUE } from "@/lib/hooks/use-cape-selection";
+import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/hooks/use-cape-selection";
 import type { MineSkinCape } from "@/lib/mineskin";
 
 interface CapeSupportFieldsProps {
@@ -19,10 +18,10 @@ interface CapeSupportFieldsProps {
   capeStatus: CapeStatus;
   capeOptionsDisabled: boolean;
   supportedCapes: MineSkinCape[];
-  selectedCapeUuid: string | null;
+  selectedCapeUuid: string;
   onApiKeyChange: (value: string) => void;
   onCheckCapeAccess: () => void;
-  onCapeChange: (value: string | null) => void;
+  onCapeChange: (value: string) => void;
 }
 
 export function CapeSupportFields({
@@ -66,17 +65,7 @@ export function CapeSupportFields({
       </div>
       <div className="space-y-2">
         <Label htmlFor="cape-select">Cape (optional)</Label>
-        <Select
-          value={selectedCapeUuid ?? undefined}
-          onValueChange={(value) => {
-            if (value === NO_CAPE_VALUE) {
-              onCapeChange(null);
-              return;
-            }
-
-            onCapeChange(value);
-          }}
-        >
+        <Select value={selectedCapeUuid} onValueChange={onCapeChange}>
           <SelectTrigger id="cape-select">
             <SelectValue placeholder="No cape" />
           </SelectTrigger>

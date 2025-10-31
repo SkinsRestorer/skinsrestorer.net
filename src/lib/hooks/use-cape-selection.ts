@@ -15,14 +15,15 @@ export function useCapeSelection() {
   const [apiKey, setApiKey] = useState("");
   const [capeStatus, setCapeStatus] = useState<CapeStatus>("idle");
   const [supportedCapes, setSupportedCapes] = useState<MineSkinCape[]>([]);
-  const [selectedCapeUuid, setSelectedCapeUuid] = useState<string | null>(null);
+  const [selectedCapeUuid, setSelectedCapeUuid] =
+    useState<string>(NO_CAPE_VALUE);
 
   const normalizedApiKey = apiKey.trim();
   const capeOptionsDisabled =
     capeStatus !== "granted" || supportedCapes.length === 0;
 
   const selectedCape = useMemo(() => {
-    if (!selectedCapeUuid) {
+    if (selectedCapeUuid === NO_CAPE_VALUE) {
       return undefined;
     }
 
@@ -63,12 +64,12 @@ export function useCapeSelection() {
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
     setCapeStatus("idle");
-    setSelectedCapeUuid(null);
+    setSelectedCapeUuid(NO_CAPE_VALUE);
   };
 
-  const handleCapeSelect = (value: string | null) => {
-    if (value === null) {
-      setSelectedCapeUuid(null);
+  const handleCapeSelect = (value: string) => {
+    if (value === NO_CAPE_VALUE) {
+      setSelectedCapeUuid(NO_CAPE_VALUE);
       return;
     }
 
@@ -87,7 +88,7 @@ export function useCapeSelection() {
     }
 
     setCapeStatus("loading");
-    setSelectedCapeUuid(null);
+    setSelectedCapeUuid(NO_CAPE_VALUE);
 
     try {
       const { hasCapeGrant, capes } = await fetchCapeSupport(normalizedApiKey);

@@ -21,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCapeSelection } from "@/lib/hooks/use-cape-selection";
+import {
+  NO_CAPE_VALUE,
+  useCapeSelection,
+} from "@/lib/hooks/use-cape-selection";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
 import { uploadMineSkinFile } from "@/lib/mineskin";
 import type { SkinVariant } from "@/lib/skin";
@@ -61,7 +64,8 @@ export const UploadCard = () => {
       uploadMineSkinFile({
         file: selectedFile,
         variant: skinType,
-        capeUuid: selectedCapeUuid ?? undefined,
+        capeUuid:
+          selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
         apiKey: normalizedApiKey || undefined,
         callbacks: {
           onStart: () => setLoading(true),
