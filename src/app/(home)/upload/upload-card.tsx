@@ -47,6 +47,8 @@ export const UploadCard = () => {
   const [selectedCapeUuid, setSelectedCapeUuid] = useState<string | null>(null);
 
   const normalizedApiKey = apiKey.trim();
+  const capeOptionsDisabled =
+    capeStatus !== "granted" || supportedCapes.length === 0;
   const selectedCape = useMemo(() => {
     if (!selectedCapeUuid) {
       return undefined;
@@ -209,16 +211,20 @@ export const UploadCard = () => {
             <Select
               value={selectedCapeUuid ?? undefined}
               onValueChange={(value) => {
-                if (!normalizedApiKey) {
+                if (value === NO_CAPE_VALUE) {
+                  setSelectedCapeUuid(null);
+                  return;
+                }
+
+                if (!normalizedApiKey || capeStatus !== "granted") {
                   toast.warning(
                     "Enter and verify your API key before selecting a cape.",
                   );
                   return;
                 }
 
-                setSelectedCapeUuid(value === NO_CAPE_VALUE ? null : value);
+                setSelectedCapeUuid(value);
               }}
-              disabled={capeStatus !== "granted" || supportedCapes.length === 0}
             >
               <SelectTrigger id="cape-select">
                 <SelectValue placeholder="No cape" />
@@ -226,7 +232,11 @@ export const UploadCard = () => {
               <SelectContent>
                 <SelectItem value={NO_CAPE_VALUE}>No cape</SelectItem>
                 {supportedCapes.map((cape) => (
-                  <SelectItem key={cape.uuid} value={cape.uuid}>
+                  <SelectItem
+                    key={cape.uuid}
+                    value={cape.uuid}
+                    disabled={capeOptionsDisabled}
+                  >
                     {cape.alias}
                   </SelectItem>
                 ))}
