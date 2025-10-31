@@ -1,4 +1,5 @@
 import type { SkinVariant } from "./skin";
+import { ensureHttpsTextureUrl } from "./textures";
 
 export interface MineSkinError {
   message?: string;
@@ -269,7 +270,12 @@ export async function fetchMineSkinSupportedCapes(
     throw new Error(getMineSkinError(data.errors));
   }
 
-  return (data.capes ?? []).filter((cape) => cape.supported);
+  return (data.capes ?? [])
+    .filter((cape) => cape.supported)
+    .map((cape) => ({
+      ...cape,
+      url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
+    }));
 }
 
 export async function fetchCapeSupport(apiKey: string): Promise<{

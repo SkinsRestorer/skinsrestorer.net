@@ -27,6 +27,7 @@ import {
   uploadMineSkinFile,
 } from "@/lib/mineskin";
 import { isValidSkinName, type SkinVariant } from "@/lib/skin";
+import { ensureHttpsTextureUrl } from "@/lib/textures";
 
 export const GenerateFileCard = () => {
   const {
@@ -378,8 +379,14 @@ export const ReverseFileCard = () => {
                 }
                 const decodedValue = JSON.parse(window.atob(rawValue));
 
-                const skinUrl = decodedValue.textures.SKIN.url;
-                window.open(skinUrl);
+                const skinUrl = ensureHttpsTextureUrl(
+                  decodedValue.textures.SKIN.url,
+                );
+                if (skinUrl) {
+                  window.open(skinUrl, "_blank", "noopener,noreferrer");
+                } else {
+                  toast.error("No skin URL found in file");
+                }
               }),
               {
                 loading: "Reversing skin file...",
