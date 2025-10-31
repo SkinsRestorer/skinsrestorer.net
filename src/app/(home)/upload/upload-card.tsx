@@ -42,8 +42,9 @@ export const UploadCard = () => {
   const [capeStatus, setCapeStatus] = useState<
     "idle" | "loading" | "granted" | "denied"
   >("idle");
+  const NO_CAPE_VALUE = "__no_cape__";
   const [supportedCapes, setSupportedCapes] = useState<MineSkinCape[]>([]);
-  const [selectedCapeUuid, setSelectedCapeUuid] = useState<string>("");
+  const [selectedCapeUuid, setSelectedCapeUuid] = useState<string | null>(null);
 
   const normalizedApiKey = apiKey.trim();
   const selectedCape = useMemo(() => {
@@ -66,7 +67,7 @@ export const UploadCard = () => {
       uploadMineSkinFile({
         file: selectedFile,
         variant: skinType,
-        capeUuid: selectedCapeUuid || undefined,
+        capeUuid: selectedCapeUuid ?? undefined,
         apiKey: normalizedApiKey || undefined,
         callbacks: {
           onStart: () => setLoading(true),
@@ -97,7 +98,7 @@ export const UploadCard = () => {
 
     setCapeStatus("loading");
     setSupportedCapes([]);
-    setSelectedCapeUuid("");
+    setSelectedCapeUuid(null);
 
     try {
       const { hasCapeGrant, capes } = await fetchCapeSupport(normalizedApiKey);
@@ -183,7 +184,7 @@ export const UploadCard = () => {
                 setApiKey(event.target.value);
                 setCapeStatus("idle");
                 setSupportedCapes([]);
-                setSelectedCapeUuid("");
+                setSelectedCapeUuid(null);
               }}
             />
             <Button
@@ -206,7 +207,7 @@ export const UploadCard = () => {
           <div className="space-y-2">
             <Label htmlFor="cape-select">Cape (optional)</Label>
             <Select
-              value={selectedCapeUuid}
+              value={selectedCapeUuid ?? undefined}
               onValueChange={(value) => {
                 if (!normalizedApiKey) {
                   toast.warning(
@@ -215,7 +216,7 @@ export const UploadCard = () => {
                   return;
                 }
 
-                setSelectedCapeUuid(value);
+                setSelectedCapeUuid(value === NO_CAPE_VALUE ? null : value);
               }}
               disabled={capeStatus !== "granted" || supportedCapes.length === 0}
             >
@@ -223,7 +224,7 @@ export const UploadCard = () => {
                 <SelectValue placeholder="No cape" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No cape</SelectItem>
+                <SelectItem value={NO_CAPE_VALUE}>No cape</SelectItem>
                 {supportedCapes.map((cape) => (
                   <SelectItem key={cape.uuid} value={cape.uuid}>
                     {cape.alias}
