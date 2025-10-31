@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "fumadocs-ui/components/ui/popover";
+import { InfoIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +45,48 @@ export function CapeSupportFields({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="mineskin-api-key">MineSkin API key</Label>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="mineskin-api-key">MineSkin API key</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground"
+              >
+                <InfoIcon className="h-4 w-4" aria-hidden />
+                <span className="sr-only">MineSkin API key info</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              sideOffset={8}
+              className="w-72 space-y-2 text-sm leading-relaxed text-muted-foreground"
+            >
+              <p>
+                Need an API key? All MineSkin plans except Lite include cape
+                generation, higher limits, and exclusive features.
+              </p>
+              <p>
+                Visit the{" "}
+                <a
+                  href="https://mineskin.org/apikey"
+                  className="font-medium text-foreground underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  MineSkin API keys page
+                </a>{" "}
+                to get started and save 10% on your first three months (plans
+                except Lite) with the exclusive coupon code{" "}
+                <span className="font-mono font-semibold">SKINSRESTORER10</span>
+                . We don't receive a commission if you use this coupon—it's just
+                a community perk.
+              </p>
+            </PopoverContent>
+          </Popover>
+        </div>
         <Input
           id="mineskin-api-key"
           type="password"
