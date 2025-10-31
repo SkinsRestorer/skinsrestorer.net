@@ -61,8 +61,17 @@ export function CapeSupportFields({
         </Button>
         <p className="text-xs text-muted-foreground">
           Need an API key? All MineSkin plans except Lite include cape
-          generation, higher limits, and exclusive features. Get 10% off your
-          first three months (plans except Lite) with the exclusive coupon code{" "}
+          generation, higher limits, and exclusive features. Visit the{" "}
+          <a
+            href="https://mineskin.org/apikey"
+            className="font-medium text-foreground underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            MineSkin API keys page
+          </a>{" "}
+          to get started and save 10% on your first three months (plans except
+          Lite) with the exclusive coupon code{" "}
           <span className="font-mono font-semibold">SKINSRESTORER10</span>.
         </p>
         {capeStatus === "denied" && (
