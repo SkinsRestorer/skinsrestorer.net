@@ -59,6 +59,12 @@ export function CapeSupportFields({
             ? "Checking cape support..."
             : "Check cape access"}
         </Button>
+        <p className="text-xs text-muted-foreground">
+          Need an API key? All MineSkin plans except Lite include cape
+          generation, higher limits, and exclusive features. Get 10% off your
+          first three months (plans except Lite) with the exclusive coupon code{" "}
+          <span className="font-mono font-semibold">SKINSRESTORER10</span>.
+        </p>
         {capeStatus === "denied" && (
           <p className="text-xs text-muted-foreground">
             Cape support requires an API key with the capes grant.
