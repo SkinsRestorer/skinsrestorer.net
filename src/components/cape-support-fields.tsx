@@ -72,7 +72,9 @@ export function CapeSupportFields({
           </a>{" "}
           to get started and save 10% on your first three months (plans except
           Lite) with the exclusive coupon code{" "}
-          <span className="font-mono font-semibold">SKINSRESTORER10</span>.
+          <span className="font-mono font-semibold">SKINSRESTORER10</span>. We
+          don't receive a commission if you use this coupon—it's just a
+          community perk.
         </p>
         {capeStatus === "denied" && (
           <p className="text-xs text-muted-foreground">
