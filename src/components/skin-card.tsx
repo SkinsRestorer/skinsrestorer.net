@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ensureHttpsTextureUrl } from "@/lib/textures";
 
 export type AnimationType =
   | "walking"
@@ -111,6 +112,9 @@ export function SkinCard(props: {
     }
   }, [viewer, props.model, animation]);
 
+  const normalizedSkinUrl = ensureHttpsTextureUrl(props.skinUrl);
+  const normalizedCapeUrl = ensureHttpsTextureUrl(props.capeUrl);
+
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
@@ -146,10 +150,10 @@ export function SkinCard(props: {
           height={300}
           width={200}
           skinUrl={
-            props.skinUrl ||
+            normalizedSkinUrl ||
             "https://textures.minecraft.net/texture/26c156a5a28ba3647b3de3b5bfec4d399670b1f063d6526ba201c2be01b60df5"
           }
-          capeUrl={props.capeUrl}
+          capeUrl={normalizedCapeUrl ?? undefined}
           onReady={({ viewer }) => {
             viewer.autoRotate = true;
             setViewer(viewer);
