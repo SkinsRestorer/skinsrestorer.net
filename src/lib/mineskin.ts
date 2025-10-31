@@ -62,9 +62,31 @@ export type MineSkinJobSuccessResponse = Extract<
 
 export const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
 
-const MINESKIN_HEADERS = {
-  "User-Agent": MINESKIN_USER_AGENT,
-} as const;
+function createAuthorizationHeader(apiKey?: string): string | undefined {
+  if (!apiKey) {
+    return undefined;
+  }
+
+  const trimmed = apiKey.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  return trimmed.startsWith("Bearer ") ? trimmed : `Bearer ${trimmed}`;
+}
+
+function createMineSkinHeaders(apiKey?: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    "User-Agent": MINESKIN_USER_AGENT,
+  };
+
+  const authHeader = createAuthorizationHeader(apiKey);
+  if (authHeader) {
+    headers.Authorization = authHeader;
+  }
+
+  return headers;
+}
 
 function getMineSkinError(errors?: MineSkinError[]): string {
   return errors?.[0]?.message ?? "Job failed";
@@ -72,11 +94,12 @@ function getMineSkinError(errors?: MineSkinError[]): string {
 
 async function requestMineSkinJob(
   jobId: string,
+  apiKey?: string,
 ): Promise<MineSkinJobSuccessResponse> {
   const jobResponse = await fetch(
     `https://api.mineskin.org/v2/queue/${jobId}`,
     {
-      headers: MINESKIN_HEADERS,
+      headers: createMineSkinHeaders(apiKey),
     },
   );
 
@@ -97,11 +120,12 @@ export type PollMineSkinJobOptions = {
 export async function pollMineSkinJob(
   jobId: string,
   options: PollMineSkinJobOptions = {},
+  apiKey?: string,
 ): Promise<MineSkinJobSuccessResponse> {
   const waitMs = options.waitMs ?? 1000;
   // Loop until the job is completed or failed.
   for (;;) {
-    const jobData = await requestMineSkinJob(jobId);
+    const jobData = await requestMineSkinJob(jobId, apiKey);
     const { status } = jobData.job;
     options.onStatusChange?.(status);
 
@@ -136,6 +160,8 @@ export interface MineSkinUploadOptions {
   variant: SkinVariant;
   name?: string;
   waitMs?: number;
+  capeUuid?: string;
+  apiKey?: string;
   callbacks?: MineSkinUploadCallbacks;
 }
 
@@ -144,6 +170,8 @@ export async function uploadMineSkinFile({
   variant,
   name,
   waitMs,
+  capeUuid,
+  apiKey,
   callbacks,
 }: MineSkinUploadOptions): Promise<MineSkinJobSuccessResponse> {
   callbacks?.onStart?.();
@@ -155,10 +183,13 @@ export async function uploadMineSkinFile({
     if (name) {
       formData.append("name", name);
     }
+    if (capeUuid) {
+      formData.append("cape", capeUuid);
+    }
 
     const response = await fetch("https://api.mineskin.org/v2/queue", {
       method: "POST",
-      headers: MINESKIN_HEADERS,
+      headers: createMineSkinHeaders(apiKey),
       body: formData,
     });
 
@@ -172,10 +203,14 @@ export async function uploadMineSkinFile({
     callbacks?.onEnqueue?.(job);
     callbacks?.onStatusChange?.(job.status);
 
-    const completedJob = await pollMineSkinJob(job.id, {
-      waitMs,
-      onStatusChange: callbacks?.onStatusChange,
-    });
+    const completedJob = await pollMineSkinJob(
+      job.id,
+      {
+        waitMs,
+        onStatusChange: callbacks?.onStatusChange,
+      },
+      apiKey,
+    );
 
     callbacks?.onComplete?.(completedJob);
 
@@ -184,4 +219,76 @@ export async function uploadMineSkinFile({
     callbacks?.onError?.(error);
     throw error;
   }
+}
+
+export interface MineSkinCape {
+  uuid: string;
+  alias: string;
+  url: string;
+  supported?: boolean;
+}
+
+export interface MineSkinCapeResponse {
+  success?: boolean;
+  capes?: MineSkinCape[];
+  errors?: MineSkinError[];
+}
+
+export interface MineSkinMeResponse {
+  success?: boolean;
+  user: string;
+  grants?: Record<string, unknown>;
+  errors?: MineSkinError[];
+}
+
+export async function fetchMineSkinCapeGrant(apiKey: string): Promise<boolean> {
+  const response = await fetch("https://api.mineskin.org/v2/me", {
+    headers: createMineSkinHeaders(apiKey),
+  });
+
+  const data = (await response.json()) as MineSkinMeResponse;
+
+  if (!response.ok || data.success === false) {
+    throw new Error(getMineSkinError(data.errors));
+  }
+
+  const grants = data.grants ?? {};
+  return Boolean((grants as Record<string, unknown>).capes);
+}
+
+export async function fetchMineSkinSupportedCapes(
+  apiKey: string,
+): Promise<MineSkinCape[]> {
+  const response = await fetch("https://api.mineskin.org/v2/capes", {
+    headers: createMineSkinHeaders(apiKey),
+  });
+
+  const data = (await response.json()) as MineSkinCapeResponse;
+
+  if (!response.ok || data.success === false) {
+    throw new Error(getMineSkinError(data.errors));
+  }
+
+  return (data.capes ?? []).filter((cape) => cape.supported);
+}
+
+export async function fetchCapeSupport(apiKey: string): Promise<{
+  hasCapeGrant: boolean;
+  capes: MineSkinCape[];
+}> {
+  const hasCapeGrant = await fetchMineSkinCapeGrant(apiKey);
+
+  if (!hasCapeGrant) {
+    return {
+      hasCapeGrant,
+      capes: [],
+    };
+  }
+
+  const capes = await fetchMineSkinSupportedCapes(apiKey);
+
+  return {
+    hasCapeGrant,
+    capes,
+  };
 }
