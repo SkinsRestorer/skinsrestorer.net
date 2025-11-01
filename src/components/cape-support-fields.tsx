@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
 import { InfoIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,11 +42,14 @@ export function CapeSupportFields({
   onCheckCapeAccess,
   onCapeChange,
 }: CapeSupportFieldsProps) {
+  const mineskinApiKeyId = useId();
+  const capeSelectId = useId();
+
   return (
     <>
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <Label htmlFor="mineskin-api-key">MineSkin API key</Label>
+          <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -88,7 +91,7 @@ export function CapeSupportFields({
           </Popover>
         </div>
         <Input
-          id="mineskin-api-key"
+          id={mineskinApiKeyId}
           type="password"
           placeholder="Required for cape support"
           value={apiKey}
@@ -113,9 +116,9 @@ export function CapeSupportFields({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="cape-select">Cape (optional)</Label>
+        <Label htmlFor={capeSelectId}>Cape (optional)</Label>
         <Select value={selectedCapeUuid} onValueChange={onCapeChange}>
-          <SelectTrigger id="cape-select">
+          <SelectTrigger id={capeSelectId}>
             <SelectValue placeholder="No cape" />
           </SelectTrigger>
           <SelectContent>

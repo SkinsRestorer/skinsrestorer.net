@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { SkinCard } from "@/components/skin-card";
@@ -58,6 +58,11 @@ export const GenerateFileCard = () => {
     loadCapeSupport,
   } = useCapeSelection();
 
+  const skinPngFileId = useId();
+  const skinTypeId = useId();
+  const customNameId = useId();
+  const customSkinCommandId = useId();
+
   const command = result
     ? `/sr createcustom ${result.name} "${result.url}" ${result.variant}`
     : "";
@@ -76,9 +81,9 @@ export const GenerateFileCard = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="skin-png-file">Select skin .png file</Label>
+              <Label htmlFor={skinPngFileId}>Select skin .png file</Label>
               <Input
-                id="skin-png-file"
+                id={skinPngFileId}
                 type="file"
                 accept=".png"
                 onChange={(e) => {
@@ -89,7 +94,7 @@ export const GenerateFileCard = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="skin-type">Skin type</Label>
+              <Label htmlFor={skinTypeId}>Skin type</Label>
               <Select
                 value={skinType}
                 onValueChange={(value) => {
@@ -97,7 +102,7 @@ export const GenerateFileCard = () => {
                   setResult(null);
                 }}
               >
-                <SelectTrigger id="skin-type">
+                <SelectTrigger id={skinTypeId}>
                   <SelectValue placeholder="Skin type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -117,11 +122,11 @@ export const GenerateFileCard = () => {
               onCapeChange={handleCapeSelect}
             />
             <div className="space-y-2">
-              <Label htmlFor="custom-name">
+              <Label htmlFor={customNameId}>
                 Desired custom skin name (optional)
               </Label>
               <Input
-                id="custom-name"
+                id={customNameId}
                 type="text"
                 placeholder="cool_skin_name"
                 value={customName}
@@ -187,10 +192,10 @@ export const GenerateFileCard = () => {
             </Button>
             {result && (
               <div className="space-y-2">
-                <Label htmlFor="custom-skin-command">Copy this command</Label>
+                <Label htmlFor={customSkinCommandId}>Copy this command</Label>
                 <div className="flex gap-2 items-center">
                   <Input
-                    id="custom-skin-command"
+                    id={customSkinCommandId}
                     readOnly
                     value={command}
                     className="flex-1"
@@ -239,6 +244,7 @@ export const GenerateFileCard = () => {
 
 export const ReverseFileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const skinFileId = useId();
 
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -250,9 +256,9 @@ export const ReverseFileCard = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="skin-file">Select skin file to reverse</Label>
+          <Label htmlFor={skinFileId}>Select skin file to reverse</Label>
           <Input
-            id="skin-file"
+            id={skinFileId}
             type="file"
             accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
             onChange={(e) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { SkinCard } from "@/components/skin-card";
@@ -86,6 +86,10 @@ export const UploadCard = () => {
     );
   }
 
+  const skinPngFileId = useId();
+  const skinTypeId = useId();
+  const skinCommandId = useId();
+
   const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
 
   return (
@@ -100,9 +104,9 @@ export const UploadCard = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="skin-png-file">Select skin .png file</Label>
+            <Label htmlFor={skinPngFileId}>Select skin .png file</Label>
             <Input
-              id="skin-png-file"
+              id={skinPngFileId}
               type="file"
               accept=".png"
               onChange={(e) => {
@@ -114,7 +118,7 @@ export const UploadCard = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="skin-type">Skin type</Label>
+            <Label htmlFor={skinTypeId}>Skin type</Label>
             <Select
               value={skinType}
               onValueChange={(v) => {
@@ -122,7 +126,7 @@ export const UploadCard = () => {
                 setResultUrl(null);
               }}
             >
-              <SelectTrigger id="skin-type">
+              <SelectTrigger id={skinTypeId}>
                 <SelectValue placeholder="Skin type" />
               </SelectTrigger>
               <SelectContent>
@@ -149,10 +153,10 @@ export const UploadCard = () => {
 
           {resultUrl && (
             <div className="space-y-2">
-              <Label htmlFor="skin-command">Copy this command</Label>
+              <Label htmlFor={skinCommandId}>Copy this command</Label>
               <div className="flex gap-2 items-center">
                 <Input
-                  id="skin-command"
+                  id={skinCommandId}
                   readOnly
                   value={command}
                   className="flex-1"
