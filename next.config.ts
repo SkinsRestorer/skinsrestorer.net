@@ -55,7 +55,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com https://api.mineskin.org https://textures.minecraft.net; font-src 'self'; frame-src 'self' https://www.youtube.com; img-src 'self' data: blob: https://avatars.githubusercontent.com https://img.shields.io https://textures.minecraft.net; manifest-src 'self'; media-src 'self' https://github.com https://github-production-user-asset-6210df.s3.amazonaws.com; worker-src 'self';",
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com https://api.mineskin.org https://textures.minecraft.net https://axolotl.skinsrestorer.net; font-src 'self'; frame-src 'self' https://www.youtube.com; img-src 'self' data: blob: https://avatars.githubusercontent.com https://img.shields.io https://textures.minecraft.net; manifest-src 'self'; media-src 'self' https://github.com https://github-production-user-asset-6210df.s3.amazonaws.com; worker-src 'self';",
   },
 ];
 

@@ -12,6 +12,10 @@ export type MineSkinJobStatus =
   | "completed"
   | "failed";
 
+const MINESKIN_API_BASE_URL = "https://api.mineskin.org/v2" as const;
+const AXOLOTL_API_BASE_URL =
+  "https://axolotl.skinsrestorer.net/mineskin" as const;
+
 export interface MineSkinJobDetails {
   id: string;
   status: MineSkinJobStatus;
@@ -96,13 +100,16 @@ function getMineSkinError(errors?: MineSkinError[]): string {
 async function requestMineSkinJob(
   jobId: string,
   apiKey?: string,
+  useCapeProxy?: boolean,
 ): Promise<MineSkinJobSuccessResponse> {
-  const jobResponse = await fetch(
-    `https://api.mineskin.org/v2/queue/${jobId}`,
-    {
-      headers: createMineSkinHeaders(apiKey),
-    },
-  );
+  const jobUrl = useCapeProxy
+    ? `${AXOLOTL_API_BASE_URL}/jobs/${jobId}`
+    : `${MINESKIN_API_BASE_URL}/queue/${jobId}`;
+  const jobResponse = await fetch(jobUrl, {
+    headers: useCapeProxy
+      ? { "User-Agent": MINESKIN_USER_AGENT }
+      : createMineSkinHeaders(apiKey),
+  });
 
   const jobData = (await jobResponse.json()) as MineSkinJobResponse;
 
@@ -122,11 +129,12 @@ export async function pollMineSkinJob(
   jobId: string,
   options: PollMineSkinJobOptions = {},
   apiKey?: string,
+  useCapeProxy?: boolean,
 ): Promise<MineSkinJobSuccessResponse> {
   const waitMs = options.waitMs ?? 1000;
   // Loop until the job is completed or failed.
   for (;;) {
-    const jobData = await requestMineSkinJob(jobId, apiKey);
+    const jobData = await requestMineSkinJob(jobId, apiKey, useCapeProxy);
     const { status } = jobData.job;
     options.onStatusChange?.(status);
 
@@ -164,6 +172,7 @@ export interface MineSkinUploadOptions {
   capeUuid?: string;
   apiKey?: string;
   callbacks?: MineSkinUploadCallbacks;
+  useCapeProxy?: boolean;
 }
 
 export async function uploadMineSkinFile({
@@ -174,6 +183,7 @@ export async function uploadMineSkinFile({
   capeUuid,
   apiKey,
   callbacks,
+  useCapeProxy,
 }: MineSkinUploadOptions): Promise<MineSkinJobSuccessResponse> {
   callbacks?.onStart?.();
 
@@ -185,16 +195,23 @@ export async function uploadMineSkinFile({
       formData.append("name", name);
     }
     if (capeUuid) {
-      formData.append("cape", capeUuid);
+      formData.append(useCapeProxy ? "capeUuid" : "cape", capeUuid);
     }
 
-    const response = await fetch("https://api.mineskin.org/v2/queue", {
+    const enqueueUrl = useCapeProxy
+      ? `${AXOLOTL_API_BASE_URL}/skins${waitMs ? `?waitMs=${waitMs}` : ""}`
+      : `${MINESKIN_API_BASE_URL}/queue`;
+    const response = await fetch(enqueueUrl, {
       method: "POST",
-      headers: createMineSkinHeaders(apiKey),
+      headers: useCapeProxy
+        ? { "User-Agent": MINESKIN_USER_AGENT }
+        : createMineSkinHeaders(apiKey),
       body: formData,
     });
 
-    const rawResponse = (await response.json()) as MineSkinEnqueueResponse;
+    const rawResponse = (await response.json()) as
+      | MineSkinEnqueueResponse
+      | MineSkinJobSuccessResponse;
 
     if (!rawResponse.success) {
       throw new Error(getMineSkinError(rawResponse.errors));
@@ -204,6 +221,11 @@ export async function uploadMineSkinFile({
     callbacks?.onEnqueue?.(job);
     callbacks?.onStatusChange?.(job.status);
 
+    if ("skin" in rawResponse && rawResponse.skin) {
+      callbacks?.onComplete?.(rawResponse);
+      return rawResponse;
+    }
+
     const completedJob = await pollMineSkinJob(
       job.id,
       {
@@ -211,6 +233,7 @@ export async function uploadMineSkinFile({
         onStatusChange: callbacks?.onStatusChange,
       },
       apiKey,
+      useCapeProxy,
     );
 
     callbacks?.onComplete?.(completedJob);

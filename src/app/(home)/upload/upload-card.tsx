@@ -39,6 +39,7 @@ export const UploadCard = () => {
   } = useSkinFile();
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [useCapeProxy, setUseCapeProxy] = useState(false);
   const {
     apiKey,
     capeStatus,
@@ -50,7 +51,7 @@ export const UploadCard = () => {
     handleApiKeyChange,
     handleCapeSelect,
     loadCapeSupport,
-  } = useCapeSelection();
+  } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
   async function uploadSkin() {
     if (!selectedFile) {
@@ -67,6 +68,7 @@ export const UploadCard = () => {
         capeUuid:
           selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
         apiKey: normalizedApiKey || undefined,
+        useCapeProxy: useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE,
         callbacks: {
           onStart: () => setLoading(true),
           onComplete: () => setLoading(false),
@@ -89,6 +91,7 @@ export const UploadCard = () => {
   const skinPngFileId = useId();
   const skinTypeId = useId();
   const skinCommandId = useId();
+  const capeProxyToggleId = useId();
 
   const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
 
@@ -145,7 +148,30 @@ export const UploadCard = () => {
             onApiKeyChange={handleApiKeyChange}
             onCheckCapeAccess={loadCapeSupport}
             onCapeChange={handleCapeSelect}
+            showApiKeyFields={!useCapeProxy}
           />
+
+          <div className="space-y-2">
+            <Label
+              htmlFor={capeProxyToggleId}
+              className="flex items-center gap-2 text-sm font-medium"
+            >
+              <input
+                id={capeProxyToggleId}
+                type="checkbox"
+                className="h-4 w-4"
+                checked={useCapeProxy}
+                onChange={(event) => {
+                  setUseCapeProxy(event.target.checked);
+                }}
+              />
+              Use Axolotl cape proxy
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              When enabled, cape uploads use the Axolotl proxy. Uploads without
+              a cape continue to call the official MineSkin API.
+            </p>
+          </div>
 
           <Button onClick={uploadSkin} disabled={loading} className="w-full">
             Generate /skin url
