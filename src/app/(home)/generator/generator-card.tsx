@@ -45,6 +45,7 @@ export const GenerateFileCard = () => {
     url: string;
     variant: SkinVariant;
   } | null>(null);
+  const [useCapeProxy, setUseCapeProxy] = useState(false);
   const {
     apiKey,
     capeStatus,
@@ -56,16 +57,19 @@ export const GenerateFileCard = () => {
     handleApiKeyChange,
     handleCapeSelect,
     loadCapeSupport,
-  } = useCapeSelection();
+  } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
   const skinPngFileId = useId();
   const skinTypeId = useId();
   const customNameId = useId();
   const customSkinCommandId = useId();
+  const capeProxyToggleId = useId();
 
   const command = result
     ? `/sr createcustom ${result.name} "${result.url}" ${result.variant}`
     : "";
+
+  const shouldUseCapeProxy = useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE;
 
   return (
     <>
@@ -120,7 +124,30 @@ export const GenerateFileCard = () => {
               onApiKeyChange={handleApiKeyChange}
               onCheckCapeAccess={loadCapeSupport}
               onCapeChange={handleCapeSelect}
+              showApiKeyFields={!useCapeProxy}
             />
+            <div className="space-y-2">
+              <Label
+                htmlFor={capeProxyToggleId}
+                className="flex items-center gap-2 text-sm font-medium"
+              >
+                <input
+                  id={capeProxyToggleId}
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={useCapeProxy}
+                  onChange={(event) => {
+                    setUseCapeProxy(event.target.checked);
+                  }}
+                />
+                Use Axolotl cape proxy
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Automatically use the cape-enabled proxy when a cape is
+                selected. Requests without a cape still go through the official
+                MineSkin API.
+              </p>
+            </div>
             <div className="space-y-2">
               <Label htmlFor={customNameId}>
                 Desired custom skin name (optional)
@@ -161,6 +188,7 @@ export const GenerateFileCard = () => {
                         ? undefined
                         : selectedCapeUuid,
                     apiKey: normalizedApiKey || undefined,
+                    useCapeProxy: shouldUseCapeProxy,
                     callbacks: {
                       onStart: () => setLoading(true),
                       onError: () => setLoading(false),

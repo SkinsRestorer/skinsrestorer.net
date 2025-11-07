@@ -11,16 +11,24 @@ export const NO_CAPE_VALUE = "__no_cape__" as const;
 
 export type CapeStatus = "idle" | "loading" | "granted" | "denied";
 
-export function useCapeSelection() {
+interface UseCapeSelectionOptions {
+  autoGrantCapeAccess?: boolean;
+}
+
+export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
+  const { autoGrantCapeAccess = false } = options;
   const [apiKey, setApiKey] = useState("");
-  const [capeStatus, setCapeStatus] = useState<CapeStatus>("idle");
+  const [capeStatus, setCapeStatus] = useState<CapeStatus>(
+    autoGrantCapeAccess ? "granted" : "idle",
+  );
   const [supportedCapes, setSupportedCapes] = useState<MineSkinCape[]>([]);
   const [selectedCapeUuid, setSelectedCapeUuid] =
     useState<string>(NO_CAPE_VALUE);
 
   const normalizedApiKey = apiKey.trim();
-  const capeOptionsDisabled =
-    capeStatus !== "granted" || supportedCapes.length === 0;
+  const capeOptionsDisabled = autoGrantCapeAccess
+    ? supportedCapes.length === 0
+    : capeStatus !== "granted" || supportedCapes.length === 0;
 
   const selectedCape = useMemo(() => {
     if (selectedCapeUuid === NO_CAPE_VALUE) {
@@ -61,6 +69,16 @@ export function useCapeSelection() {
     };
   }, []);
 
+  useEffect(() => {
+    if (autoGrantCapeAccess) {
+      setCapeStatus("granted");
+      return;
+    }
+
+    setSelectedCapeUuid(NO_CAPE_VALUE);
+    setCapeStatus((status) => (status === "granted" ? "idle" : status));
+  }, [autoGrantCapeAccess]);
+
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
     setCapeStatus("idle");
@@ -73,7 +91,10 @@ export function useCapeSelection() {
       return;
     }
 
-    if (!normalizedApiKey || capeStatus !== "granted") {
+    if (
+      !autoGrantCapeAccess &&
+      (!normalizedApiKey || capeStatus !== "granted")
+    ) {
       toast.warning("Enter and verify your API key before selecting a cape.");
       return;
     }
@@ -82,6 +103,11 @@ export function useCapeSelection() {
   };
 
   const loadCapeSupport = async () => {
+    if (autoGrantCapeAccess) {
+      setCapeStatus("granted");
+      return;
+    }
+
     if (!normalizedApiKey) {
       toast.warning("Enter your MineSkin API key to load capes.");
       return;
