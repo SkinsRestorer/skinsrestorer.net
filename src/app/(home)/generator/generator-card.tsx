@@ -256,17 +256,19 @@ export const GenerateFileCard = () => {
                     Copy
                   </Button>
                 </div>
-                <div className="text-xs text-muted-foreground break-all">
-                  MineSkin URL:{" "}
-                  <a
-                    className="underline"
-                    href={result.url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {result.url}
-                  </a>
-                </div>
+                {!result.url.includes("skinsrestorer-axolotl") && (
+                  <div className="text-xs text-muted-foreground break-all">
+                    MineSkin URL:{" "}
+                    <a
+                      className="underline"
+                      href={result.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      {result.url}
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
