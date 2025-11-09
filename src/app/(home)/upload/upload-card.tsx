@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   NO_CAPE_VALUE,
   useCapeSelection,
@@ -39,7 +40,9 @@ export const UploadCard = () => {
   } = useSkinFile();
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
-  const [useCapeProxy, setUseCapeProxy] = useState(false);
+  type SkinUploadTarget = "axolotl" | "mineskin";
+  const [target, setTarget] = useState<SkinUploadTarget>("axolotl");
+  const useCapeProxy = target === "axolotl";
   const {
     apiKey,
     capeStatus,
@@ -91,8 +94,6 @@ export const UploadCard = () => {
   const skinPngFileId = useId();
   const skinTypeId = useId();
   const skinCommandId = useId();
-  const capeProxyToggleId = useId();
-
   const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
 
   return (
@@ -139,6 +140,36 @@ export const UploadCard = () => {
             </Select>
           </div>
 
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Skin upload target</Label>
+            <Tabs
+              value={target}
+              onValueChange={(value) => {
+                setTarget(value as SkinUploadTarget);
+              }}
+              className="space-y-2"
+            >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="axolotl">Axolotl proxy</TabsTrigger>
+                <TabsTrigger value="mineskin">MineSkin API</TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="axolotl"
+                className="text-xs text-muted-foreground"
+              >
+                Use the Axolotl cape-enabled proxy. Cape-enabled uploads work by
+                default when a cape is selected.
+              </TabsContent>
+              <TabsContent
+                value="mineskin"
+                className="text-xs text-muted-foreground"
+              >
+                Provide a MineSkin API key to upload skins directly with the
+                official API.
+              </TabsContent>
+            </Tabs>
+          </div>
+
           <CapeSupportFields
             apiKey={apiKey}
             capeStatus={capeStatus}
@@ -148,30 +179,8 @@ export const UploadCard = () => {
             onApiKeyChange={handleApiKeyChange}
             onCheckCapeAccess={loadCapeSupport}
             onCapeChange={handleCapeSelect}
-            showApiKeyFields={!useCapeProxy}
+            showApiKeyFields={target === "mineskin"}
           />
-
-          <div className="space-y-2">
-            <Label
-              htmlFor={capeProxyToggleId}
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <input
-                id={capeProxyToggleId}
-                type="checkbox"
-                className="h-4 w-4"
-                checked={useCapeProxy}
-                onChange={(event) => {
-                  setUseCapeProxy(event.target.checked);
-                }}
-              />
-              Use Axolotl cape proxy
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              When enabled, cape uploads use the Axolotl proxy. Uploads without
-              a cape continue to call the official MineSkin API.
-            </p>
-          </div>
 
           <Button onClick={uploadSkin} disabled={loading} className="w-full">
             Generate /skin url

@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   NO_CAPE_VALUE,
   useCapeSelection,
@@ -45,7 +46,9 @@ export const GenerateFileCard = () => {
     url: string;
     variant: SkinVariant;
   } | null>(null);
-  const [useCapeProxy, setUseCapeProxy] = useState(false);
+  type SkinGenerationTarget = "axolotl" | "mineskin";
+  const [target, setTarget] = useState<SkinGenerationTarget>("axolotl");
+  const useCapeProxy = target === "axolotl";
   const {
     apiKey,
     capeStatus,
@@ -63,8 +66,6 @@ export const GenerateFileCard = () => {
   const skinTypeId = useId();
   const customNameId = useId();
   const customSkinCommandId = useId();
-  const capeProxyToggleId = useId();
-
   const command = result
     ? `/sr createcustom ${result.name} "${result.url}" ${result.variant}`
     : "";
@@ -115,6 +116,37 @@ export const GenerateFileCard = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Skin generation target
+              </Label>
+              <Tabs
+                value={target}
+                onValueChange={(value) => {
+                  setTarget(value as SkinGenerationTarget);
+                }}
+                className="space-y-2"
+              >
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="axolotl">Axolotl proxy</TabsTrigger>
+                  <TabsTrigger value="mineskin">MineSkin API</TabsTrigger>
+                </TabsList>
+                <TabsContent
+                  value="axolotl"
+                  className="text-xs text-muted-foreground"
+                >
+                  Use the Axolotl cape-enabled proxy. Cape-enabled requests are
+                  automatically supported when a cape is selected.
+                </TabsContent>
+                <TabsContent
+                  value="mineskin"
+                  className="text-xs text-muted-foreground"
+                >
+                  Provide a MineSkin API key to call the official API directly
+                  for skin generation.
+                </TabsContent>
+              </Tabs>
+            </div>
             <CapeSupportFields
               apiKey={apiKey}
               capeStatus={capeStatus}
@@ -124,30 +156,8 @@ export const GenerateFileCard = () => {
               onApiKeyChange={handleApiKeyChange}
               onCheckCapeAccess={loadCapeSupport}
               onCapeChange={handleCapeSelect}
-              showApiKeyFields={!useCapeProxy}
+              showApiKeyFields={target === "mineskin"}
             />
-            <div className="space-y-2">
-              <Label
-                htmlFor={capeProxyToggleId}
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                <input
-                  id={capeProxyToggleId}
-                  type="checkbox"
-                  className="h-4 w-4"
-                  checked={useCapeProxy}
-                  onChange={(event) => {
-                    setUseCapeProxy(event.target.checked);
-                  }}
-                />
-                Use Axolotl cape proxy
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Automatically use the cape-enabled proxy when a cape is
-                selected. Requests without a cape still go through the official
-                MineSkin API.
-              </p>
-            </div>
             <div className="space-y-2">
               <Label htmlFor={customNameId}>
                 Desired custom skin name (optional)
