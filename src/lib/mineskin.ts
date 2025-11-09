@@ -28,6 +28,7 @@ export interface MineSkinSkinTextureData {
 
 export interface MineSkinSkinData {
   uuid: string;
+  url?: string;
   name?: string;
   texture: {
     data: MineSkinSkinTextureData;

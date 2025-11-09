@@ -207,8 +207,11 @@ export const GenerateFileCard = () => {
                   }).then((completedJob) => {
                     const skin = completedJob.skin;
                     const skinName =
-                      customName || skin.name || String(skin.uuid);
-                    const url = `https://minesk.in/${skin.uuid}`;
+                      customName ||
+                      skin.name ||
+                      String(skin.uuid) ||
+                      Math.random().toString(36).substring(2, 8);
+                    const url = skin.url || `https://minesk.in/${skin.uuid}`;
 
                     setResult({
                       name: skinName,

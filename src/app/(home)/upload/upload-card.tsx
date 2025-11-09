@@ -78,7 +78,8 @@ export const UploadCard = () => {
           onError: () => setLoading(false),
         },
       }).then((completed) => {
-        const url = `https://minesk.in/${completed.skin.uuid}`;
+        const url =
+          completed.skin.url || `https://minesk.in/${completed.skin.uuid}`;
 
         if (!url) throw new Error("Could not extract skin URL from response");
         setResultUrl(url);
