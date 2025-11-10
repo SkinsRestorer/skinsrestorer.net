@@ -50,7 +50,7 @@ export function CapeSupportFields({
   return (
     <>
       {showApiKeyFields ? (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
             <Popover>
@@ -68,7 +68,7 @@ export function CapeSupportFields({
               <PopoverContent
                 align="start"
                 sideOffset={8}
-                className="w-72 space-y-2 text-sm leading-relaxed text-muted-foreground"
+                className="w-72 flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
               >
                 <p>
                   Need an API key? All MineSkin plans except Lite include cape
@@ -121,7 +121,7 @@ export function CapeSupportFields({
           )}
         </div>
       ) : (
-        <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+        <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
           <p className="font-medium text-foreground">
             MineSkin API key not required
           </p>
@@ -131,7 +131,7 @@ export function CapeSupportFields({
           </p>
         </div>
       )}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Label htmlFor={capeSelectId}>Cape (optional)</Label>
         <Select value={selectedCapeUuid} onValueChange={onCapeChange}>
           <SelectTrigger id={capeSelectId}>

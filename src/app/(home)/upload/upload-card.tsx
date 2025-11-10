@@ -1,8 +1,10 @@
 "use client";
 
+import { Upload, X } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
+import { OnlineCard } from "@/components/online-card";
 import { SkinCard } from "@/components/skin-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -92,7 +104,6 @@ export const UploadCard = () => {
     );
   }
 
-  const skinPngFileId = useId();
   const skinTypeId = useId();
   const skinCommandId = useId();
   const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
@@ -107,22 +118,60 @@ export const UploadCard = () => {
             <code className="highlight-code">/skin url</code> command
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor={skinPngFileId}>Select skin .png file</Label>
-            <Input
-              id={skinPngFileId}
-              type="file"
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label>Select skin .png file</Label>
+            <FileUpload
               accept=".png"
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
+              maxFiles={1}
+              maxSize={5 * 1024 * 1024}
+              className="w-full"
+              onValueChange={(files) => {
+                const file = files[0] || null;
                 handleFileChange(file);
                 setResultUrl(null);
               }}
-            />
+              onFileReject={(file, message) => {
+                toast(message, {
+                  description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+                });
+              }}
+            >
+              <FileUploadDropzone>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <div className="flex items-center justify-center rounded-full border p-2.5">
+                    <Upload className="size-6 text-muted-foreground" />
+                  </div>
+                  <p className="font-medium text-sm">
+                    Drag & drop skin file here
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Or click to browse (PNG only, up to 5MB)
+                  </p>
+                </div>
+                <FileUploadTrigger asChild>
+                  <Button variant="outline" size="sm" className="mt-2 w-fit">
+                    Browse files
+                  </Button>
+                </FileUploadTrigger>
+              </FileUploadDropzone>
+              <FileUploadList>
+                {selectedFile && (
+                  <FileUploadItem value={selectedFile}>
+                    <FileUploadItemPreview />
+                    <FileUploadItemMetadata />
+                    <FileUploadItemDelete asChild>
+                      <Button variant="ghost" size="icon" className="size-7">
+                        <X />
+                      </Button>
+                    </FileUploadItemDelete>
+                  </FileUploadItem>
+                )}
+              </FileUploadList>
+            </FileUpload>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor={skinTypeId}>Skin type</Label>
             <Select
               value={skinType}
@@ -141,14 +190,14 @@ export const UploadCard = () => {
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label className="text-sm font-medium">Skin upload target</Label>
             <Tabs
               value={target}
               onValueChange={(value) => {
                 setTarget(value as SkinUploadTarget);
               }}
-              className="space-y-2"
+              className="flex flex-col gap-2"
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="axolotl">Axolotl proxy</TabsTrigger>
@@ -188,7 +237,7 @@ export const UploadCard = () => {
           </Button>
 
           {resultUrl && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor={skinCommandId}>Copy this command</Label>
               <div className="flex gap-2 items-center">
                 <Input
@@ -229,11 +278,14 @@ export const UploadCard = () => {
           )}
         </CardContent>
       </Card>
-      <SkinCard
-        model={skinType === "slim" ? "slim" : "default"}
-        skinUrl={skinUrl || undefined}
-        capeUrl={selectedCape?.url}
-      />
+      <div className="flex flex-col gap-6">
+        <SkinCard
+          model={skinType === "slim" ? "slim" : "default"}
+          skinUrl={skinUrl || undefined}
+          capeUrl={selectedCape?.url}
+        />
+        <OnlineCard />
+      </div>
     </>
   );
 };

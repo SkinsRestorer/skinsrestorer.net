@@ -124,7 +124,7 @@ export function SkinCard(props: {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 items-center">
-        <div className="w-full max-w-xs space-y-2">
+        <div className="w-full max-w-xs flex flex-col gap-2">
           <Label htmlFor={animationSelectId}>Animation</Label>
           <Select
             value={animationType}

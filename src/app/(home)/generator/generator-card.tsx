@@ -1,8 +1,10 @@
 "use client";
 
+import { Upload, X } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
+import { OnlineCard } from "@/components/online-card";
 import { SkinCard } from "@/components/skin-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -62,7 +74,6 @@ export const GenerateFileCard = () => {
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
-  const skinPngFileId = useId();
   const skinTypeId = useId();
   const customNameId = useId();
   const customSkinCommandId = useId();
@@ -84,21 +95,59 @@ export const GenerateFileCard = () => {
               for SkinsRestorer
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor={skinPngFileId}>Select skin .png file</Label>
-              <Input
-                id={skinPngFileId}
-                type="file"
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label>Select skin .png file</Label>
+              <FileUpload
                 accept=".png"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] ?? null;
+                maxFiles={1}
+                maxSize={5 * 1024 * 1024}
+                className="w-full"
+                onValueChange={(files) => {
+                  const file = files[0] || null;
                   handleFileChange(file);
                   setResult(null);
                 }}
-              />
+                onFileReject={(file, message) => {
+                  toast(message, {
+                    description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+                  });
+                }}
+              >
+                <FileUploadDropzone>
+                  <div className="flex flex-col items-center gap-1 text-center">
+                    <div className="flex items-center justify-center rounded-full border p-2.5">
+                      <Upload className="size-6 text-muted-foreground" />
+                    </div>
+                    <p className="font-medium text-sm">
+                      Drag & drop skin file here
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      Or click to browse (PNG only, up to 5MB)
+                    </p>
+                  </div>
+                  <FileUploadTrigger asChild>
+                    <Button variant="outline" size="sm" className="mt-2 w-fit">
+                      Browse files
+                    </Button>
+                  </FileUploadTrigger>
+                </FileUploadDropzone>
+                <FileUploadList>
+                  {selectedFile && (
+                    <FileUploadItem value={selectedFile}>
+                      <FileUploadItemPreview />
+                      <FileUploadItemMetadata />
+                      <FileUploadItemDelete asChild>
+                        <Button variant="ghost" size="icon" className="size-7">
+                          <X />
+                        </Button>
+                      </FileUploadItemDelete>
+                    </FileUploadItem>
+                  )}
+                </FileUploadList>
+              </FileUpload>
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor={skinTypeId}>Skin type</Label>
               <Select
                 value={skinType}
@@ -116,7 +165,7 @@ export const GenerateFileCard = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium">
                 Skin generation target
               </Label>
@@ -125,7 +174,7 @@ export const GenerateFileCard = () => {
                 onValueChange={(value) => {
                   setTarget(value as SkinGenerationTarget);
                 }}
-                className="space-y-2"
+                className="flex flex-col gap-2"
               >
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="axolotl">Axolotl proxy</TabsTrigger>
@@ -158,7 +207,7 @@ export const GenerateFileCard = () => {
               onCapeChange={handleCapeSelect}
               showApiKeyFields={target === "mineskin"}
             />
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor={customNameId}>
                 Desired custom skin name (optional)
               </Label>
@@ -232,7 +281,7 @@ export const GenerateFileCard = () => {
               Generate /sr createcustom command
             </Button>
             {result && (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor={customSkinCommandId}>Copy this command</Label>
                 <div className="flex gap-2 items-center">
                   <Input
@@ -274,12 +323,13 @@ export const GenerateFileCard = () => {
           </CardContent>
         </Card>
       </div>
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 flex flex-col gap-6">
         <SkinCard
           model={skinType === "slim" ? "slim" : "default"}
           skinUrl={skinUrl || undefined}
           capeUrl={selectedCape?.url}
         />
+        <OnlineCard />
       </div>
     </>
   );
@@ -287,7 +337,6 @@ export const GenerateFileCard = () => {
 
 export const ReverseFileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const skinFileId = useId();
 
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -297,17 +346,55 @@ export const ReverseFileCard = () => {
           Upload a skin file to extract and view the original skin texture
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor={skinFileId}>Select skin file to reverse</Label>
-          <Input
-            id={skinFileId}
-            type="file"
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Label>Select skin file to reverse</Label>
+          <FileUpload
             accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
-            onChange={(e) => {
-              setSelectedFile(e.target.files?.[0] || null);
+            maxFiles={1}
+            maxSize={5 * 1024 * 1024}
+            className="w-full"
+            onValueChange={(files) => {
+              setSelectedFile(files[0] || null);
             }}
-          />
+            onFileReject={(file, message) => {
+              toast(message, {
+                description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+              });
+            }}
+          >
+            <FileUploadDropzone>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <div className="flex items-center justify-center rounded-full border p-2.5">
+                  <Upload className="size-6 text-muted-foreground" />
+                </div>
+                <p className="font-medium text-sm">
+                  Drag & drop skin file here
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  Or click to browse (.playerskin, .urlskin, etc., up to 5MB)
+                </p>
+              </div>
+              <FileUploadTrigger asChild>
+                <Button variant="outline" size="sm" className="mt-2 w-fit">
+                  Browse files
+                </Button>
+              </FileUploadTrigger>
+            </FileUploadDropzone>
+            <FileUploadList>
+              {selectedFile && (
+                <FileUploadItem value={selectedFile}>
+                  <FileUploadItemPreview />
+                  <FileUploadItemMetadata />
+                  <FileUploadItemDelete asChild>
+                    <Button variant="ghost" size="icon" className="size-7">
+                      <X />
+                    </Button>
+                  </FileUploadItemDelete>
+                </FileUploadItem>
+              )}
+            </FileUploadList>
+          </FileUpload>
         </div>
         <Button
           onClick={() => {

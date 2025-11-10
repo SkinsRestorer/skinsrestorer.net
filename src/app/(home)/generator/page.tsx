@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { OnlineCard } from "@/components/online-card";
 import { GenerateFileCard, ReverseFileCard } from "./generator-card";
 
 export const metadata: Metadata = {
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 export default function GeneratorPage() {
   return (
     <article className="w-full overflow-x-hidden break-words nextra-content flex min-h-[calc(100vh-var(--nextra-navbar-height))] min-w-0 justify-center pb-8 pr-[calc(env(safe-area-inset-right)-1.5rem)]">
-      <main className="w-full min-w-0 max-w-6xl px-6 pt-8 md:px-12">
+      <main className="w-full min-w-0 px-6 pt-8 md:px-12">
         <div className="mx-auto container">
           <div className="text-center py-12 md:py-20">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-4">
@@ -28,7 +27,6 @@ export default function GeneratorPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-6 max-w-5xl mx-auto items-start">
             <GenerateFileCard />
             <ReverseFileCard />
-            <OnlineCard />
           </div>
         </div>
       </main>
