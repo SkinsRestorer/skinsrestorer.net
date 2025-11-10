@@ -112,13 +112,20 @@ async function requestMineSkinJob(
       : createMineSkinHeaders(apiKey),
   });
 
-  const jobData = (await jobResponse.json()) as MineSkinJobResponse;
+  const jobData = (await jobResponse.json()) as
+    | MineSkinJobResponse
+    | { error: string };
 
-  if (!jobData.success) {
+  // Handle axolotl error format
+  if (useCapeProxy && "error" in jobData) {
+    throw new Error(jobData.error);
+  }
+
+  if ("success" in jobData && !jobData.success) {
     throw new Error(getMineSkinError(jobData.errors));
   }
 
-  return jobData;
+  return jobData as MineSkinJobSuccessResponse;
 }
 
 export type PollMineSkinJobOptions = {
@@ -212,13 +219,25 @@ export async function uploadMineSkinFile({
 
     const rawResponse = (await response.json()) as
       | MineSkinEnqueueResponse
-      | MineSkinJobSuccessResponse;
+      | MineSkinJobSuccessResponse
+      | { error: string };
 
-    if (!rawResponse.success) {
+    // Handle axolotl error format
+    if (useCapeProxy && "error" in rawResponse) {
+      throw new Error(rawResponse.error);
+    }
+
+    if ("success" in rawResponse && !rawResponse.success) {
       throw new Error(getMineSkinError(rawResponse.errors));
     }
 
-    const job = rawResponse.job;
+    // At this point, rawResponse should be a success response with job
+    const job = (
+      rawResponse as MineSkinEnqueueResponse | MineSkinJobSuccessResponse
+    ).job;
+    if (!job) {
+      throw new Error("Job not found in response");
+    }
     callbacks?.onEnqueue?.(job);
     callbacks?.onStatusChange?.(job.status);
 
