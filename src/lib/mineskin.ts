@@ -35,30 +35,45 @@ export interface MineSkinSkinData {
   };
 }
 
+export interface MineSkinJobMessage {
+  code: string;
+  message: string;
+}
+
+export type MineSkinJobWarning = MineSkinError;
+
 export type MineSkinEnqueueResponse =
   | {
       success: true;
       job: MineSkinJobDetails;
       errors?: MineSkinError[];
+      warnings?: MineSkinJobWarning[];
+      messages?: MineSkinJobMessage[];
     }
   | {
       success: false;
       job?: MineSkinJobDetails;
       errors?: MineSkinError[];
+      warnings?: MineSkinJobWarning[];
+      messages?: MineSkinJobMessage[];
     };
 
 export type MineSkinJobResponse =
   | {
       success: true;
-      job: MineSkinJobDetails;
+      job?: MineSkinJobDetails;
       skin: MineSkinSkinData;
       errors?: MineSkinError[];
+      warnings?: MineSkinJobWarning[];
+      messages?: MineSkinJobMessage[];
     }
   | {
       success: false;
       job?: MineSkinJobDetails;
       skin?: MineSkinSkinData;
       errors?: MineSkinError[];
+      warnings?: MineSkinJobWarning[];
+      messages?: MineSkinJobMessage[];
     };
 
 export type MineSkinJobSuccessResponse = Extract<
@@ -125,7 +140,12 @@ async function requestMineSkinJob(
     throw new Error(getMineSkinError(jobData.errors));
   }
 
-  return jobData as MineSkinJobSuccessResponse;
+  const successData = jobData as MineSkinJobSuccessResponse;
+  if (!successData.job) {
+    throw new Error("Job not found in response");
+  }
+
+  return successData;
 }
 
 export type PollMineSkinJobOptions = {
@@ -143,7 +163,12 @@ export async function pollMineSkinJob(
   // Loop until the job is completed or failed.
   for (;;) {
     const jobData = await requestMineSkinJob(jobId, apiKey, useCapeProxy);
-    const { status } = jobData.job;
+    const job = jobData.job;
+    if (!job) {
+      throw new Error("Job not found in response");
+    }
+
+    const { status } = job;
     options.onStatusChange?.(status);
 
     if (status === "completed") {
@@ -235,9 +260,17 @@ export async function uploadMineSkinFile({
     const job = (
       rawResponse as MineSkinEnqueueResponse | MineSkinJobSuccessResponse
     ).job;
+
     if (!job) {
+      if ("skin" in rawResponse && rawResponse.skin) {
+        callbacks?.onStatusChange?.("completed");
+        callbacks?.onComplete?.(rawResponse);
+        return rawResponse;
+      }
+
       throw new Error("Job not found in response");
     }
+
     callbacks?.onEnqueue?.(job);
     callbacks?.onStatusChange?.(job.status);
 
