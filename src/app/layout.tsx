@@ -4,7 +4,6 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
-import PlausibleProvider from "next-plausible";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
@@ -67,12 +66,6 @@ export default async function RootLayout({
           {children}
           <Toaster richColors />
         </RootProvider>
-        <PlausibleProvider
-          trackOutboundLinks
-          trackFileDownloads
-          scriptProps={{ "add-file-types": "jar" } as never}
-          domain="skinsrestorer.net"
-        />
       </body>
     </html>
   );
