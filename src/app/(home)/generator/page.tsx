@@ -4,9 +4,6 @@ import { GenerateFileCard, ReverseFileCard } from "./generator-card";
 export const metadata: Metadata = {
   description:
     "Generate copyable /sr createcustom commands or reverse existing skin files.",
-  openGraph: {
-    images: "https://skinsrestorer.net/og?title=Custom%20Skin",
-  },
 };
 
 export default function GeneratorPage() {

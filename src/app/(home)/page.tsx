@@ -9,7 +9,6 @@ import {
   Rocket,
   Zap,
 } from "lucide-react";
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CustomTimeAgo } from "@/components/time-ago";
@@ -27,12 +26,6 @@ type LatestReleaseResponse =
   paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
 
 export const revalidate = 120; // 2 minutes
-
-export const metadata: Metadata = {
-  openGraph: {
-    images: "https://skinsrestorer.net/og?title=SkinsRestorer",
-  },
-};
 
 async function getReleaseData(): Promise<LatestReleaseResponse> {
   const response = await fetch(

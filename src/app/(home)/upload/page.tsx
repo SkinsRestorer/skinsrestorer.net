@@ -4,9 +4,6 @@ import { UploadCard } from "./upload-card";
 export const metadata: Metadata = {
   description:
     "Upload a skin PNG and get a copyable /skin url command using MineSkin.",
-  openGraph: {
-    images: "https://skinsrestorer.net/og?title=Upload",
-  },
 };
 
 export default function UploadPage() {
