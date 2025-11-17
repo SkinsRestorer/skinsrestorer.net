@@ -4,6 +4,7 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +68,7 @@ export default async function RootLayout({
           </Banner>
           {children}
           <Toaster richColors />
+          <CookieConsentBanner />
         </RootProvider>
       </body>
     </html>
