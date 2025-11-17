@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, Cookie, X } from "lucide-react";
-import Link from "next/link";
 import posthog from "posthog-js";
 import * as React from "react";
 
@@ -28,7 +27,6 @@ interface CookieConsentProps extends React.HTMLAttributes<HTMLDivElement> {
   onAcceptCallback?: () => void;
   onDeclineCallback?: () => void;
   description?: string;
-  learnMoreHref?: string;
 }
 
 const CookieConsent = React.forwardRef<HTMLDivElement, CookieConsentProps>(
@@ -39,8 +37,7 @@ const CookieConsent = React.forwardRef<HTMLDivElement, CookieConsentProps>(
       onAcceptCallback = () => {},
       onDeclineCallback = () => {},
       className,
-      description = "We use cookies to ensure you get the best experience on our website. For more information on how we use cookies, please see our cookie policy.",
-      learnMoreHref = "#",
+      description = "We use tracking cookies to understand how you use the product and help us improve it. Please accept cookies to help us improve.",
       ...props
     },
     ref,
@@ -138,12 +135,6 @@ const CookieConsent = React.forwardRef<HTMLDivElement, CookieConsentProps>(
                 By clicking <span className="font-medium">"Accept"</span>, you
                 agree to our use of cookies.
               </p>
-              <Link
-                href={learnMoreHref}
-                className="text-xs text-primary underline underline-offset-4 hover:no-underline"
-              >
-                Learn more
-              </Link>
             </CardContent>
             <CardFooter className="flex gap-2 pt-2">
               <Button
@@ -246,8 +237,7 @@ export function CookieConsentBanner() {
   return (
     <CookieConsent
       variant="mini"
-      learnMoreHref="https://posthog.com/privacy"
-      description="We use PostHog analytics cookies to understand how people use SkinsRestorer."
+      description="We use tracking cookies to understand how you use the product and help us improve it. Please accept cookies to help us improve."
     />
   );
 }
