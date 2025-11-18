@@ -166,9 +166,7 @@ export const GenerateFileCard = () => {
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium">
-                Skin generation target
-              </Label>
+              <Label className="text-sm font-medium">Upload method</Label>
               <Tabs
                 value={target}
                 onValueChange={(value) => {
@@ -177,22 +175,25 @@ export const GenerateFileCard = () => {
                 className="flex flex-col gap-2"
               >
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="axolotl">Axolotl proxy</TabsTrigger>
+                  <TabsTrigger value="axolotl">
+                    SkinsRestorer Axolotl
+                  </TabsTrigger>
                   <TabsTrigger value="mineskin">MineSkin API</TabsTrigger>
                 </TabsList>
                 <TabsContent
                   value="axolotl"
                   className="text-xs text-muted-foreground"
                 >
-                  Use the Axolotl cape-enabled proxy. Cape-enabled requests are
-                  automatically supported when a cape is selected.
+                  Use SkinsRestorer Axolotl proxy to upload skins with cape
+                  support. This is a free service thanks to a partnership with
+                  MineSkin.
                 </TabsContent>
                 <TabsContent
                   value="mineskin"
                   className="text-xs text-muted-foreground"
                 >
-                  Provide a MineSkin API key to call the official API directly
-                  for skin generation.
+                  Provide a MineSkin API key to upload skins directly with the
+                  official MineSkin API.
                 </TabsContent>
               </Tabs>
             </div>

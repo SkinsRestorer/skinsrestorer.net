@@ -49,7 +49,7 @@ export function CapeSupportFields({
 
   return (
     <>
-      {showApiKeyFields ? (
+      {showApiKeyFields && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
@@ -119,16 +119,6 @@ export function CapeSupportFields({
               Cape support requires an API key with the capes grant.
             </p>
           )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">
-            MineSkin API key not required
-          </p>
-          <p>
-            Using the Axolotl proxy automatically grants cape access for
-            supported capes.
-          </p>
         </div>
       )}
       <div className="flex flex-col gap-2">
