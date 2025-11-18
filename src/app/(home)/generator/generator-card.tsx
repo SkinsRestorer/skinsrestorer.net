@@ -26,13 +26,6 @@ import {
 } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   NO_CAPE_VALUE,
@@ -74,7 +67,6 @@ export const GenerateFileCard = () => {
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
-  const skinTypeId = useId();
   const customNameId = useId();
   const customSkinCommandId = useId();
   const command = result
@@ -148,22 +140,20 @@ export const GenerateFileCard = () => {
               </FileUpload>
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor={skinTypeId}>Skin type</Label>
-              <Select
+              <Label className="text-sm font-medium">Skin type</Label>
+              <Tabs
                 value={skinType}
                 onValueChange={(value) => {
                   setSkinType(value as SkinVariant);
                   setResult(null);
                 }}
+                className="w-full"
               >
-                <SelectTrigger id={skinTypeId}>
-                  <SelectValue placeholder="Skin type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="classic">Classic</SelectItem>
-                  <SelectItem value="slim">Slim</SelectItem>
-                </SelectContent>
-              </Select>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="classic">Classic</TabsTrigger>
+                  <TabsTrigger value="slim">Slim</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium">Upload method</Label>
