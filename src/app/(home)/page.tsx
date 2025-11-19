@@ -1,5 +1,4 @@
 import { SiGithub } from "@icons-pack/react-simple-icons";
-import type { paths } from "@octokit/openapi-types";
 import {
   ChevronsRight,
   CloudDownload,
@@ -11,98 +10,14 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { CustomTimeAgo } from "@/components/time-ago";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-type LatestReleaseResponse =
-  paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
-
-export const revalidate = 120; // 2 minutes
-
-async function getReleaseData(): Promise<LatestReleaseResponse> {
-  const response = await fetch(
-    "https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest",
-    {
-      next: {
-        revalidate: 120,
-      },
-    },
-  );
-  return await response.json();
-}
-
-async function LatestRelease() {
-  const data: LatestReleaseResponse = await getReleaseData();
-  const versionTag = data.tag_name.startsWith("v")
-    ? data.tag_name.slice(1)
-    : data.tag_name;
-  const releaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}`;
-  const fabricReleaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}-fabric`;
-  const neoforgeReleaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}-neoforge`;
-  return (
-    <Card className="mt-6">
-      <CardHeader>
-        <div className="flex flex-wrap items-center gap-2">
-          <CardTitle className="text-lg">
-            <a
-              href={releaseLink}
-              className="hover:text-primary transition-colors"
-            >
-              {data.name}
-            </a>
-          </CardTitle>
-          <span className="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-700">
-            Latest Release
-          </span>
-        </div>
-        <CardDescription>
-          <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-            <span>Released by</span>
-            <div className="flex items-center gap-2">
-              <Image
-                className="rounded-full w-6 h-6"
-                src={data.author.avatar_url}
-                width={24}
-                height={24}
-                alt={data.author.login}
-              />
-              <span className="font-medium">{data.author.login}</span>
-            </div>
-            <CustomTimeAgo date={data.published_at || new Date()} />
-          </div>
-        </CardDescription>
-      </CardHeader>
-      <CardFooter className="flex flex-col gap-2 sm:flex-row">
-        <Button asChild variant="outline" className="w-full sm:w-auto">
-          <a href={releaseLink}>
-            <Download className="w-4 h-4" />
-            Download (Server / Proxy)
-          </a>
-        </Button>
-        <Button asChild variant="outline" className="w-full sm:w-auto">
-          <a href={fabricReleaseLink}>
-            <Download className="w-4 h-4" />
-            Download (Fabric)
-          </a>
-        </Button>
-        <Button asChild variant="outline" className="w-full sm:w-auto">
-          <a href={neoforgeReleaseLink}>
-            <Download className="w-4 h-4" />
-            Download (NeoForge)
-          </a>
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
 
 const FeatureCard = ({
   title,
@@ -164,7 +79,6 @@ export default function IndexPage() {
     <article className="w-full overflow-x-hidden break-words nextra-content flex min-h-[calc(100vh-var(--nextra-navbar-height))] min-w-0 justify-center pb-8 pr-[calc(env(safe-area-inset-right)-1.5rem)]">
       <main className="w-full min-w-0 max-w-6xl px-6 pt-8 md:px-12">
         <div className="mx-auto container">
-          <LatestRelease />
           <div className="py-12 md:py-20 flex flex-col items-center text-center">
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
               <Image
@@ -181,12 +95,25 @@ export default function IndexPage() {
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8">
               The most popular skin plugin for Minecraft
             </p>
-            <Button asChild size="lg" className="text-base px-8 py-3">
-              <Link href="/docs/installation">
-                Get Started
-                <ChevronsRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild size="lg" className="text-base px-8 py-3">
+                <Link href="/download">
+                  <Download className="w-5 h-5 mr-2" />
+                  Download SkinsRestorer
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="text-base px-8 py-3"
+              >
+                <a href="https://github.com/SkinsRestorer/SkinsRestorer">
+                  <SiGithub className="w-5 h-5 mr-2" />
+                  GitHub
+                </a>
+              </Button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 md:mt-24">
               <Link href="/docs/installation">
                 <FeatureCard
