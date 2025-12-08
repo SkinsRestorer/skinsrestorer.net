@@ -62,6 +62,10 @@ const baseDir = path.join("src", "app", "(home)");
 const config: NextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
+  cacheComponents: true,
+  experimental: {
+    viewTransition: true,
+  },
   env: {
     SITEMAP_PAGES: getFoldersWithPageFiles(baseDir)
       .map((folder) => folder.substring(baseDir.length))

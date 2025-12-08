@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CustomTimeAgo } from "@/components/time-ago";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,8 +25,6 @@ import {
 
 type LatestReleaseResponse =
   paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
-
-export const revalidate = 120; // 2 minutes
 
 async function getReleaseData(): Promise<LatestReleaseResponse> {
   const response = await fetch(
@@ -76,7 +75,9 @@ async function LatestRelease() {
               />
               <span className="font-medium">{data.author.login}</span>
             </div>
-            <CustomTimeAgo date={data.published_at || new Date()} />
+            <Suspense>
+              <CustomTimeAgo date={data.published_at || new Date()} />
+            </Suspense>
           </div>
         </CardDescription>
       </CardHeader>
