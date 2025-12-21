@@ -28,15 +28,13 @@ export interface Feedback {
   message: string;
 }
 
-export interface ActionResponse {
-  githubUrl: string;
-}
+export type ActionResponse = object;
 
 interface Result extends Feedback {
   response?: ActionResponse;
 }
 
-export function Rate({
+export function Feedback({
   onRateAction,
 }: {
   onRateAction: (url: string, feedback: Feedback) => Promise<ActionResponse>;
@@ -131,20 +129,6 @@ export function Rate({
           <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-muted-foreground text-sm text-center rounded-xl">
             <p>Thank you for your feedback!</p>
             <div className="flex flex-row items-center gap-2">
-              <a
-                href={previous.response?.githubUrl}
-                rel="noreferrer noopener"
-                target="_blank"
-                className={cn(
-                  buttonVariants({
-                    color: "primary",
-                  }),
-                  "text-xs",
-                )}
-              >
-                View on GitHub
-              </a>
-
               <button
                 type="button"
                 className={cn(
@@ -165,6 +149,8 @@ export function Rate({
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
             <textarea
+              // biome-ignore lint/a11y/noAutofocus: We want to autofocus the textarea when it appears
+              autoFocus
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
