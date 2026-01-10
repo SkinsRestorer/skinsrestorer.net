@@ -81,6 +81,10 @@ const config: NextConfig = {
         hostname: "github.com",
         protocol: "https",
       },
+      {
+        hostname: "img.shields.io",
+        protocol: "https",
+      },
     ],
   },
   redirects: async () => {
