@@ -131,8 +131,13 @@ The process below may vary depending on your build configuration.
 
 ## When using BungeeCord/Velocity?
 
-If you are using BungeeCord/Velocity, you must have a plugin that calls the API on BungeeCord/Velocity.
-You would need to use in/out put channels to send this information across both of your custom plugins.
+If you are using BungeeCord/Velocity, you have two options:
+
+1. **Call the API from the proxy**: Have a plugin that calls the API directly on BungeeCord/Velocity.
+   You would need to use plugin messaging channels to send information between your proxy and backend plugins.
+
+2. **Call the API from backend servers**: Enable `server.proxyMode.api` in your backend server's `config.yml` (enabled by default)
+   and configure MySQL to connect to the same database as the proxy. This allows backend plugins to use the SkinsRestorer API directly.
 
 ## Getting issues?
 
@@ -140,4 +145,4 @@ You would need to use in/out put channels to send this information across both o
 - Make sure to get the API using `this.skinsRestorer = SkinsRestorerProvider.get();{:java}` and you have the field `private SkinsRestorer skinsRestorer;{:java}` at the start of your class.
 - Make sure to add the dependency to your build file as described above.
 - Make sure to add the dependency to your plugin.yml as described above.
-- Make sure SkinsRestorer is not in "Proxy Mode" if you are using BungeeCord/Velocity.
+- If using the API on backend servers behind a proxy, ensure `server.proxyMode.api` is enabled and MySQL is configured to the same database as the proxy.

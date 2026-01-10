@@ -96,3 +96,39 @@ This feature is useful if you want to prevent players from using, for example, e
 By default, SkinsRestorer allows players to set any skin when they have access to the `/skin <skin>` command.
 You can override this behavior by setting up `commands.perSkinPermissions` in the `config.yml` file.
 Any skin in that list will force the player to have the permissions `skinsrestorer.skin.<name>` to use that skin.
+
+## Proxy mode settings
+
+If you're running a proxy network (BungeeCord/Velocity), you can configure how backend servers detect and interact with the proxy.
+These settings are only relevant for backend servers, not the proxy itself.
+
+```yaml filename="config.yml"
+server:
+  proxyMode:
+    detection: AUTO
+    api: true
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `detection` | `AUTO` | How proxy mode is determined. Options: `ENABLED` (force on), `DISABLED` (force off), or `AUTO` (auto-detect) |
+| `api` | `true` | Enable SkinsRestorer API on backend servers. Requires MySQL configured to the same database as the proxy |
+
+## API settings
+
+Configure how SkinsRestorer interacts with external APIs.
+
+```yaml filename="config.yml"
+api:
+  mineSkinApiKey: ""
+  mineSkinSecretSkins: false
+  fetchRecommendedSkins: true
+  mojangBatchWindowSeconds: 1
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `mineSkinApiKey` | (empty) | Your MineSkin API key from [mineskin.org/apikey](https://mineskin.org/apikey) to speed up skin generation requests |
+| `mineSkinSecretSkins` | `false` | When enabled, skins generated via MineSkin will be hidden from their public gallery |
+| `fetchRecommendedSkins` | `true` | Load curated recommended skins. Disabling this breaks `/skin random` |
+| `mojangBatchWindowSeconds` | `1` | Window size in seconds for batching Mojang API requests to avoid rate limits |
