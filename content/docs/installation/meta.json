@@ -1,4 +1,4 @@
 {
-  "pages": ["bukkit", "bungeecord", "velocity", "fabric", "neoforge"],
+  "pages": ["quick-start", "bukkit", "bungeecord", "velocity", "fabric", "neoforge"],
   "defaultOpen": false
 }

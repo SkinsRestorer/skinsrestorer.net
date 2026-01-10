@@ -1,0 +1,180 @@
+---
+title: Database Setup
+description: Learn how to configure MySQL database storage for SkinsRestorer.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+SkinsRestorer can store skin data in a MySQL database instead of local files.
+Database storage is recommended for proxy networks and large servers.
+
+## When to use database storage
+
+**Use database storage if you:**
+- Run a proxy network (BungeeCord/Velocity) with multiple backend servers
+- Want skin data shared across multiple servers
+- Need the backend API to work on servers behind a proxy
+- Have a large player base and want better performance
+
+**Stick with file storage if you:**
+- Run a single standalone server
+- Don't need to share skin data between servers
+- Want the simplest setup possible
+
+## Database configuration
+
+Add the following to your `config.yml`:
+
+```yaml filename="config.yml"
+database:
+  enabled: true
+  host: localhost
+  port: 3306
+  database: skinsrestorer
+  username: sr_user
+  password: your_secure_password
+  maxPoolSize: 10
+  tablePrefix: sr_
+  connectionOptions: "sslMode=trust&serverTimezone=UTC"
+```
+
+### Configuration options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `false` | Set to `true` to enable database storage |
+| `host` | `localhost` | MySQL server address |
+| `port` | `3306` | MySQL server port |
+| `database` | `db` | Database name |
+| `username` | `root` | Database username |
+| `password` | `pass` | Database password |
+| `maxPoolSize` | `10` | Maximum number of connections in the pool |
+| `tablePrefix` | `sr_` | Prefix for all SkinsRestorer tables |
+| `connectionOptions` | `sslMode=trust&serverTimezone=UTC` | Additional connection parameters |
+
+## Setup guide
+
+<Steps>
+  <Step>
+    ### Create the database
+
+    Connect to your MySQL server and create a database for SkinsRestorer:
+
+    ```sql
+    CREATE DATABASE skinsrestorer;
+    ```
+  </Step>
+
+  <Step>
+    ### Create a dedicated user
+
+    Create a MySQL user with appropriate permissions:
+
+    ```sql
+    CREATE USER 'sr_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+    GRANT ALL PRIVILEGES ON skinsrestorer.* TO 'sr_user'@'localhost';
+    FLUSH PRIVILEGES;
+    ```
+
+    <Callout type="warning">
+      If your MySQL server is on a different machine, replace `localhost` with the appropriate host or `%` for any host.
+    </Callout>
+  </Step>
+
+  <Step>
+    ### Configure SkinsRestorer
+
+    Update your `config.yml` with the database credentials as shown above.
+  </Step>
+
+  <Step>
+    ### Restart your server
+
+    Restart your server to apply the changes. Check the console for any connection errors.
+  </Step>
+</Steps>
+
+## Proxy network setup
+
+When using a proxy network, you must configure the **same database** on both the proxy and all backend servers.
+
+<Callout type="info">
+  Backend servers need database access to use the SkinsRestorer API. Make sure `server.proxyMode.api` is enabled (default) in backend server configs.
+</Callout>
+
+### Example setup
+
+1. Configure MySQL on the **proxy** with `database.enabled: true`
+2. Configure MySQL on **each backend server** with the same credentials
+3. Ensure all servers can reach the MySQL server
+
+## SSL/TLS configuration
+
+The `connectionOptions` parameter controls SSL behavior:
+
+| SSL Mode | Use case |
+|----------|----------|
+| `sslMode=trust` | Trust any certificate (development/internal networks) |
+| `sslMode=disable` | Disable SSL entirely (not recommended for production) |
+| `sslMode=verify-ca` | Verify server certificate against CA |
+| `sslMode=verify-identity` | Verify certificate and hostname (most secure) |
+
+For production environments with SSL certificates:
+
+```yaml
+connectionOptions: "sslMode=verify-ca&serverTimezone=UTC"
+```
+
+## Migrating from file storage
+
+SkinsRestorer does not automatically migrate data from files to database.
+When you enable database storage, it starts fresh.
+
+To preserve existing skin data:
+1. Note which custom skins you've created with `/sr createcustom`
+2. Enable database storage
+3. Recreate custom skins using the same commands
+4. Player skin preferences will be re-applied as players rejoin and set their skins
+
+## Troubleshooting
+
+### Connection refused
+
+- Verify MySQL is running and accepting connections
+- Check that the host and port are correct
+- Ensure your firewall allows connections on port 3306
+
+### Access denied
+
+- Verify username and password are correct
+- Check that the user has permissions for the database
+- If connecting remotely, ensure the user can connect from your server's IP
+
+### SSL errors
+
+- Try `sslMode=trust` or `sslMode=disable` for testing
+- For production, configure proper SSL certificates
+
+### Timezone errors
+
+- Add `serverTimezone=UTC` to connectionOptions
+- Or set your server's timezone explicitly: `serverTimezone=America/New_York`
+
+## Performance tuning
+
+### Connection pool size
+
+The `maxPoolSize` setting controls how many database connections SkinsRestorer can use simultaneously.
+
+- **Small servers (< 100 players)**: 5-10 connections
+- **Medium servers (100-500 players)**: 10-20 connections
+- **Large networks (500+ players)**: 20-50 connections
+
+<Callout type="warning">
+  Don't set this too high. Each connection uses server resources. MySQL also has a maximum connection limit.
+</Callout>
+
+### Table prefix
+
+Use different `tablePrefix` values if you need multiple SkinsRestorer instances sharing the same database (not common).

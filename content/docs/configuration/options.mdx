@@ -9,18 +9,18 @@ import { Callout } from 'fumadocs-ui/components/callout';
 The plugin should be able to run without extra configuration needed,
 but if you need to change the plugin behavior, you're in the right place here.
 
-<Callout type="info" emoji="ℹ️">
+<Callout type="info">
   After changing the configuration, you need to either reload the plugin with
   the command `/sr reload` or restart the server.
 </Callout>
 
-<Callout type="info" emoji="ℹ️">
+<Callout type="info">
   If you run a proxy network (BungeeCord/Velocity), you need to have the exact
   same `config.yml` file on the proxy and all servers. If you make a change to
   the config on the proxy, you need to make the same change on all servers. Make
   sure to reload the plugin on the proxy and all servers after changing the
   configuration. The `/sr reload` command is only available on the proxy
-  (Because all backend servers are in Proxy Mode), you'll need to restart the
+  (because all backend servers are in Proxy Mode), you'll need to restart the
   servers to use the new config.
 </Callout>
 
@@ -56,6 +56,248 @@ Below is an example of what the file structure of the SkinsRestorer plugin looks
     </Folder>
   </Folder>
 </Files>
+
+## Storage settings
+
+Configure how skin data is cached and stored.
+
+```yaml filename="config.yml"
+storage:
+  defaultSkins:
+    enabled: false
+    applyForPremium: false
+    list:
+      - "xknat"
+      - "pistonmaster"
+      - "<random>"
+  disallowAutoUpdateSkin: false
+  skinExpiresAfter: 15
+  uuidExpiresAfter: 60
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `defaultSkins.enabled` | `false` | Enable default skins for players without a set skin |
+| `defaultSkins.applyForPremium` | `false` | Apply default skins even to premium players |
+| `defaultSkins.list` | `["xknat", "pistonmaster", "<random>"]` | List of default skins. Use `<random>` for recommended skins |
+| `disallowAutoUpdateSkin` | `false` | Require players to run `/skin update` manually |
+| `skinExpiresAfter` | `15` | Minutes before re-fetching skin data from API |
+| `uuidExpiresAfter` | `60` | Minutes before re-fetching player UUID from API |
+
+<Callout type="info">
+  Setting cache expiration to `0` will always request fresh data from the API. This is not recommended for production servers.
+</Callout>
+
+## Command settings
+
+Configure command behavior, cooldowns, and restrictions.
+
+```yaml filename="config.yml"
+commands:
+  skinChangeCooldown: 30
+  skinErrorCooldown: 5
+  skullCooldown: 30
+  skullErrorCooldown: 5
+  disabledSkins:
+    - "steve"
+    - "owner"
+  restrictSkinUrls:
+    enabled: false
+    list:
+      - "https://i.imgur.com"
+      - "https://storage.googleapis.com"
+      - "https://cdn.discordapp.com"
+      - "https://textures.minecraft.net"
+  perSkinPermissions:
+    enabled: false
+    list: []
+  forceDefaultPermissions: true
+  customPlayerHistory: 18
+  customFavourites: 90
+  disableSkinCommand: false
+  disableSkullCommand: false
+  disableGUICommand: false
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `skinChangeCooldown` | `30` | Seconds between `/skin` commands |
+| `skinErrorCooldown` | `5` | Seconds to wait after a failed skin change |
+| `skullCooldown` | `30` | Seconds between `/skull` commands |
+| `skullErrorCooldown` | `5` | Seconds to wait after a failed skull command |
+| `disabledSkins` | `["steve", "owner"]` | Skins that cannot be used |
+| `restrictSkinUrls.enabled` | `false` | Only allow URLs from whitelisted domains |
+| `restrictSkinUrls.list` | (see above) | Allowed URL domains when restriction is enabled |
+| `perSkinPermissions.enabled` | `false` | Require `skinsrestorer.skin.<name>` for specific skins |
+| `perSkinPermissions.list` | `[]` | Skins that require permissions |
+| `forceDefaultPermissions` | `true` | Give all players `skinsrestorer.player` by default |
+| `customPlayerHistory` | `18` | Max entries in `/skin undo` history |
+| `customFavourites` | `90` | Max entries in `/skin favourite` list |
+| `disableSkinCommand` | `false` | Disable the `/skin` command registration |
+| `disableSkullCommand` | `false` | Disable the `/skull` command registration |
+| `disableGUICommand` | `false` | Disable the `/skins` command registration |
+
+## Login settings
+
+Configure skin behavior during player login.
+
+```yaml filename="config.yml"
+login:
+  noSkinIfLoginCanceled: true
+  alwaysApplyPremium: false
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `noSkinIfLoginCanceled` | `true` | Don't apply skins if login is canceled (e.g., by AntiBot) |
+| `alwaysApplyPremium` | `false` | Apply skins even for premium players on online-mode servers |
+
+## Server settings (Backend only)
+
+These settings only apply to backend servers, not proxies.
+
+```yaml filename="config.yml"
+server:
+  resourcePackFix: true
+  dismountPlayerOnUpdate: true
+  remountPlayerOnUpdate: true
+  dismountPassengersOnUpdate: false
+  sound:
+    enabled: true
+    value: "ENTITY_PLAYER_TELEPORT, 0.7"
+  proxyMode:
+    detection: AUTO
+    api: true
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `resourcePackFix` | `true` | Reapply skins after resource pack loads |
+| `dismountPlayerOnUpdate` | `true` | Dismount player from vehicle during skin update |
+| `remountPlayerOnUpdate` | `true` | Remount player after skin update |
+| `dismountPassengersOnUpdate` | `false` | Dismount passengers riding the player |
+| `sound.enabled` | `true` | Play sound when skin changes |
+| `sound.value` | `"ENTITY_PLAYER_TELEPORT, 0.7"` | Sound to play (format: SOUND_NAME, volume) |
+| `proxyMode.detection` | `AUTO` | Proxy detection: `AUTO`, `ENABLED`, or `DISABLED` |
+| `proxyMode.api` | `true` | Enable API on backend servers (requires database) |
+
+## Proxy settings (Proxy only)
+
+These settings only apply to proxy servers (BungeeCord/Velocity).
+
+```yaml filename="config.yml"
+proxy:
+  notAllowedCommandServers:
+    enabled: true
+    ifNoneBlockCommand: true
+    allowList: false
+    list:
+      - "auth"
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `notAllowedCommandServers.enabled` | `true` | Enable server-based command restrictions |
+| `notAllowedCommandServers.ifNoneBlockCommand` | `true` | Block commands before joining any server |
+| `notAllowedCommandServers.allowList` | `false` | If true, only listed servers allow commands |
+| `notAllowedCommandServers.list` | `["auth"]` | Servers to block/allow commands on |
+
+## API settings
+
+Configure external API integrations.
+
+```yaml filename="config.yml"
+api:
+  mineSkinApiKey: ""
+  mineSkinSecretSkins: false
+  fetchRecommendedSkins: true
+  mojangBatchWindowSeconds: 1
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `mineSkinApiKey` | (empty) | Your [MineSkin API key](https://mineskin.org/apikey) for faster requests |
+| `mineSkinSecretSkins` | `false` | Hide generated skins from MineSkin's public gallery |
+| `fetchRecommendedSkins` | `true` | Load curated recommended skins (required for `/skin random`) |
+| `mojangBatchWindowSeconds` | `1` | Batch window for Mojang API requests to avoid rate limits |
+
+<Callout type="info">
+  Use coupon code `SKINSRESTORER10` for 10% off your first three months of MineSkin API plans (except Lite).
+</Callout>
+
+## GUI settings
+
+Configure the `/skins` GUI appearance and content.
+
+```yaml filename="config.yml"
+gui:
+  notUnlockedSkin: "c10591e6909e6a281b371836e462d67a2c78fa0952e910f32b41a26c48c1757c"
+  customSkins:
+    enabled: true
+    index: 0
+    onlyList: false
+    list:
+      - "xknat"
+      - "pistonmaster"
+  playerSkins:
+    enabled: false
+    index: 1
+    onlyList: false
+    list: []
+  recommendations:
+    enabled: true
+    index: 2
+    onlyList: false
+    list:
+      - "vampire"
+      - "space-suit"
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `notUnlockedSkin` | (texture hash) | Skin shown for locked skins (when using perSkinPermissions) |
+| `customSkins.enabled` | `true` | Show custom skins tab in GUI |
+| `customSkins.index` | `0` | Tab order (lower = first) |
+| `customSkins.onlyList` | `false` | Only show skins in the list |
+| `customSkins.list` | `["xknat", "pistonmaster"]` | Skins to show in custom tab |
+| `playerSkins.enabled` | `false` | Show online player skins tab |
+| `playerSkins.index` | `1` | Tab order |
+| `recommendations.enabled` | `true` | Show recommended skins tab |
+| `recommendations.index` | `2` | Tab order |
+
+## Advanced settings
+
+<Callout type="warning">
+  These settings are in the "Danger Zone". Only modify if you understand the implications.
+</Callout>
+
+```yaml filename="config.yml"
+advanced:
+  disableOnJoinSkins: false
+  enablePaperJoinListener: true
+  teleportRefresh: false
+  noConnections: false
+  playerHeadChatObjects: false
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `disableOnJoinSkins` | `false` | Don't apply skins on player join |
+| `enablePaperJoinListener` | `true` | Use Paper's join event for instant skin application |
+| `teleportRefresh` | `false` | Use teleport instead of hiding for skin refresh |
+| `noConnections` | `false` | Disable all web connections (offline mode) |
+| `playerHeadChatObjects` | `false` | Show player heads in chat messages |
+
+## Debug settings
+
+```yaml filename="config.yml"
+dev:
+  debug: false
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `debug` | `false` | Enable debug logging for API requests and troubleshooting |
 
 ## Who can change skins?
 
@@ -96,39 +338,3 @@ This feature is useful if you want to prevent players from using, for example, e
 By default, SkinsRestorer allows players to set any skin when they have access to the `/skin <skin>` command.
 You can override this behavior by setting up `commands.perSkinPermissions` in the `config.yml` file.
 Any skin in that list will force the player to have the permissions `skinsrestorer.skin.<name>` to use that skin.
-
-## Proxy mode settings
-
-If you're running a proxy network (BungeeCord/Velocity), you can configure how backend servers detect and interact with the proxy.
-These settings are only relevant for backend servers, not the proxy itself.
-
-```yaml filename="config.yml"
-server:
-  proxyMode:
-    detection: AUTO
-    api: true
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `detection` | `AUTO` | How proxy mode is determined. Options: `ENABLED` (force on), `DISABLED` (force off), or `AUTO` (auto-detect) |
-| `api` | `true` | Enable SkinsRestorer API on backend servers. Requires MySQL configured to the same database as the proxy |
-
-## API settings
-
-Configure how SkinsRestorer interacts with external APIs.
-
-```yaml filename="config.yml"
-api:
-  mineSkinApiKey: ""
-  mineSkinSecretSkins: false
-  fetchRecommendedSkins: true
-  mojangBatchWindowSeconds: 1
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `mineSkinApiKey` | (empty) | Your MineSkin API key from [mineskin.org/apikey](https://mineskin.org/apikey) to speed up skin generation requests |
-| `mineSkinSecretSkins` | `false` | When enabled, skins generated via MineSkin will be hidden from their public gallery |
-| `fetchRecommendedSkins` | `true` | Load curated recommended skins. Disabling this breaks `/skin random` |
-| `mojangBatchWindowSeconds` | `1` | Window size in seconds for batching Mojang API requests to avoid rate limits |

@@ -1,0 +1,109 @@
+---
+title: Skin Upload
+description: Learn about uploading custom skin PNG files with SkinsRestorer.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+SkinsRestorer provides multiple ways to upload and apply custom skin PNG files.
+
+## In-game command
+
+Running `/skin upload` in-game will display information about how to upload skins.
+This command requires the `skinsrestorer.command.set.url` permission.
+
+The command directs you to use one of the upload methods below.
+
+## Upload methods
+
+### Method 1: Website upload page (Recommended)
+
+The easiest way to upload a skin is using the [/upload](/upload) page on skinsrestorer.net.
+
+1. Visit [skinsrestorer.net/upload](/upload)
+2. Select your skin PNG file
+3. Click "Generate /skin url"
+4. Copy the generated command
+5. Paste it in-game
+
+See the [Skin URL Upload guide](/docs/features/skin-url) for detailed instructions.
+
+### Method 2: Direct URL command
+
+If your skin is already hosted online, use `/skin url` directly:
+
+```
+/skin url "https://example.com/myskin.png"
+```
+
+For slim (Alex-style) skins, add the variant:
+
+```
+/skin url "https://example.com/myskin.png" slim
+```
+
+<Callout type="info">
+  The URL must point directly to a PNG file and be publicly accessible. The URL should be wrapped in quotes.
+</Callout>
+
+## Skin variants
+
+When uploading skins, you can specify the arm model:
+
+| Variant | Description |
+|---------|-------------|
+| `classic` | Standard Steve-style arms (4 pixels wide) |
+| `slim` | Alex-style arms (3 pixels wide) |
+
+If you don't specify a variant, SkinsRestorer will attempt to auto-detect it based on the skin file.
+
+## Supported formats
+
+- **Dimensions**: 64x64 pixels (modern) or 64x32 pixels (legacy)
+- **Format**: PNG only
+- **File size**: Under 3 MB
+- **Transparency**: Supported for overlay layers
+
+## How it works
+
+When you upload a skin via URL:
+
+1. SkinsRestorer sends the URL to [MineSkin](https://mineskin.org)
+2. MineSkin applies the skin to a Minecraft account from their pool
+3. MineSkin returns the signed skin data from Mojang
+4. SkinsRestorer applies this data to your player
+
+This process ensures your skin has a valid Mojang signature, which is required for the Minecraft client to display it.
+
+<Callout type="info">
+  Need faster uploads? Get a [MineSkin API key](https://mineskin.org/apikey) and configure it in your `config.yml`. Use coupon code `SKINSRESTORER10` for 10% off your first three months (except Lite plans).
+</Callout>
+
+## URL restrictions
+
+Server administrators can restrict which URLs are allowed for skin uploads.
+
+If `commands.restrictSkinUrls.enabled` is set to `true` in the config, only URLs from whitelisted domains will be accepted.
+
+Default allowed domains:
+- `https://i.imgur.com`
+- `https://storage.googleapis.com`
+- `https://cdn.discordapp.com`
+- `https://textures.minecraft.net`
+
+## Troubleshooting
+
+### "Invalid URL" error
+- Ensure the URL points directly to a PNG file
+- Check that the URL is publicly accessible
+- Wrap the URL in quotes if it contains special characters
+
+### "Rate limited" error
+- MineSkin has rate limits for skin generation
+- Wait a few minutes and try again
+- Consider getting a MineSkin API key for higher limits
+
+### Skin not applying correctly
+- Verify your PNG is 64x64 or 64x32 pixels
+- Check if you need to specify `slim` for Alex-style skins
+- Ensure the file is a valid PNG (not renamed JPG)

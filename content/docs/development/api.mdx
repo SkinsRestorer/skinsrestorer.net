@@ -8,7 +8,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 SkinsRestorer has a public API that can be used by other plugins to interact with SkinsRestorer.
 
-<Callout type="warning" emoji="🚨">
+<Callout type="warning">
   Please note that this API is still work-in-progress. Expect breaking changes!
 </Callout>
 
@@ -55,19 +55,17 @@ Latest Version (Without the v):
 
     ```groovy filename="build.gradle"
     repositories {
-    maven {
-    name 'codemc'
-    url 'https://repo.codemc.org/repository/maven-public/'
-
-}
-}
+        maven {
+            name 'codemc'
+            url 'https://repo.codemc.org/repository/maven-public/'
+        }
+    }
 
     dependencies {
-    // SkinsRestorer API
-    compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
-
-}
-```
+        // SkinsRestorer API
+        compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
+    }
+    ```
 
   </Tab>
   <Tab>
@@ -75,18 +73,16 @@ Latest Version (Without the v):
 
     ```kotlin filename="build.gradle.kts"
     repositories {
-    maven("https://repo.codemc.org/repository/maven-public/") {
-    name = "codemc"
-
-}
-}
+        maven("https://repo.codemc.org/repository/maven-public/") {
+            name = "codemc"
+        }
+    }
 
     dependencies {
-    // SkinsRestorer API
-    compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
-
-}
-```
+        // SkinsRestorer API
+        compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
+    }
+    ```
 
   </Tab>
 </Tabs>
@@ -129,6 +125,127 @@ The process below may vary depending on your build configuration.
   </Tab>
 </Tabs>
 
+## Code Examples
+
+### Getting the API instance
+
+```java
+import net.skinsrestorer.api.SkinsRestorer;
+import net.skinsrestorer.api.SkinsRestorerProvider;
+
+public class MyPlugin extends JavaPlugin {
+    private SkinsRestorer skinsRestorerAPI;
+
+    @Override
+    public void onEnable() {
+        // Get the API instance
+        this.skinsRestorerAPI = SkinsRestorerProvider.get();
+    }
+}
+```
+
+### Setting a player's skin by name
+
+```java
+import net.skinsrestorer.api.storage.PlayerStorage;
+import net.skinsrestorer.api.storage.SkinStorage;
+import net.skinsrestorer.api.property.InputDataResult;
+
+public void setSkinByName(Player player, String skinName) {
+    SkinStorage skinStorage = skinsRestorerAPI.getSkinStorage();
+    PlayerStorage playerStorage = skinsRestorerAPI.getPlayerStorage();
+
+    // Find or fetch the skin data
+    Optional<InputDataResult> result = skinStorage.findOrCreateSkinData(skinName);
+
+    if (result.isPresent()) {
+        // Set the skin identifier for the player
+        playerStorage.setSkinIdOfPlayer(
+            player.getUniqueId(),
+            result.get().getIdentifier()
+        );
+
+        // Apply the skin visually
+        skinsRestorerAPI.getSkinApplier(Player.class).applySkin(player);
+    }
+}
+```
+
+### Setting a skin from a URL
+
+```java
+import net.skinsrestorer.api.connections.MineSkinAPI;
+import net.skinsrestorer.api.connections.model.MineSkinResponse;
+import net.skinsrestorer.api.property.SkinProperty;
+import net.skinsrestorer.api.property.SkinVariant;
+
+public void setSkinFromUrl(Player player, String url) {
+    MineSkinAPI mineSkinAPI = skinsRestorerAPI.getMineSkinAPI();
+
+    // Generate skin from URL (use CLASSIC or SLIM)
+    MineSkinResponse response = mineSkinAPI.genSkin(url, SkinVariant.CLASSIC);
+    SkinProperty skinProperty = response.getProperty();
+
+    // Apply directly to player
+    skinsRestorerAPI.getSkinApplier(Player.class).applySkin(player, skinProperty);
+}
+```
+
+### Getting a player's current skin
+
+```java
+import net.skinsrestorer.api.property.SkinProperty;
+
+public SkinProperty getPlayerSkin(Player player) {
+    PlayerStorage playerStorage = skinsRestorerAPI.getPlayerStorage();
+
+    Optional<SkinProperty> property = playerStorage.getSkinForPlayer(
+        player.getUniqueId(),
+        player.getName()
+    );
+
+    return property.orElse(null);
+}
+```
+
+### Creating a custom server skin
+
+```java
+import net.skinsrestorer.api.property.SkinProperty;
+
+public void createCustomSkin(String skinName, String value, String signature) {
+    SkinStorage skinStorage = skinsRestorerAPI.getSkinStorage();
+
+    // Create a skin property from raw data
+    SkinProperty property = SkinProperty.of(value, signature);
+
+    // Store it as a custom skin
+    skinStorage.setCustomSkinData(skinName, property);
+}
+```
+
+### Getting the texture URL from skin data
+
+```java
+import net.skinsrestorer.api.property.SkinProperty;
+import net.skinsrestorer.api.PropertyUtils;
+
+public String getTextureUrl(SkinProperty skinProperty) {
+    return PropertyUtils.getSkinTextureUrl(skinProperty);
+}
+```
+
+### Checking API version compatibility
+
+```java
+import net.skinsrestorer.api.VersionProvider;
+
+public boolean isCompatible() {
+    // Check if running at least version 15
+    return VersionProvider.isCompatibleWith("15");
+}
+```
+
 ## When using BungeeCord/Velocity?
 
 If you are using BungeeCord/Velocity, you have two options:
@@ -138,6 +255,20 @@ If you are using BungeeCord/Velocity, you have two options:
 
 2. **Call the API from backend servers**: Enable `server.proxyMode.api` in your backend server's `config.yml` (enabled by default)
    and configure MySQL to connect to the same database as the proxy. This allows backend plugins to use the SkinsRestorer API directly.
+
+## Error handling
+
+Always wrap API calls in try-catch blocks:
+
+```java
+try {
+    Optional<InputDataResult> result = skinStorage.findOrCreateSkinData(skinName);
+    // ... handle result
+} catch (DataRequestException e) {
+    // Handle API/network errors
+    getLogger().warning("Failed to fetch skin: " + e.getMessage());
+}
+```
 
 ## Getting issues?
 

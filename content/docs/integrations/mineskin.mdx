@@ -1,0 +1,106 @@
+---
+title: MineSkin Integration
+description: Learn how to configure MineSkin API integration for faster skin uploads.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+SkinsRestorer uses [MineSkin](https://mineskin.org) to convert custom PNG files into valid Minecraft skins.
+While MineSkin works without an API key, getting one provides significant benefits.
+
+## Why use a MineSkin API key?
+
+| Feature | Without API Key | With API Key |
+|---------|-----------------|--------------|
+| Request limit | Low | Higher (depends on plan) |
+| Request speed | Slower | Faster |
+| Cape generation | No | Yes (except Lite) |
+| Secret skins | No | Yes |
+| Priority queue | No | Yes |
+
+## Getting an API key
+
+1. Visit [mineskin.org/apikey](https://mineskin.org/apikey)
+2. Create an account or sign in
+3. Choose a plan that fits your needs
+4. Generate your API key
+
+<Callout type="info">
+  Use coupon code `SKINSRESTORER10` for 10% off your first three months (valid on plans except Lite). We don't receive a commission—it's just a community perk.
+</Callout>
+
+## Configuring your API key
+
+Add your API key to `config.yml`:
+
+```yaml filename="config.yml"
+api:
+  mineSkinApiKey: "your-api-key-here"
+```
+
+Then reload the plugin:
+```
+/sr reload
+```
+
+## Secret skins
+
+When `mineSkinSecretSkins` is enabled, skins you generate won't appear in MineSkin's public gallery.
+
+```yaml filename="config.yml"
+api:
+  mineSkinApiKey: "your-api-key-here"
+  mineSkinSecretSkins: true
+```
+
+This is useful for:
+- Custom server skins you don't want shared
+- Event-specific skins
+- Private branding
+
+## Rate limits and batching
+
+SkinsRestorer includes built-in rate limit handling:
+
+```yaml filename="config.yml"
+api:
+  mojangBatchWindowSeconds: 1
+```
+
+This batches Mojang API requests within a time window to avoid hitting rate limits. The default of 1 second works well for most servers.
+
+For high-traffic servers:
+- Increase the batch window to 2-3 seconds
+- Consider a higher-tier MineSkin plan
+- Monitor your MineSkin usage dashboard
+
+## Troubleshooting
+
+### "Rate limited" errors
+
+- Your API key may have exceeded its limit
+- Wait a few minutes and try again
+- Consider upgrading your MineSkin plan
+
+### "Invalid API key" errors
+
+- Verify the key is copied correctly
+- Check that the key hasn't expired
+- Regenerate the key on MineSkin's website
+
+### Slow skin generation
+
+- Check your MineSkin dashboard for queue status
+- Higher-tier plans get priority
+- Server load affects generation speed
+
+## MineSkin plans comparison
+
+| Plan | Best for |
+|------|----------|
+| Free (no key) | Testing, very low volume |
+| Lite | Small servers, basic features |
+| Standard | Medium servers, cape support |
+| Pro | Large networks, high volume |
+
+Visit [mineskin.org/apikey](https://mineskin.org/apikey) for current pricing and features.

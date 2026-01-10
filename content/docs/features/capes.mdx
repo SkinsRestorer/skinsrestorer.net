@@ -1,0 +1,92 @@
+---
+title: Cape Support
+description: Learn how SkinsRestorer handles capes and cape display.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+SkinsRestorer preserves capes when applying skins from Mojang players.
+
+## How capes work
+
+Capes are part of Mojang's skin data system. When you apply a skin from a player who has a cape (like Minecon attendees), the cape is included in the skin data.
+
+### Cape sources
+
+Capes can come from:
+- **Minecon capes**: Given to Minecon/Minecraft Live attendees
+- **Migrator cape**: Given to players who migrated from Mojang to Microsoft accounts
+- **Vanilla cape**: Given to Bedrock Edition players linked to Java Edition
+- **Realms capes**: Special capes for Realms map creators
+- **Mojang capes**: Given to Mojang employees
+
+### How SkinsRestorer handles capes
+
+When you use `/skin <playerName>`:
+
+1. SkinsRestorer fetches the player's complete skin data from Mojang
+2. This data includes both the skin texture AND any cape the player has
+3. When applied, you'll have both their skin and their cape
+
+<Callout type="info">
+  You cannot get banned for using someone else's cape through SkinsRestorer. The skin system uses the original player's signed data, so Mojang sees it as that player's skin being displayed.
+</Callout>
+
+## Finding players with capes
+
+To use a skin with a cape, you need to know the username of a player who has one.
+
+Some well-known players with capes:
+- `Dinnerbone` (Mojang employee cape)
+- `Notch` (Founder cape)
+
+<Callout type="warning">
+  Player capes can change if the original player removes their cape or changes accounts. The cape you see depends on what the original player currently has equipped.
+</Callout>
+
+## Custom capes via MineSkin
+
+MineSkin (used for `/skin url` commands) supports cape generation on paid plans.
+
+When generating a skin through MineSkin with a cape:
+1. The cape must be a separate PNG file
+2. Cape dimensions should be 64x32 pixels
+3. The cape is applied through MineSkin's account pool
+
+<Callout type="info">
+  Cape generation requires a MineSkin API key on plans other than Lite. See our [MineSkin Integration guide](/docs/integrations/mineskin) for setup.
+</Callout>
+
+## Limitations
+
+### What SkinsRestorer cannot do
+
+- **Create custom capes from scratch**: Capes require Mojang's signature, so you can't create arbitrary capes
+- **Remove capes from skins**: If a player's skin includes a cape, you'll get both
+- **Apply capes to URL skins**: URL skins only have skin data, not capes (unless using MineSkin's cape feature)
+
+### Cape visibility
+
+Capes are visible to all players on the server, just like regular Minecraft capes. They're part of the skin data packet sent to clients.
+
+## Troubleshooting
+
+### Cape not showing
+
+1. Verify the original player actually has a cape equipped
+2. Use `/sr info player <playerName>` to check the skin data
+3. Some players toggle capes on/off in their Minecraft settings
+
+### Wrong cape displayed
+
+The cape displayed depends on what the original player currently has equipped. If they changed their cape, the cached data in SkinsRestorer may be outdated.
+
+To refresh:
+```
+/skin update
+```
+
+Or clear the cache:
+```
+/sr drop skin <skinName>
+```

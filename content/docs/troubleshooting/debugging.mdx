@@ -1,0 +1,172 @@
+---
+title: Debugging and Logs
+description: Learn how to diagnose issues with SkinsRestorer using logs and debug tools.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+When something isn't working correctly, SkinsRestorer provides several tools to help diagnose the issue.
+
+## Debug mode
+
+Enable debug logging to see detailed information about API requests and internal operations.
+
+```yaml filename="config.yml"
+dev:
+  debug: true
+```
+
+After enabling, restart or reload the plugin:
+```
+/sr reload
+```
+
+Debug mode will log:
+- All API requests to Mojang/MineSkin/SkinsRestorer endpoints
+- Skin data processing steps
+- Cache hits and misses
+- Plugin messaging channel communication
+
+<Callout type="warning">
+  Debug mode generates a lot of log output. Only enable it temporarily while troubleshooting, then disable it.
+</Callout>
+
+## Using /sr dump
+
+The most useful troubleshooting command is `/sr dump`:
+
+```
+/sr dump
+```
+
+This uploads the following to a paste service:
+- Server and plugin version information
+- Your configuration (sensitive data redacted)
+- Recent relevant log entries
+- Installed plugins list
+- System information
+
+You'll receive a URL like `https://bytebin.lucko.me/xxxxx` that you can share with support.
+
+## Using /sr status
+
+Check connectivity to required API endpoints:
+
+```
+/sr status
+```
+
+This shows the status of:
+- `eclipse.skinsrestorer.net` - UUID and profile lookups
+- `axolotl.skinsrestorer.net` - MineSkin URL decryption
+- `cool-skins.skinsrestorer.net` - Recommended skins
+- Mojang API endpoints
+- MineSkin API (if configured)
+
+If any endpoint shows as unavailable, check your [firewall configuration](/docs/troubleshooting/firewall).
+
+## Understanding log messages
+
+### Startup messages
+
+**Healthy startup:**
+```
+[SkinsRestorer] +==================+
+[SkinsRestorer] |   SkinsRestorer  |
+[SkinsRestorer] |------------------|
+[SkinsRestorer] |    Server Mode   |
+[SkinsRestorer] +==================+
+```
+
+or for proxy networks:
+```
+[SkinsRestorer] |    Proxy Mode    |
+```
+
+**Warning messages:**
+```
+[SkinsRestorer] Proxy mode files are deprecated, please use the config file instead.
+```
+This means you have old `.txt` configuration files. Migrate to config.yml settings.
+
+### Common log errors
+
+**Connection errors:**
+```
+[SkinsRestorer] Failed to connect to eclipse.skinsrestorer.net
+```
+Check your firewall and network connectivity.
+
+**Rate limit errors:**
+```
+[SkinsRestorer] Rate limited by Mojang API
+```
+This is normal during high traffic. SkinsRestorer will retry automatically.
+
+**Database errors:**
+```
+[SkinsRestorer] Failed to connect to database
+```
+Check your database credentials and that MySQL is running.
+
+## Log file locations
+
+| Platform | Log location |
+|----------|--------------|
+| Bukkit/Spigot/Paper | `logs/latest.log` |
+| BungeeCord | `proxy.log.0` |
+| Velocity | `logs/latest.log` |
+| Fabric/NeoForge | `logs/latest.log` |
+
+## Filtering logs for SkinsRestorer
+
+To find SkinsRestorer-specific messages:
+
+**Linux/Mac:**
+```bash
+grep -i skinsrestorer logs/latest.log
+```
+
+**Windows PowerShell:**
+```powershell
+Select-String -Path logs/latest.log -Pattern "skinsrestorer" -CaseSensitive:$false
+```
+
+## Common debugging scenarios
+
+### Skin not applying
+
+1. Enable debug mode
+2. Run `/skin <playerName>`
+3. Check logs for:
+   - "Fetching skin data for..." - API request started
+   - "Received skin data..." - Data received successfully
+   - "Applying skin to..." - Application started
+   - Any error messages
+
+### Proxy mode issues
+
+1. Check startup logs for "Proxy Mode" or "Server Mode"
+2. Run `/sr status` to check connectivity
+3. Verify plugin messaging channels are working
+
+### API connectivity issues
+
+1. Run `/sr status`
+2. If endpoints fail, check:
+   - Firewall rules
+   - DNS resolution
+   - Proxy/VPN interference
+
+## Getting support
+
+When asking for help:
+
+1. Run `/sr dump` and include the link
+2. Describe what you expected vs what happened
+3. Include any error messages from logs
+4. Mention your server platform and version
+
+**Support channels:**
+- [Discord](https://skinsrestorer.net/discord)
+- [GitHub Issues](https://github.com/SkinsRestorer/SkinsRestorer/issues)

@@ -1,6 +1,7 @@
 {
   "pages": [
     "options",
+    "database",
     "commands-permissions",
     "locale-translations",
     "auto-update"
