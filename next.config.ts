@@ -142,7 +142,7 @@ const config: NextConfig = {
       },
       {
         source: "/firewall",
-        destination: "/docs/troubleshooting",
+        destination: "/docs/troubleshooting/firewall",
         permanent: false,
       },
       {
