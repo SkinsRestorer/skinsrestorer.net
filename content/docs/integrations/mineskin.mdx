@@ -14,7 +14,6 @@ While MineSkin works without an API key, getting one provides significant benefi
 |---------|-----------------|--------------|
 | Request limit | Low | Higher (depends on plan) |
 | Request speed | Slower | Faster |
-| Cape generation | No | Yes (except Lite) |
 | Secret skins | No | Yes |
 | Priority queue | No | Yes |
 
@@ -74,6 +73,14 @@ For high-traffic servers:
 - Consider a higher-tier MineSkin plan
 - Monitor your MineSkin usage dashboard
 
+## What MineSkin does
+
+MineSkin provides a pool of Minecraft accounts that apply your custom skin PNG to generate valid, Mojang-signed skin data. This allows SkinsRestorer to use any PNG image as a skin.
+
+<Callout type="warning">
+  MineSkin only generates skin textures. It cannot generate capes, as capes require specific Mojang account verification and cannot be created arbitrarily. See the [Cape Support](/docs/features/capes) page for details.
+</Callout>
+
 ## Troubleshooting
 
 ### "Rate limited" errors
@@ -100,7 +107,7 @@ For high-traffic servers:
 |------|----------|
 | Free (no key) | Testing, very low volume |
 | Lite | Small servers, basic features |
-| Standard | Medium servers, cape support |
+| Standard | Medium servers, higher limits |
 | Pro | Large networks, high volume |
 
 Visit [mineskin.org/apikey](https://mineskin.org/apikey) for current pricing and features.
