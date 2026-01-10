@@ -61,9 +61,14 @@ sequenceDiagram
     SR->>U: Skin <value> & <signature>
 " />
 
-## How does Ashcon help?
+## SkinsRestorer API Endpoints
 
-Ashcon API is a cache that allows us to distribute skin data to all servers that use SkinsRestorer.
-This way, we don't have to ask Mojang for the skin data every time a player joins a server.
-This is especially useful for large networks, where players can join different servers in the network.
-The cache is also helpful for when Mojang's servers are down, as we can still get the skin data from the cache.
+SkinsRestorer uses its own API endpoints to cache and distribute skin data efficiently:
+
+- `eclipse.skinsrestorer.net` - Handles UUID lookups and profile data
+- `axolotl.skinsrestorer.net` - Handles MineSkin URL decryption
+- `cool-skins.skinsrestorer.net` - Provides recommended/featured skins
+
+These endpoints act as a cache layer between your server and Mojang's API.
+This way, we don't have to ask Mojang for the skin data every time a player joins a server, which helps avoid rate limits.
+The cache is also helpful when Mojang's servers are slow or down, as we can still serve skin data from the cache.
