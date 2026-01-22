@@ -1,4 +1,10 @@
 {
-  "pages": ["mineskin", "placeholderapi", "discordsrv", "discord-mc-chat", "avatar-url"],
+  "pages": [
+    "mineskin",
+    "placeholderapi",
+    "discordsrv",
+    "discord-mc-chat",
+    "avatar-url"
+  ],
   "defaultOpen": false
 }

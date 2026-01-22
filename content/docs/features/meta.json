@@ -1,4 +1,11 @@
 {
-  "pages": ["custom-skins", "skin-url", "skin-upload", "skin-edit", "skin-design", "capes"],
+  "pages": [
+    "custom-skins",
+    "skin-url",
+    "skin-upload",
+    "skin-edit",
+    "skin-design",
+    "capes"
+  ],
   "defaultOpen": false
 }
