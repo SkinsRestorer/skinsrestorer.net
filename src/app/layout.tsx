@@ -1,8 +1,5 @@
 import "@/style.css";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://skinsrestorer.net"),
@@ -51,18 +48,5 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html suppressHydrationWarning>
-      <body
-        className={cn(
-          GeistSans.variable,
-          GeistMono.variable,
-          "flex size-full min-h-svh flex-col antialiased",
-        )}
-        suppressHydrationWarning
-      >
-        {children}
-      </body>
-    </html>
-  );
+  return children;
 }
