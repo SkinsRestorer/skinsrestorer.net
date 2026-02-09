@@ -1,11 +1,19 @@
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import type { ReactNode } from "react";
-import { baseOptions } from "@/app/layout.config";
+import { baseOptions } from "@/lib/layout.shared";
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default async function Layout({
+  params,
+  children,
+}: {
+  params: Promise<{ lang: string }>;
+  children: ReactNode;
+}) {
+  const { lang } = await params;
+
   return (
     <HomeLayout
-      {...baseOptions}
+      {...baseOptions(lang)}
       links={[
         {
           type: "main",
@@ -25,7 +33,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           url: "/upload",
           description: "Upload a PNG and get /skin url",
         },
-        ...(baseOptions.links || []),
+        ...(baseOptions(lang).links || []),
       ]}
     >
       {children}

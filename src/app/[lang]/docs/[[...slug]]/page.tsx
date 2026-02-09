@@ -16,14 +16,15 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { i18n } from "@/lib/i18n";
 import { getPageImage, source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
 
 export default async function Page(props: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ lang: string; slug?: string[] }>;
 }) {
   const params = await props.params;
-  const page = source.getPage(params.slug);
+  const page = source.getPage(params.slug, params.lang);
   if (!page) notFound();
 
   const MDX = page.data.body;
@@ -103,13 +104,25 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ lang: string; slug?: string[] }>;
 }): Promise<Metadata> {
   const params = await props.params;
-  const page = source.getPage(params.slug);
+  const page = source.getPage(params.slug, params.lang);
   if (!page) notFound();
 
   const image = getPageImage(page).url;
+  const slugPath = params.slug?.join("/") ?? "";
+  const docsPath = slugPath ? `/docs/${slugPath}` : "/docs";
+
+  const languages: Record<string, string> = {};
+  for (const lang of i18n.languages) {
+    if (lang === i18n.defaultLanguage) {
+      languages[lang] = docsPath;
+    } else {
+      languages[lang] = `/${lang}${docsPath}`;
+    }
+  }
+
   return {
     title: page.data.title,
     description: page.data.description,
@@ -119,6 +132,10 @@ export async function generateMetadata(props: {
     twitter: {
       card: "summary_large_image",
       images: image,
+    },
+    alternates: {
+      canonical: params.lang === i18n.defaultLanguage ? docsPath : `/${params.lang}${docsPath}`,
+      languages,
     },
   };
 }
