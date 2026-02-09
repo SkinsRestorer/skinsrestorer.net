@@ -32,9 +32,11 @@ export default async function LangLayout({
 
   return (
     <RootProvider i18n={provider(lang)}>
+      {/*
       <Banner id="upload-now-website">
         You can now upload skin .png files here!
       </Banner>
+      */}
       {children}
       <Toaster richColors />
       <CookieConsentBanner />
