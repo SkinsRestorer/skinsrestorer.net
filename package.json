@@ -73,6 +73,7 @@
       "@tailwindcss/oxide",
       "core-js",
       "esbuild",
+      "msw",
       "sharp",
       "unrs-resolver"
     ]
