@@ -162,7 +162,7 @@ const TeamCard = ({
 
 export default function IndexPage() {
   return (
-    <main className="px-4 py-12 w-full max-w-[1400px] mx-auto">
+    <div className="px-4 pt-4 pb-6 w-full max-w-[1400px] mx-auto md:pb-12">
       <LatestRelease />
       <div className="py-12 md:py-20 flex flex-col items-center text-center">
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
@@ -251,6 +251,6 @@ export default function IndexPage() {
           />
         </div>
       </div>
-    </main>
+    </div>
   );
 }
