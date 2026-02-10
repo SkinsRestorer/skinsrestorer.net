@@ -58,7 +58,7 @@ const securityHeaders = [
   },
 ];
 
-const baseDir = path.join("src", "app", "[lang]", "(home)");
+const baseDir = path.join("src", "app", "(home)");
 const config: NextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
