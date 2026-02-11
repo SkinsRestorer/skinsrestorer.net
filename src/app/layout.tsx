@@ -54,6 +54,9 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="aer4SuKmVEAedLgr3jfsYA" async></script>
+      </head>
       <body
         className={cn(
           GeistSans.variable,
