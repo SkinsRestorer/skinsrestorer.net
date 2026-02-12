@@ -19,6 +19,7 @@
     "hooks": "@/hooks"
   },
   "registries": {
+    "@magicui": "https://magicui.design/r/{name}",
     "@diceui": "https://diceui.com/r/{name}.json"
   }
 }

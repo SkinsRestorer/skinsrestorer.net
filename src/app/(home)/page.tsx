@@ -13,15 +13,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CustomTimeAgo } from "@/components/time-ago";
+import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
+import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
+import { BentoCard, BentoGrid } from "@/components/ui/bento-grid";
+import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DotPattern } from "@/components/ui/dot-pattern";
+import { Marquee } from "@/components/ui/marquee";
+import { Meteors } from "@/components/ui/meteors";
+import { RetroGrid } from "@/components/ui/retro-grid";
+import { Ripple } from "@/components/ui/ripple";
+import { HeroBackground, HomeFaq } from "./page.client";
 
 type LatestReleaseResponse =
   paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
@@ -47,7 +56,14 @@ async function LatestRelease() {
   const fabricReleaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}-fabric`;
   const neoforgeReleaseLink = `https://modrinth.com/plugin/skinsrestorer/version/${versionTag}-neoforge`;
   return (
-    <Card className="mt-6">
+    <Card className="relative overflow-hidden bg-background/80 backdrop-blur-sm shadow-xl">
+      <BorderBeam
+        size={200}
+        duration={8}
+        colorFrom="#B2A711"
+        colorTo="#d4c91a"
+        borderWidth={2}
+      />
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
           <CardTitle className="text-lg">
@@ -81,20 +97,20 @@ async function LatestRelease() {
           </div>
         </CardDescription>
       </CardHeader>
-      <CardFooter className="flex flex-col gap-2 sm:flex-row">
-        <Button asChild variant="outline" className="w-full sm:w-auto">
+      <CardFooter className="flex flex-col gap-2">
+        <Button asChild variant="outline" className="w-full">
           <a href={releaseLink}>
             <Download className="w-4 h-4" />
             Download (Server / Proxy)
           </a>
         </Button>
-        <Button asChild variant="outline" className="w-full sm:w-auto">
+        <Button asChild variant="outline" className="w-full">
           <a href={fabricReleaseLink}>
             <Download className="w-4 h-4" />
             Download (Fabric)
           </a>
         </Button>
-        <Button asChild variant="outline" className="w-full sm:w-auto">
+        <Button asChild variant="outline" className="w-full">
           <a href={neoforgeReleaseLink}>
             <Download className="w-4 h-4" />
             Download (NeoForge)
@@ -105,30 +121,6 @@ async function LatestRelease() {
   );
 }
 
-const FeatureCard = ({
-  title,
-  description,
-  icon,
-}: {
-  title: string;
-  description: string | React.ReactNode;
-  icon: React.ReactNode;
-}) => {
-  return (
-    <Card className="group hover:shadow-lg transition-shadow duration-200">
-      <CardContent className="flex flex-col items-center text-center p-6">
-        <div className="mb-4 text-muted-foreground group-hover:text-primary transition-colors">
-          {icon}
-        </div>
-        <CardTitle className="text-xl mb-2">{title}</CardTitle>
-        <CardDescription className="text-sm leading-relaxed">
-          {description}
-        </CardDescription>
-      </CardContent>
-    </Card>
-  );
-};
-
 const TeamCard = ({
   githubUsername,
   description,
@@ -138,7 +130,7 @@ const TeamCard = ({
 }) => {
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
-      <CardContent className="p-6">
+      <div className="p-6">
         <a
           href={`https://github.com/${githubUsername}`}
           className="flex flex-col sm:flex-row items-center gap-4 hover:opacity-80 transition-opacity"
@@ -155,91 +147,305 @@ const TeamCard = ({
             <CardDescription>{description}</CardDescription>
           </div>
         </a>
-      </CardContent>
+      </div>
     </Card>
   );
 };
 
+const skinCommands = [
+  "/skin Notch",
+  "/skin AlexProgrammerDE",
+  "/skin xknat",
+  '/skin url "https://..."',
+  "/skin random",
+];
+
+const guiFeatures = [
+  "/skins",
+  "Click to apply",
+  "Browse skins",
+  "Preview skins",
+  "Favorites",
+  "Search",
+];
+
+const features = [
+  {
+    Icon: Rocket,
+    name: "Easy to use",
+    description:
+      "SkinsRestorer is easy to use, just install it and you're ready to go!",
+    href: "/docs/installation",
+    cta: "Install now",
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <Ripple
+        className="absolute -top-20 -right-20"
+        mainCircleSize={180}
+        mainCircleOpacity={0.1}
+        numCircles={5}
+      />
+    ),
+  },
+  {
+    Icon: Zap,
+    name: "Change your skin",
+    description:
+      'Just run /skin <name> to change your skin! It\'s that easy!',
+    href: "/docs",
+    cta: "Learn more",
+    className: "col-span-3 lg:col-span-2",
+    background: (
+      <AnimatedGridPattern
+        numSquares={20}
+        maxOpacity={0.08}
+        duration={4}
+        className="[mask-image:radial-gradient(600px_circle_at_100%_0%,white,transparent)]"
+      />
+    ),
+  },
+  {
+    Icon: CloudDownload,
+    name: "Restore your skins",
+    description:
+      "SkinsRestorer can restore your skins on offline mode servers!",
+    className: "col-span-3 lg:col-span-2",
+    background: <Meteors number={80} />,
+  },
+  {
+    Icon: SiGithub,
+    name: "Open Source",
+    description:
+      "SkinsRestorer is open source, you can contribute to it on GitHub!",
+    href: process.env.NEXT_PUBLIC_GITHUB_LINK,
+    cta: "View on GitHub",
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <DotPattern
+        width={24}
+        height={24}
+        cr={1.5}
+        className="[mask-image:radial-gradient(500px_circle_at_0%_0%,white,transparent)]"
+      />
+    ),
+  },
+  {
+    Icon: ImageIcon,
+    name: "Use your own skin",
+    description:
+      'Use /skin url "<url>" to use a skin from the internet!',
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <Marquee pauseOnHover className="absolute top-8 [--duration:20s]">
+        {skinCommands.map((cmd) => (
+          <div
+            key={cmd}
+            className="rounded-lg border bg-muted/50 px-3 py-2 text-xs font-medium"
+          >
+            {cmd}
+          </div>
+        ))}
+      </Marquee>
+    ),
+  },
+  {
+    Icon: Grid3X3,
+    name: "Use our GUI",
+    description:
+      "SkinsRestorer has a GUI to change your skin, just run /skins!",
+    className: "col-span-3 lg:col-span-2",
+    background: (
+      <Marquee pauseOnHover className="absolute top-8 [--duration:20s]">
+        {guiFeatures.map((feature) => (
+          <div
+            key={feature}
+            className="rounded-lg border bg-muted/50 px-3 py-2 text-xs font-medium"
+          >
+            {feature}
+          </div>
+        ))}
+      </Marquee>
+    ),
+  },
+];
+
+const faqItems: {
+  question: string;
+  answer: React.ReactNode;
+}[] = [
+  {
+    question: "How do I install SkinsRestorer?",
+    answer: (
+      <>
+        Download the latest release from{" "}
+        <Link href="/docs/installation" className="underline text-primary">
+          our installation guide
+        </Link>{" "}
+        and drop the plugin into your server&apos;s plugins folder. Restart the
+        server, and you&apos;re good to go!
+      </>
+    ),
+  },
+  {
+    question: "What platforms are supported?",
+    answer:
+      "SkinsRestorer supports Spigot, Paper, BungeeCord, Velocity, Fabric, and NeoForge. Check the installation docs for details on each platform.",
+  },
+  {
+    question: "Is SkinsRestorer free?",
+    answer: (
+      <>
+        Yes! SkinsRestorer is completely free and open source under the GPL-3.0
+        license. You can view the source code on{" "}
+        <a
+          href={process.env.NEXT_PUBLIC_GITHUB_LINK}
+          className="underline text-primary"
+        >
+          GitHub
+        </a>
+        .
+      </>
+    ),
+  },
+  {
+    question: "How do I change my skin?",
+    answer:
+      'Simply run /skin <name> to set your skin to any Minecraft player\'s skin, or use /skin url "<url>" to use a custom skin from the internet.',
+  },
+  {
+    question: "Does it work on offline/cracked servers?",
+    answer:
+      "Yes! SkinsRestorer was specifically designed to restore skins on offline mode servers. Players can set their skins even without a premium Minecraft account.",
+  },
+  {
+    question: "How do I use the skin GUI?",
+    answer:
+      "Run /skins in-game to open the graphical skin browser. You can browse, search, and apply skins with just a click.",
+  },
+];
+
 export default function IndexPage() {
   return (
-    <main className="px-4 py-12 w-full max-w-[1400px] mx-auto">
-      <LatestRelease />
-      <div className="py-12 md:py-20 flex flex-col items-center text-center">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-          <Image
-            src="/logo.png"
-            width={128}
-            height={128}
-            className="w-20 md:w-24 h-20 md:h-24"
-            alt="SkinsRestorer Logo"
-          />
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            SkinsRestorer
-          </h1>
+    <div className="px-4 pt-4 pb-6 w-full max-w-[1400px] mx-auto flex-1 md:pb-12">
+      {/* Hero Section */}
+      <section className="py-4 md:py-8">
+        <div className="relative flex min-h-[600px] border rounded-2xl overflow-hidden bg-background">
+          <HeroBackground />
+          <div className="relative z-10 w-full px-4 md:px-8 lg:px-12 py-12 md:py-16">
+            <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+              {/* Left column */}
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 border border-primary/30 backdrop-blur-sm shadow-sm">
+                  <Zap className="h-4 w-4 text-primary" />
+                  <AnimatedShinyText className="text-sm font-semibold">
+                    the most popular skin plugin for Minecraft
+                  </AnimatedShinyText>
+                </div>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                  Customize your Minecraft skin, anywhere.
+                </h1>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <Button asChild size="lg" className="gap-2 h-14 px-8 text-lg font-semibold">
+                    <Link href="/docs/installation">
+                      <ChevronsRight className="h-6 w-6" />
+                      Get Started
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="gap-2 h-14 px-8 text-lg font-semibold bg-background/80 backdrop-blur-sm border-2"
+                  >
+                    <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
+                      <SiGithub className="h-6 w-6" />
+                      GitHub
+                    </a>
+                  </Button>
+                </div>
+              </div>
+              {/* Right column */}
+              <Suspense>
+                <LatestRelease />
+              </Suspense>
+            </div>
+          </div>
         </div>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8">
-          The most popular skin plugin for Minecraft
+        <p className="text-2xl md:text-3xl text-muted-foreground mt-8 w-full">
+          <span className="text-primary font-semibold">Easy to use</span>,{" "}
+          <span className="text-primary font-semibold">multi-platform</span>{" "}
+          support,{" "}
+          <span className="text-primary font-semibold">open source</span>, and{" "}
+          <span className="text-primary font-semibold">free forever</span>.
+          SkinsRestorer is the most popular skin plugin for Minecraft.
         </p>
-        <Button asChild size="lg" className="text-base px-8 py-3">
-          <Link href="/docs/installation">
-            Get Started
-            <ChevronsRight className="w-5 h-5 ml-2" />
-          </Link>
-        </Button>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 md:mt-24">
-          <Link href="/docs/installation">
-            <FeatureCard
-              title="Easy to use"
-              description="SkinsRestorer is easy to use, just install it and you're ready to go!"
-              icon={<Rocket className="w-6 h-6 mx-auto my-2" />}
-            />
-          </Link>
-          <FeatureCard
-            title="Change your skin"
-            description={
-              <span>
-                Just run{" "}
-                <code className="highlight-code">/skin &lt;name&gt;</code> to
-                change your skin! It's that easy!
-              </span>
-            }
-            icon={<Zap className="w-6 h-6 mx-auto my-2" />}
-          />
-          <FeatureCard
-            title="Restore your skins"
-            description="SkinsRestorer can restore your skins on offline mode servers!"
-            icon={<CloudDownload className="w-6 h-6 mx-auto my-2" />}
-          />
-          <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
-            <FeatureCard
-              title="Open Source"
-              description="SkinsRestorer is open source, you can contribute to it on GitHub!"
-              icon={<SiGithub className="w-6 h-6 mx-auto my-2" />}
-            />
-          </a>
-          <FeatureCard
-            title="Use your own skin"
-            description={
-              <span>
-                Use{" "}
-                <code className="highlight-code">/skin url "&lt;url&gt;"</code>{" "}
-                to use a skin from the internet!
-              </span>
-            }
-            icon={<ImageIcon className="w-6 h-6 mx-auto my-2" />}
-          />
-          <FeatureCard
-            title="Use our GUI"
-            description={
-              <span>
-                SkinsRestorer has a GUI to change your skin, just run{" "}
-                <code className="highlight-code">/skins</code>!
-              </span>
-            }
-            icon={<Grid3X3 className="w-6 h-6 mx-auto my-2" />}
-          />
+      </section>
+
+      {/* Features BentoGrid */}
+      <section className="py-16" id="features">
+        <div className="flex flex-col space-y-4 mb-12">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+            Features
+          </h2>
+          <p className="max-w-[700px] text-muted-foreground md:text-lg">
+            Everything you need to manage skins on your Minecraft server.
+          </p>
         </div>
-        <h2 className="text-center text-3xl md:text-4xl font-bold mt-20 md:mt-32 mb-12">
+        <BentoGrid className="auto-rows-[18rem] grid-cols-3 lg:grid-cols-3">
+          {features.map((feature) => (
+            <BentoCard key={feature.name} {...feature} />
+          ))}
+        </BentoGrid>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16">
+        <div className="w-full max-w-3xl mx-auto">
+          <div className="flex flex-col space-y-4 mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+              Frequently Asked Questions
+            </h2>
+            <p className="max-w-[700px] text-muted-foreground md:text-lg">
+              Common questions about SkinsRestorer.
+            </p>
+          </div>
+          <HomeFaq items={faqItems} />
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-16">
+        <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border bg-background px-8 py-16 md:py-24">
+          <RetroGrid />
+          <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Ready to Get Started?
+            </h2>
+            <p className="max-w-[600px] text-muted-foreground md:text-lg">
+              Join thousands of server owners who trust SkinsRestorer to manage
+              player skins across their networks.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 mt-4">
+              <Button asChild size="lg" className="gap-2 h-12 px-8">
+                <Link href="/docs/installation">
+                  <Download className="w-5 h-5" />
+                  Get SkinsRestorer
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="gap-2 h-12 px-8">
+                <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
+                  <SiGithub className="w-5 h-5" />
+                  View on GitHub
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="py-16">
+        <h2 className="text-center text-3xl md:text-4xl font-bold mb-12">
           Meet the team
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -250,7 +456,7 @@ export default function IndexPage() {
             description="System Administrator"
           />
         </div>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
