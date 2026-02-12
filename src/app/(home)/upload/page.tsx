@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 
 export default function UploadPage() {
   return (
-    <main className="px-4 py-12 w-full max-w-[1400px] mx-auto">
-      <div className="text-center py-12 md:py-20">
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-4">
+    <main className="px-4 py-12 w-full max-w-[1400px] mx-auto space-y-10">
+      <div className="space-y-4 text-center max-w-5xl mx-auto">
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Skin Upload
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground">
           Upload a PNG skin and get a copyable /skin url
         </p>
       </div>
