@@ -172,14 +172,6 @@ const config: NextConfig = {
         source: "/docs/:path*.mdx",
         destination: "/llms.mdx/:path*",
       },
-      {
-        source: "/RELAY-KAWD/static/:path*",
-        destination: "https://eu-assets.i.posthog.com/static/:path*",
-      },
-      {
-        source: "/RELAY-KAWD/:path*",
-        destination: "https://eu.i.posthog.com/:path*",
-      },
     ];
   },
   // This is required to support PostHog trailing slash API requests
