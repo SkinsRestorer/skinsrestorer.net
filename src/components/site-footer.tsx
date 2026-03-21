@@ -1,11 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  "use cache";
+
+  const year = new Date().getFullYear();
+
   return (
     <footer className="border-t py-6 text-sm text-fd-muted-foreground">
       <div className="mx-auto flex w-full max-w-[var(--fd-layout-width)] flex-col items-center gap-3 px-4 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
-        <p>&copy; {new Date().getFullYear()} SkinsRestorer</p>
+        <p>&copy; {year} SkinsRestorer</p>
         <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
           <Link href="/terms-of-service" className="hover:text-fd-foreground">
             Terms of Service
