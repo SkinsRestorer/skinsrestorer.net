@@ -1,6 +1,7 @@
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/app/layout.config";
+import { SiteFooter } from "@/components/site-footer";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -29,6 +30,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       ]}
     >
       {children}
+      <SiteFooter />
     </HomeLayout>
   );
 }

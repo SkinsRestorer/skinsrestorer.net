@@ -190,8 +190,7 @@ const features = [
   {
     Icon: Zap,
     name: "Change your skin",
-    description:
-      'Just run /skin <name> to change your skin! It\'s that easy!',
+    description: "Just run /skin <name> to change your skin! It's that easy!",
     href: "/docs",
     cta: "Learn more",
     className: "col-span-3 lg:col-span-2",
@@ -232,8 +231,7 @@ const features = [
   {
     Icon: ImageIcon,
     name: "Use your own skin",
-    description:
-      'Use /skin url "<url>" to use a skin from the internet!',
+    description: 'Use /skin url "<url>" to use a skin from the internet!',
     className: "col-span-3 lg:col-span-1",
     background: (
       <Marquee pauseOnHover className="absolute top-8 [--duration:20s]">
@@ -345,7 +343,11 @@ export default function IndexPage() {
                   Customize your Minecraft skin, anywhere.
                 </h1>
                 <div className="flex flex-col gap-4 sm:flex-row">
-                  <Button asChild size="lg" className="gap-2 h-14 px-8 text-lg font-semibold">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="gap-2 h-14 px-8 text-lg font-semibold"
+                  >
                     <Link href="/docs/installation">
                       <ChevronsRight className="h-6 w-6" />
                       Get Started
@@ -382,7 +384,7 @@ export default function IndexPage() {
       </section>
 
       {/* Features BentoGrid */}
-      <section className="py-16" id="features">
+      <section className="py-16">
         <div className="flex flex-col space-y-4 mb-12">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
             Features
@@ -432,7 +434,12 @@ export default function IndexPage() {
                   Get SkinsRestorer
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2 h-12 px-8">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="gap-2 h-12 px-8"
+              >
                 <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
                   <SiGithub className="w-5 h-5" />
                   View on GitHub
@@ -457,16 +464,6 @@ export default function IndexPage() {
           />
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="flex justify-center py-8">
-        <a href="https://www.netlify.com">
-          <img
-            src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-            alt="Deploys by Netlify"
-          />
-        </a>
-      </footer>
     </div>
   );
 }

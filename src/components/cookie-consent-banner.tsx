@@ -1,6 +1,7 @@
 "use client";
 
 import { Cookie } from "lucide-react";
+import Link from "next/link";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 
@@ -51,7 +52,14 @@ const CookieConsentBanner = () => {
           </CardDescription>
           <p className="text-xs text-muted-foreground">
             By clicking <span className="font-medium">"Accept"</span>, you agree
-            to our use of cookies.
+            to our use of cookies as described in our{" "}
+            <Link
+              href="/cookie-policy"
+              className="underline underline-offset-2"
+            >
+              Cookie Policy
+            </Link>
+            .
           </p>
         </CardContent>
         <CardFooter className="flex gap-2 pt-2">

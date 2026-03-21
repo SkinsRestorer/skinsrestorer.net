@@ -1,5 +1,4 @@
 import "@/style.css";
-import { Banner } from "fumadocs-ui/components/banner";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -55,7 +54,11 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script src="https://analytics.ahrefs.com/analytics.js" data-key="aer4SuKmVEAedLgr3jfsYA" async></script>
+        <script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="aer4SuKmVEAedLgr3jfsYA"
+          async
+        ></script>
       </head>
       <body
         className={cn(
