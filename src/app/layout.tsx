@@ -59,6 +59,11 @@ export default async function RootLayout({
           data-key="aer4SuKmVEAedLgr3jfsYA"
           async
         ></script>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5188410388521363"
+          crossOrigin="anonymous"
+        ></script>
       </head>
       <body
         className={cn(
