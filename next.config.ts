@@ -51,11 +51,11 @@ const securityHeaders = [
     key: "X-Content-Type-Options",
     value: "nosniff",
   },
-  {
-    key: "Content-Security-Policy",
-    value:
-      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.posthog.com https://analytics.ahrefs.com https://e.skinsrestorer.net; style-src 'self' 'unsafe-inline' https://*.posthog.com; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com https://api.mineskin.org https://textures.minecraft.net https://axolotl.skinsrestorer.net https://*.posthog.com https://analytics.ahrefs.com https://e.skinsrestorer.net; font-src 'self' https://*.posthog.com; frame-src 'self' https://www.youtube.com; img-src 'self' data: blob: https://gravatar.com https://avatars.githubusercontent.com https://img.shields.io https://textures.minecraft.net https://*.posthog.com https://www.netlify.com; manifest-src 'self'; media-src 'self' https://github.com https://github-production-user-asset-6210df.s3.amazonaws.com https://*.posthog.com; worker-src 'self' blob: data:;",
-  },
+  // {
+  //   key: "Content-Security-Policy",
+  //   value:
+  //     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.posthog.com https://analytics.ahrefs.com https://e.skinsrestorer.net; style-src 'self' 'unsafe-inline' https://*.posthog.com; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com https://api.mineskin.org https://textures.minecraft.net https://axolotl.skinsrestorer.net https://*.posthog.com https://analytics.ahrefs.com https://e.skinsrestorer.net; font-src 'self' https://*.posthog.com; frame-src 'self' https://www.youtube.com; img-src 'self' data: blob: https://gravatar.com https://avatars.githubusercontent.com https://img.shields.io https://textures.minecraft.net https://*.posthog.com https://www.netlify.com; manifest-src 'self'; media-src 'self' https://github.com https://github-production-user-asset-6210df.s3.amazonaws.com https://*.posthog.com; worker-src 'self' blob: data:;",
+  // },
 ];
 
 const baseDir = path.join("src", "app", "(home)");
