@@ -29,22 +29,23 @@ export default function CookiePolicyPage() {
         <h2>2. Functional browser storage</h2>
         <p>We use browser storage for features such as:</p>
         <ul>
-          <li>Remembering your cookie-consent choice</li>
           <li>Remembering documentation feedback you already submitted</li>
           <li>Remembering interface preferences such as theme state</li>
         </ul>
 
         <h2>3. Analytics cookies</h2>
         <p>
-          If you accept analytics tracking in the cookie banner, the site may
-          use PostHog cookies and similar identifiers, including cookies with
-          names prefixed by <code>ph_</code>, to understand how visitors use the
-          site and documentation.
+          We use Google&apos;s Privacy &amp; Messaging tooling associated with
+          our AdSense integration to gather consent where required and to expose
+          privacy controls to users in supported regions.
         </p>
         <p>
-          If you reject tracking, PostHog is configured in cookieless mode on
-          reject and analytics cookies from that integration should not be used
-          for site analytics.
+          When Google&apos;s consent signal allows analytics storage, the site
+          may use PostHog cookies and similar identifiers, including cookies
+          with names prefixed by <code>ph_</code>, to understand how visitors
+          use the site and documentation. When analytics storage is denied,
+          PostHog is configured to stay in cookieless mode on reject, so PostHog
+          cookies should not be used for site analytics.
         </p>
 
         <h2>4. SEO and performance analytics</h2>
@@ -64,7 +65,8 @@ export default function CookiePolicyPage() {
         <h2>6. Managing cookies</h2>
         <ul>
           <li>
-            Use the site&apos;s consent banner to accept or decline analytics
+            Use the site&apos;s Privacy &amp; cookie settings entrypoint to
+            review or change Google-managed consent choices when available
           </li>
           <li>Clear cookies and site storage in your browser settings</li>
           <li>

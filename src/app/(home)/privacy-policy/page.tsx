@@ -42,7 +42,8 @@ export default function PrivacyPolicyPage() {
           <li>IP address and request metadata needed to serve the site</li>
           <li>Browser and device information</li>
           <li>
-            Usage analytics through PostHog if you accept analytics tracking
+            Usage analytics through PostHog when Google-managed consent allows
+            analytics storage, or in PostHog&apos;s cookieless mode on reject
           </li>
           <li>SEO and traffic analytics collected through Ahrefs Analytics</li>
           <li>
@@ -85,7 +86,9 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul>
           <li>Vercel for hosting, delivery, and request handling</li>
-          <li>PostHog for product analytics when you consent</li>
+          <li>
+            PostHog for product analytics under the site&apos;s consent flow
+          </li>
           <li>Ahrefs for SEO and traffic analytics</li>
           <li>
             MineSkin or SkinsRestorer Axolotl when you use upload features
@@ -99,7 +102,8 @@ export default function PrivacyPolicyPage() {
         <h2>6. Your choices</h2>
         <ul>
           <li>
-            You can decline analytics cookies in the site&apos;s consent banner
+            You can review or change Google-managed privacy choices through the
+            site&apos;s Privacy &amp; cookie settings entrypoint when available
           </li>
           <li>
             You can avoid the upload tools if you do not want files processed
@@ -121,8 +125,9 @@ export default function PrivacyPolicyPage() {
         <p>
           We keep data only for as long as needed for the purposes described
           above or as required by the third-party service handling the request.
-          Data stored in your browser, such as local feedback state, remains
-          until you clear it or overwrite it.
+          Data stored in your browser, such as local feedback state and any
+          analytics identifiers set after consent, remains until you clear it or
+          overwrite it.
         </p>
 
         <h2>8. Related policies</h2>

@@ -3,7 +3,7 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
-import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { GoogleConsentBridge } from "@/components/google-consent-bridge";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +55,16 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: this inline bootstrap must execute before the AdSense tag loads
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.googlefc = window.googlefc || {};
+              window.googlefc.usstatesoptout = window.googlefc.usstatesoptout || {};
+              window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+            `,
+          }}
+        />
+        <script
           src="https://analytics.ahrefs.com/analytics.js"
           data-key="aer4SuKmVEAedLgr3jfsYA"
           async
@@ -73,6 +83,7 @@ export default async function RootLayout({
         )}
         suppressHydrationWarning
       >
+        <GoogleConsentBridge />
         <RootProvider>
           {/*
           <Banner id={"upload-now-website"}>
@@ -81,7 +92,6 @@ export default async function RootLayout({
           */}
           {children}
           <Toaster richColors />
-          <CookieConsentBanner />
         </RootProvider>
       </body>
     </html>
