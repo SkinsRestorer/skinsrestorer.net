@@ -85,6 +85,10 @@ const config: NextConfig = {
         hostname: "img.shields.io",
         protocol: "https",
       },
+      {
+        hostname: "www.netlify.com",
+        protocol: "https",
+      },
     ],
   },
   redirects: async () => {
