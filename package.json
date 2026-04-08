@@ -33,7 +33,7 @@
     "clsx": "^2.1.1",
     "fumadocs-core": "^16.0.0",
     "fumadocs-mdx": "^14.0.0",
-    "fumadocs-ui": "^16.0.0",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@16.7.11",
     "geist": "^1.5.1",
     "hast-util-to-jsx-runtime": "^2.3.6",
     "lucide-react": "^0.564.0",
@@ -78,6 +78,7 @@
       "core-js",
       "esbuild",
       "msw",
+      "protobufjs",
       "sharp",
       "unrs-resolver"
     ]
