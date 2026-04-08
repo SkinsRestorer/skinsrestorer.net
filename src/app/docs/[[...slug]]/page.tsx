@@ -60,7 +60,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
                 dir: path.dirname(page.path),
               });
 
-              if (!found) return <Link href={href} {...props} />;
+              if (!found) return <Link href={href ?? ""} {...props} />;
 
               return (
                 <HoverCard>

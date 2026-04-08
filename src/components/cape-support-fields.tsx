@@ -54,16 +54,18 @@ export function CapeSupportFields({
           <div className="flex items-center gap-2">
             <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
             <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-muted-foreground"
-                >
-                  <InfoIcon className="h-4 w-4" aria-hidden />
-                  <span className="sr-only">MineSkin API key info</span>
-                </Button>
+              <PopoverTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground"
+                  />
+                }
+              >
+                <InfoIcon className="h-4 w-4" aria-hidden />
+                <span className="sr-only">MineSkin API key info</span>
               </PopoverTrigger>
               <PopoverContent
                 align="start"
