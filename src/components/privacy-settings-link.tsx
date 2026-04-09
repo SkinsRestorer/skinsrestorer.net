@@ -11,6 +11,16 @@ type WindowWithGoogleFc = Window & {
   googlefc?: GoogleFcWindow;
 };
 
+const markPrivacySettingsReady = (setIsReady: (isReady: boolean) => void) => {
+  setIsReady(true);
+};
+
+const createConsentApiReadyCallback = (
+  setIsReady: (isReady: boolean) => void,
+) => ({
+  CONSENT_API_READY: () => markPrivacySettingsReady(setIsReady),
+});
+
 export function PrivacySettingsLink() {
   const [isReady, setIsReady] = useState(false);
 
@@ -31,9 +41,7 @@ export function PrivacySettingsLink() {
       return;
     }
 
-    callbackQueue.push({
-      CONSENT_API_READY: () => setIsReady(true),
-    });
+    callbackQueue.push(createConsentApiReadyCallback(setIsReady));
   }, []);
 
   if (!isReady) {

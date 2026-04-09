@@ -68,6 +68,22 @@ const syncPostHogConsent = () => {
   }
 };
 
+const syncPostHogConsentOnTcfReady = (browserWindow: WindowWithGoogleFc) => {
+  browserWindow.__tcfapi?.("addEventListener", 2.2, (_data, success) => {
+    if (success) {
+      syncPostHogConsent();
+    }
+  });
+};
+
+const createConsentModeDataReadyCallback = () => ({
+  CONSENT_MODE_DATA_READY: syncPostHogConsent,
+});
+
+const createConsentApiReadyCallback = (browserWindow: WindowWithGoogleFc) => ({
+  CONSENT_API_READY: () => syncPostHogConsentOnTcfReady(browserWindow),
+});
+
 export function GoogleConsentBridge() {
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_POSTHOG_KEY || typeof window === "undefined") {
@@ -81,19 +97,8 @@ export function GoogleConsentBridge() {
       browserWindow.googlefc.callbackQueue || [];
     const { callbackQueue } = browserWindow.googlefc;
 
-    callbackQueue.push({
-      CONSENT_MODE_DATA_READY: syncPostHogConsent,
-    });
-
-    callbackQueue.push({
-      CONSENT_API_READY: () => {
-        browserWindow.__tcfapi?.("addEventListener", 2.2, (_data, success) => {
-          if (success) {
-            syncPostHogConsent();
-          }
-        });
-      },
-    });
+    callbackQueue.push(createConsentModeDataReadyCallback());
+    callbackQueue.push(createConsentApiReadyCallback(browserWindow));
 
     syncPostHogConsent();
   }, []);

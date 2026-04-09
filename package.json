@@ -31,7 +31,7 @@
     "@vercel/og": "^0.8.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "fumadocs-core": "^16.0.0",
+    "fumadocs-core": "^16.7.11",
     "fumadocs-mdx": "^14.0.0",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.7.11",
     "geist": "^1.5.1",
