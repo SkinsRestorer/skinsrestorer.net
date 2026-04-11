@@ -1,4 +1,4 @@
-import { SiDiscord, SiModrinth } from "@icons-pack/react-simple-icons";
+import { SiDiscord, SiKofi, SiModrinth } from "@icons-pack/react-simple-icons";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import Image from "next/image";
 
@@ -26,6 +26,14 @@ if (modrinthLink) {
     external: true,
   });
 }
+
+socialLinks.push({
+  type: "icon",
+  icon: <SiKofi />,
+  text: "Ko-Fi",
+  url: "https://ko-fi.com/skinsrestorer/tiers",
+  external: true,
+});
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
