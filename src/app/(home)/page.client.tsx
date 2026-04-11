@@ -2,12 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import {
-  type RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import {
   Accordion,
   AccordionContent,
