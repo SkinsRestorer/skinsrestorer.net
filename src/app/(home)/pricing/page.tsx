@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import { Check, Heart, Users } from "lucide-react";
 import { SiDiscord } from "@icons-pack/react-simple-icons";
+import { Check, Heart, Users } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
