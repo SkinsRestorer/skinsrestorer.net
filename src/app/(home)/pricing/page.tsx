@@ -1,4 +1,4 @@
-import { SiDiscord } from "@icons-pack/react-simple-icons";
+import { SiKofi } from "@icons-pack/react-simple-icons";
 import { Check, Heart, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -117,7 +117,7 @@ export default function PricingPage() {
             <CardFooter>
               <Button asChild className="w-full gap-2" size="lg">
                 <a href="http://ko-fi.com/skinsrestorer/tiers">
-                  <SiDiscord className="size-4" />
+                  <SiKofi className="h-4 w-4" />
                   Become a Supporter
                 </a>
               </Button>
