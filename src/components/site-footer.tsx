@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { PrivacySettingsLink } from "@/components/privacy-settings-link";
 
 export async function SiteFooter() {
   "use cache";
@@ -21,7 +20,6 @@ export async function SiteFooter() {
           <Link href="/cookie-policy" className="hover:text-fd-foreground">
             Cookie Policy
           </Link>
-          <PrivacySettingsLink />
         </nav>
         <a href="https://www.netlify.com" className="shrink-0">
           <Image
