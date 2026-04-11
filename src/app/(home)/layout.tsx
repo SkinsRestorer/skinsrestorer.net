@@ -26,6 +26,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           url: "/upload",
           description: "Upload a PNG and get /skin url",
         },
+        {
+          type: "main",
+          text: "Pricing",
+          url: "/pricing",
+          description: "Free and supporter plans",
+        },
         ...(baseOptions.links || []),
       ]}
     >
