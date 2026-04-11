@@ -30,7 +30,7 @@ if (modrinthLink) {
 socialLinks.push({
   type: "icon",
   icon: <SiKofi />,
-  text: "Ko-Fi",
+  text: "Ko-fi",
   url: "https://ko-fi.com/skinsrestorer/tiers",
   external: true,
 });
