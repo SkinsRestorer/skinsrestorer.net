@@ -1,4 +1,5 @@
 {
+  "icon": "Code",
   "pages": ["api", "storage", "inner-workings"],
   "defaultOpen": false
 }

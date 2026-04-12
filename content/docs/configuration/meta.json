@@ -1,4 +1,5 @@
 {
+  "icon": "Settings",
   "pages": [
     "options",
     "database",
