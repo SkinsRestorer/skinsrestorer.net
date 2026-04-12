@@ -128,7 +128,11 @@ export default function PricingPage() {
         {/* Bottom note */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground max-w-[500px] mx-auto">
-            Supporter perks are delivered through our Discord server. After
+            Supporter perks are delivered through our{" "}
+            <a href="/discord" className="underline hover:text-foreground">
+              Discord server
+            </a>
+            . After
             subscribing on Ko-fi, you&apos;ll receive your supporter role and
             access to priority support channels.
           </p>
