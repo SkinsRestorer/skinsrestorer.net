@@ -132,9 +132,8 @@ export default function PricingPage() {
             <a href="/discord" className="underline hover:text-foreground">
               Discord server
             </a>
-            . After
-            subscribing on Ko-fi, you&apos;ll receive your supporter role and
-            access to priority support channels.
+            . After subscribing on Ko-fi, you&apos;ll receive your supporter
+            role and access to priority support channels.
           </p>
         </div>
       </section>
@@ -149,8 +148,8 @@ export default function PricingPage() {
             One-time Donations
           </h2>
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
-            Want to support SkinsRestorer without a recurring commitment? You can
-            make a one-time donation via Ko-fi or cryptocurrency.
+            Want to support SkinsRestorer without a recurring commitment? You
+            can make a one-time donation via Ko-fi or cryptocurrency.
           </p>
           <p className="text-sm text-muted-foreground max-w-[500px]">
             Only the Ko-fi <strong>membership</strong> grants supporter perks.

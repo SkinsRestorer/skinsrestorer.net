@@ -165,10 +165,8 @@ export const GenerateFileCard = () => {
                 className="flex flex-col gap-2"
               >
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="axolotl">
-                    SkinsRestorer Axolotl
-                  </TabsTrigger>
-                  <TabsTrigger value="mineskin">MineSkin API</TabsTrigger>
+                  <TabsTrigger value="axolotl">Axolotl</TabsTrigger>
+                  <TabsTrigger value="mineskin">Official</TabsTrigger>
                 </TabsList>
                 <TabsContent
                   value="axolotl"
