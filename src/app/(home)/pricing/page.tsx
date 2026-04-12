@@ -1,5 +1,5 @@
-import { SiKofi } from "@icons-pack/react-simple-icons";
-import { Check, Heart, Users } from "lucide-react";
+import { SiBitcoin, SiKofi } from "@icons-pack/react-simple-icons";
+import { Check, Gift, Heart, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -132,6 +132,72 @@ export default function PricingPage() {
             subscribing on Ko-fi, you&apos;ll receive your supporter role and
             access to priority support channels.
           </p>
+        </div>
+      </section>
+
+      {/* One-time Donations */}
+      <section className="py-8 md:py-16 border-t">
+        <div className="flex flex-col items-center text-center gap-4 mb-12">
+          <div className="flex items-center justify-center size-12 rounded-xl bg-muted">
+            <Gift className="size-6" />
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            One-time Donations
+          </h2>
+          <p className="max-w-[600px] text-muted-foreground md:text-lg">
+            Want to support SkinsRestorer without a recurring commitment? You can
+            make a one-time donation via Ko-fi or cryptocurrency.
+          </p>
+          <p className="text-sm text-muted-foreground max-w-[500px]">
+            Only the Ko-fi <strong>membership</strong> grants supporter perks.
+            One-time payments via Ko-fi or NOWPayments do not grant any perks.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Ko-fi Widget */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <SiKofi className="size-5" />
+                <CardTitle className="text-xl">Ko-fi</CardTitle>
+              </div>
+              <CardDescription>
+                Donate via PayPal or card — membership and one-time options
+                available
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1">
+              <iframe
+                src="https://ko-fi.com/skinsrestorer/?hidefeed=true&widget=true&embed=true&preview=true"
+                className="w-full border-none"
+                height="712"
+                title="Ko-fi donation widget for SkinsRestorer"
+              />
+            </CardContent>
+          </Card>
+
+          {/* NOWPayments Crypto Widget */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <SiBitcoin className="size-5" />
+                <CardTitle className="text-xl">Crypto</CardTitle>
+              </div>
+              <CardDescription>
+                Donate with cryptocurrency via NOWPayments
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 flex items-center justify-center">
+              <iframe
+                src="https://nowpayments.io/embeds/donation-widget?api_key=bae4c439-45fd-44b6-918d-b91054b8d6af"
+                width="346"
+                height="623"
+                className="border-none overflow-y-hidden"
+                title="NOWPayments crypto donation widget"
+              />
+            </CardContent>
+          </Card>
         </div>
       </section>
     </div>
