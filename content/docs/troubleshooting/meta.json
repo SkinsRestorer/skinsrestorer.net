@@ -1,5 +1,5 @@
 {
-  "icon": "CircleHelp",
+  "icon": "CircleAlert",
   "pages": [
     "common-issues",
     "proxy-mode",
