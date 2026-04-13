@@ -28,10 +28,10 @@ const freePlanFeatures = [
 
 const supporterPlanFeatures = [
   "Priority support via Discord",
+  "Priority with feature requests",
   "Supporter role in Discord",
   "Support ongoing development",
   "Help keep the project alive",
-  "Early access to announcements",
 ];
 
 export default function PricingPage() {
