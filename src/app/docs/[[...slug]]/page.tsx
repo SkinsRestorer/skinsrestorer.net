@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import posthog from "posthog-js";
+import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Feedback } from "@/components/feedback";
 import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
 import {
@@ -94,6 +95,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           return {};
         }}
       />
+      <EnderDashSponsor placement="docs-footer" />
     </DocsPage>
   );
 }

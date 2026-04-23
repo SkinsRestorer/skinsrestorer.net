@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { CustomTimeAgo } from "@/components/time-ago";
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
 import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
@@ -398,6 +399,10 @@ export default function IndexPage() {
             <BentoCard key={feature.name} {...feature} />
           ))}
         </BentoGrid>
+      </section>
+
+      <section className="py-8 md:py-12">
+        <EnderDashSponsor placement="home" />
       </section>
 
       {/* FAQ Section */}
