@@ -4,7 +4,6 @@ const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
 if (typeof window !== "undefined" && apiKey) {
   posthog.init(apiKey, {
-    // api_host: "/RELAY-KAWD",
     api_host: "https://t.skinsrestorer.net",
     ui_host: "https://eu.posthog.com",
     defaults: "2025-05-24",
