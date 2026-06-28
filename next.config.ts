@@ -169,17 +169,11 @@ const config: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/va/:match*",
-        destination: "/_vercel/insights/:match*",
-      },
-      {
         source: "/docs/:path*.mdx",
         destination: "/llms.mdx/:path*",
       },
     ];
   },
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
   async headers() {
     return [
       {
