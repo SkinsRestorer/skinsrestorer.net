@@ -6,6 +6,10 @@
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
       "automergeType": "branch"
+    },
+    {
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
     }
   ]
 }

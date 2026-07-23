@@ -6,3 +6,4 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - '@fumadocs/base-ui@16.12.0'
+  - 'fumadocs-core@16.12.0'
