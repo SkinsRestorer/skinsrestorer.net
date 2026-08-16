@@ -7,61 +7,54 @@ icon: Hammer
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Before installing, we recommend you to read the [main installation page](/docs/installation).
+Read the [main installation page](/docs/installation) before you install SkinsRestorer.
 
 <Callout type="warning" emoji="🆕">
-  The NeoForge mod build of SkinsRestorer is compiled for the **latest Minecraft release**. Older Minecraft versions are
-  not supported.
+  The NeoForge mod supports **only the latest Minecraft release**. It does not support older versions.
 </Callout>
 
 <Callout type="info" emoji="🔁">
-  When you run SkinsRestorer as a NeoForge mod on a supported Minecraft version, it offers the same functionality and
-  configuration experience as the Bukkit plugin.
+  On a supported version, the NeoForge mod works like the Bukkit plugin. It uses the same features and configuration.
 </Callout>
 
-## Basic Installation
+## Install the mod
 
-In this section, you can read how to set up SkinsRestorer on a NeoForge server (including Forge forks that can load
-NeoForge mods).
+These steps also apply to Forge forks that can load NeoForge mods.
 
 <Steps>
   <Step>
     ### Install NeoForge
-    Download the latest NeoForge installer from [neoforged.net](https://neoforged.net/) and follow the documentation to
-    install the server for the newest Minecraft version.
+    Download the latest NeoForge installer from [neoforged.net](https://neoforged.net/). Install it for the newest Minecraft version.
   </Step>
 
   <Step>
     ### Create or update the mods folder
-    Run the generated `run.bat`/`run.sh` once so NeoForge creates its file structure, including the `mods` folder. Update
-    your installation to the latest build if you already have a server.
+    Run the generated `run.bat` or `run.sh` file once. NeoForge creates its folders, including `mods`.
+
+    If NeoForge is already installed, update it to the latest build.
   </Step>
 
   <Step>
     ### Add SkinsRestorer
-    Download the newest SkinsRestorer mod jar from [Modrinth](https://modrinth.com/mod/skinsrestorer) and place it inside
-    the server's `mods` folder.
+    Download the latest SkinsRestorer mod from [Modrinth](https://modrinth.com/mod/skinsrestorer). Put it in the server's `mods` folder.
   </Step>
 
   <Step>
     ### Start the server
-    Launch the server and let NeoForge finish loading. Watch the console for dependency messages or errors.
+    Start the server. Read the console for errors or missing dependencies.
   </Step>
 
   <Step>
-    ### Confirm the installation
-    Use `/skinsrestorer status` or `/sr status` in game or in the server console. You should see the same information you
-    would get on Bukkit-based servers.
+    ### Make sure that the mod works
+    Run `/skinsrestorer status` or `/sr status` in the game or server console.
   </Step>
 
   <Step>
     ### Configure SkinsRestorer
-    Edit the configuration files in `config/SkinsRestorer/` to match your needs. The configuration format is identical to
-    the Bukkit edition—refer to the [configuration guide](/docs/configuration) for details.
+    Edit the files in `config/SkinsRestorer/`. The [configuration guide](/docs/configuration) explains each option.
   </Step>
 </Steps>
 
 ## Need help?
 
-If you need assistance, join our [Discord server](https://skinsrestorer.net/discord) with your latest server log so we can
-help diagnose issues quickly.
+If you need help, send the latest server log on our [Discord server](https://skinsrestorer.net/discord).

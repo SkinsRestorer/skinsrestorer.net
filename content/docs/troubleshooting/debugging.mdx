@@ -6,65 +6,65 @@ icon: Bug
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-When something isn't working correctly, SkinsRestorer provides several tools to help diagnose the issue.
+SkinsRestorer provides commands and logs that help you find errors.
 
 ## Debug mode
 
-Enable debug logging to see detailed information about API requests and internal operations.
+Enable debug logging to record API requests and internal operations.
 
 ```yaml filename="config.yml"
 dev:
   debug: true
 ```
 
-After enabling, restart or reload the plugin:
+Then restart the server or reload the plugin:
 ```
 /sr reload
 ```
 
-Debug mode will log:
+Debug mode records:
 - All API requests to Mojang/MineSkin/SkinsRestorer endpoints
 - Skin data processing steps
 - Cache hits and misses
 - Plugin messaging channel communication
 
 <Callout type="warning">
-  Debug mode generates a lot of log output. Only enable it temporarily while troubleshooting, then disable it.
+  Debug mode writes many log messages. Enable it only while you collect information, then disable it.
 </Callout>
 
 ## Using /sr dump
 
-The most useful troubleshooting command is `/sr dump`:
+Run `/sr dump` to collect support information:
 
 ```
 /sr dump
 ```
 
-This uploads the following to a paste service:
+The command uploads:
 - Server and plugin version information
 - Your configuration (sensitive data redacted)
 - Recent relevant log entries
 - Installed plugins list
 - System information
 
-You'll receive a URL like `https://bytebin.lucko.me/xxxxx` that you can share with support.
+The command returns a URL such as `https://bytebin.lucko.me/xxxxx`. Send this URL to support.
 
 ## Using /sr status
 
-Check connectivity to required API endpoints:
+Show the connection status of required API endpoints:
 
 ```
 /sr status
 ```
 
-This shows the status of:
+The command shows:
 - `eclipse.skinsrestorer.net` - UUID and profile lookups
 - `axolotl.skinsrestorer.net` - MineSkin URL decryption
 - `cool-skins.skinsrestorer.net` - Recommended skins
 - Mojang API endpoints
 - MineSkin API (if configured)
 
-If any endpoint shows as unavailable, check your [firewall configuration](/docs/troubleshooting/firewall).
+If an endpoint is unavailable, follow the [firewall guide](/docs/troubleshooting/firewall).
 
 ## Understanding log messages
 
@@ -88,7 +88,7 @@ or for proxy networks:
 ```
 [SkinsRestorer] Proxy mode files are deprecated, please use the config file instead.
 ```
-This means you have old `.txt` configuration files. Migrate to config.yml settings.
+This warning means that old `.txt` configuration files exist. Move their values to `config.yml`.
 
 ### Common log errors
 
@@ -96,19 +96,19 @@ This means you have old `.txt` configuration files. Migrate to config.yml settin
 ```
 [SkinsRestorer] Failed to connect to eclipse.skinsrestorer.net
 ```
-Check your firewall and network connectivity.
+Make sure that the firewall permits the required connections.
 
 **Rate limit errors:**
 ```
 [SkinsRestorer] Rate limited by Mojang API
 ```
-This is normal during high traffic. SkinsRestorer will retry automatically.
+SkinsRestorer retries this request automatically.
 
 **Database errors:**
 ```
 [SkinsRestorer] Failed to connect to database
 ```
-Check your database credentials and that MySQL is running.
+Make sure that MySQL is available and the credentials are correct.
 
 ## Log file locations
 
@@ -121,7 +121,7 @@ Check your database credentials and that MySQL is running.
 
 ## Filtering logs for SkinsRestorer
 
-To find SkinsRestorer-specific messages:
+Use one of these commands to find SkinsRestorer messages.
 
 **Linux/Mac:**
 ```bash
@@ -137,9 +137,9 @@ Select-String -Path logs/latest.log -Pattern "skinsrestorer" -CaseSensitive:$fal
 
 ### Skin not applying
 
-1. Enable debug mode
-2. Run `/skin <playerName>`
-3. Check logs for:
+1. Enable debug mode.
+2. Run `/skin <playerName>`.
+3. Find these messages in the log:
    - "Fetching skin data for..." - API request started
    - "Received skin data..." - Data received successfully
    - "Applying skin to..." - Application started
@@ -147,26 +147,26 @@ Select-String -Path logs/latest.log -Pattern "skinsrestorer" -CaseSensitive:$fal
 
 ### Proxy mode issues
 
-1. Check startup logs for "Proxy Mode" or "Server Mode"
-2. Run `/sr status` to check connectivity
-3. Verify plugin messaging channels are working
+1. Find "Proxy Mode" or "Server Mode" in the startup log.
+2. Run `/sr status`.
+3. Make sure that security plugins permit SkinsRestorer plugin messages.
 
 ### API connectivity issues
 
-1. Run `/sr status`
-2. If endpoints fail, check:
+1. Run `/sr status`.
+2. If an endpoint is unavailable, examine:
    - Firewall rules
    - DNS resolution
    - Proxy/VPN interference
 
 ## Getting support
 
-When asking for help:
+When you ask for help:
 
-1. Run `/sr dump` and include the link
-2. Describe what you expected vs what happened
-3. Include any error messages from logs
-4. Mention your server platform and version
+1. Run `/sr dump` and include the link.
+2. Describe the expected result and the actual result.
+3. Include error messages from the log.
+4. Include the server platform and version.
 
 **Support channels:**
 - [Discord](https://skinsrestorer.net/discord)

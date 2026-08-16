@@ -4,26 +4,25 @@ description: Learn how to troubleshoot common issues with SkinsRestorer.
 icon: TriangleAlert
 ---
 
-We've compiled a list of common issues that users encounter when using the plugin.
+This page lists common causes of SkinsRestorer problems.
 
 ## Host-specific issues
 
-Your Minecraft host may be causing issues with the plugin.
+Your Minecraft hosting provider can restrict the plugin.
 
-### Servers with a forced proxy (like MineHut)
+### Servers with a forced proxy
 
-If your using a hosting provider that forces you to connect though a proxy you do not manage, it might not be possible to use SkinsRestorer.
+Some providers, such as Minehut, force servers to use a proxy that customers cannot configure.
 
-You cannot really fix this because some hosting providers (like MineHuts) proxy's manages skins and capes, and you cannot change it.
+If that proxy manages skins and capes, it can override SkinsRestorer. Ask the hosting provider whether you can disable its skin system.
 
 ### Servers with a misconfigured firewall
 
-Sometimes your Minecraft host may have a firewall that blocks the plugin from connecting to the SkinsRestorer APIs.
-If you're having issues with the plugin connecting to the API, please check our [firewall guide](/docs/troubleshooting/firewall).
+A hosting firewall can block the SkinsRestorer APIs. If `/sr status` reports connection errors, follow the [firewall guide](/docs/troubleshooting/firewall).
 
 ## Platform-specific issues
 
-Sometimes there's issues caused by the software you're using to power your server.
+Unsupported server software can cause errors.
 
 ### Supported platforms
 
@@ -31,37 +30,32 @@ We only support the following platforms:
 
 - Bukkit
 - Spigot
-- Paper (and forks like Purpur, Pufferfish, etc.)
+- Paper and supported forks, such as Purpur and Pufferfish
 - Folia
 - BungeeCord (and forks like Waterfall)
 - Velocity
 - Latest Fabric
-- Latest Forge
+- Latest NeoForge
 
-Hacks like Magma, Mohist, Cardboard and similar "hybrid" platforms are not officially supported and may not work properly.
+Hybrid platforms such as Magma, Mohist, and Cardboard are not supported.
 
 ## Plugin-specific issues
 
-Sometimes other plugins interfere with SkinsRestorer.
+Other plugins can change player profiles and override SkinsRestorer.
 
 ### Plugins with known issues
 
-Please check our list on our website with [known plugin issues](/docs/troubleshooting/incompatibility-list).
-If your plugin is on the list, please contact the plugin author to fix the issue.
+Read the [incompatibility list](/docs/troubleshooting/incompatibility-list). If a plugin is listed, contact its developer.
 
 ## Client-specific issues
 
-SkinsRestorer is a server-side plugin, so most issues are related to the server.
-However, there are some issues that can be caused by the client.
-We've compiled a page dedicated to [client issues](/docs/troubleshooting/launcher-issues), which you can find help for client/launcher issues.
+Some launchers include a skin system that overrides server skins. Follow the [launcher guide](/docs/troubleshooting/launcher-issues) to disable it.
 
 ## Other issues
 
-Sometimes your issue may be caused by something not listed here. In that case, try these steps.
+## Get more help
 
-### If you're still having issues
-
-If you're still having issues, you can find help in the following places:
+If these guides do not correct the problem, contact us:
 
 - [Discord](https://skinsrestorer.net/discord)
 - [GitHub Issues](https://github.com/SkinsRestorer/SkinsRestorer/issues)

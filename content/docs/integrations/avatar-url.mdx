@@ -7,10 +7,10 @@ icon: Image
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Do you want to show a player's head in, for example, a Discord message sent by a plugin? This is possible with SkinsRestorer!
+Use a SkinsRestorer placeholder to show a player's head in another plugin.
 
 <Callout type="info" emoji="ℹ️">
-  We also have guides specifically for
+  For Discord messages, use the guide for
   [DiscordSRV](/docs/integrations/discordsrv) or
   [Discord-MC-Chat](/docs/integrations/discord-mc-chat).
 </Callout>
@@ -18,19 +18,16 @@ Do you want to show a player's head in, for example, a Discord message sent by a
 <Steps>
   <Step>
     ### Prepare your server
-    Ensure [SkinsRestorer](/docs/installation) and
-    [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) are installed on your server, are the
-    latest version and are working correctly.
+    Install the latest versions of [SkinsRestorer](/docs/installation) and
+    [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/).
 
-    Make sure the plugin you want to set the avatar URL in, supports using PlaceholderAPI placeholders in the place
-    where you want to use the avatar URL.
+    Make sure that the other plugin accepts PlaceholderAPI placeholders in avatar URLs.
 
   </Step>
 
   <Step>
     ### Configure the plugin
-    Find the place where you can put a URL in the plugin. This is usually a config file or a message file.
-    Put the following URL in the place where you want the avatar URL to be used:
+    Find the avatar URL in the plugin's configuration or message file. Replace it with:
 
     ```yaml
     https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png
@@ -38,10 +35,13 @@ Do you want to show a player's head in, for example, a Discord message sent by a
 
   </Step>
 
-<Step>### Reload the plugin Reload the plugin to apply the changes.</Step>
+<Step>
+  ### Reload the plugin
+  Reload the plugin to apply the change.
+</Step>
 
   <Step>
-    ### That's it!
-    Now all SkinsRestorer avatars will be displayed in the plugins messages! 🎉
+    ### Test the avatar
+    Send a message that uses the avatar. It must show the player's SkinsRestorer skin.
   </Step>
 </Steps>

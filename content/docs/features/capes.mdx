@@ -6,31 +6,31 @@ icon: Crown
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Capes are cosmetic items displayed on player backs in Minecraft. This page explains how SkinsRestorer interacts with capes.
+Capes are cosmetic items on a Minecraft player's back. They do not affect the game.
 
 ## How capes work in Minecraft
 
-Capes are purely cosmetic and don't affect gameplay. They're obtained through:
+Capes come from:
 
-- **Account-related**: Migration capes, Vanilla cape (Bedrock-Java linking)
-- **Events**: Minecraft Live, MINECON, social media campaigns
-- **Staff/Volunteer**: Mojang employees, translators, moderators
-- **Personal**: Given to specific individuals (Java Edition only)
-- **Pan Cape**: The only cape automatically given to all players
+- **Account events:** Migration capes and the Vanilla cape for linked Bedrock and Java accounts
+- **Events:** Minecraft Live, MINECON, and social media campaigns
+- **Staff or volunteer work:** Mojang employees, translators, and moderators
+- **Personal awards:** Capes for specific Java Edition players
+- **Pan Cape:** The only cape given automatically to all players
 
 <Callout type="info">
-  Capes cannot be custom-made or transferred between accounts. They are tied to specific Mojang/Microsoft accounts.
+  You cannot create a custom cape or move a cape to another account. Each cape belongs to a Mojang or Microsoft account.
 </Callout>
 
 ## How SkinsRestorer handles capes
 
-When you use `/skin <playerName>`, SkinsRestorer fetches the complete skin data from Mojang's API. This data includes:
+When you use `/skin <playerName>`, SkinsRestorer gets the complete skin data from Mojang. The data contains:
 
 - The skin texture
 - The cape texture (if the player has one equipped)
 - Mojang's cryptographic signature
 
-If the player you're copying has a cape, that cape will be included in the skin data and displayed on your character.
+If the source player has a cape, your character also shows that cape.
 
 ### Example
 
@@ -38,49 +38,49 @@ If the player you're copying has a cape, that cape will be included in the skin 
 /skin Dinnerbone
 ```
 
-If Dinnerbone has a Mojang employee cape equipped, you'll see both his skin AND his cape on your character.
+If Dinnerbone equips a Mojang employee cape, your character shows his skin and cape.
 
 ## Limitations
 
-### What SkinsRestorer CAN do
+### What SkinsRestorer can do
 
 - Copy skins from players who have capes (cape included)
 - Display the cape that comes with the copied skin data
 
-### What SkinsRestorer CANNOT do
+### What SkinsRestorer cannot do
 
-- **Create custom capes**: Capes require Mojang's signature and are tied to specific accounts
-- **Add capes to URL skins**: When you use `/skin url`, only the skin texture is generated - no cape
-- **Remove capes from copied skins**: If a player's skin data includes a cape, you'll get both
-- **Generate arbitrary capes**: There's no API to create new capes
+- **Create custom capes:** Capes need Mojang's signature and belong to specific accounts.
+- **Add capes to URL skins:** `/skin url` creates only a skin texture.
+- **Remove a cape from copied data:** Copied skin data includes the skin and its cape.
+- **Create other capes:** Mojang does not provide an API for new capes.
 
 <Callout type="warning">
-  MineSkin (used for `/skin url`) only generates skin textures. It does not and cannot generate capes, as capes require Mojang account verification.
+  MineSkin creates only skin textures for `/skin url`. It cannot create capes because capes require Mojang account verification.
 </Callout>
 
 ## Finding players with capes
 
-To get a skin with a cape, you need to know the username of someone who has one equipped.
+To copy a cape, find the username of a player who equips one.
 
-Some players known to have capes:
+Players with capes include:
 - Mojang employees (Mojang cape)
 - MINECON attendees (various years)
 - Minecraft Live participants
 - Content creators with personal capes
 
 <Callout type="info">
-  The cape displayed depends on what the original player currently has equipped. If they switch capes or unequip it, the cached data in SkinsRestorer will show their old cape until refreshed.
+  SkinsRestorer copies the cape that the source player equips. Cached data can show the old cape until you refresh it.
 </Callout>
 
 ## Refreshing cape data
 
-If a player changes their cape, you may need to refresh the cached data:
+If the source player changes their cape, refresh the cached data:
 
 ```
 /skin update
 ```
 
-Or clear and re-apply:
+You can also clear and apply the skin again:
 ```
 /skin clear
 /skin <playerName>
@@ -88,7 +88,7 @@ Or clear and re-apply:
 
 ## Technical details
 
-Cape data is part of Mojang's signed skin property. The texture data (Base64 encoded) contains URLs for both skin and cape:
+Cape data is part of Mojang's signed skin property. The Base64-encoded texture data contains URLs for the skin and cape:
 
 ```json
 {
@@ -103,4 +103,4 @@ Cape data is part of Mojang's signed skin property. The texture data (Base64 enc
 }
 ```
 
-The cape URL is only present if the player has a cape equipped. This entire payload is cryptographically signed by Mojang, which is why custom capes cannot be created.
+The cape URL exists only when the player equips a cape. Mojang signs the complete payload, so SkinsRestorer cannot create custom capes.

@@ -1,6 +1,6 @@
 ---
-title: Inner workings of SkinsRestorer
-description: Learn how SkinsRestorer works under the hood.
+title: How SkinsRestorer works
+description: Learn how SkinsRestorer gets and caches skin data.
 icon: Cog
 ---
 
@@ -8,45 +8,39 @@ import { Callout } from 'fumadocs-ui/components/callout';
 import { Mermaid } from '../../../src/components/mdx/mermaid';
 
 <Callout type="info">
-  We recommend reading the [storage page](/docs/development/storage) before
-  reading this page, it explains a few basic concepts that are used in this
-  page.
+  Read the [storage page](/docs/development/storage) first. It explains the skin data used on this page.
 </Callout>
 
-Want to know what SkinsRestorer does under the hood? This page touches on a few things that SkinsRestorer does, so you can understand how it works.
+This page explains how SkinsRestorer gets and applies skins.
 
 ## Recap
 
-As explained in the [storage page](/docs/development/storage), SkinsRestorer needs to ask Mojang for the skin of a player.
-Mojang has built restrictions into their Minecraft client to prevent servers from setting skins of players without going through their servers.
-The reason for this is likely that they want to prevent servers from setting explicit skins for players, so children are not exposed to inappropriate content.
-They also use this to make capes exclusive to certain players, like Minecon attendees.
+SkinsRestorer gets signed player skin data from Mojang. The Minecraft client accepts only skin data that Mojang signed.
+
+This rule also keeps official capes linked to approved accounts.
 
 <Callout emoji="📔">
-  Extra note: You can set any skin you want on Minecraft heads, the restrictions
-  are only for player skins. (This also includes NPCs from Citizens)
+  Signed-skin restrictions apply to players, not Minecraft heads. Citizens NPCs also use player skin rules.
 </Callout>
 
-We're using two methods to get you the skin you want.
+SkinsRestorer gets skins in two ways:
 
-1. Retrieve skin data of a Mojang player and apply their skin data to the player.
-2. Use a network of accounts that apply any PNG file you want to a player and apply that skin data to the player.
+1. It gets the signed skin data of a Minecraft player.
+2. It sends a custom PNG to an account service that gets signed skin data.
 
-For 2. we use [MineSkin](https://mineskin.org) to apply the skin data to the player from any PNG file you want.
+SkinsRestorer uses [MineSkin](https://mineskin.org) for the second method.
 
 <Callout emoji="🎉">
-  Need a MineSkin API key? All plans except Lite support cape generation,
-  higher limits, and other exclusive features. Visit the
+  Paid MineSkin plans above Lite include cape generation, higher limits, and other features. Visit the
   <a href="https://mineskin.org/apikey" target="_blank" rel="noreferrer">MineSkin API keys page</a>
-  to get started and use the exclusive coupon code
-  <code>SKINSRESTORER10</code> to get 10% off your first three months (valid on
-  plans except Lite). We don't receive a commission if you use this coupon—it's
-  just a community perk.
+  and use coupon code <code>SKINSRESTORER10</code>.
+  The code gives you 10% off the first three months of plans above Lite.
+  SkinsRestorer does not receive a commission.
 </Callout>
 
-## How does getting a skin look like?
+## Skin request flow
 
-Here is a simple flowchart:
+This diagram shows a skin request by player name:
 
 <Mermaid chart="
 sequenceDiagram
@@ -62,14 +56,14 @@ sequenceDiagram
     SR->>U: Skin <value> & <signature>
 " />
 
-## SkinsRestorer API Endpoints
+## SkinsRestorer API endpoints
 
-SkinsRestorer uses its own API endpoints to cache and distribute skin data efficiently:
+SkinsRestorer uses these endpoints to cache and distribute skin data:
 
 - `eclipse.skinsrestorer.net` - Handles UUID lookups and profile data
 - `axolotl.skinsrestorer.net` - Handles MineSkin URL decryption
 - `cool-skins.skinsrestorer.net` - Provides recommended/featured skins
 
-These endpoints act as a cache layer between your server and Mojang's API.
-This way, we don't have to ask Mojang for the skin data every time a player joins a server, which helps avoid rate limits.
-The cache is also helpful when Mojang's servers are slow or down, as we can still serve skin data from the cache.
+These endpoints are a cache between your server and Mojang. The cache reduces Mojang API requests and rate-limit errors.
+
+It can also provide cached skin data when Mojang is slow or unavailable.

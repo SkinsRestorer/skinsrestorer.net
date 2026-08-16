@@ -6,58 +6,56 @@ icon: Paintbrush
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer allows you to create custom skins that you can select via `/skin <name>`.
-All You have to do is either run a command to generate a skin or upload a skin file to the server.
+Custom skins give a shared name to a skin. Players can apply one with `/skin <name>`.
 
-## How to generate a custom skin
+Create a custom skin with a command or a skin file.
 
-Before you start, there are a few things to consider. Custom skins are stored in the SkinsRestorer database or in a file.
-The name affects everyone who runs the `/skin` command, so if an admin generates a custom skin called `Dinnerbone`
-everyone who runs `/skin Dinnerbone` will see the custom skin instead of the original skin.
+## Choose a custom skin name
 
-You would also not want to use a name that a person playing on your server might use,
-as it would override their skin instead of using the skin they have set in their Minecraft account.
+SkinsRestorer stores custom skins in the database or in files. Each custom skin name applies to the entire server.
+
+For example, a custom skin named `Dinnerbone` replaces the Minecraft account skin for `/skin Dinnerbone`.
+
+Do not use a name that belongs to a player on your server. The custom skin will replace that player's account skin.
 
 <Callout type="info" emoji="ℹ️">
-  If you want to set a skin of a player on your server, run `/skin [name]
-  [playername]` instead. Using custom skins to set a skin of a player is not
-  recommended and discouraged.
+  To change another player's skin, use `/skin [name] [playername]`.
+  Do not create a custom skin for this task.
 </Callout>
 
-There are multiple ways to generate a custom skin:
+## Create a custom skin
 
 ### Run a command
 
-Run `/sr createcustom <name> <url> <variant>` to generate a custom skin by URL.
+Run `/sr createcustom <name> <url> <variant>` to create a custom skin from a URL.
 
 ### Skinfile Generator
 
-We have built a web app that allows you to convert .png skin files to .customskin files that are used by SkinsRestorer.
-You can find the Skinfile Generator on [our website](/generator).
+The [Skinfile Generator](/generator) converts a `.png` skin file to the `.customskin` format.
 
 <Callout type="warning" emoji="⚠️">
-  The Skinfile Generator only works if you use file storage. MySQL users should
-  use the `/sr createcustom` command.
+  The Skinfile Generator works only with file storage. If you use MySQL, run `/sr createcustom` instead.
 </Callout>
 
-Steps to generate a custom skin using the Skinfile Generator:
+Use the Skinfile Generator:
 
-1. Get your skin file in .png format
-2. Go to [the website](/generator)
-3. Hit browse and select your skin
-4. Fill in the skin name in the optional skin name field (Make sure it is lowercase and does not contain a space)
-5. Hit `Upload!`
-6. Download the `name.customskin` file
-7. Upload or replace it on your `plugins/SkinsRestorer/skins` folder
-8. If you do not have Velocity/BungeeCord, put it in your Spigot
-9. Done! You should now be able to do `/skin <name>` and it will appear!
+1. Save your skin as a `.png` file.
+2. Open the [Skinfile Generator](/generator).
+3. Select **Browse**, then select the skin file.
+4. Enter an optional skin name. Use lowercase letters and no spaces.
+5. Select **Upload!**.
+6. Download the `name.customskin` file.
+7. Put the file in `plugins/SkinsRestorer/skins`.
+8. If you use a proxy, put the file on the proxy.
+9. Run `/skin <name>` to apply the skin.
 
 ## Apply custom default skins
 
-If you want to apply a default skin for your server, you can do the following:
+To use a custom skin as the server default:
 
-1. Generate a custom skin using the methods above.
-2. Add the file into your skin file directory of either your proxy or your spigot server.
-3. Enable default skins in the config.
-4. Reload SkinsRestorer via `/sr reload`.
-5. Done! Every player that joins your server will now have the default skin you set unless they have set a skin with SkinsRestorer before.
+1. Create a custom skin with one of the methods above.
+2. Put the file in the skin folder on the proxy or Spigot server.
+3. Enable default skins in `config.yml`.
+4. Run `/sr reload`.
+
+SkinsRestorer applies the default to players who did not select another skin.

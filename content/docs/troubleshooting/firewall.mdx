@@ -6,25 +6,22 @@ icon: Shield
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-If, by running `/sr status` you get the following red message:
+This guide applies when `/sr status` shows this red message:
 
 `> Plugin currently can't fetch new skins. You might check out our Discord at ...`
 
-Then this means your server cannot connect to the APIs the plugin requires to work.
+This message means that the server cannot connect to a required API.
 
-## How to fix it?
+## Permit the required connections
 
 <Callout type="info" emoji="ℹ️">
-  The list on this page may change, so make sure to check back if you are still
-  having issues.
+  This list can change. If the problem returns, compare your firewall rules with this page again.
 </Callout>
 
-This is a good question, and you are the right place to get an answer.
-Our plugin needs the following domains at the following ports to be fully reachable:
+Allow outgoing connections to these domains and ports:
 
-> All the required rules are **outgoing**, the only incoming traffic that should be accepted is the one from already
-> established connections. Your server must be able to connect to the other networks. SkinsRestorer doesn't\*\* require
-> any incoming traffic from new connections to be accepted.
+> All required rules are **outgoing**. SkinsRestorer does not need new incoming connections.
+> Your firewall only needs to accept response traffic for established connections.
 
 | Domain                          | Port  |
 | ------------------------------- | ----- |
@@ -39,13 +36,11 @@ Our plugin needs the following domains at the following ports to be fully reacha
 | `api.github.com`                | `443` |
 | `objects.githubusercontent.com` | `443` |
 
-If you are using a firewall, you need to open these ports on those domains to allow the plugin to connect to these APIs.
-You also need to make sure that the port `53` of your DNS server you are using is reachable and working.
+Also permit connections to port `53` on the DNS server.
 
-## How to ask your hosting provider for this?
+## Ask your hosting provider
 
-When you only have access to a panel like Multicraft, Pterodactyl or Pelican, you aren't able to change firewall settings yourself.
-Use the below template to create a ticket / send an E-Mail to your Minecraft hosting provider and ask them to open the required ports.
+If you cannot change the firewall, send this message to your hosting provider:
 
 ```ansi
 Title: Firewall issues

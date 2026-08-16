@@ -7,27 +7,20 @@ icon: SlidersHorizontal
 import { File, Files, Folder } from 'fumadocs-ui/components/files';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-The plugin should be able to run without extra configuration needed,
-but if you need to change the plugin behavior, you're in the right place here.
+SkinsRestorer works with the default configuration. Use this page to change its behavior.
 
 <Callout type="info">
-  After changing the configuration, you need to either reload the plugin with
-  the command `/sr reload` or restart the server.
+  After you change the configuration, run `/sr reload` or restart the server.
 </Callout>
 
 <Callout type="info">
-  If you run a proxy network (BungeeCord/Velocity), you need to have the exact
-  same `config.yml` file on the proxy and all servers. If you make a change to
-  the config on the proxy, you need to make the same change on all servers. Make
-  sure to reload the plugin on the proxy and all servers after changing the
-  configuration. The `/sr reload` command is only available on the proxy
-  (because all backend servers are in Proxy Mode), you'll need to restart the
-  servers to use the new config.
+  On a proxy network, use the same `config.yml` file on the proxy and all backend servers.
+  Run `/sr reload` on the proxy after each change. Then restart all backend servers.
 </Callout>
 
 ## File structure
 
-Below is an example of what the file structure of the SkinsRestorer plugin looks like. Click a folder to expand it.
+This example shows the SkinsRestorer files. Select a folder to expand it.
 
 <Files>
   <Folder name="plugins" defaultOpen>
@@ -86,7 +79,7 @@ storage:
 | `uuidExpiresAfter` | `60` | Minutes before re-fetching player UUID from API |
 
 <Callout type="info">
-  Setting cache expiration to `0` will always request fresh data from the API. This is not recommended for production servers.
+  A cache expiration value of `0` requests new API data each time. This can cause rate-limit errors on production servers.
 </Callout>
 
 ## Command settings
@@ -150,7 +143,7 @@ login:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `noSkinIfLoginCanceled` | `true` | Don't apply skins if login is canceled (e.g., by AntiBot) |
+| `noSkinIfLoginCanceled` | `true` | Do not apply skins when another plugin cancels login |
 | `alwaysApplyPremium` | `false` | Apply skins even for premium players on online-mode servers |
 
 ## Server settings (Backend only)
@@ -269,7 +262,7 @@ gui:
 ## Advanced settings
 
 <Callout type="warning">
-  These settings are in the "Danger Zone". Only modify if you understand the implications.
+  These advanced options can cause unexpected behavior. Change them only when you understand their effects.
 </Callout>
 
 ```yaml filename="config.yml"
@@ -283,7 +276,7 @@ advanced:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `disableOnJoinSkins` | `false` | Don't apply skins on player join |
+| `disableOnJoinSkins` | `false` | Do not apply skins when a player joins |
 | `enablePaperJoinListener` | `true` | Use Paper's join event for instant skin application |
 | `teleportRefresh` | `false` | Use teleport instead of hiding for skin refresh |
 | `noConnections` | `false` | Disable all web connections (offline mode) |
@@ -302,40 +295,29 @@ dev:
 
 ## Who can change skins?
 
-With SkinsRestorer, players can use `/skin <skin>` to change their look.
-You will have to use a permissions plugin to control who can change their skin.
+Players can use `/skin <skin>` to change their skin. Use a permissions plugin to control access to this command.
 
-You can read the [commands and permissions](/docs/configuration/commands-permissions) guide to learn how to control who can change skins.
+Read [Commands and Permissions](/docs/configuration/commands-permissions) for setup instructions.
 
 ## Default skins
 
-By default,
-SkinsRestorer applies players the skin that belongs to their Minecraft account that was set via the launcher.
-Some players who join your server may not own their own Minecraft account where they can set their skin.
-So for those cases, SkinsRestorer will set their skin to a steve skin.
+By default, SkinsRestorer applies the skin from the player's Minecraft account. Players without an account skin receive a Steve skin.
 
-Default skins are base skins set for players who did not explicitly set a skin using `/skin <skin>`.
-If a player joins the server and did set a skin using `/skin <skin>`,
-SkinsRestorer will not set their skin to a default skin and instead use the skin they set.
+Default skins apply only to players who did not select a skin with `/skin <skin>`.
 
-If you want to change this behavior,
-you can do so by changing the `storage.defaultSkins` configuration in the `config.yml` file.
-Changing it allows you to set
-what skin players will have when they join your server
-and don't have a Minecraft account associated with their username.
+Use `storage.defaultSkins` in `config.yml` to select the default skins.
 
-Additionally, if you set `applyForPremium` to `true`, SkinsRestorer will apply default skins for every player,
-even if they own a Minecraft account.
+If `applyForPremium` is `true`, default skins also replace skins from Minecraft accounts.
 
 ## Disabled skins
 
-If you want to disable certain skins from being used on your server using `/skin <skin>`,
-you can do so by changing the `commands.disabledSkins` configuration in the `config.yml` file.
+Add blocked skin names to `commands.disabledSkins` in `config.yml`.
 
-This feature is useful if you want to prevent players from using, for example, explicit or inappropriate skins.
+Use this option to block inappropriate skins or reserved names.
 
 ## Permissions per skin
 
-By default, SkinsRestorer allows players to set any skin when they have access to the `/skin <skin>` command.
-You can override this behavior by setting up `commands.perSkinPermissions` in the `config.yml` file.
-Any skin in that list will force the player to have the permissions `skinsrestorer.skin.<name>` to use that skin.
+By default, `/skin <skin>` can apply any available skin.
+
+To restrict specific skins, add them to `commands.perSkinPermissions` in `config.yml`.
+Players need `skinsrestorer.skin.<name>` for each listed skin.

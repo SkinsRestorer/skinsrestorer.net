@@ -4,38 +4,39 @@ description: Learn about known incompatibilities with SkinsRestorer.
 icon: OctagonAlert
 ---
 
-SkinsRestorer may collide with third-party software such as plugins, mods, launchers, etc.
-Here we share common reasons for issues.
+Plugins, mods, launchers, and server platforms can conflict with SkinsRestorer. This page lists known conflicts.
 
 ## Incompatible clients
 
-Launchers that have built-in skin mods or other game-altering mods that block SkinsRestorer.
-We have a [page](/docs/troubleshooting/launcher-issues) dedicated to these issues.
+Some launchers include skin mods that override SkinsRestorer. Follow the [launcher guide](/docs/troubleshooting/launcher-issues) to disable these skin systems.
 
-## General server plugin types causing issues
+## Plugin types that can cause problems
 
-Some not-well-coded plugins or plugins that modify the user profile mightn't work well with SkinsRestorer.
-You can see this when you, for example, change a skin, and you see the chunks reload, but your skin just won't apply.
+Plugins that change player profiles can override SkinsRestorer. The world can reload without applying the new skin.
 
 - Other skin plugins like `MySKin`
-- `Skript` (They can also hook into skins)
+- `Skript` scripts that change skins
 - Custom world plugins
 - Some TabList plugins
 
-To figure out if it is a plugin incompatibility,
-the best thing to do is running your server with SkinsRestorer as the only plugin
-and see if it then works.
-If so, you can try adding plugins and check each time if the plugin still works.
-This way you can identify the plugin that might cause the issue.
+To find a plugin conflict:
 
-## Server plugins that need config change
+1. Start a test server with only SkinsRestorer.
+2. Apply a skin.
+3. Add one plugin.
+4. Apply the skin again.
+5. Repeat steps 3 and 4 until the problem returns.
 
-- `FastLogin` -> FastLogin `config.yml` -> `forwardSkin: false{:yaml}`
-- `MundoSK` -> MundoSK `config.yml` -> `usecustomskins: false{:yaml}`
+The last plugin that you added is probably the cause.
 
-## Server plugin incompatibility
+## Plugins that need a configuration change
 
-Some plugins are known to cause issues with SkinsRestorer. Here is a list of known incompatible plugins:
+- **FastLogin:** Set `forwardSkin: false{:yaml}` in the FastLogin `config.yml` file.
+- **MundoSK:** Set `usecustomskins: false{:yaml}` in the MundoSK `config.yml` file.
+
+## Incompatible plugins
+
+These plugins have known conflicts with SkinsRestorer:
 
 - `AntiBotDeluxe`
 - `Nicknamer`
@@ -43,11 +44,9 @@ Some plugins are known to cause issues with SkinsRestorer. Here is a list of kno
 - `Tablisknu`
 - `WorldChangeScreenRemover`
 
-### Server software incompatibility
+## Incompatible server software
 
-We do not work on some Paper forks as well as some BungeeCord forks because they break the platforms API somehow.
-We have only limited support for forge servers because they are usually breaking things as well.
-Very commonly issues happen with:
+Some Paper and BungeeCord forks change the platform API. SkinsRestorer does not support these platforms:
 
 - `Aegis`
 - `FlameCord`
@@ -55,5 +54,4 @@ Very commonly issues happen with:
 - `Mohist`
 - `Cardboard`
 
-We want to support these platforms, but we can't do it alone if you are a developer and want to help us,
-feel free to open a PR on our GitHub.
+If you develop one of these platforms, you can submit a fix on [GitHub](https://github.com/SkinsRestorer/SkinsRestorer).

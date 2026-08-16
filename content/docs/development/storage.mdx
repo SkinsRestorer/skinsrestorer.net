@@ -4,53 +4,43 @@ description: Learn how SkinsRestorer manages skin and player data.
 icon: HardDrive
 ---
 
-SkinsRestorer stores skin data in a file or database (depending on your configuration).
+SkinsRestorer stores skin data in files or a database. Your configuration selects the storage type.
 
-## Why does SR need to store skins?
+## Why SkinsRestorer stores skins
 
-SkinsRestorer stores skin data to keep a cached version of the skin on your server.
-It contains the same data that Mojang would send to your server when you are in online mode.
-We cache the information in a file/the database for you,
-so we need to make fewer requests to the Mojang API and can provide skins even
-when Mojang servers are down.
+Stored skin data acts as a local cache. It contains the same data that Mojang sends to an online-mode server.
+
+The cache reduces Mojang API requests. It can also provide skins when Mojang is unavailable.
 
 ## What type of data is stored?
 
-If you run `/skin Dinnerbone`, SkinsRestorer will keep the skin data of Dinnerbone in a file/the database.
-When Dinnerbone changes his skin, SkinsRestorer will automatically update the skin data in the file/the database.
-If you run `/sr createcustom`,
-SkinsRestorer will generate a skin that will never change and store it in a file/the database.
+When you run `/skin Dinnerbone`, SkinsRestorer stores Dinnerbone's skin data. It updates the cached data after Dinnerbone changes his skin.
 
-### How are skins PNGs stored?
+When you run `/sr createcustom`, SkinsRestorer stores a fixed custom skin.
 
-When you apply a skin via the launcher or SkinsRestorer, they are stored on the [Minecraft CDN](https://textures.minecraft.net).
-The skin is signed with the yggdrasil private key. This is a mechanism Mojang introduced to be able to regulate what skins can be used in the game.
-A signature is like Mojang saying "yes, I approve this skin", and the game will only display skins that are signed by Mojang.
-Signatures never expire and cannot be revoked by Mojang unless they remove the skin manually from the CDN.
-Mojang has introduced a skin banning feature, which is used to report players with inappropriate skins.
-Mojang will then review the report, and if the skin is inappropriate, they will remove it from the CDN and ban the player for a certain amount of time from Multiplayer.
-Then no player can use the skin anymore, even if they have the skin file on their computer because Mojang prevents the game from displaying the skin by having it removed from the CDN.
-The Minecraft CDN is a secure place to store skins, and it is not possible to upload skins to the CDN without Mojang's approval.
-While yes, Mojang does not review every skin, they review reported skins.
+### How Minecraft stores skin PNGs
 
-You do not get banned for having an inappropriate skin set using SkinsRestorer.
-Only if you manually upload the skin via the launcher.
-The way SkinsRestorer works is that it takes the skin from an existing player and applies it to you.
-This way you wear the skin of a different player and not the skin set in your launcher.
-If you get reported for having an inappropriate skin, the player you got the skin (the other player manually put that skin in their launcher) from will be banned, not you.
+The launcher and SkinsRestorer use the [Minecraft CDN](https://textures.minecraft.net) for skin images.
 
-Fun fact: URL skins use a pool of community-provided Minecraft accounts to generate skins.
-So you also won't get banned for using an inappropriate URL skin.
+Mojang signs skin data with the Yggdrasil private key. The Minecraft client displays only data with a valid signature.
+
+The signature does not expire. However, Mojang can remove a reported skin from the CDN.
+
+If Mojang removes a skin, Minecraft clients cannot display it. The local PNG file does not bypass this restriction.
+
+SkinsRestorer copies signed data from an existing skin. It does not upload the skin to your Minecraft account.
+
+URL skins use a pool of community-provided Minecraft accounts to create signed data.
 
 ## What is skin data?
 
-Skin data is a Base64 encoded string that contains information about the skin/cape textures.
-We can get player skin data from the Mojang API using their UUID.
-Skin data is signed by Mojang, which allows the Minecraft client to verify that the skin data is approved by Mojang.
-Skin data is initially Base64 encoded as it's transported as a profile property.
-You can use a [Base64 decoder](https://www.base64decode.org/live) on the skin data to read it.
+Skin data is a Base64-encoded profile property. It contains skin and cape texture URLs.
 
-The decoded data should look like this:
+SkinsRestorer gets this data from the Mojang API by player UUID. Mojang's signature lets the Minecraft client validate the data.
+
+Use a [Base64 decoder](https://www.base64decode.org/live) to read the property.
+
+The decoded data looks like this:
 
 ```json
 {
@@ -69,22 +59,22 @@ The decoded data should look like this:
 }
 ```
 
-1. `timestamp` → shows the generation date in epoch time [see epochconverter](https://www.epochconverter.com/)
-2. `profileId` → The unique player Mojang UUID [see Mojang API](https://api.mojang.com/users/profiles/minecraft/Dinnerbone)
-3. `profileName` → shows the player name that this skin belongs to
-4. `signatureRequired` → this **MUST** be true (as Mojang signs the skin data)
-5. `url` → the URL to the skin/cape texture
+1. `timestamp` is the creation date in [epoch time](https://www.epochconverter.com/).
+2. `profileId` is the player's [Mojang UUID](https://api.mojang.com/users/profiles/minecraft/Dinnerbone).
+3. `profileName` is the player name for this skin.
+4. `signatureRequired` must be `true` for signed skin data.
+5. `url` points to the skin or cape texture.
 
 ## How we request the skin data
 
-We use two Mojang APIs to request the skin data. Firstly we need to get the unique player id from the player name.
-Using the [player name endpoint](https://api.mojang.com/users/profiles/minecraft/Dinnerbone)
-After we retrieve the unique player id we can use it to [get the profile properties](https://sessionserver.mojang.com/session/minecraft/profile/61699b2ed3274a019f1e0ea8c3f06bc6?unsigned=false), which include the Base64 encoded skin data.
+SkinsRestorer uses two Mojang API requests:
 
-## Ratelimits
+1. The [player name endpoint](https://api.mojang.com/users/profiles/minecraft/Dinnerbone) returns the UUID for a player name.
+2. The [profile endpoint](https://sessionserver.mojang.com/session/minecraft/profile/61699b2ed3274a019f1e0ea8c3f06bc6?unsigned=false) returns the Base64-encoded skin data for that UUID.
 
-Mojang has an API ratelimit, so we can't request skin data too often.
-For that, we use third-party APIs that cache the skin data for us as well as use a set of proxies to bypass the ratelimit.
+## Rate limits
+
+Mojang limits API requests. SkinsRestorer uses cached API data to reduce requests and avoid the limit.
 
 ## Other resources
 

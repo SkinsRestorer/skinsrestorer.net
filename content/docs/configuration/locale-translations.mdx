@@ -6,39 +6,41 @@ icon: Globe
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer has an advanced locale system,
-which allows every player to receive a translation in their own language using their Minecraft client locale.
+SkinsRestorer can show messages in each player's Minecraft client language.
 
 ## Default values
 
-The default locale is `en` (English). If you want to change the default locale, you can do so in the `config.yml` file.
+The default locale is `en` for English. Change the default locale in `config.yml`.
 
 ## Community translation
 
-SkinsRestorer is translated by the community. If you want to contribute, you can do so by translating the plugin to your language.
+The community translates SkinsRestorer. You can add or improve a translation.
 
-### How to Contribute
+### Contribute a translation
 
-We have our own [Crowdin page](https://translate.skinsrestorer.net) where you can contribute your translations.
+Add translations on the [SkinsRestorer Crowdin page](https://translate.skinsrestorer.net).
 
-If your locale is missing, you can contact support [on our Discord](https://skinsrestorer.net/discord).
+If your locale is absent, contact us on [Discord](https://skinsrestorer.net/discord).
 
 ## Custom translations
 
 <Callout type="warning" emoji="⚠️">
-  If you are using a Proxy (BungeeCord/Velocity), you must configure locale
-  files on every server as well as on the proxy.
+  If you use BungeeCord or Velocity, copy the locale files to the proxy and every backend server.
 </Callout>
 
-Inside the `plugins/SkinsRestorer/locale` folder, you can find two folders, `repository` and `custom`.
-Inside `repository`, you can find all the default locale files. These files are used when a locale is not found in the `custom` folder.
-Files inside the `repository` folder should not be edited, as they will be overwritten when updating and reloading the plugin.
-If you want to edit a locale, you should copy the file from the `repository` folder to the `custom` folder and edit it there.
-Make sure to update the translation when updating the plugin, as new translations might be added/changed.
+The `plugins/SkinsRestorer/locale` folder contains `repository` and `custom`.
+
+The `repository` folder contains the default locale files. SkinsRestorer uses them when `custom` does not contain the requested locale.
+
+Do not edit files in `repository`. Updates and reloads replace these files.
+
+To change a locale, copy its file from `repository` to `custom`. Then edit the copy.
+
+After a plugin update, compare your copy with the new default. The update can add or change messages.
 
 ## Locale list
 
-Here is a list of all the locales that are currently available in SkinsRestorer.
+SkinsRestorer includes these locales:
 
 ### Locale codes
 

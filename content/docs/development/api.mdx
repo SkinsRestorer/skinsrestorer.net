@@ -7,24 +7,24 @@ icon: Braces
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer has a public API that can be used by other plugins to interact with SkinsRestorer.
+Other plugins can use the public SkinsRestorer API.
 
 <Callout type="warning">
-  Please note that this API is still work-in-progress. Expect breaking changes!
+  The API is not stable. A new release can contain breaking changes.
 </Callout>
 
 ## Resources
 
-You can find useful resources to the SkinsRestorer API below:
+Use these API resources:
 
 - [Example Plugin](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)
 - [Javadocs](https://jd.skinsrestorer.net)
 
 ## Add to your build file
 
-Here is an example of how to add the API to your build file. Select your build tool below.
+Select your build tool, then add the repository and dependency.
 
-Latest Version (Without the v):
+Latest version without the `v` prefix:
 ![Latest Version](https://img.shields.io/github/v/tag/SkinsRestorer/SkinsRestorer?label=version)
 
 <Tabs items={['Maven', 'Gradle (Groovy)', 'Gradle (Kotlin)']}>
@@ -90,13 +90,11 @@ Latest Version (Without the v):
 
 ## Add SkinsRestorer as a dependency
 
-If you want to use the API in your plugin, you will need to add SkinsRestorer as a dependency of your plugin.
-This is used, so SkinsRestorer is loaded BEFORE your plugin, so you can use the API in your `onEnable()` method.
-In the example below, we will use a soft dependency, so your plugin will still work if SkinsRestorer is not installed,
-but to use the API, SkinsRestorer will need to be installed.
-Errors will be thrown if SkinsRestorer is not installed, but you use the API.
-The process below may vary depending on your build configuration.
-(E.g., you have a build plugin that generates plugin configs)
+Add SkinsRestorer as a plugin dependency. The server then loads SkinsRestorer before your plugin.
+
+These examples use an optional dependency. Your plugin can load without SkinsRestorer, but API calls will fail.
+
+If your build generates plugin metadata, add the dependency through that build tool instead.
 
 <Tabs items={['Bukkit', 'BungeeCord', 'Velocity']}>
   <Tab>
@@ -108,7 +106,7 @@ The process below may vary depending on your build configuration.
 
   </Tab>
   <Tab>
-    BungeeCord uses `softDepends` instead of `softdepend` like Bukkit/Spigot.
+    BungeeCord uses `softDepends` instead of the Bukkit `softdepend` key.
     Add the following dependency to your `bungee.yml` or `plugin.yml` file:
 
     ```yml filename="bungee.yml"
@@ -126,7 +124,7 @@ The process below may vary depending on your build configuration.
   </Tab>
 </Tabs>
 
-## Code Examples
+## Code examples
 
 ### Getting the API instance
 
@@ -247,19 +245,19 @@ public boolean isCompatible() {
 }
 ```
 
-## When using BungeeCord/Velocity?
+## Use the API on a proxy network
 
-If you are using BungeeCord/Velocity, you have two options:
+On BungeeCord or Velocity, select one of these options:
 
-1. **Call the API from the proxy**: Have a plugin that calls the API directly on BungeeCord/Velocity.
-   You would need to use plugin messaging channels to send information between your proxy and backend plugins.
+1. **Call the API from the proxy:** Put the API plugin on BungeeCord or Velocity.
+   Use plugin messages to communicate with backend plugins.
 
-2. **Call the API from backend servers**: Enable `server.proxyMode.api` in your backend server's `config.yml` (enabled by default)
-   and configure MySQL to connect to the same database as the proxy. This allows backend plugins to use the SkinsRestorer API directly.
+2. **Call the API from backend servers:** Enable `server.proxyMode.api` on each backend server.
+   Configure the same MySQL database on the proxy and backend servers.
 
 ## Error handling
 
-Always wrap API calls in try-catch blocks:
+Catch errors from API calls:
 
 ```java
 try {
@@ -271,10 +269,10 @@ try {
 }
 ```
 
-## Getting issues?
+## Fix common API problems
 
-- Make sure to import all your classes if you see the message "Cannot find symbol" or "Cannot resolve symbol"
-- Make sure to get the API using `this.skinsRestorer = SkinsRestorerProvider.get();{:java}` and you have the field `private SkinsRestorer skinsRestorer;{:java}` at the start of your class.
-- Make sure to add the dependency to your build file as described above.
-- Make sure to add the dependency to your plugin.yml as described above.
-- If using the API on backend servers behind a proxy, ensure `server.proxyMode.api` is enabled and MySQL is configured to the same database as the proxy.
+- For `Cannot find symbol` or `Cannot resolve symbol`, add the required imports.
+- Get the API with `this.skinsRestorer = SkinsRestorerProvider.get();{:java}`.
+- Add the `private SkinsRestorer skinsRestorer;{:java}` field to the class.
+- Add the dependency to the build file and plugin metadata.
+- On a backend server, enable `server.proxyMode.api` and use the proxy's MySQL database.

@@ -4,92 +4,81 @@ description: Learn how to design skins for SkinsRestorer.
 icon: Palette
 ---
 
-SkinsRestorer allows players and admins to apply custom skins. Skins are basically just `64x64` PNG images stored on the Minecraft CDN and signed via the yggdrasil private key.
-Confused what that means? Don't worry, we got you covered. You don't need to know exactly how it works internally to use it. All you need to know is how to get an arbitrary skin you can use in-game.
+Players and administrators can apply custom skins with SkinsRestorer. A skin is a `64x64` PNG image stored on the Minecraft CDN.
 
-Continue reading to learn how skin PNG files are working internally and how to get or make a custom skin to use in the launcher/with SkinsRestorer.
+Mojang signs each skin with its Yggdrasil private key. You do not need to understand this process to create a skin.
+
+This guide explains the skin format and shows how to get or create a skin.
 
 ## Technical info
 
-Skins allow you to express your personality in Minecraft. But you need to know a few things about skins before you can use them.
+Minecraft skins use a specific image format.
 
-### How do skins need to be formatted?
+### Skin format
 
-Skins are `64x64` pixel images in `.png` format. The skin always consists of two layers: the outer layer and the inner layer.
-The inner layer **must** be fully opaque, while the outer layer can have transparent pixels. The outer layer is used to add details like hats, glasses, or other accessories on top of the inner layer.
+Skins are `64x64` pixel `.png` images. Each skin has an inner layer and an outer layer.
 
-Minecraft allows you to toggle parts of the outer layer on and off in the client.
-This is useful if you want to see the full skin without any accessories.
-To see that feature in action, see this [YouTube video](https://youtu.be/ib8SllVoRy0?t=192) by [@Jonas_Jones](https://www.youtube.com/@Jonas_Jones).
-The client sets this feature, so it also works on skins used with SkinsRestorer! Go to your skin settings in your client and toggle the body parts on and off where the outer layer should be hidden.
+The inner layer **must** be opaque. The outer layer can use transparent pixels for hats, glasses, and other details.
 
-Skin pixels need to be arranged in a specific way. The skin is divided into different parts, like the head, body, arms, and legs.
-There is empty space in the file because a `64x64` image has more pixels than are needed to display the skin.
-Some people like to write their name or a message in the empty space, but it is not necessary as it's unlikely anyone will ever see it.
+The Minecraft client can hide parts of the outer layer. This option also works with SkinsRestorer skins.
 
-### What is a classic/slim or steve/alex skin?
+Open the skin settings in Minecraft. Then select which outer-layer body parts to show.
 
-Minecraft uses two types of skin formats. The first format is known as the classic/steve skin format.
-What differentiates it from the slim/alex skin format is that the classic skin format has 4-pixel wide arms, while the slim skin format has a 3-pixel wide arms.
-Therefore, you may see some skins that look weird when applied to your player model because they are not in the correct format.
-If the pixels are not in the correct format, the skin will likely have black lines or other artifacts on the arms.
-You can usually find what skin format a skin is by looking at the arms. If the arms are 4 pixels wide, it is a classic skin. If the arms are 3 pixels wide, it is a slim skin.
+This [video by @Jonas_Jones](https://youtu.be/ib8SllVoRy0?t=192) shows the option.
 
-### More info?
+The file stores the head, body, arms, and legs in fixed locations. Some parts of the image are unused.
+
+### Classic and slim skins
+
+Minecraft supports two player models:
+
+- **Classic or Steve:** The arms are four pixels wide.
+- **Slim or Alex:** The arms are three pixels wide.
+
+If you select the wrong model, black lines or other errors can appear on the arms.
+
+### More information
 
 You can read more about skins on the [Minecraft Wiki](https://minecraft.wiki/w/Skin) and the [official Minecraft website](https://help.minecraft.net/hc/en-us/articles/4408894664461-Minecraft-Skins-for-Java-Edition).
 
-Both websites contain downloadable templates for the classic and slim skin format to use as a base for your skin.
+Both sites provide classic and slim skin templates.
 
 ## Get or make a custom skin
 
-Now that you know how skins work, you can either get a premade skin or make your own skin.
+Download an existing skin or create a new one.
 
 ### Premade skins
 
-If you want to use premade skins, there are literally thousands of skins available on the internet.
-You can find them on websites like [NameMC](https://namemc.com) or [The Skindex](https://minecraftskins.com).
+Find existing skins on sites such as [NameMC](https://namemc.com) or [The Skindex](https://minecraftskins.com).
 
 ### Make your own skin
 
-There are multiple ways you could create a skin, here we have two popular methods.
+You can use a skin editor or a general image editor.
 
 #### Use a skin editor
 
-You can use a skin editor like [Novaskin](https://novaskin.me) to create your own skin.
-It takes care of the technical details and allows you to design your skin in a user-friendly interface and draw directly on a 3D model.
-It also allows you to use a skin as a template from the internet or its own library.
+Use a skin editor such as [Novaskin](https://novaskin.me). It lets you draw on a 3D model and use an existing skin as a template.
 
 #### Design your skin
 
-You can design your skin in an image editor like [GIMP](https://www.gimp.org/) (free & open-source) or [Adobe Photoshop](https://www.adobe.com/products/photoshop.html) (paid, but more professional).
-You can even use a simple image editor like [Paint.net](https://getpaint.net) or [Pixlr](https://pixlr.com).
+You can also use [GIMP](https://www.gimp.org/), [Adobe Photoshop](https://www.adobe.com/products/photoshop.html), [Paint.net](https://getpaint.net), or [Pixlr](https://pixlr.com).
 
-You need to absolutely make sure that the skin is `64x64` pixels in size and saved as a `.png` file.
-You can get templates for the classic and slim skin format from the [official Minecraft website](https://help.minecraft.net/hc/en-us/articles/4408894664461-Minecraft-Skins-for-Java-Edition).
+Save the skin as a `64x64` pixel `.png` file. The [Minecraft website](https://help.minecraft.net/hc/en-us/articles/4408894664461-Minecraft-Skins-for-Java-Edition) provides templates.
 
 ## Skin problems
 
-Sometimes you might encounter problems with skins. Here are some common issues and how to fix them.
+Use these steps to correct common skin problems.
 
 ### Your skin looks blurry
 
-It is a known problem that skins can appear blurry in your **file explorer** or **image viewer**.
-It is an automatic scaling issue that happens when the image viewer tries to scale the image to fit the window.
-Instead of scaling linearly, it uses a nearest neighbor algorithm, which makes the image appear blurry.
-Most image editors like GIMP or Photoshop do not have this issue, so you can check the skin in there to see if it is actually blurry or not.
+An image viewer can make a small skin look blurry when it enlarges the image. Open the skin in GIMP or Photoshop to inspect it.
 
 ### Your skin has black lines
 
-If your skin has black lines on the arms or other parts, it is likely that the skin is in the wrong format.
-Classic skins have 4-pixel wide arms, while slim skins have 3-pixel wide arms.
-You can fix this by selecting the correct skin format in the launcher,
-by editing the skin in an image editor to match the correct format
-or by overriding the requested format in the SkinsRestorer command.
+Black lines usually mean that the selected player model is wrong.
+
+Select the correct model in the launcher or SkinsRestorer command. You can also edit the image for the correct model.
 
 ### My HD skin is not working
 
-HD skins are not supported by the Minecraft client.
-The vanilla client only supports `64x64` skins.
-HD skins were invented by modders, not by Mojang themselves.
-Therefore, you can't use HD skins in the vanilla client or with SkinsRestorer.
+The standard Minecraft client supports only `64x64` skins. It does not support HD skins, so SkinsRestorer cannot apply them.

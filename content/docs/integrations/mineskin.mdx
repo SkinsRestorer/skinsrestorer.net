@@ -6,8 +6,9 @@ icon: Globe
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer uses [MineSkin](https://mineskin.org) to convert custom PNG files into valid Minecraft skins.
-While MineSkin works without an API key, getting one provides significant benefits.
+SkinsRestorer uses [MineSkin](https://mineskin.org) to convert custom PNG files to valid Minecraft skins.
+
+MineSkin works without an API key. An API key provides higher limits and more features.
 
 ## Why use a MineSkin API key?
 
@@ -20,13 +21,14 @@ While MineSkin works without an API key, getting one provides significant benefi
 
 ## Getting an API key
 
-1. Visit [mineskin.org/apikey](https://mineskin.org/apikey)
-2. Create an account or sign in
-3. Choose a plan that fits your needs
-4. Generate your API key
+1. Open [mineskin.org/apikey](https://mineskin.org/apikey).
+2. Create an account or sign in.
+3. Select a plan.
+4. Create an API key.
 
 <Callout type="info">
-  Use coupon code `SKINSRESTORER10` for 10% off your first three months (valid on plans except Lite). We don't receive a commission—it's just a community perk.
+  Code `SKINSRESTORER10` gives you 10% off the first three months of plans above Lite.
+  SkinsRestorer does not receive a commission.
 </Callout>
 
 ## Configuring your API key
@@ -45,7 +47,7 @@ Then reload the plugin:
 
 ## Secret skins
 
-When `mineSkinSecretSkins` is enabled, skins you generate won't appear in MineSkin's public gallery.
+If `mineSkinSecretSkins` is enabled, generated skins do not appear in MineSkin's public gallery.
 
 ```yaml filename="config.yml"
 api:
@@ -53,54 +55,56 @@ api:
   mineSkinSecretSkins: true
 ```
 
-This is useful for:
-- Custom server skins you don't want shared
+Use this option for:
+- Custom server skins that must stay private
 - Event-specific skins
 - Private branding
 
 ## Rate limits and batching
 
-SkinsRestorer includes built-in rate limit handling:
+SkinsRestorer can group Mojang API requests to reduce rate-limit errors:
 
 ```yaml filename="config.yml"
 api:
   mojangBatchWindowSeconds: 1
 ```
 
-This batches Mojang API requests within a time window to avoid hitting rate limits. The default of 1 second works well for most servers.
+The value sets the request window in seconds. The default value of one second works for most servers.
 
-For high-traffic servers:
-- Increase the batch window to 2-3 seconds
-- Consider a higher-tier MineSkin plan
-- Monitor your MineSkin usage dashboard
+For a server with heavy traffic:
+
+- Increase the request window to two or three seconds.
+- Use a MineSkin plan with higher limits.
+- Monitor the MineSkin usage dashboard.
 
 ## What MineSkin does
 
-MineSkin provides a pool of Minecraft accounts that apply your custom skin PNG to generate valid, Mojang-signed skin data. This allows SkinsRestorer to use any PNG image as a skin.
+MineSkin applies your PNG to an account in its Minecraft account pool. Mojang then creates signed skin data for SkinsRestorer.
 
 <Callout type="warning">
-  MineSkin only generates skin textures. It cannot generate capes, as capes require specific Mojang account verification and cannot be created arbitrarily. See the [Cape Support](/docs/features/capes) page for details.
+  MineSkin creates only skin textures. It cannot create capes because Mojang assigns capes to specific accounts.
+  Read [Cape Support](/docs/features/capes) for more information.
 </Callout>
 
 ## Troubleshooting
 
-### "Rate limited" errors
+### `Rate limited`
 
-- Your API key may have exceeded its limit
-- Wait a few minutes and try again
-- Consider upgrading your MineSkin plan
+- The API key can be above its request limit.
+- Wait a few minutes, then try again.
+- For higher limits, select a different MineSkin plan.
 
-### "Invalid API key" errors
+### `Invalid API key`
 
-- Verify the key is copied correctly
-- Check that the key hasn't expired
-- Regenerate the key on MineSkin's website
+- Make sure that you copied the complete key.
+- Make sure that the key did not expire.
+- Create a new key on the MineSkin website.
 
 ### Slow skin generation
 
-- Check your MineSkin dashboard for queue status
-- Higher-tier plans get priority
-- Server load affects generation speed
+- Read the queue status on the MineSkin dashboard.
+- Plans with higher limits get priority.
+- High server load can make generation slower.
 
 ## MineSkin plans comparison
 
