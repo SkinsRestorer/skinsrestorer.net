@@ -204,6 +204,7 @@ export interface MineSkinUploadOptions {
   waitMs?: number;
   capeUuid?: string;
   apiKey?: string;
+  captchaToken?: string;
   callbacks?: MineSkinUploadCallbacks;
   useCapeProxy?: boolean;
 }
@@ -215,12 +216,17 @@ export async function uploadMineSkinFile({
   waitMs,
   capeUuid,
   apiKey,
+  captchaToken,
   callbacks,
   useCapeProxy,
 }: MineSkinUploadOptions): Promise<MineSkinJobSuccessResponse> {
   callbacks?.onStart?.();
 
   try {
+    if (useCapeProxy && !captchaToken?.trim()) {
+      throw new Error("Complete the human verification before uploading");
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("variant", variant);
@@ -237,7 +243,10 @@ export async function uploadMineSkinFile({
     const response = await fetch(enqueueUrl, {
       method: "POST",
       headers: useCapeProxy
-        ? { "User-Agent": MINESKIN_USER_AGENT }
+        ? {
+            "h-captcha-response": captchaToken as string,
+            "User-Agent": MINESKIN_USER_AGENT,
+          }
         : createMineSkinHeaders(apiKey),
       body: formData,
     });

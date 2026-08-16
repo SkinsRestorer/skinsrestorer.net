@@ -5,6 +5,7 @@
     "": {
       "name": "skinsrestorer.net",
       "dependencies": {
+        "@hcaptcha/react-hcaptcha": "2.0.2",
         "@icons-pack/react-simple-icons": "^13.7.0",
         "@paper-design/shaders-react": "^0.0.77",
         "@radix-ui/react-dialog": "^1.1.15",
@@ -226,6 +227,8 @@
     "@fuma-translate/react": ["@fuma-translate/react@1.0.2", "", { "optionalDependencies": { "@types/react": "19.2.17" }, "peerDependencies": { "react": "19.2.8", "react-dom": "19.2.8" } }, "sha512-uOiOtBx3nRXR8Nu1GzBf1tApgF1FErDBTHxRIAQeyQdyOoZbrNRN6H4kDCWObY4qyGeGbHydG0DHzgeUgFDMIw=="],
 
     "@fumadocs/tailwind": ["@fumadocs/tailwind@0.1.1", "", { "optionalDependencies": { "tailwindcss": "4.3.3" } }, "sha512-BnPe52UxSaG8yKlHMKBxXw8h6GpK5qO55ci6+Qd5JnquTvIw6SpfbC1P+qAi82PuPWv1KZAWY8bxRk4+x9ctXw=="],
+
+    "@hcaptcha/react-hcaptcha": ["@hcaptcha/react-hcaptcha@2.0.2", "", {}, "sha512-VbuH6VJ6m3BHmVBHs0fL9t+suZd7PQEqCzqL2BiUbBvbHI3XfvSgdiug2QiEPN8zskbPTIV/FfGPF53JCckrow=="],
 
     "@hono/node-server": ["@hono/node-server@1.19.14", "", { "peerDependencies": { "hono": "4.12.31" } }, "sha512-GwtvgtXxnWsucXvbQXkRgqksiH2Qed37H9xHZocE5sA3N8O8O8/8FA3uclQXxXVzc9XBZuEOMK7+r02FmSpHtw=="],
 

@@ -3,6 +3,7 @@
 import { Upload, X } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
+import { AxolotlCaptcha } from "@/components/axolotl-captcha";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { OnlineCard } from "@/components/online-card";
 import { SkinCard } from "@/components/skin-card";
@@ -27,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAxolotlCaptcha } from "@/lib/hooks/use-axolotl-captcha";
 import {
   NO_CAPE_VALUE,
   useCapeSelection,
@@ -60,6 +62,9 @@ export const UploadCard = () => {
     handleCapeSelect,
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
+  const { captchaToken, captchaResetKey, setCaptchaToken, resetCaptcha } =
+    useAxolotlCaptcha();
+  const shouldUseCapeProxy = useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE;
 
   async function uploadSkin() {
     if (!selectedFile) {
@@ -69,32 +74,42 @@ export const UploadCard = () => {
 
     setResultUrl(null);
 
-    toast.promise(
-      uploadMineSkinFile({
-        file: selectedFile,
-        variant: skinType,
-        capeUuid:
-          selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
-        apiKey: normalizedApiKey || undefined,
-        useCapeProxy: useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE,
-        callbacks: {
-          onStart: () => setLoading(true),
-          onComplete: () => setLoading(false),
-          onError: () => setLoading(false),
-        },
-      }).then((completed) => {
-        const url =
-          completed.skin.url || `https://minesk.in/${completed.skin.uuid}`;
-
-        if (!url) throw new Error("Could not extract skin URL from response");
-        setResultUrl(url);
-      }),
-      {
-        loading: "Uploading skin to MineSkin...",
-        success: "Skin uploaded successfully.",
-        error: (e) => `Failed to upload skin: ${e}`,
+    const uploadPromise = uploadMineSkinFile({
+      file: selectedFile,
+      variant: skinType,
+      capeUuid:
+        selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
+      apiKey: normalizedApiKey || undefined,
+      captchaToken: captchaToken || undefined,
+      useCapeProxy: shouldUseCapeProxy,
+      callbacks: {
+        onStart: () => setLoading(true),
+        onComplete: () => setLoading(false),
+        onError: () => setLoading(false),
       },
-    );
+    }).then((completed) => {
+      const url =
+        completed.skin.url || `https://minesk.in/${completed.skin.uuid}`;
+
+      if (!url) throw new Error("Could not extract skin URL from response");
+      setResultUrl(url);
+    });
+
+    toast.promise(uploadPromise, {
+      loading: "Uploading skin to MineSkin...",
+      success: "Skin uploaded successfully.",
+      error: (e) => `Failed to upload skin: ${e}`,
+    });
+
+    try {
+      await uploadPromise;
+    } catch {
+      // The toast reports the upload error.
+    } finally {
+      if (shouldUseCapeProxy) {
+        resetCaptcha();
+      }
+    }
   }
 
   const skinCommandId = useId();
@@ -186,6 +201,7 @@ export const UploadCard = () => {
               value={target}
               onValueChange={(value) => {
                 setTarget(value as SkinUploadTarget);
+                resetCaptcha();
               }}
               className="flex flex-col gap-2"
             >
@@ -219,11 +235,25 @@ export const UploadCard = () => {
             selectedCapeUuid={selectedCapeUuid}
             onApiKeyChange={handleApiKeyChange}
             onCheckCapeAccess={loadCapeSupport}
-            onCapeChange={handleCapeSelect}
+            onCapeChange={(capeUuid) => {
+              handleCapeSelect(capeUuid);
+              resetCaptcha();
+            }}
             showApiKeyFields={target === "mineskin"}
           />
 
-          <Button onClick={uploadSkin} disabled={loading} className="w-full">
+          {shouldUseCapeProxy ? (
+            <AxolotlCaptcha
+              key={captchaResetKey}
+              onTokenChange={setCaptchaToken}
+            />
+          ) : null}
+
+          <Button
+            onClick={uploadSkin}
+            disabled={loading || (shouldUseCapeProxy && !captchaToken)}
+            className="w-full"
+          >
             Generate /skin url
           </Button>
 

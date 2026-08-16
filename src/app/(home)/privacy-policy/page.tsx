@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
       <article className="prose max-w-none dark:prose-invert">
         <h1>Privacy Policy</h1>
         <p>
-          <strong>Last updated:</strong> March 21, 2026
+          <strong>Last updated:</strong> July 28, 2026
         </p>
 
         <p>
@@ -48,6 +48,10 @@ export default function PrivacyPolicyPage() {
           <li>
             Browser storage used to remember things like docs feedback and
             preference state
+          </li>
+          <li>
+            Challenge, browser, interaction, and network data processed by
+            hCaptcha when you verify an Axolotl upload
           </li>
         </ul>
 
@@ -89,6 +93,10 @@ export default function PrivacyPolicyPage() {
           <li>Ahrefs for SEO and traffic analytics</li>
           <li>
             MineSkin or SkinsRestorer Axolotl when you use upload features
+          </li>
+          <li>
+            <a href="https://www.hcaptcha.com/privacy">hCaptcha</a> for bot and
+            abuse prevention when you upload through Axolotl
           </li>
           <li>
             GitHub, Discord, or Modrinth when you follow outbound links or use

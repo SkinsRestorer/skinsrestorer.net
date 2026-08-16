@@ -17,6 +17,7 @@
   "license": "ISC",
   "packageManager": "bun@1.3.14",
   "dependencies": {
+    "@hcaptcha/react-hcaptcha": "2.0.2",
     "@icons-pack/react-simple-icons": "^13.7.0",
     "@paper-design/shaders-react": "^0.0.77",
     "@radix-ui/react-dialog": "^1.1.15",

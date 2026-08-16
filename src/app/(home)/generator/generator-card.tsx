@@ -3,6 +3,7 @@
 import { Upload, X } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
+import { AxolotlCaptcha } from "@/components/axolotl-captcha";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { OnlineCard } from "@/components/online-card";
 import { SkinCard } from "@/components/skin-card";
@@ -27,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAxolotlCaptcha } from "@/lib/hooks/use-axolotl-captcha";
 import {
   NO_CAPE_VALUE,
   useCapeSelection,
@@ -66,6 +68,8 @@ export const GenerateFileCard = () => {
     handleCapeSelect,
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
+  const { captchaToken, captchaResetKey, setCaptchaToken, resetCaptcha } =
+    useAxolotlCaptcha();
 
   const customNameId = useId();
   const customSkinCommandId = useId();
@@ -74,6 +78,68 @@ export const GenerateFileCard = () => {
     : "";
 
   const shouldUseCapeProxy = useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE;
+
+  async function generateCustomSkin() {
+    if (!selectedFile) {
+      toast.warning("Please select a file to generate.");
+      return;
+    }
+
+    if (customName && !isValidSkinName(customName)) {
+      toast.warning(
+        "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
+      );
+      return;
+    }
+
+    setResult(null);
+    const variantForCommand = skinType;
+    const uploadPromise = uploadMineSkinFile({
+      file: selectedFile,
+      variant: skinType,
+      name: customName || undefined,
+      capeUuid:
+        selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
+      apiKey: normalizedApiKey || undefined,
+      captchaToken: captchaToken || undefined,
+      useCapeProxy: shouldUseCapeProxy,
+      callbacks: {
+        onStart: () => setLoading(true),
+        onError: () => setLoading(false),
+        onComplete: () => setLoading(false),
+      },
+    }).then((completedJob) => {
+      const skin = completedJob.skin;
+      const skinName =
+        customName ||
+        skin.name ||
+        String(skin.uuid) ||
+        Math.random().toString(36).substring(2, 8);
+      const url = skin.url || `https://minesk.in/${skin.uuid}`;
+
+      setResult({
+        name: skinName,
+        url,
+        variant: variantForCommand,
+      });
+    });
+
+    toast.promise(uploadPromise, {
+      loading: "Generating custom skin...",
+      success: "Command ready to copy.",
+      error: (e) => `Failed to generate custom skin: ${e}`,
+    });
+
+    try {
+      await uploadPromise;
+    } catch {
+      // The toast reports the upload error.
+    } finally {
+      if (shouldUseCapeProxy) {
+        resetCaptcha();
+      }
+    }
+  }
 
   return (
     <>
@@ -161,6 +227,7 @@ export const GenerateFileCard = () => {
                 value={target}
                 onValueChange={(value) => {
                   setTarget(value as SkinGenerationTarget);
+                  resetCaptcha();
                 }}
                 className="flex flex-col gap-2"
               >
@@ -193,7 +260,10 @@ export const GenerateFileCard = () => {
               selectedCapeUuid={selectedCapeUuid}
               onApiKeyChange={handleApiKeyChange}
               onCheckCapeAccess={loadCapeSupport}
-              onCapeChange={handleCapeSelect}
+              onCapeChange={(capeUuid) => {
+                handleCapeSelect(capeUuid);
+                resetCaptcha();
+              }}
               showApiKeyFields={target === "mineskin"}
             />
             <div className="flex flex-col gap-2">
@@ -210,61 +280,15 @@ export const GenerateFileCard = () => {
                 }}
               />
             </div>
+            {shouldUseCapeProxy ? (
+              <AxolotlCaptcha
+                key={captchaResetKey}
+                onTokenChange={setCaptchaToken}
+              />
+            ) : null}
             <Button
-              onClick={() => {
-                if (!selectedFile) {
-                  toast.warning("Please select a file to generate.");
-                  return;
-                }
-
-                if (customName && !isValidSkinName(customName)) {
-                  toast.warning(
-                    "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
-                  );
-                  return;
-                }
-
-                setResult(null);
-                const variantForCommand = skinType;
-                toast.promise(
-                  uploadMineSkinFile({
-                    file: selectedFile,
-                    variant: skinType,
-                    name: customName || undefined,
-                    capeUuid:
-                      selectedCapeUuid === NO_CAPE_VALUE
-                        ? undefined
-                        : selectedCapeUuid,
-                    apiKey: normalizedApiKey || undefined,
-                    useCapeProxy: shouldUseCapeProxy,
-                    callbacks: {
-                      onStart: () => setLoading(true),
-                      onError: () => setLoading(false),
-                      onComplete: () => setLoading(false),
-                    },
-                  }).then((completedJob) => {
-                    const skin = completedJob.skin;
-                    const skinName =
-                      customName ||
-                      skin.name ||
-                      String(skin.uuid) ||
-                      Math.random().toString(36).substring(2, 8);
-                    const url = skin.url || `https://minesk.in/${skin.uuid}`;
-
-                    setResult({
-                      name: skinName,
-                      url,
-                      variant: variantForCommand,
-                    });
-                  }),
-                  {
-                    loading: "Generating custom skin...",
-                    success: "Command ready to copy.",
-                    error: (e) => `Failed to generate custom skin: ${e}`,
-                  },
-                );
-              }}
-              disabled={loading}
+              onClick={generateCustomSkin}
+              disabled={loading || (shouldUseCapeProxy && !captchaToken)}
               className="w-full"
             >
               Generate /sr createcustom command

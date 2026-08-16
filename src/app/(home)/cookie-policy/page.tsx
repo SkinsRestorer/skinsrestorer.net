@@ -12,7 +12,7 @@ export default function CookiePolicyPage() {
       <article className="prose max-w-none dark:prose-invert">
         <h1>Cookie Policy</h1>
         <p>
-          <strong>Last updated:</strong> March 21, 2026
+          <strong>Last updated:</strong> July 28, 2026
         </p>
 
         <p>
@@ -59,6 +59,13 @@ export default function CookiePolicyPage() {
           When you use upload-related features, your browser may communicate
           directly with MineSkin or SkinsRestorer Axolotl. Those services have
           their own privacy and cookie practices.
+        </p>
+        <p>
+          When an upload uses Axolotl, the page loads hCaptcha for bot and abuse
+          prevention. hCaptcha may use cookies or similar browser technologies
+          needed to provide its verification service. See the{" "}
+          <a href="https://www.hcaptcha.com/privacy">hCaptcha Privacy Policy</a>{" "}
+          for details.
         </p>
 
         <h2>6. Managing cookies</h2>
