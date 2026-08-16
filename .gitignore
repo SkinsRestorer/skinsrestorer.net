@@ -69,6 +69,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.playwright-mcp/
 
 public/sitemap*
 _pagefind/
