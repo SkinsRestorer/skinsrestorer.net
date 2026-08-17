@@ -1,6 +1,6 @@
 ---
 title: Common issues
-description: Learn how to troubleshoot common issues with SkinsRestorer.
+description: Find the cause of a common SkinsRestorer problem.
 icon: TriangleAlert
 ---
 
@@ -8,17 +8,20 @@ This page lists common causes of SkinsRestorer problems.
 
 ## Host-specific issues
 
-Your Minecraft hosting provider can restrict the plugin.
+Your Minecraft hosting provider can block some SkinsRestorer functions.
 
 ### Servers with a forced proxy
 
-Some providers, such as Minehut, force servers to use a proxy that customers cannot configure.
+Some providers, such as Minehut, put each server behind a proxy.
+Customers cannot always configure this proxy.
 
-If that proxy manages skins and capes, it can override SkinsRestorer. Ask the hosting provider whether you can disable its skin system.
+If the proxy manages skins and capes, it can override SkinsRestorer.
+Ask the hosting provider if it can disable the proxy skin system.
 
 ### Servers with a misconfigured firewall
 
-A hosting firewall can block the SkinsRestorer APIs. If `/sr status` reports connection errors, follow the [firewall guide](/docs/troubleshooting/firewall).
+A hosting firewall can block the SkinsRestorer APIs.
+If `/sr status` reports connection errors, use the [firewall guide](/docs/troubleshooting/firewall).
 
 ## Platform-specific issues
 
@@ -41,7 +44,7 @@ Hybrid platforms such as Magma, Mohist, and Cardboard are not supported.
 
 ## Plugin-specific issues
 
-Other plugins can change player profiles and override SkinsRestorer.
+Other plugins can change player profiles. These changes can override SkinsRestorer.
 
 ### Plugins with known issues
 
@@ -49,13 +52,12 @@ Read the [incompatibility list](/docs/troubleshooting/incompatibility-list). If 
 
 ## Client-specific issues
 
-Some launchers include a skin system that overrides server skins. Follow the [launcher guide](/docs/troubleshooting/launcher-issues) to disable it.
-
-## Other issues
+Some launchers include a skin system that overrides server skins.
+Use the [launcher guide](/docs/troubleshooting/launcher-issues) to disable that system.
 
 ## Get more help
 
-If these guides do not correct the problem, contact us:
+If these guides do not correct the problem, contact the SkinsRestorer team:
 
 - [Discord](https://skinsrestorer.net/discord)
 - [GitHub Issues](https://github.com/SkinsRestorer/SkinsRestorer/issues)

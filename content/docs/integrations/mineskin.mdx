@@ -1,14 +1,15 @@
 ---
 title: MineSkin Integration
-description: Learn how to configure MineSkin API integration for faster skin uploads.
+description: Add a MineSkin API key for higher upload limits.
 icon: Globe
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer uses [MineSkin](https://mineskin.org) to convert custom PNG files to valid Minecraft skins.
+SkinsRestorer uses [MineSkin](https://mineskin.org) to convert custom PNG files into valid Minecraft skins.
 
-MineSkin works without an API key. An API key provides higher limits and more features.
+MineSkin works without an API key.
+An API key provides higher limits and more features.
 
 ## Why use a MineSkin API key?
 
@@ -40,14 +41,14 @@ api:
   mineSkinApiKey: "your-api-key-here"
 ```
 
-Then reload the plugin:
+Then reload SkinsRestorer:
 ```
 /sr reload
 ```
 
 ## Secret skins
 
-If `mineSkinSecretSkins` is enabled, generated skins do not appear in MineSkin's public gallery.
+If `mineSkinSecretSkins` is enabled, MineSkin does not show generated skins in its public gallery.
 
 ```yaml filename="config.yml"
 api:
@@ -62,14 +63,15 @@ Use this option for:
 
 ## Rate limits and batching
 
-SkinsRestorer can group Mojang API requests to reduce rate-limit errors:
+SkinsRestorer can group Mojang API requests. This reduces rate-limit errors.
 
 ```yaml filename="config.yml"
 api:
   mojangBatchWindowSeconds: 1
 ```
 
-The value sets the request window in seconds. The default value of one second works for most servers.
+The value sets the request window in seconds.
+The default value of one second works for most servers.
 
 For a server with heavy traffic:
 
@@ -79,10 +81,12 @@ For a server with heavy traffic:
 
 ## What MineSkin does
 
-MineSkin applies your PNG to an account in its Minecraft account pool. Mojang then creates signed skin data for SkinsRestorer.
+MineSkin applies your PNG to an account in its Minecraft account pool.
+Mojang then creates signed skin data for SkinsRestorer.
 
 <Callout type="warning">
-  MineSkin creates only skin textures. It cannot create capes because Mojang assigns capes to specific accounts.
+  MineSkin creates only skin textures.
+  It cannot create capes because Mojang assigns capes to specific accounts.
   Read [Cape Support](/docs/features/capes) for more information.
 </Callout>
 

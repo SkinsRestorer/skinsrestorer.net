@@ -1,6 +1,6 @@
 ---
 title: How SkinsRestorer works
-description: Learn how SkinsRestorer gets and caches skin data.
+description: Understand how SkinsRestorer requests and applies skin data.
 icon: Cog
 ---
 
@@ -8,19 +8,22 @@ import { Callout } from 'fumadocs-ui/components/callout';
 import { Mermaid } from '../../../src/components/mdx/mermaid';
 
 <Callout type="info">
-  Read the [storage page](/docs/development/storage) first. It explains the skin data used on this page.
+  Read the [storage page](/docs/development/storage) first.
+  It explains the skin data used on this page.
 </Callout>
 
 This page explains how SkinsRestorer gets and applies skins.
 
 ## Recap
 
-SkinsRestorer gets signed player skin data from Mojang. The Minecraft client accepts only skin data that Mojang signed.
+SkinsRestorer gets signed player skin data from Mojang.
+The Minecraft client accepts only skin data that Mojang signed.
 
 This rule also keeps official capes linked to approved accounts.
 
 <Callout emoji="📔">
-  Signed-skin restrictions apply to players, not Minecraft heads. Citizens NPCs also use player skin rules.
+  Signed-skin restrictions apply to players, not Minecraft heads.
+  Citizens NPCs also use the player skin rules.
 </Callout>
 
 SkinsRestorer gets skins in two ways:
@@ -31,10 +34,10 @@ SkinsRestorer gets skins in two ways:
 SkinsRestorer uses [MineSkin](https://mineskin.org) for the second method.
 
 <Callout emoji="🎉">
-  Paid MineSkin plans above Lite include cape generation, higher limits, and other features. Visit the
+  Paid MineSkin plans above Lite include higher limits and more features. Visit the
   <a href="https://mineskin.org/apikey" target="_blank" rel="noreferrer">MineSkin API keys page</a>
   and use coupon code <code>SKINSRESTORER10</code>.
-  The code gives you 10% off the first three months of plans above Lite.
+  The code gives you 10% off the first three months.
   SkinsRestorer does not receive a commission.
 </Callout>
 
@@ -64,6 +67,7 @@ SkinsRestorer uses these endpoints to cache and distribute skin data:
 - `axolotl.skinsrestorer.net` - Handles MineSkin URL decryption
 - `cool-skins.skinsrestorer.net` - Provides recommended/featured skins
 
-These endpoints are a cache between your server and Mojang. The cache reduces Mojang API requests and rate-limit errors.
+These endpoints provide a cache between your server and Mojang.
+The cache reduces Mojang API requests and rate-limit errors.
 
 It can also provide cached skin data when Mojang is slow or unavailable.

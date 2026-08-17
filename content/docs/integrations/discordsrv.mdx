@@ -1,6 +1,6 @@
 ---
 title: DiscordSRV
-description: Learn how to integrate SkinsRestorer with DiscordSRV.
+description: Show SkinsRestorer avatars in DiscordSRV.
 icon: MessagesSquare
 ---
 
@@ -13,13 +13,15 @@ Use PlaceholderAPI to show SkinsRestorer skins in DiscordSRV messages.
 <Steps>
   <Step>
     ### Prepare your server
-    Install the latest versions of [SkinsRestorer](/docs/installation), [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/),
-    and [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/).
+    Install the latest version of [SkinsRestorer](/docs/installation).
+    Then install [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/).
+    Also install [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/).
   </Step>
 
   <Step>
     ### Configure DiscordSRV
-    Open the DiscordSRV `config.yml` file. Find the `Embed & webhook image/avatar url format` section:
+    Open the DiscordSRV `config.yml` file.
+    Find the `Embed & webhook image/avatar url format` section:
 
     ```yaml filename="plugins/DiscordSRV/config.yml"
     AvatarUrl: https://crafatar.com/avatars/{uuid - nodashes}.png?size={size}&overlay#{texture}

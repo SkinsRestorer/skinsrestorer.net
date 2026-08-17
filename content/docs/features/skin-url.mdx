@@ -1,25 +1,27 @@
 ---
 title: Skin URL Upload
-description: Learn how to use the SkinsRestorer /upload page to generate a /skin url command.
+description: Create a /skin url command from a skin PNG.
 icon: Link
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-The [/upload](/upload) page converts a skin PNG to a `/skin url` command. The page uploads the file through MineSkin.
+The [/upload](/upload) page converts a skin PNG into a `/skin url` command.
+MineSkin processes the uploaded file.
 
 <Callout emoji="🎉">
-  Paid MineSkin plans above Lite include cape generation, higher limits, and other features. Visit the
+  Paid MineSkin plans above Lite include higher limits and more features. Visit the
   <a href="https://mineskin.org/apikey" target="_blank" rel="noreferrer">MineSkin API keys page</a>
   and use coupon code <code>SKINSRESTORER10</code>.
-  The code gives you 10% off the first three months of plans above Lite.
+  The code gives you 10% off the first three months.
   SkinsRestorer does not receive a commission.
 </Callout>
 
 ## Before you start
 
-Save a valid Minecraft skin PNG on your computer. The image must usually be 64x64 or 64x32 pixels.
+Save a valid Minecraft skin PNG on your computer.
+The image must be 64x64 or 64x32 pixels.
 
 If you need a skin, follow the [skin design guide](/docs/features/skin-design).
 
@@ -29,14 +31,15 @@ If you need a skin, follow the [skin design guide](/docs/features/skin-design).
   <Step>
     ### Open the /upload page
 
-    Visit the [/upload](/upload) page on skinsrestorer.net.
+    Open the [/upload](/upload) page.
     The page shows an upload area and a **Generate /skin url** button.
   </Step>
 
   <Step>
     ### Select your skin PNG
 
-    Drag the file into the upload area. You can also select **Choose file**.
+    Drag the file into the upload area.
+    You can also select **Choose file**.
 
     Make sure that the preview shows the correct skin.
   </Step>
@@ -44,9 +47,10 @@ If you need a skin, follow the [skin design guide](/docs/features/skin-design).
   <Step>
     ### Copy the generated command
 
-    Select **Generate /skin url**. The site uploads the PNG and creates a command.
+    Select **Generate /skin url**.
+    The site uploads the PNG and creates a command.
 
-    Use the copy button or copy the `/skin url "https://..."` text.
+    Use the copy button. You can also copy the `/skin url "https://..."` text manually.
 
     Paste the command into the game chat or console. Keep the URL inside quotation marks.
   </Step>
@@ -54,7 +58,7 @@ If you need a skin, follow the [skin design guide](/docs/features/skin-design).
 
 ## Troubleshooting
 
-- **The upload fails:** Make sure that the PNG is smaller than 3 MB and uses standard Minecraft skin dimensions.
+- **The upload fails:** Make sure that the PNG is smaller than 3 MB. Use standard Minecraft skin dimensions.
 - **The command has no quotation marks:** Put the URL inside quotation marks.
 - **You changed the skin:** Upload it again to create a new URL.
 

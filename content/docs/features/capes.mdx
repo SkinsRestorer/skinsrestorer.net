@@ -1,6 +1,6 @@
 ---
 title: Cape Support
-description: Learn how SkinsRestorer handles capes.
+description: Understand which capes SkinsRestorer can show.
 icon: Crown
 ---
 
@@ -19,18 +19,20 @@ Capes come from:
 - **Pan Cape:** The only cape given automatically to all players
 
 <Callout type="info">
-  You cannot create a custom cape or move a cape to another account. Each cape belongs to a Mojang or Microsoft account.
+  You cannot create a custom cape or move a cape to another account.
+  Each cape belongs to a Mojang or Microsoft account.
 </Callout>
 
 ## How SkinsRestorer handles capes
 
-When you use `/skin <playerName>`, SkinsRestorer gets the complete skin data from Mojang. The data contains:
+When you use `/skin <playerName>`, SkinsRestorer gets the complete skin data from Mojang.
+The data contains:
 
 - The skin texture
 - The cape texture (if the player has one equipped)
 - Mojang's cryptographic signature
 
-If the source player has a cape, your character also shows that cape.
+If the source player has an equipped cape, your character also shows it.
 
 ### Example
 
@@ -38,7 +40,7 @@ If the source player has a cape, your character also shows that cape.
 /skin Dinnerbone
 ```
 
-If Dinnerbone equips a Mojang employee cape, your character shows his skin and cape.
+If Dinnerbone equips a Mojang employee cape, your character shows the same skin and cape.
 
 ## Limitations
 
@@ -60,7 +62,7 @@ If Dinnerbone equips a Mojang employee cape, your character shows his skin and c
 
 ## Finding players with capes
 
-To copy a cape, find the username of a player who equips one.
+To copy a cape, find a player who has equipped one.
 
 Players with capes include:
 - Mojang employees (Mojang cape)
@@ -103,4 +105,5 @@ Cape data is part of Mojang's signed skin property. The Base64-encoded texture d
 }
 ```
 
-The cape URL exists only when the player equips a cape. Mojang signs the complete payload, so SkinsRestorer cannot create custom capes.
+The cape URL exists only when the player equips a cape.
+Mojang signs the complete data. Therefore, SkinsRestorer cannot create custom capes.

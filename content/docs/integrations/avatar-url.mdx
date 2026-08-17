@@ -1,13 +1,13 @@
 ---
 title: Avatar URL
-description: Learn how to use SkinsRestorer avatars in other plugins.
+description: Show SkinsRestorer avatars in another plugin.
 icon: Image
 ---
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Use a SkinsRestorer placeholder to show a player's head in another plugin.
+Use a SkinsRestorer placeholder to show a player's current head in another plugin.
 
 <Callout type="info" emoji="ℹ️">
   For Discord messages, use the guide for
@@ -18,7 +18,8 @@ Use a SkinsRestorer placeholder to show a player's head in another plugin.
 <Steps>
   <Step>
     ### Prepare your server
-    Install the latest versions of [SkinsRestorer](/docs/installation) and
+    Install the latest version of [SkinsRestorer](/docs/installation).
+    Then install the latest version of
     [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/).
 
     Make sure that the other plugin accepts PlaceholderAPI placeholders in avatar URLs.
@@ -27,7 +28,8 @@ Use a SkinsRestorer placeholder to show a player's head in another plugin.
 
   <Step>
     ### Configure the plugin
-    Find the avatar URL in the plugin's configuration or message file. Replace it with:
+    Find the avatar URL in the plugin's configuration or message file.
+    Replace it with:
 
     ```yaml
     https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png

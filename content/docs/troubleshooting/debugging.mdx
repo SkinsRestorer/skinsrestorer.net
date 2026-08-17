@@ -1,16 +1,16 @@
 ---
 title: Debugging and Logs
-description: Learn how to diagnose issues with SkinsRestorer using logs and debug tools.
+description: Use logs and debug tools to find SkinsRestorer problems.
 icon: Bug
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer provides commands and logs that help you find errors.
+SkinsRestorer provides commands and logs that show errors and connection problems.
 
 ## Debug mode
 
-Enable debug logging to record API requests and internal operations.
+Enable debug logging to record API requests and internal actions.
 
 ```yaml filename="config.yml"
 dev:
@@ -29,7 +29,8 @@ Debug mode records:
 - Plugin messaging channel communication
 
 <Callout type="warning">
-  Debug mode writes many log messages. Enable it only while you collect information, then disable it.
+  CAUTION: Debug mode writes many log messages.
+  Enable it only while you collect information. Then disable it.
 </Callout>
 
 ## Using /sr dump
@@ -47,11 +48,12 @@ The command uploads:
 - Installed plugins list
 - System information
 
-The command returns a URL such as `https://bytebin.lucko.me/xxxxx`. Send this URL to support.
+The command returns a URL such as `https://bytebin.lucko.me/xxxxx`.
+Send this URL to support.
 
 ## Using /sr status
 
-Show the connection status of required API endpoints:
+Use this command to show the connection status of required API endpoints:
 
 ```
 /sr status
@@ -64,7 +66,7 @@ The command shows:
 - Mojang API endpoints
 - MineSkin API (if configured)
 
-If an endpoint is unavailable, follow the [firewall guide](/docs/troubleshooting/firewall).
+If an endpoint is unavailable, use the [firewall guide](/docs/troubleshooting/firewall).
 
 ## Understanding log messages
 
@@ -88,7 +90,8 @@ or for proxy networks:
 ```
 [SkinsRestorer] Proxy mode files are deprecated, please use the config file instead.
 ```
-This warning means that old `.txt` configuration files exist. Move their values to `config.yml`.
+This warning means that old `.txt` configuration files exist.
+Move their values to `config.yml`.
 
 ### Common log errors
 
@@ -102,7 +105,7 @@ Make sure that the firewall permits the required connections.
 ```
 [SkinsRestorer] Rate limited by Mojang API
 ```
-SkinsRestorer retries this request automatically.
+SkinsRestorer sends this request again automatically.
 
 **Database errors:**
 ```
@@ -121,7 +124,7 @@ Make sure that MySQL is available and the credentials are correct.
 
 ## Filtering logs for SkinsRestorer
 
-Use one of these commands to find SkinsRestorer messages.
+Use the command for your operating system to find SkinsRestorer messages.
 
 **Linux/Mac:**
 ```bash
@@ -140,9 +143,9 @@ Select-String -Path logs/latest.log -Pattern "skinsrestorer" -CaseSensitive:$fal
 1. Enable debug mode.
 2. Run `/skin <playerName>`.
 3. Find these messages in the log:
-   - "Fetching skin data for..." - API request started
-   - "Received skin data..." - Data received successfully
-   - "Applying skin to..." - Application started
+   - "Fetching skin data for...": The API request started
+   - "Received skin data...": SkinsRestorer received the data
+   - "Applying skin to...": SkinsRestorer started to apply the skin
    - Any error messages
 
 ### Proxy mode issues
@@ -165,7 +168,7 @@ When you ask for help:
 
 1. Run `/sr dump` and include the link.
 2. Describe the expected result and the actual result.
-3. Include error messages from the log.
+3. Include the error messages from the log.
 4. Include the server platform and version.
 
 **Support channels:**

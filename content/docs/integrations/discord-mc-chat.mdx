@@ -1,6 +1,6 @@
 ---
 title: Discord-MC-Chat
-description: Learn how to integrate SkinsRestorer with Discord-MC-Chat.
+description: Show SkinsRestorer avatars in Discord-MC-Chat.
 icon: MessageSquare
 ---
 
@@ -13,12 +13,14 @@ Use the texture placeholder to show SkinsRestorer skins in Discord-MC-Chat messa
 <Steps>
   <Step>
     ### Prepare your server
-    Install the latest versions of [SkinsRestorer](/docs/installation) and [Discord-MC-Chat](https://modrinth.com/mod/discord-mc-chat).
+    Install the latest version of [SkinsRestorer](/docs/installation).
+    Then install the latest version of [Discord-MC-Chat](https://modrinth.com/mod/discord-mc-chat).
   </Step>
 
   <Step>
     ### Configure Discord-MC-Chat
-    Open `./config/discord-mc-chat.json`. Find the `avatarApi` value:
+    Open `./config/discord-mc-chat.json`.
+    Find the `avatarApi` value:
 
     ```json filename="config/discord-mc-chat.json"
     "avatarApi": "https://mc-heads.net/avatar/{player_uuid}.png",

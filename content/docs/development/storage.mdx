@@ -1,42 +1,50 @@
 ---
 title: How SkinsRestorer stores data
-description: Learn how SkinsRestorer manages skin and player data.
+description: Understand the skin and player data that SkinsRestorer stores.
 icon: HardDrive
 ---
 
-SkinsRestorer stores skin data in files or a database. Your configuration selects the storage type.
+SkinsRestorer stores skin data in local files or a database.
+Your configuration selects the storage type.
 
 ## Why SkinsRestorer stores skins
 
-Stored skin data acts as a local cache. It contains the same data that Mojang sends to an online-mode server.
+Stored skin data is a local cache.
+It contains the same data that Mojang sends to an online-mode server.
 
-The cache reduces Mojang API requests. It can also provide skins when Mojang is unavailable.
+The cache reduces requests to the Mojang API.
+It can also provide skins when Mojang is unavailable.
 
-## What type of data is stored?
+## Stored data
 
-When you run `/skin Dinnerbone`, SkinsRestorer stores Dinnerbone's skin data. It updates the cached data after Dinnerbone changes his skin.
+When you run `/skin Dinnerbone`, SkinsRestorer stores the skin data for Dinnerbone.
+It updates the cache after that account changes its skin.
 
 When you run `/sr createcustom`, SkinsRestorer stores a fixed custom skin.
 
 ### How Minecraft stores skin PNGs
 
-The launcher and SkinsRestorer use the [Minecraft CDN](https://textures.minecraft.net) for skin images.
+The Minecraft launcher and SkinsRestorer get skin images from the [Minecraft CDN](https://textures.minecraft.net).
 
 Mojang signs skin data with the Yggdrasil private key. The Minecraft client displays only data with a valid signature.
 
 The signature does not expire. However, Mojang can remove a reported skin from the CDN.
 
-If Mojang removes a skin, Minecraft clients cannot display it. The local PNG file does not bypass this restriction.
+If Mojang removes a skin, Minecraft clients cannot show it.
+A local PNG file does not bypass this restriction.
 
-SkinsRestorer copies signed data from an existing skin. It does not upload the skin to your Minecraft account.
+SkinsRestorer copies signed data from an existing skin.
+It does not upload the skin to your Minecraft account.
 
 URL skins use a pool of community-provided Minecraft accounts to create signed data.
 
 ## What is skin data?
 
-Skin data is a Base64-encoded profile property. It contains skin and cape texture URLs.
+Skin data is a Base64-encoded profile property.
+It contains URLs for skin and cape textures.
 
-SkinsRestorer gets this data from the Mojang API by player UUID. Mojang's signature lets the Minecraft client validate the data.
+SkinsRestorer requests this data from the Mojang API with a player UUID.
+Mojang's signature lets the Minecraft client validate the data.
 
 Use a [Base64 decoder](https://www.base64decode.org/live) to read the property.
 
@@ -65,7 +73,7 @@ The decoded data looks like this:
 4. `signatureRequired` must be `true` for signed skin data.
 5. `url` points to the skin or cape texture.
 
-## How we request the skin data
+## How SkinsRestorer requests skin data
 
 SkinsRestorer uses two Mojang API requests:
 
@@ -74,7 +82,8 @@ SkinsRestorer uses two Mojang API requests:
 
 ## Rate limits
 
-Mojang limits API requests. SkinsRestorer uses cached API data to reduce requests and avoid the limit.
+Mojang limits API requests.
+SkinsRestorer uses cached data to reduce requests and avoid this limit.
 
 ## Other resources
 

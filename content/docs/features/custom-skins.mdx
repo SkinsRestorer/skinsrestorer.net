@@ -1,22 +1,26 @@
 ---
 title: Custom Skins
-description: Learn how to use custom skins with SkinsRestorer.
+description: Create a shared skin with a custom name.
 icon: Paintbrush
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Custom skins give a shared name to a skin. Players can apply one with `/skin <name>`.
+Each custom skin has a name that works across the server.
+Players apply the skin with `/skin <name>`.
 
 Create a custom skin with a command or a skin file.
 
 ## Choose a custom skin name
 
-SkinsRestorer stores custom skins in the database or in files. Each custom skin name applies to the entire server.
+SkinsRestorer stores custom skins in the database or in local files.
+A custom skin name applies to the complete server.
 
-For example, a custom skin named `Dinnerbone` replaces the Minecraft account skin for `/skin Dinnerbone`.
+For example, create a custom skin named `Dinnerbone`.
+Then `/skin Dinnerbone` applies the custom skin instead of the Minecraft account skin.
 
-Do not use a name that belongs to a player on your server. The custom skin will replace that player's account skin.
+Do not use the name of a player on your server.
+The custom skin replaces the account skin for that name.
 
 <Callout type="info" emoji="ℹ️">
   To change another player's skin, use `/skin [name] [playername]`.
@@ -41,21 +45,22 @@ Use the Skinfile Generator:
 
 1. Save your skin as a `.png` file.
 2. Open the [Skinfile Generator](/generator).
-3. Select **Browse**, then select the skin file.
-4. Enter an optional skin name. Use lowercase letters and no spaces.
-5. Select **Upload!**.
-6. Download the `name.customskin` file.
-7. Put the file in `plugins/SkinsRestorer/skins`.
-8. If you use a proxy, put the file on the proxy.
-9. Run `/skin <name>` to apply the skin.
+3. Select **Browse**.
+4. Select the skin file.
+5. Enter an optional skin name. Use lowercase letters and no spaces.
+6. Select **Upload!**.
+7. Download the `name.customskin` file.
+8. Put the file in `plugins/SkinsRestorer/skins`.
+9. If you use a proxy, put the file on the proxy.
+10. Run `/skin <name>` to apply the skin.
 
 ## Apply custom default skins
 
 To use a custom skin as the server default:
 
-1. Create a custom skin with one of the methods above.
+1. Create a custom skin with a method on this page.
 2. Put the file in the skin folder on the proxy or Spigot server.
 3. Enable default skins in `config.yml`.
 4. Run `/sr reload`.
 
-SkinsRestorer applies the default to players who did not select another skin.
+SkinsRestorer applies the default skin to players who have not selected another skin.

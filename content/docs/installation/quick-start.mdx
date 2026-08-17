@@ -1,13 +1,13 @@
 ---
 title: Quick Start Guide
-description: Install SkinsRestorer with a configuration for your server setup.
+description: Install SkinsRestorer on a single server or proxy network.
 icon: Zap
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-Select the setup that matches your server.
+Select your server setup. Then complete the steps in that tab.
 
 ## Choose your setup
 
@@ -17,15 +17,13 @@ Select the setup that matches your server.
 
     Use this setup for one Bukkit, Spigot, or Paper server without a proxy.
 
-    **Steps:**
-
     1. Download SkinsRestorer from [Modrinth](https://modrinth.com/plugin/skinsrestorer).
     2. Put `SkinsRestorer.jar` in the `plugins` folder.
     3. Restart the server.
 
     The default configuration works for a single server.
 
-    **Recommended configuration changes:**
+    **Optional configuration changes:**
 
     ```yaml filename="plugins/SkinsRestorer/config.yml"
     # Optional: Set default skins for players without Mojang accounts
@@ -40,7 +38,7 @@ Select the setup that matches your server.
       skinChangeCooldown: 15
     ```
 
-    **Test the plugin:**
+    **Test the plugin:** Run this command in the game.
     ```
     /skin Notch
     ```
@@ -50,7 +48,6 @@ Select the setup that matches your server.
 
     Use this setup for a BungeeCord or Velocity network with two to five backend servers.
 
-    **Steps:**
     1. Download SkinsRestorer.
     2. Place `SkinsRestorer.jar` in:
        - The proxy's `plugins` folder.
@@ -70,10 +67,11 @@ Select the setup that matches your server.
     # Verify by checking logs for "Proxy Mode"
     ```
 
-    **Make sure that the setup works:**
+    **Test the network:**
 
     - Find "Proxy Mode" in the startup log of each backend server.
-    - Run `/skin Notch`, then switch servers. The skin must stay active.
+    - Run `/skin Notch`.
+    - Switch to another server. The skin must stay active.
 
     <Callout type="info">
       Copy the same `config.yml` file to the proxy and all backend servers.
@@ -84,11 +82,10 @@ Select the setup that matches your server.
 
     Use this setup for five or more servers, many players, or backend API access.
 
-    **Requirements:**
+    This setup requires:
     - MySQL database
     - BungeeCord or Velocity proxy
 
-    **Steps:**
     1. Create a MySQL database.
     2. Install SkinsRestorer on the proxy and all backend servers.
     3. Configure the same database on all servers.
@@ -129,22 +126,23 @@ Select the setup that matches your server.
         api: true
     ```
 
-    **This setup provides:**
-    - Centralized skin storage
-    - API works on all servers
-    - Better performance at scale
-    - Plugins like BedWars/Dynmap can access skins
+    This setup provides:
+
+    - One shared skin database
+    - API access on all servers
+    - Better performance for large networks
+    - Skin access for plugins such as BedWars and Dynmap
   </Tab>
 </Tabs>
 
 ## Post-installation checklist
 
-After the installation, make sure that:
+After the installation, make sure that each item works:
 
 - [ ] `/skin Notch` changes your skin
 - [ ] `/skins` opens the GUI
-- [ ] Skins persist after rejoining
-- [ ] (Proxy) Skins persist when switching servers
+- [ ] Skins stay active after players rejoin
+- [ ] On a proxy network, skins stay active when players switch servers
 - [ ] The console logs contain no errors
 
 ## Common quick fixes

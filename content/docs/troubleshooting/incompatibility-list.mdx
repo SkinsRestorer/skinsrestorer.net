@@ -1,18 +1,21 @@
 ---
 title: Incompatibility list
-description: Learn about known incompatibilities with SkinsRestorer.
+description: Find software that can conflict with SkinsRestorer.
 icon: OctagonAlert
 ---
 
-Plugins, mods, launchers, and server platforms can conflict with SkinsRestorer. This page lists known conflicts.
+Plugins, mods, launchers, and server platforms can conflict with SkinsRestorer.
+This page lists known conflicts.
 
 ## Incompatible clients
 
-Some launchers include skin mods that override SkinsRestorer. Follow the [launcher guide](/docs/troubleshooting/launcher-issues) to disable these skin systems.
+Some launchers include skin mods that override SkinsRestorer.
+Use the [launcher guide](/docs/troubleshooting/launcher-issues) to disable these skin systems.
 
 ## Plugin types that can cause problems
 
-Plugins that change player profiles can override SkinsRestorer. The world can reload without applying the new skin.
+Plugins that change player profiles can override SkinsRestorer.
+A world reload can then restore the old skin.
 
 - Other skin plugins like `MySKin`
 - `Skript` scripts that change skins
@@ -27,7 +30,7 @@ To find a plugin conflict:
 4. Apply the skin again.
 5. Repeat steps 3 and 4 until the problem returns.
 
-The last plugin that you added is probably the cause.
+The last plugin that you added is the most likely cause.
 
 ## Plugins that need a configuration change
 
@@ -46,7 +49,8 @@ These plugins have known conflicts with SkinsRestorer:
 
 ## Incompatible server software
 
-Some Paper and BungeeCord forks change the platform API. SkinsRestorer does not support these platforms:
+Some Paper and BungeeCord forks change the platform API.
+SkinsRestorer does not support these platforms:
 
 - `Aegis`
 - `FlameCord`

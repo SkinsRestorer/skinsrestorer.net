@@ -1,12 +1,12 @@
 ---
 title: Locale and Translations
-description: Learn how to translate SkinsRestorer messages.
+description: Change or translate SkinsRestorer messages.
 icon: Globe
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer can show messages in each player's Minecraft client language.
+SkinsRestorer can show messages in the language of each player's Minecraft client.
 
 ## Default values
 
@@ -14,7 +14,7 @@ The default locale is `en` for English. Change the default locale in `config.yml
 
 ## Community translation
 
-The community translates SkinsRestorer. You can add or improve a translation.
+Community members translate SkinsRestorer. You can add a translation or improve an existing one.
 
 ### Contribute a translation
 
@@ -28,15 +28,20 @@ If your locale is absent, contact us on [Discord](https://skinsrestorer.net/disc
   If you use BungeeCord or Velocity, copy the locale files to the proxy and every backend server.
 </Callout>
 
-The `plugins/SkinsRestorer/locale` folder contains `repository` and `custom`.
+The `plugins/SkinsRestorer/locale` folder contains two folders: `repository` and `custom`.
 
-The `repository` folder contains the default locale files. SkinsRestorer uses them when `custom` does not contain the requested locale.
+The `repository` folder contains the default locale files.
+SkinsRestorer uses these files when `custom` does not contain the requested locale.
 
 Do not edit files in `repository`. Updates and reloads replace these files.
 
-To change a locale, copy its file from `repository` to `custom`. Then edit the copy.
+To change a locale:
 
-After a plugin update, compare your copy with the new default. The update can add or change messages.
+1. Copy its file from `repository` to `custom`.
+2. Edit the copy in `custom`.
+
+After an update, compare your custom file with the new default file.
+The update can add or change messages.
 
 ## Locale list
 

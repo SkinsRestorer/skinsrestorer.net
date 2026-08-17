@@ -1,13 +1,13 @@
 ---
 title: Commands and Permissions
-description: Learn how to use commands and permissions in SkinsRestorer.
+description: Find SkinsRestorer commands and configure their permissions.
 icon: Terminal
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-Each permission also needs its parent permissions.
+A permission works only when the player also has its parent permissions.
 
 For example, `skinsrestorer.command.set.other` also needs `skinsrestorer.command.set` and `skinsrestorer.command`.
 
@@ -21,7 +21,7 @@ SkinsRestorer provides player commands and administrator commands.
 
 ### Player commands
 
-These parent permissions give access to the player commands:
+These parent permissions give access to all player commands:
 `skinsrestorer.player` / `skinsrestorer.command.*`
 
 | Command                                       | Description                          | Permission                           |
@@ -50,7 +50,7 @@ These parent permissions give access to the player commands:
 
 ### Admin commands
 
-These parent permissions give access to the administrator commands:
+These parent permissions give access to all administrator commands:
 `skinsrestorer.admin` / `skinsrestorer.admincommand.*`
 
 | Command                                                 | Description                                    | Permission                                |
@@ -58,7 +58,7 @@ These parent permissions give access to the administrator commands:
 | `/sr`                                                   | Admin commands for SkinsRestorer.              | `skinsrestorer.admincommand`              |
 | `/sr createcustom <skinName> <skinInput>`               | Creates a custom server-wide skin.             | `skinsrestorer.admincommand.createcustom` |
 | `/sr createcustom <skinName> <skinInput> <skinVariant>` | Creates a custom server-wide skin.             | `skinsrestorer.admincommand.createcustom` |
-| `/sr setskinall <skinName> <skinVariant>`               | Set the skin of every player to a single skin. | `skinsrestorer.admincommand.setskinall`   |
+| `/sr setskinall <skinName> <skinVariant>`               | Sets one skin for every player.                | `skinsrestorer.admincommand.setskinall`   |
 | `/sr info <playerOrSkin> <input>`                       | Displays info about a player or skin.          | `skinsrestorer.admincommand.info`         |
 | `/sr props <playerOrSkin> <input>`                      | Displays info about a player or skin.          | `skinsrestorer.admincommand.info`         |
 | `/sr lookup <playerOrSkin> <input>`                     | Displays info about a player or skin.          | `skinsrestorer.admincommand.info`         |
@@ -66,7 +66,7 @@ These parent permissions give access to the administrator commands:
 | `/sr remove <playerOrSkin> <target>`                    | Removes player or skin data from the database. | `skinsrestorer.admincommand.drop`         |
 | `/sr purgeolddata <days>`                               | Removes skin data older than the given age.    | `skinsrestorer.admincommand.purgeolddata` |
 | `/sr applyskin <target>`                                | Applies the target player's skin again.        | `skinsrestorer.admincommand.applyskin`    |
-| `/sr dump`                                              | Upload support data to bytebin.lucko.me.       | `skinsrestorer.admincommand.dump`         |
+| `/sr dump`                                              | Uploads support data to bytebin.lucko.me.      | `skinsrestorer.admincommand.dump`         |
 | `/sr applyskinall`                                      | Applies every online player's skin again.      | `skinsrestorer.admincommand.applyskinall` |
 | `/sr status`                                            | Shows the required API services.               | `skinsrestorer.admincommand.status`       |
 | `/sr reload`                                            | Reloads the configuration file.                | `skinsrestorer.admincommand.reload`       |
@@ -180,7 +180,7 @@ Players with `skinsrestorer.bypassdisabled` can still use these skins.
 
 ### Restrict URL domains
 
-Only allow skin URLs from specific domains:
+Allow skin URLs only from specific domains:
 
 ```yaml filename="config.yml"
 commands:
@@ -193,7 +193,7 @@ commands:
 
 ### Per-skin permissions
 
-Require permissions for specific skins:
+Require a permission for each listed skin:
 
 ```yaml filename="config.yml"
 commands:
@@ -250,12 +250,12 @@ Purge skin data older than 30 days:
 /sr purgeolddata 30
 ```
 
-## Send server dump to developers
+## Create a support report
 
-If you need support, run `/sr dump` and send the generated link to the developers.
+If you need support, run `/sr dump`. Then send the generated link to the developers.
 
 ```
 /sr dump
 ```
 
-The command uploads server information, configuration, and logs to a paste service.
+The command uploads server information, the configuration, and logs to a paste service.

@@ -1,21 +1,22 @@
 ---
 title: SkinsRestorer API
-description: Learn how to use the SkinsRestorer developer API.
+description: Add the SkinsRestorer API to a Java plugin.
 icon: Braces
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Other plugins can use the public SkinsRestorer API.
+Java plugins can use the public SkinsRestorer API to read and change skin data.
 
 <Callout type="warning">
-  The API is not stable. A new release can contain breaking changes.
+  CAUTION: The API can change between releases.
+  A new release can break your integration.
 </Callout>
 
 ## Resources
 
-Use these API resources:
+These resources contain complete API details and an example plugin:
 
 - [Example Plugin](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)
 - [Javadocs](https://jd.skinsrestorer.net)
@@ -24,7 +25,7 @@ Use these API resources:
 
 Select your build tool, then add the repository and dependency.
 
-Latest version without the `v` prefix:
+Use the latest version number without the `v` prefix:
 ![Latest Version](https://img.shields.io/github/v/tag/SkinsRestorer/SkinsRestorer?label=version)
 
 <Tabs items={['Maven', 'Gradle (Groovy)', 'Gradle (Kotlin)']}>
@@ -90,11 +91,13 @@ Latest version without the `v` prefix:
 
 ## Add SkinsRestorer as a dependency
 
-Add SkinsRestorer as a plugin dependency. The server then loads SkinsRestorer before your plugin.
+Add SkinsRestorer as a plugin dependency.
+The server then loads SkinsRestorer before your plugin.
 
-These examples use an optional dependency. Your plugin can load without SkinsRestorer, but API calls will fail.
+These examples use an optional dependency.
+Your plugin can load without SkinsRestorer, but API calls will fail.
 
-If your build generates plugin metadata, add the dependency through that build tool instead.
+If your build generates plugin metadata, add the dependency in the build tool instead.
 
 <Tabs items={['Bukkit', 'BungeeCord', 'Velocity']}>
   <Tab>
@@ -247,17 +250,17 @@ public boolean isCompatible() {
 
 ## Use the API on a proxy network
 
-On BungeeCord or Velocity, select one of these options:
+On BungeeCord or Velocity, use one of these options:
 
-1. **Call the API from the proxy:** Put the API plugin on BungeeCord or Velocity.
-   Use plugin messages to communicate with backend plugins.
+1. **Call the API from the proxy:** Put your API plugin on BungeeCord or Velocity.
+   Use plugin messages to communicate with plugins on backend servers.
 
-2. **Call the API from backend servers:** Enable `server.proxyMode.api` on each backend server.
-   Configure the same MySQL database on the proxy and backend servers.
+2. **Call the API from backend servers:** Enable `server.proxyMode.api` on every backend server.
+   Use the same MySQL database on the proxy and backend servers.
 
 ## Error handling
 
-Catch errors from API calls:
+Handle errors from API calls:
 
 ```java
 try {
@@ -271,7 +274,7 @@ try {
 
 ## Fix common API problems
 
-- For `Cannot find symbol` or `Cannot resolve symbol`, add the required imports.
+- If you see `Cannot find symbol` or `Cannot resolve symbol`, add the required imports.
 - Get the API with `this.skinsRestorer = SkinsRestorerProvider.get();{:java}`.
 - Add the `private SkinsRestorer skinsRestorer;{:java}` field to the class.
 - Add the dependency to the build file and plugin metadata.

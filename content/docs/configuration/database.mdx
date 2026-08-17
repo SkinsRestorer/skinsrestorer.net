@@ -1,23 +1,26 @@
 ---
 title: Database Setup
-description: Learn how to configure MySQL database storage for SkinsRestorer.
+description: Store SkinsRestorer data in a MySQL database.
 icon: Database
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-SkinsRestorer can store skin data in MySQL instead of local files. MySQL is useful for proxy networks and large servers.
+SkinsRestorer can store skin data in MySQL instead of local files.
+MySQL lets multiple servers share the same skin data.
 
 ## When to use database storage
 
-Use MySQL if you:
+Use MySQL when you:
+
 - Run a proxy network (BungeeCord/Velocity) with multiple backend servers
 - Want skin data shared across multiple servers
 - Need the backend API to work on servers behind a proxy
 - Have many players
 
-Use file storage if you:
+Use local files when you:
+
 - Run a single standalone server
 - Do not need to share skin data between servers
 - Want a simpler setup
@@ -59,7 +62,8 @@ database:
   <Step>
     ### Create the database
 
-    Connect to your MySQL server and create a database for SkinsRestorer:
+    Connect to your MySQL server.
+    Then create a database for SkinsRestorer:
 
     ```sql
     CREATE DATABASE skinsrestorer;
@@ -78,7 +82,8 @@ database:
     ```
 
     <Callout type="warning">
-      If MySQL is on another computer, replace `localhost` with that host. Use `%` to permit connections from any host.
+      If MySQL is on another computer, replace `localhost` with its host name.
+      If you must permit connections from any host, use `%`.
     </Callout>
   </Step>
 
@@ -91,28 +96,29 @@ database:
   <Step>
     ### Restart your server
 
-    Restart the server. Read the console for connection errors.
+    Restart the server.
+    Read the console for connection errors.
   </Step>
 </Steps>
 
 ## Proxy network setup
 
-On a proxy network, configure the **same database** on the proxy and all backend servers.
+On a proxy network, use the **same database** on the proxy and every backend server.
 
 <Callout type="info">
-  Backend servers need database access for the SkinsRestorer API.
-  Keep `server.proxyMode.api` enabled in each backend configuration.
+  Backend servers need database access to use the SkinsRestorer API.
+  Keep `server.proxyMode.api` enabled in every backend configuration.
 </Callout>
 
 ### Example setup
 
 1. Set `database.enabled: true` on the **proxy**.
 2. Add the same database credentials to **each backend server**.
-3. Make sure that every server can connect to MySQL.
+3. Make sure that the proxy and every backend server can connect to MySQL.
 
 ## SSL/TLS configuration
 
-The `connectionOptions` parameter controls SSL behavior:
+The `connectionOptions` value controls the SSL connection:
 
 | SSL Mode | Use case |
 |----------|----------|
@@ -129,7 +135,8 @@ connectionOptions: "sslMode=verify-ca&serverTimezone=UTC"
 
 ## Migrating from file storage
 
-SkinsRestorer does not move file data to MySQL. When you enable MySQL, the database starts empty.
+SkinsRestorer does not copy local file data to MySQL.
+When you enable MySQL, the database starts empty.
 
 To restore custom skins:
 
@@ -137,7 +144,7 @@ To restore custom skins:
 2. Enable MySQL storage.
 3. Create the custom skins again with the same commands.
 
-Players can select their skins again after they rejoin.
+After players rejoin, they can select their skins again.
 
 ## Troubleshooting
 
@@ -161,7 +168,7 @@ Players can select their skins again after they rejoin.
 ### Timezone errors
 
 - Add `serverTimezone=UTC` to `connectionOptions`.
-- You can also set a specific timezone, such as `serverTimezone=America/New_York`.
+- To use a specific timezone, set a value such as `serverTimezone=America/New_York`.
 
 ## Performance tuning
 
@@ -174,7 +181,8 @@ The `maxPoolSize` option sets the maximum number of database connections.
 - **Large networks (500+ players)**: 20-50 connections
 
 <Callout type="warning">
-  Do not set a value that MySQL cannot support. Each connection uses resources, and MySQL limits total connections.
+  Do not set a value that MySQL cannot support.
+  Each connection uses resources, and MySQL limits the total number of connections.
 </Callout>
 
 ### Table prefix

@@ -1,19 +1,19 @@
 ---
 title: Skin Upload
-description: Learn about uploading custom skin PNG files with SkinsRestorer.
+description: Upload and apply a custom skin PNG.
 icon: Upload
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-You can upload and apply a custom skin PNG in two ways.
+You can apply a custom skin PNG from the website or a public URL.
 
 ## In-game command
 
 Run `/skin upload` in the game to see upload information.
 This command requires the `skinsrestorer.command.set.url` permission.
 
-Then select one of these methods.
+Then use one of these methods.
 
 ## Upload methods
 
@@ -31,7 +31,7 @@ See the [Skin URL Upload guide](/docs/features/skin-url) for detailed instructio
 
 ### Method 2: Direct URL command
 
-If the skin is already online, use `/skin url`:
+If the skin has a public URL, use `/skin url`:
 
 ```
 /skin url "https://example.com/myskin.png"
@@ -56,7 +56,7 @@ You can select the arm model:
 | `classic` | Standard Steve-style arms (4 pixels wide) |
 | `slim` | Alex-style arms (3 pixels wide) |
 
-If you omit the variant, SkinsRestorer detects it from the skin file.
+If you do not enter a variant, SkinsRestorer detects it from the skin file.
 
 ## Supported formats
 
@@ -67,14 +67,14 @@ If you omit the variant, SkinsRestorer detects it from the skin file.
 
 ## How it works
 
-When you upload a skin from a URL:
+When you apply a skin from a URL, this process occurs:
 
 1. SkinsRestorer sends the URL to [MineSkin](https://mineskin.org).
 2. MineSkin applies the skin to an account in its Minecraft account pool.
 3. MineSkin gets signed skin data from Mojang.
 4. SkinsRestorer applies the data to your player.
 
-The Minecraft client displays only skin data with a valid Mojang signature.
+The Minecraft client shows only skin data with a valid Mojang signature.
 
 <Callout type="info">
   For higher limits, add a [MineSkin API key](https://mineskin.org/apikey) to `config.yml`.
@@ -85,7 +85,7 @@ The Minecraft client displays only skin data with a valid Mojang signature.
 
 Server administrators can restrict skin upload URLs.
 
-If `commands.restrictSkinUrls.enabled` is `true`, SkinsRestorer accepts URLs only from the configured domains.
+If `commands.restrictSkinUrls.enabled` is `true`, SkinsRestorer accepts only URLs from the configured domains.
 
 The default domains are:
 - `https://i.imgur.com`

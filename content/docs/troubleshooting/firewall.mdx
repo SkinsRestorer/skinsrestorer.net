@@ -1,6 +1,6 @@
 ---
 title: Firewall
-description: Learn how to resolve SkinRestorer firewall issues.
+description: Permit the network connections that SkinsRestorer requires.
 icon: Shield
 ---
 
@@ -10,12 +10,13 @@ This guide applies when `/sr status` shows this red message:
 
 `> Plugin currently can't fetch new skins. You might check out our Discord at ...`
 
-This message means that the server cannot connect to a required API.
+This message means that the server cannot connect to an API that SkinsRestorer requires.
 
 ## Permit the required connections
 
 <Callout type="info" emoji="ℹ️">
-  This list can change. If the problem returns, compare your firewall rules with this page again.
+  This list can change.
+  If the problem returns, compare your firewall rules with this page.
 </Callout>
 
 Allow outgoing connections to these domains and ports:
@@ -36,7 +37,7 @@ Allow outgoing connections to these domains and ports:
 | `api.github.com`                | `443` |
 | `objects.githubusercontent.com` | `443` |
 
-Also permit connections to port `53` on the DNS server.
+Permit outgoing connections to port `53` on your DNS server.
 
 ## Ask your hosting provider
 

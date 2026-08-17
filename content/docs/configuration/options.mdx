@@ -1,21 +1,23 @@
 ---
 title: Configuration Options
-description: Learn the various configuration options in SkinsRestorer.
+description: Understand and change the SkinsRestorer configuration.
 icon: SlidersHorizontal
 ---
 
 import { File, Files, Folder } from 'fumadocs-ui/components/files';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer works with the default configuration. Use this page to change its behavior.
+SkinsRestorer works with the default configuration.
+If you need different behavior, use this page to find the correct option.
 
 <Callout type="info">
   After you change the configuration, run `/sr reload` or restart the server.
 </Callout>
 
 <Callout type="info">
-  On a proxy network, use the same `config.yml` file on the proxy and all backend servers.
-  Run `/sr reload` on the proxy after each change. Then restart all backend servers.
+  On a proxy network, use the same `config.yml` file on the proxy and every backend server.
+  After each change, run `/sr reload` on the proxy.
+  Then restart every backend server.
 </Callout>
 
 ## File structure
@@ -53,7 +55,7 @@ This example shows the SkinsRestorer files. Select a folder to expand it.
 
 ## Storage settings
 
-Configure how skin data is cached and stored.
+Choose how SkinsRestorer saves and refreshes skin data.
 
 ```yaml filename="config.yml"
 storage:
@@ -75,8 +77,8 @@ storage:
 | `defaultSkins.applyForPremium` | `false` | Apply default skins even to premium players |
 | `defaultSkins.list` | `["xknat", "pistonmaster", "<random>"]` | List of default skins. Use `<random>` for recommended skins |
 | `disallowAutoUpdateSkin` | `false` | Require players to run `/skin update` manually |
-| `skinExpiresAfter` | `15` | Minutes before re-fetching skin data from API |
-| `uuidExpiresAfter` | `60` | Minutes before re-fetching player UUID from API |
+| `skinExpiresAfter` | `15` | Minutes before SkinsRestorer requests skin data again |
+| `uuidExpiresAfter` | `60` | Minutes before SkinsRestorer requests a player UUID again |
 
 <Callout type="info">
   A cache expiration value of `0` requests new API data each time. This can cause rate-limit errors on production servers.
@@ -84,7 +86,7 @@ storage:
 
 ## Command settings
 
-Configure command behavior, cooldowns, and restrictions.
+Set command cooldowns and access limits.
 
 ```yaml filename="config.yml"
 commands:
@@ -133,7 +135,7 @@ commands:
 
 ## Login settings
 
-Configure skin behavior during player login.
+Choose how SkinsRestorer applies skins when a player joins.
 
 ```yaml filename="config.yml"
 login:
@@ -148,7 +150,7 @@ login:
 
 ## Server settings (Backend only)
 
-These settings only apply to backend servers, not proxies.
+These options apply only to backend servers. They do not apply to proxies.
 
 ```yaml filename="config.yml"
 server:
@@ -177,7 +179,7 @@ server:
 
 ## Proxy settings (Proxy only)
 
-These settings only apply to proxy servers (BungeeCord/Velocity).
+These options apply only to BungeeCord and Velocity proxies.
 
 ```yaml filename="config.yml"
 proxy:
@@ -198,7 +200,7 @@ proxy:
 
 ## API settings
 
-Configure external API integrations.
+Configure connections to external APIs.
 
 ```yaml filename="config.yml"
 api:
@@ -221,7 +223,7 @@ api:
 
 ## GUI settings
 
-Configure the `/skins` GUI appearance and content.
+Choose what the `/skins` GUI shows and how it looks.
 
 ```yaml filename="config.yml"
 gui:
@@ -262,7 +264,8 @@ gui:
 ## Advanced settings
 
 <Callout type="warning">
-  These advanced options can cause unexpected behavior. Change them only when you understand their effects.
+  CAUTION: These options can cause unexpected behavior.
+  If you do not understand an option, do not change it.
 </Callout>
 
 ```yaml filename="config.yml"
@@ -295,7 +298,8 @@ dev:
 
 ## Who can change skins?
 
-Players can use `/skin <skin>` to change their skin. Use a permissions plugin to control access to this command.
+Players use `/skin <skin>` to change their skin.
+Use a permissions plugin to control access to this command.
 
 Read [Commands and Permissions](/docs/configuration/commands-permissions) for setup instructions.
 
@@ -303,7 +307,7 @@ Read [Commands and Permissions](/docs/configuration/commands-permissions) for se
 
 By default, SkinsRestorer applies the skin from the player's Minecraft account. Players without an account skin receive a Steve skin.
 
-Default skins apply only to players who did not select a skin with `/skin <skin>`.
+Default skins apply only to players who have not selected a skin with `/skin <skin>`.
 
 Use `storage.defaultSkins` in `config.yml` to select the default skins.
 
@@ -319,5 +323,5 @@ Use this option to block inappropriate skins or reserved names.
 
 By default, `/skin <skin>` can apply any available skin.
 
-To restrict specific skins, add them to `commands.perSkinPermissions` in `config.yml`.
-Players need `skinsrestorer.skin.<name>` for each listed skin.
+To restrict a skin, add it to `commands.perSkinPermissions` in `config.yml`.
+Give players `skinsrestorer.skin.<name>` for each listed skin that they can use.

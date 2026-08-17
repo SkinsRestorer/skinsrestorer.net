@@ -1,25 +1,27 @@
 ---
 title: Auto update
-description: Learn about the auto-update feature in SkinsRestorer.
+description: Understand how SkinsRestorer installs updates.
 icon: RefreshCw
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-SkinsRestorer looks for updates when the server starts. If an update exists, it downloads the file.
+SkinsRestorer looks for updates when the server starts.
+If an update is available, it downloads the file.
 
 SkinsRestorer installs the update during the next server restart.
 
 <Callout type="info" emoji="ℹ️">
   On BungeeCord and Velocity networks, only backend servers update automatically.
-  When SkinsRestorer reports an update, update the proxy manually.
+  If SkinsRestorer reports an update, update the proxy manually.
 </Callout>
 
 ## Why automatic updates are enabled
 
 Updates contain security fixes, bug fixes, and new features. The project supports only the latest version.
 
-Before you request support, update SkinsRestorer. The latest version can already contain a fix for your problem.
+Before you request support, update SkinsRestorer.
+The latest version can already contain a fix for the problem.
 
 ## Benefits of the latest version
 
@@ -30,7 +32,8 @@ Before you request support, update SkinsRestorer. The latest version can already
 
 ## Update security
 
-SkinsRestorer compares the downloaded file's hash with the GitHub release. This comparison detects damaged or different files.
+SkinsRestorer compares the downloaded file hash with the hash from the GitHub release.
+This comparison finds damaged or changed files.
 
 Automated tests and project testers examine each release before publication.
 
@@ -38,6 +41,7 @@ Automated tests and project testers examine each release before publication.
 
 The project does not provide support for installations with automatic updates disabled.
 
-The automatic updater reduces manual work and shows an in-game message when an update is available.
+The automatic updater installs updates for you.
+It also shows an in-game message when an update is available.
 
 If you still want to disable it, read the instructions at the bottom of `config.yml`.

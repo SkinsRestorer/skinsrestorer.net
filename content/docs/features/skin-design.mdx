@@ -1,12 +1,14 @@
 ---
 title: Skin Design
-description: Learn how to design skins for SkinsRestorer.
+description: Create a valid Minecraft skin for SkinsRestorer.
 icon: Palette
 ---
 
-Players and administrators can apply custom skins with SkinsRestorer. A skin is a `64x64` PNG image stored on the Minecraft CDN.
+Players and administrators can apply custom skins with SkinsRestorer.
+A skin is a `64x64` PNG image on the Minecraft CDN.
 
-Mojang signs each skin with its Yggdrasil private key. You do not need to understand this process to create a skin.
+Mojang signs each skin with its Yggdrasil private key.
+You do not need to understand this process to create a skin.
 
 This guide explains the skin format and shows how to get or create a skin.
 
@@ -20,9 +22,11 @@ Skins are `64x64` pixel `.png` images. Each skin has an inner layer and an outer
 
 The inner layer **must** be opaque. The outer layer can use transparent pixels for hats, glasses, and other details.
 
-The Minecraft client can hide parts of the outer layer. This option also works with SkinsRestorer skins.
+The Minecraft client can hide parts of the outer layer.
+This option also works with SkinsRestorer skins.
 
-Open the skin settings in Minecraft. Then select which outer-layer body parts to show.
+Open the skin settings in Minecraft.
+Then select the outer-layer body parts that you want to show.
 
 This [video by @Jonas_Jones](https://youtu.be/ib8SllVoRy0?t=192) shows the option.
 
@@ -35,7 +39,7 @@ Minecraft supports two player models:
 - **Classic or Steve:** The arms are four pixels wide.
 - **Slim or Alex:** The arms are three pixels wide.
 
-If you select the wrong model, black lines or other errors can appear on the arms.
+If you select the wrong model, black lines can appear on the arms.
 
 ### More information
 
@@ -57,7 +61,8 @@ You can use a skin editor or a general image editor.
 
 #### Use a skin editor
 
-Use a skin editor such as [Novaskin](https://novaskin.me). It lets you draw on a 3D model and use an existing skin as a template.
+Use a skin editor such as [Novaskin](https://novaskin.me).
+You can draw on a 3D model or use an existing skin as a template.
 
 #### Design your skin
 
@@ -71,7 +76,8 @@ Use these steps to correct common skin problems.
 
 ### Your skin looks blurry
 
-An image viewer can make a small skin look blurry when it enlarges the image. Open the skin in GIMP or Photoshop to inspect it.
+An image viewer can make a small skin look blurry when it enlarges the image.
+Open the skin in GIMP or Photoshop to inspect the pixels.
 
 ### Your skin has black lines
 
@@ -79,6 +85,7 @@ Black lines usually mean that the selected player model is wrong.
 
 Select the correct model in the launcher or SkinsRestorer command. You can also edit the image for the correct model.
 
-### My HD skin is not working
+### An HD skin does not work
 
-The standard Minecraft client supports only `64x64` skins. It does not support HD skins, so SkinsRestorer cannot apply them.
+The standard Minecraft client supports only `64x64` skins.
+It does not support HD skins. Therefore, SkinsRestorer cannot apply them.
