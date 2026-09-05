@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function UploadPage() {
   return (
-    <main className="px-4 py-12 w-full max-w-[1400px] mx-auto space-y-10">
-      <div className="space-y-4 text-center max-w-5xl mx-auto">
+    <main className="px-4 py-12 w-full max-w-[1400px] mx-auto flex flex-col gap-10">
+      <div className="flex flex-col gap-4 text-center max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Skin Upload
         </h1>

@@ -7,7 +7,7 @@ if (typeof window !== "undefined" && apiKey) {
     api_host: "https://t.skinsrestorer.net",
     ui_host: "https://eu.posthog.com",
     defaults: "2025-05-24",
-    capture_exceptions: true, // This enables capturing exceptions using Error Tracking, set to false if you don't want this
+    capture_exceptions: true,
     debug: process.env.NODE_ENV === "development",
     cookieless_mode: "on_reject",
   });

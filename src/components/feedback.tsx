@@ -6,8 +6,8 @@ import {
   CollapsibleContent,
 } from "fumadocs-ui/components/ui/collapsible";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { type SyntheticEvent, useEffect, useState, useTransition } from "react";
+import posthog from "posthog-js";
+import { type SubmitEvent, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const rateButtonVariants = cva(
@@ -22,63 +22,48 @@ const rateButtonVariants = cva(
   },
 );
 
-export interface Feedback {
+interface FeedbackData {
   opinion: "good" | "bad";
-  url?: string;
   message: string;
 }
 
-export type ActionResponse = object;
-
-interface Result extends Feedback {
-  response?: ActionResponse;
-}
-
-export function Feedback({
-  onRateAction,
-}: {
-  onRateAction: (url: string, feedback: Feedback) => Promise<ActionResponse>;
-}) {
-  const url = usePathname();
-  const [previous, setPrevious] = useState<Result | null>(null);
+export function Feedback({ url }: { url: string }) {
+  const [previous, setPrevious] = useState<FeedbackData | null>(null);
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
   const [message, setMessage] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const storageKey = `docs-feedback-${url}`;
 
   useEffect(() => {
-    const item = localStorage.getItem(`docs-feedback-${url}`);
+    try {
+      const item = localStorage.getItem(storageKey);
+      if (item) {
+        const feedback = JSON.parse(item);
+        if (
+          (feedback.opinion === "good" || feedback.opinion === "bad") &&
+          typeof feedback.message === "string"
+        ) {
+          setPrevious(feedback);
+        }
+      }
+    } catch {
+      // Feedback remains usable when browser storage is unavailable or invalid.
+    }
+  }, [storageKey]);
 
-    if (item === null) return;
-    setPrevious(JSON.parse(item) as Result);
-  }, [url]);
+  function submit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (opinion === null) return;
 
-  useEffect(() => {
-    const key = `docs-feedback-${url}`;
-
-    if (previous) localStorage.setItem(key, JSON.stringify(previous));
-    else localStorage.removeItem(key);
-  }, [previous, url]);
-
-  function submit(e?: SyntheticEvent) {
-    if (opinion == null) return;
-
-    startTransition(async () => {
-      const feedback: Feedback = {
-        opinion,
-        message,
-      };
-
-      void onRateAction(url, feedback).then((response) => {
-        setPrevious({
-          response,
-          ...feedback,
-        });
-        setMessage("");
-        setOpinion(null);
-      });
-    });
-
-    e?.preventDefault();
+    const feedback = { opinion, message };
+    posthog.capture("on_rate_docs", { url, ...feedback });
+    setPrevious(feedback);
+    setMessage("");
+    setOpinion(null);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(feedback));
+    } catch {
+      // Persistence is optional; the submitted feedback still stays visible.
+    }
   }
 
   const activeOpinion = previous?.opinion ?? opinion;
@@ -140,6 +125,11 @@ export function Feedback({
                 onClick={() => {
                   setOpinion(previous.opinion);
                   setPrevious(null);
+                  try {
+                    localStorage.removeItem(storageKey);
+                  } catch {
+                    // Allow resubmitting even if browser storage is unavailable.
+                  }
                 }}
               >
                 Submit Again
@@ -158,14 +148,14 @@ export function Feedback({
               placeholder="Leave your feedback..."
               onKeyDown={(e) => {
                 if (!e.shiftKey && e.key === "Enter") {
-                  submit(e);
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
                 }
               }}
             />
             <button
               type="submit"
               className={cn(buttonVariants({ color: "outline" }), "w-fit px-3")}
-              disabled={isPending}
             >
               Submit
             </button>

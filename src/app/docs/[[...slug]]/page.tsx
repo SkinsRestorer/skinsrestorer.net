@@ -8,7 +8,6 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import posthog from "posthog-js";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Feedback } from "@/components/feedback";
 import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
@@ -48,7 +47,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         <div className="flex flex-row items-center gap-2 border-b pt-2 pb-6">
           <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
           <ViewOptions
-            markdownUrl={`${page.url}.mdx`}
+            markdownUrl={`https://skinsrestorer.net${page.url}.mdx`}
             githubUrl={`https://github.com/SkinsRestorer/skinsrestorer.net/blob/main/content/docs/${page.path}`}
           />
         </div>
@@ -87,20 +86,13 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           })}
         />
       </DocsBody>
-      <Feedback
-        onRateAction={async (_url, feedback) => {
-          "use server";
-
-          posthog.capture("on_rate_docs", feedback);
-          return {};
-        }}
-      />
+      <Feedback key={page.url} url={page.url} />
       <EnderDashSponsor placement="docs-footer" />
     </DocsPage>
   );
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return source.generateParams();
 }
 

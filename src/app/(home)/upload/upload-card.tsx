@@ -61,13 +61,14 @@ export const UploadCard = () => {
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
-  async function uploadSkin() {
+  function uploadSkin() {
     if (!selectedFile) {
       toast.warning("Please select a PNG skin file.");
       return;
     }
 
     setResultUrl(null);
+    setLoading(true);
 
     toast.promise(
       uploadMineSkinFile({
@@ -77,18 +78,14 @@ export const UploadCard = () => {
           selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
         apiKey: normalizedApiKey || undefined,
         useCapeProxy: useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE,
-        callbacks: {
-          onStart: () => setLoading(true),
-          onComplete: () => setLoading(false),
-          onError: () => setLoading(false),
-        },
-      }).then((completed) => {
-        const url =
-          completed.skin.url || `https://minesk.in/${completed.skin.uuid}`;
+      })
+        .then((completed) => {
+          const url =
+            completed.skin.url || `https://minesk.in/${completed.skin.uuid}`;
 
-        if (!url) throw new Error("Could not extract skin URL from response");
-        setResultUrl(url);
-      }),
+          setResultUrl(url);
+        })
+        .finally(() => setLoading(false)),
       {
         loading: "Uploading skin to MineSkin...",
         success: "Skin uploaded successfully.",

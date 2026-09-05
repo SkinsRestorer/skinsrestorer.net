@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -130,19 +131,21 @@ export function CapeSupportFields({
             <SelectValue placeholder="No cape" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={NO_CAPE_VALUE}>No cape</SelectItem>
-            {supportedCapes.map((cape) => (
-              <SelectItem
-                key={cape.uuid}
-                value={cape.uuid}
-                disabled={capeOptionsDisabled}
-              >
-                <div className="flex items-center gap-2">
-                  <CapePreview texture={cape.url} />
-                  <span>{cape.alias}</span>
-                </div>
-              </SelectItem>
-            ))}
+            <SelectGroup>
+              <SelectItem value={NO_CAPE_VALUE}>No cape</SelectItem>
+              {supportedCapes.map((cape) => (
+                <SelectItem
+                  key={cape.uuid}
+                  value={cape.uuid}
+                  disabled={capeOptionsDisabled}
+                >
+                  <div className="flex items-center gap-2">
+                    <CapePreview texture={cape.url} />
+                    <span>{cape.alias}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectGroup>
           </SelectContent>
         </Select>
         {showApiKeyFields && capeStatus !== "granted" && (
@@ -184,17 +187,7 @@ function CapePreview({ texture }: { texture: string }) {
     const image = new Image();
     image.crossOrigin = "anonymous";
     image.onload = () => {
-      const currentCanvas = canvasRef.current;
-      const currentContext = currentCanvas?.getContext("2d");
-      if (!currentCanvas || !currentContext) {
-        return;
-      }
-
-      currentCanvas.width = width;
-      currentCanvas.height = height;
-      currentContext.imageSmoothingEnabled = false;
-      currentContext.clearRect(0, 0, width, height);
-      currentContext.drawImage(image, 1, 1, width, height, 0, 0, width, height);
+      context.drawImage(image, 1, 1, width, height, 0, 0, width, height);
     };
     image.src = texture;
 

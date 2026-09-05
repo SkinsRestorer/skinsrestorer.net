@@ -1,12 +1,11 @@
 import { source } from "@/lib/source";
 
-export async function GET() {
-  const scanned: string[] = [];
-  scanned.push("# Docs");
+export function GET() {
+  const scanned = ["# Docs"];
   const map = new Map<string, string[]>();
 
   for (const page of source.getPages()) {
-    const dir = page.slugs[0];
+    const dir = page.slugs[0] ?? "Overview";
     const list = map.get(dir) ?? [];
     list.push(`- [${page.data.title}](${page.url}): ${page.data.description}`);
     map.set(dir, list);

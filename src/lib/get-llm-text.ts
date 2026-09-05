@@ -13,8 +13,7 @@ ${processed}`;
 }
 
 export async function getFullLLMText() {
-  const scan = source.getPages().map(getLLMText);
-  const scanned = await Promise.all(scan);
+  const scanned = await Promise.all(source.getPages().map(getLLMText));
 
   return scanned.join("\n\n");
 }

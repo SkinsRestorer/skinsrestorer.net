@@ -8,26 +8,22 @@ const withMDX = createMDX();
 function getFoldersWithPageFiles(dir: string): string[] {
   const foldersWithPageFiles: string[] = [];
 
-  // Read the contents of the current directory.
-  const items = fs.readdirSync(dir);
+  const items = fs.readdirSync(dir, { withFileTypes: true });
 
-  // Check if the current directory contains either 'page.mdx' or 'page.tsx'
-  const containsPageFile = items.some(
-    (item) => item === "page.mdx" || item === "page.tsx",
-  );
-
-  if (containsPageFile) {
+  if (
+    items.some(
+      (item) =>
+        item.isFile() && (item.name === "page.mdx" || item.name === "page.tsx"),
+    )
+  ) {
     foldersWithPageFiles.push(dir);
   }
 
-  // Loop through each item in the directory.
   for (const item of items) {
-    const fullPath = path.join(dir, item);
-    const stat = fs.statSync(fullPath);
-
-    // If the item is a directory, recursively search it.
-    if (stat.isDirectory()) {
-      foldersWithPageFiles.push(...getFoldersWithPageFiles(fullPath));
+    if (item.isDirectory()) {
+      foldersWithPageFiles.push(
+        ...getFoldersWithPageFiles(path.join(dir, item.name)),
+      );
     }
   }
 
@@ -51,11 +47,6 @@ const securityHeaders = [
     key: "X-Content-Type-Options",
     value: "nosniff",
   },
-  // {
-  //   key: "Content-Security-Policy",
-  //   value:
-  //     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.posthog.com https://analytics.ahrefs.com https://e.skinsrestorer.net; style-src 'self' 'unsafe-inline' https://*.posthog.com; object-src 'none'; base-uri 'self'; connect-src 'self' https://discord.com https://api.mineskin.org https://textures.minecraft.net https://axolotl.skinsrestorer.net https://*.posthog.com https://analytics.ahrefs.com https://e.skinsrestorer.net; font-src 'self' https://*.posthog.com; frame-src 'self' https://www.youtube.com; img-src 'self' data: blob: https://gravatar.com https://avatars.githubusercontent.com https://img.shields.io https://textures.minecraft.net https://*.posthog.com https://www.netlify.com; manifest-src 'self'; media-src 'self' https://github.com https://github-production-user-asset-6210df.s3.amazonaws.com https://*.posthog.com; worker-src 'self' blob: data:;",
-  // },
 ];
 
 const baseDir = path.join("src", "app", "(home)");

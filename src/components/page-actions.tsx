@@ -38,6 +38,7 @@ export function LLMCopyButton({
       await navigator.clipboard.write([
         new ClipboardItem({
           "text/plain": fetch(markdownUrl).then(async (res) => {
+            if (!res.ok) throw new Error("Failed to load page Markdown");
             const content = await res.text();
             cache.set(markdownUrl, content);
 
@@ -88,11 +89,7 @@ export function ViewOptions({
   githubUrl: string;
 }) {
   const items = useMemo(() => {
-    const fullMarkdownUrl =
-      typeof window !== "undefined"
-        ? new URL(markdownUrl, window.location.origin)
-        : "loading";
-    const q = `Read ${fullMarkdownUrl}, I want to ask questions about it.`;
+    const q = `Read ${markdownUrl}, I want to ask questions about it.`;
 
     return [
       {

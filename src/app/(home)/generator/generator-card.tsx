@@ -225,7 +225,7 @@ export const GenerateFileCard = () => {
                 }
 
                 setResult(null);
-                const variantForCommand = skinType;
+                setLoading(true);
                 toast.promise(
                   uploadMineSkinFile({
                     file: selectedFile,
@@ -237,26 +237,19 @@ export const GenerateFileCard = () => {
                         : selectedCapeUuid,
                     apiKey: normalizedApiKey || undefined,
                     useCapeProxy: shouldUseCapeProxy,
-                    callbacks: {
-                      onStart: () => setLoading(true),
-                      onError: () => setLoading(false),
-                      onComplete: () => setLoading(false),
-                    },
-                  }).then((completedJob) => {
-                    const skin = completedJob.skin;
-                    const skinName =
-                      customName ||
-                      skin.name ||
-                      String(skin.uuid) ||
-                      Math.random().toString(36).substring(2, 8);
-                    const url = skin.url || `https://minesk.in/${skin.uuid}`;
+                  })
+                    .then((completedJob) => {
+                      const skin = completedJob.skin;
+                      const skinName = customName || skin.name || skin.uuid;
+                      const url = skin.url || `https://minesk.in/${skin.uuid}`;
 
-                    setResult({
-                      name: skinName,
-                      url,
-                      variant: variantForCommand,
-                    });
-                  }),
+                      setResult({
+                        name: skinName,
+                        url,
+                        variant: skinType,
+                      });
+                    })
+                    .finally(() => setLoading(false)),
                   {
                     loading: "Generating custom skin...",
                     success: "Command ready to copy.",

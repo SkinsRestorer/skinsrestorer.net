@@ -24,70 +24,24 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
 
-export type AnimationType =
-  | "walking"
-  | "idle"
-  | "running"
-  | "flying"
-  | "wave"
-  | "crouch"
-  | "hit";
+const animations = {
+  walking: WalkingAnimation,
+  idle: IdleAnimation,
+  running: RunningAnimation,
+  flying: FlyingAnimation,
+  wave: WaveAnimation,
+  crouch: CrouchAnimation,
+  hit: HitAnimation,
+};
 
-function makeAnimation(
-  type: AnimationType,
-  oldAnimation: PlayerAnimation | null,
-): PlayerAnimation {
-  switch (type) {
-    case "walking":
-      if (oldAnimation && oldAnimation instanceof WalkingAnimation) {
-        return oldAnimation;
-      } else {
-        return new WalkingAnimation();
-      }
-    case "idle":
-      if (oldAnimation && oldAnimation instanceof IdleAnimation) {
-        return oldAnimation;
-      } else {
-        return new IdleAnimation();
-      }
-    case "running":
-      if (oldAnimation && oldAnimation instanceof RunningAnimation) {
-        return oldAnimation;
-      } else {
-        return new RunningAnimation();
-      }
-    case "flying":
-      if (oldAnimation && oldAnimation instanceof FlyingAnimation) {
-        return oldAnimation;
-      } else {
-        return new FlyingAnimation();
-      }
-    case "wave":
-      if (oldAnimation && oldAnimation instanceof WaveAnimation) {
-        return oldAnimation;
-      } else {
-        return new WaveAnimation();
-      }
-    case "crouch":
-      if (oldAnimation && oldAnimation instanceof CrouchAnimation) {
-        return oldAnimation;
-      } else {
-        return new CrouchAnimation();
-      }
-    case "hit":
-      if (oldAnimation && oldAnimation instanceof HitAnimation) {
-        return oldAnimation;
-      } else {
-        return new HitAnimation();
-      }
-  }
-}
+type AnimationType = keyof typeof animations;
 
 export function SkinCard(props: {
   skinUrl?: string;
@@ -96,14 +50,10 @@ export function SkinCard(props: {
 }) {
   const [animationType, setAnimationType] = useState<AnimationType>("walking");
   const [animation, setAnimation] = useState<PlayerAnimation>(
-    makeAnimation(animationType, null),
+    () => new WalkingAnimation(),
   );
   const [viewer, setViewer] = useState<SkinViewer | null>(null);
   const animationSelectId = useId();
-
-  useEffect(() => {
-    setAnimation((oldAnimation) => makeAnimation(animationType, oldAnimation));
-  }, [animationType]);
 
   useEffect(() => {
     if (viewer !== null) {
@@ -129,20 +79,27 @@ export function SkinCard(props: {
           <Select
             value={animationType}
             onValueChange={(value) => {
-              setAnimationType(value as AnimationType);
+              const type = value as AnimationType;
+              setAnimationType(type);
+              const Animation = animations[type];
+              setAnimation((current) =>
+                current instanceof Animation ? current : new Animation(),
+              );
             }}
           >
             <SelectTrigger id={animationSelectId}>
               <SelectValue placeholder="Choose an animation" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="walking">Walking</SelectItem>
-              <SelectItem value="idle">Idle</SelectItem>
-              <SelectItem value="running">Running</SelectItem>
-              <SelectItem value="flying">Flying</SelectItem>
-              <SelectItem value="wave">Wave</SelectItem>
-              <SelectItem value="crouch">Crouch</SelectItem>
-              <SelectItem value="hit">Hit</SelectItem>
+              <SelectGroup>
+                <SelectItem value="walking">Walking</SelectItem>
+                <SelectItem value="idle">Idle</SelectItem>
+                <SelectItem value="running">Running</SelectItem>
+                <SelectItem value="flying">Flying</SelectItem>
+                <SelectItem value="wave">Wave</SelectItem>
+                <SelectItem value="crouch">Crouch</SelectItem>
+                <SelectItem value="hit">Hit</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>
@@ -159,7 +116,7 @@ export function SkinCard(props: {
             setViewer(viewer);
           }}
           options={{
-            animation: animation,
+            animation,
             model: props.model,
           }}
         />

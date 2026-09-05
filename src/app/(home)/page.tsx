@@ -36,20 +36,13 @@ import { HeroBackground, HomeFaq } from "./page.client";
 type LatestReleaseResponse =
   paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
 
-async function getReleaseData(): Promise<LatestReleaseResponse> {
+async function LatestRelease() {
   const response = await fetch(
     "https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest",
-    {
-      next: {
-        revalidate: 120,
-      },
-    },
+    { next: { revalidate: 120 } },
   );
-  return await response.json();
-}
-
-async function LatestRelease() {
-  const data: LatestReleaseResponse = await getReleaseData();
+  if (!response.ok) throw new Error("Failed to load the latest release");
+  const data: LatestReleaseResponse = await response.json();
   const versionTag = data.tag_name.startsWith("v")
     ? data.tag_name.slice(1)
     : data.tag_name;
@@ -333,7 +326,7 @@ export default function IndexPage() {
           <div className="relative z-10 w-full px-4 md:px-8 lg:px-12 py-12 md:py-16">
             <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[1.1fr_0.9fr]">
               {/* Left column */}
-              <div className="space-y-6">
+              <div className="flex flex-col items-start gap-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 border border-primary/30 backdrop-blur-sm shadow-sm">
                   <Zap className="h-4 w-4 text-primary" />
                   <AnimatedShinyText className="text-sm font-semibold">
@@ -386,7 +379,7 @@ export default function IndexPage() {
 
       {/* Features BentoGrid */}
       <section className="py-16">
-        <div className="flex flex-col space-y-4 mb-12">
+        <div className="flex flex-col gap-4 mb-12">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
             Features
           </h2>
@@ -408,7 +401,7 @@ export default function IndexPage() {
       {/* FAQ Section */}
       <section className="py-16">
         <div className="w-full max-w-3xl mx-auto">
-          <div className="flex flex-col space-y-4 mb-12">
+          <div className="flex flex-col gap-4 mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
               Frequently Asked Questions
             </h2>
@@ -424,7 +417,7 @@ export default function IndexPage() {
       <section className="py-16">
         <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border bg-background px-8 py-16 md:py-24">
           <RetroGrid />
-          <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+          <div className="relative z-10 flex flex-col items-center text-center gap-6">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               Ready to Get Started?
             </h2>

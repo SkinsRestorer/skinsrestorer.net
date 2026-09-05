@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -20,42 +20,21 @@ const Dithering = dynamic(
   { ssr: false },
 );
 
-let observer: IntersectionObserver;
-const observerTargets = new WeakMap<
-  Element,
-  (entry: IntersectionObserverEntry) => void
->();
-
-function useIsVisible(ref: RefObject<HTMLElement | null>) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    observer ??= new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        observerTargets.get(entry.target)?.(entry);
-      }
-    });
-
-    const element = ref.current;
-    if (!element) return;
-    observerTargets.set(element, (entry) => {
-      setVisible(entry.isIntersecting);
-    });
-    observer.observe(element);
-
-    return () => {
-      observer.unobserve(element);
-      observerTargets.delete(element);
-    };
-  }, [ref]);
-
-  return visible;
-}
-
 export function HeroBackground() {
   const { resolvedTheme } = useTheme();
   const ref = useRef<HTMLDivElement | null>(null);
-  const visible = useIsVisible(ref);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setVisible(entry.isIntersecting);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div ref={ref} className="absolute inset-0 overflow-hidden rounded-2xl">
@@ -100,8 +79,8 @@ export function HomeFaq({
 }) {
   return (
     <Accordion type="single" collapsible className="w-full">
-      {items.map((item, i) => (
-        <AccordionItem key={item.question} value={`faq-${i}`}>
+      {items.map((item) => (
+        <AccordionItem key={item.question} value={item.question}>
           <AccordionTrigger>{item.question}</AccordionTrigger>
           <AccordionContent className="text-muted-foreground">
             {item.answer}

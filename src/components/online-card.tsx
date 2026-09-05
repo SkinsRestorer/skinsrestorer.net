@@ -20,7 +20,7 @@ export function OnlineCard() {
         "User-Agent": "SkinsRestorer-Generator/1.0",
       },
     })
-      .then(() => setStatus("online"))
+      .then((response) => setStatus(response.ok ? "online" : "offline"))
       .catch(() => setStatus("offline"));
   }, []);
 
@@ -38,11 +38,7 @@ export function OnlineCard() {
                   : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
             }`}
           >
-            {status === "loading"
-              ? "LOADING"
-              : status === "online"
-                ? "ONLINE"
-                : "OFFLINE"}
+            {status.toUpperCase()}
           </div>
         </div>
       </CardHeader>

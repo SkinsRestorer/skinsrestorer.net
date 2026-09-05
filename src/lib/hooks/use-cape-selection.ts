@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -30,13 +30,9 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
     ? supportedCapes.length === 0
     : capeStatus !== "granted" || supportedCapes.length === 0;
 
-  const selectedCape = useMemo(() => {
-    if (selectedCapeUuid === NO_CAPE_VALUE) {
-      return undefined;
-    }
-
-    return supportedCapes.find((cape) => cape.uuid === selectedCapeUuid);
-  }, [selectedCapeUuid, supportedCapes]);
+  const selectedCape = supportedCapes.find(
+    (cape) => cape.uuid === selectedCapeUuid,
+  );
 
   useEffect(() => {
     let isActive = true;

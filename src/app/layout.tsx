@@ -46,7 +46,7 @@ export const viewport: Viewport = {
   themeColor: "#B2A711",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -69,11 +69,6 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <RootProvider>
-          {/*
-          <Banner id={"upload-now-website"}>
-            🎉 You can now upload skin .png files here!
-          </Banner>
-          */}
           {children}
           <Toaster richColors />
           <CookieConsentBanner />
