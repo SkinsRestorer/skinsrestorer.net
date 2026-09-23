@@ -164,7 +164,7 @@ export const UploadCard = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Skin type</Label>
+            <Label>Skin type</Label>
             <Tabs
               value={skinType}
               onValueChange={(value) => {
@@ -181,13 +181,12 @@ export const UploadCard = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Upload method</Label>
+            <Label>Upload method</Label>
             <Tabs
               value={target}
               onValueChange={(value) => {
                 setTarget(value as SkinUploadTarget);
               }}
-              className="flex flex-col gap-2"
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="axolotl">Axolotl</TabsTrigger>

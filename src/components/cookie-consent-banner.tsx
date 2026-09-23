@@ -46,7 +46,7 @@ const CookieConsentBanner = () => {
           <Cookie className="h-5 w-5" />
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
-          <CardDescription className="text-sm">
+          <CardDescription>
             We use tracking cookies to understand how you use the product and
             help us improve it. Please accept cookies to help us improve.
           </CardDescription>

@@ -340,7 +340,7 @@ export default function IndexPage() {
                   <Button
                     asChild
                     size="lg"
-                    className="gap-2 h-14 px-8 text-lg font-semibold"
+                    className="h-14 px-8 text-lg font-semibold"
                   >
                     <Link href="/docs/installation">
                       <ChevronsRight className="h-6 w-6" />
@@ -351,7 +351,7 @@ export default function IndexPage() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="gap-2 h-14 px-8 text-lg font-semibold bg-background/80 backdrop-blur-sm border-2"
+                    className="h-14 px-8 text-lg font-semibold bg-background/80 backdrop-blur-sm border-2"
                   >
                     <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
                       <SiGithub className="h-6 w-6" />
@@ -426,18 +426,13 @@ export default function IndexPage() {
               player skins across their networks.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <Button asChild size="lg" className="gap-2 h-12 px-8">
+              <Button asChild size="lg" className="h-12 px-8">
                 <Link href="/docs/installation">
                   <Download className="w-5 h-5" />
                   Get SkinsRestorer
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="gap-2 h-12 px-8"
-              >
+              <Button asChild variant="outline" size="lg" className="h-12 px-8">
                 <a href={process.env.NEXT_PUBLIC_GITHUB_LINK}>
                   <SiGithub className="w-5 h-5" />
                   View on GitHub

@@ -18,7 +18,65 @@
         ]
       }
     ],
-    "shadcn/no-arbitrary-values": ["error", { "allow": ["layout"] }]
+    "shadcn/no-arbitrary-values": ["error", { "allow": ["layout"] }],
+    "shadcn/no-restyle": [
+      "error",
+      {
+        "allow": ["layout"],
+        "contracts": [
+          {
+            "pattern": "^Card$",
+            "allow": [
+              "layout",
+              "hover:shadow-lg",
+              "transition-shadow",
+              "duration-200",
+              "shadow-lg",
+              "shadow-xl",
+              "shadow-primary/5",
+              "border-primary/50",
+              "bg-background/80",
+              "backdrop-blur-sm"
+            ]
+          },
+          { "pattern": "^CardHeader$", "allow": ["layout", "spacing"] },
+          { "pattern": "^CardContent$", "allow": ["layout", "spacing"] },
+          { "pattern": "^CardFooter$", "allow": ["layout", "spacing"] },
+          {
+            "pattern": "^CardTitle$",
+            "allow": ["layout", "text-lg", "text-xl"]
+          },
+          {
+            "pattern": "^TabsContent$",
+            "allow": ["layout", "text-xs", "text-muted-foreground"]
+          },
+          {
+            "pattern": "^Button$",
+            "allow": [
+              "layout",
+              "px-8",
+              "text-lg",
+              "font-semibold",
+              "bg-background/80",
+              "backdrop-blur-sm",
+              "border-2",
+              "text-muted-foreground"
+            ]
+          },
+          {
+            "pattern": "^AnimatedShinyText$",
+            "allow": ["layout", "text-sm", "font-semibold"]
+          },
+          {
+            "pattern": "^AccordionContent$",
+            "allow": ["layout", "text-muted-foreground"]
+          },
+          { "pattern": "^HoverCardContent$", "allow": ["layout", "text-sm"] }
+        ]
+      }
+    ],
+    "shadcn/require-static-classes": "error",
+    "shadcn/no-inline-styles": "error"
   },
   "overrides": [
     {
@@ -26,7 +84,10 @@
       "rules": {
         "shadcn/no-unknown-classes": "off",
         "shadcn/no-raw-colors": "off",
-        "shadcn/no-arbitrary-values": "off"
+        "shadcn/no-arbitrary-values": "off",
+        "shadcn/no-restyle": "off",
+        "shadcn/require-static-classes": "off",
+        "shadcn/no-inline-styles": "off"
       }
     }
   ]

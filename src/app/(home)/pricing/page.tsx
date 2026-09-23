@@ -115,7 +115,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full gap-2" size="lg">
+              <Button asChild className="w-full" size="lg">
                 <a href="http://ko-fi.com/skinsrestorer/tiers">
                   <SiKofi className="h-4 w-4" />
                   Become a Supporter

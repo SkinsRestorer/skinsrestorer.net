@@ -61,7 +61,7 @@ export function EnderDashSponsor({
               </p>
             </div>
           </div>
-          <Button asChild variant="outline" className="gap-2 sm:self-start">
+          <Button asChild variant="outline" className="sm:self-start">
             <a href={href} target="_blank" rel="noopener">
               Check out EnderDash
               <ArrowUpRight className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function EnderDashSponsor({
           </ul>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button asChild size="lg" className="gap-2 sm:w-fit">
+            <Button asChild size="lg" className="sm:w-fit">
               <a href={href} target="_blank" rel="noopener">
                 Visit EnderDash
                 <ArrowUpRight className="h-4 w-4" />
