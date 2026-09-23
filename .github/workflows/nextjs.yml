@@ -1,4 +1,4 @@
-name: 'Build and Test'
+name: "Build and Test"
 
 on:
   - push
@@ -10,7 +10,7 @@ jobs:
 
     runs-on: ubuntu-24.04
     steps:
-      - name: 'Checkout repository'
+      - name: "Checkout repository"
         uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -18,7 +18,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 'lts/*'
+          node-version: "lts/*"
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
@@ -41,7 +41,7 @@ jobs:
         run: bun run typecheck
 
       - name: Run check
-        run: bunx biome ci
+        run: bun run check
 
       - name: Run build
         run: bun run build

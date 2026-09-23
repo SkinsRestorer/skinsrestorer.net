@@ -139,7 +139,7 @@ export function Feedback({ url }: { url: string }) {
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
             <textarea
-              // biome-ignore lint/a11y/noAutofocus: We want to autofocus the textarea when it appears
+              // oxlint-disable-next-line jsx-a11y/no-autofocus -- Focus the feedback field when it opens.
               autoFocus
               required
               value={message}

@@ -75,7 +75,6 @@ export default function RootLayout({
         </RootProvider>
         <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
         <script
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: Custom script for Ko-fi widget
           dangerouslySetInnerHTML={{
             __html: `
           kofiWidgetOverlay.draw('skinsrestorer', {

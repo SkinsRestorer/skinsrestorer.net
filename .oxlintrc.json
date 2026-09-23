@@ -1,0 +1,6 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "jsx-a11y", "nextjs", "typescript", "unicorn", "oxc"],
+  "jsPlugins": ["@shadcn/lint"],
+  "ignorePatterns": ["src/components/ui/**", "src/components/data-table/**"]
+}
