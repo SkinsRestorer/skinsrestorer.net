@@ -15,8 +15,10 @@ export default function GeneratorPage() {
         </h1>
         <p className="text-lg text-muted-foreground">
           Upload a PNG skin to get an in-game{" "}
-          <code className="highlight-code">/sr createcustom</code> command or
-          reverse existing custom skin files
+          <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
+            /sr createcustom
+          </code>{" "}
+          command or reverse existing custom skin files
         </p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-6 max-w-5xl mx-auto items-start">

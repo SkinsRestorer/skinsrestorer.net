@@ -2,5 +2,34 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "jsx-a11y", "nextjs", "typescript", "unicorn", "oxc"],
   "jsPlugins": ["@shadcn/lint"],
-  "ignorePatterns": ["src/components/ui/**", "src/components/data-table/**"]
+  "rules": {
+    "shadcn/no-unknown-classes": "error",
+    "shadcn/no-raw-colors": [
+      "error",
+      {
+        "allow": [
+          "bg-fd-accent",
+          "bg-fd-card",
+          "bg-fd-secondary",
+          "text-fd-accent-foreground",
+          "text-fd-foreground",
+          "text-fd-muted-foreground",
+          "text-fd-secondary-foreground"
+        ]
+      }
+    ],
+    "shadcn/no-arbitrary-values": [
+      "error",
+      {
+        "allow": [
+          "layout",
+          "transition-[color,box-shadow]",
+          "transition-[stroke-dashoffset]",
+          "transition-[clip-path]",
+          "rounded-[inherit]",
+          "mask-[linear-gradient(transparent,transparent),linear-gradient(#000,#000)]"
+        ]
+      }
+    ]
+  }
 }

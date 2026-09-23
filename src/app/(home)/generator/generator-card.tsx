@@ -83,8 +83,10 @@ export const GenerateFileCard = () => {
             <CardTitle>Generate Custom Skin Command</CardTitle>
             <CardDescription>
               Upload a PNG to get a copyable{" "}
-              <code className="highlight-code">/sr createcustom</code> command
-              for SkinsRestorer
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
+                /sr createcustom
+              </code>{" "}
+              command for SkinsRestorer
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">

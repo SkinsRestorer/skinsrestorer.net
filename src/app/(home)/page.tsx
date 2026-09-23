@@ -68,7 +68,7 @@ async function LatestRelease() {
               {data.name}
             </a>
           </CardTitle>
-          <span className="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-700">
+          <span className="inline-flex items-center rounded-full border border-status-online-border bg-status-online px-2 py-1 text-xs font-medium text-status-online-foreground">
             Latest Release
           </span>
         </div>

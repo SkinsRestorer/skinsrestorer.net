@@ -104,7 +104,10 @@ export const UploadCard = () => {
           <CardTitle>Upload Skin</CardTitle>
           <CardDescription>
             Upload a PNG skin file and get a copyable{" "}
-            <code className="highlight-code">/skin url</code> command
+            <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
+              /skin url
+            </code>{" "}
+            command
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
