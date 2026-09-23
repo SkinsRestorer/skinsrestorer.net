@@ -133,13 +133,6 @@
   --color-status-online-border: var(--status-online-border);
   --color-status-offline: var(--status-offline-bg);
   --color-status-offline-foreground: var(--status-offline-foreground);
-  --shadow-meteor: 0 0 0 1px #ffffff10;
-  --shadow-bento:
-    0 0 0 1px rgb(0 0 0 / 3%), 0 2px 4px rgb(0 0 0 / 5%),
-    0 12px 24px rgb(0 0 0 / 5%);
-  --shadow-bento-dark: 0 -20px 80px -20px #ffffff1f inset;
-  --text-file-upload-name: 13px;
-  --text-file-upload-size: 11px;
   /*noinspection CssUnresolvedCustomProperty*/
   --font-sans: var(--font-geist-sans);
   /*noinspection CssUnresolvedCustomProperty*/
@@ -208,18 +201,6 @@
       opacity: 0;
     }
   }
-}
-
-@utility animation-paused {
-  animation-play-state: paused;
-}
-
-@utility animation-reverse {
-  animation-direction: reverse;
-}
-
-@utility transition-shiny {
-  transition: background-position 1s cubic-bezier(0.6, 0.6, 0, 1);
 }
 
 @layer base {

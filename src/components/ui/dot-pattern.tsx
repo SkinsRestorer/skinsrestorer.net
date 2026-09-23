@@ -113,7 +113,7 @@ export function DotPattern({
       ref={containerRef}
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full text-ring/80",
+        "pointer-events-none absolute inset-0 h-full w-full text-neutral-400/80",
         className,
       )}
       {...props}
