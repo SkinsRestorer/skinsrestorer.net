@@ -63,7 +63,7 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@octokit/openapi-types": "^27.0.0",
+    "@octokit/openapi-types": "^29.0.0",
     "@shadcn/lint": "^0.2.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.13.3",
