@@ -1,64 +1,41 @@
 ---
-title: Installation on Fabric
-description: Learn how to install the SkinsRestorer mod on Fabric-based Minecraft servers.
-icon: Layers
+title: "Install on Fabric"
+description: "Install the Fabric mod and check a server skin change."
+docType: "tutorial"
+appliesTo: "Fabric servers"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Boxes"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { Callout } from 'fumadocs-ui/components/callout';
+This guide covers a standalone Fabric server. A proxy backend also needs compatible profile forwarding and proxy mode.
 
-Before you start, read the [main installation page](/docs/installation).
+## Before you start
 
-<Callout type="warning" emoji="🆕">
-  The Fabric mod supports **only the latest Minecraft release**. It does not support older versions.
-</Callout>
+Match the mod download to your Minecraft version. SkinsRestorer 15.12.6 targets Minecraft 26.3. Read the [requirements](/docs/installation/requirements) before you update an existing modpack.
 
-<Callout type="info" emoji="🔁">
-  On a supported version, the Fabric mod works like the Bukkit plugin.
-  It uses the same commands, configuration, and permissions.
-</Callout>
+The packaged Fabric release includes Fabric API, Cloud, and the permissions API. Do not use the raw development JAR.
 
-## Install the mod
+## Install
 
-<Steps>
-  <Step>
-    ### Prepare your server
-    Install [Fabric Loader](https://fabricmc.net/use/server/) for the latest Minecraft version.
+1. Stop the server.
+2. Download the Fabric artifact from the [official release](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Remove older SkinsRestorer mod JARs from `mods`. Keep the configuration and data.
+4. Put the new mod JAR in `mods`.
+5. Start the server.
+6. Read the log for loader dependency errors and SkinsRestorer startup errors.
 
-    If Fabric is already installed, update it to the latest release.
-  </Step>
+Use the configuration location reported by the mod. Do not copy a Bukkit plugin JAR into `mods`.
 
-  <Step>
-    ### Install dependencies
-    Download the matching [Fabric API](https://modrinth.com/mod/fabric-api) version.
-    Put the file in the server's `mods` folder.
-  </Step>
+## Check
 
-  <Step>
-    ### Add SkinsRestorer
-    Download the latest SkinsRestorer mod from [Modrinth](https://modrinth.com/mod/skinsrestorer).
-    Put it in the same `mods` folder.
-  </Step>
+1. Join the server.
+2. Run `/skin set xknat`.
+3. Ask another player to check your skin.
+4. Reconnect and check that the selection remains.
 
-  <Step>
-    ### Start the server
-    Start or restart the Fabric server.
-    Read the console for warnings or missing dependencies.
-  </Step>
+If access is denied, configure the platform's permissions or read [player access](/docs/configuration/player-access). If the loader rejects the mod, compare Minecraft, Java, and loader versions with the artifact requirements.
 
-  <Step>
-    ### Make sure that the mod works
-    Join the server and run `/skinsrestorer status`.
-  </Step>
+## Next
 
-  <Step>
-    ### Configure SkinsRestorer
-    Edit the files in `config/SkinsRestorer/`.
-    The [configuration guide](/docs/configuration) explains each option.
-  </Step>
-</Steps>
-
-## Need help?
-
-If you need help, save the latest server log.
-Send the log and your Fabric Loader version on our [Discord server](https://skinsrestorer.net/discord).
+Complete the [first skin check](/docs/installation/quick-start), then [upload a PNG](/docs/features/skin-upload).

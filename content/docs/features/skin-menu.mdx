@@ -1,0 +1,39 @@
+---
+title: "Browse skins and save favorites"
+description: "Use the menu, skin history, search links, and favorites."
+docType: "how-to"
+appliesTo: "Players on platforms with inventory GUI support"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "LayoutGrid"
+---
+
+The skin menu is available on platforms that support its inventory UI. Your administrator controls which categories appear.
+
+## Open the menu
+
+Run `/skins` or `/skin menu`. Choose a skin from the available entries. If the menu is empty, the administrator can [configure its categories](/docs/configuration/skin-menu).
+
+Recommended skins depend on `api.fetchRecommendedSkins`. Named custom skins come from server storage. These are different sources.
+
+## Save a favorite
+
+1. Select a skin with `/skin set <name>` or `/skin url "<url>"`.
+2. Run `/skin favourite`.
+3. Run `/skin favourites` to view saved choices.
+
+`/skin favourite` toggles the current selection. Run it again on the same selection to remove that favorite.
+
+The command uses the British spelling `favourite`. History and favorites have separate server limits.
+
+## Reuse a previous skin
+
+Run `/skin history` to view previous selections. Run `/skin undo` to restore the previous selection. The history permission is `skinsrestorer.command.undo`.
+
+## Search for a skin
+
+Run `/skin search <words>` to receive a search link. This command does not automatically choose a result. Download the chosen PNG and [upload it](/docs/features/skin-upload).
+
+## If access is denied
+
+Menu access needs `skinsrestorer.command.gui`. Favorites need `skinsrestorer.command.favourite`. Ask the administrator to inspect [the command reference](/docs/configuration/commands-permissions).

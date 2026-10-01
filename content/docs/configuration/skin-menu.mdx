@@ -1,0 +1,49 @@
+---
+title: "Configure the skin menu"
+description: "Choose categories and visible entries in /skins."
+docType: "how-to"
+appliesTo: "Platforms with inventory GUI support"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "PanelsTopLeft"
+---
+
+The menu separates named custom skins, cached player skins, and recommended skins. Its configuration uses `gui.custom`, `gui.players`, and `gui.recommendations`.
+
+## Show a curated custom list
+
+1. [Create the custom skins](/docs/features/custom-skins) that you want to offer.
+2. Edit the existing `gui` section.
+
+```yaml title="config.yml (SkinsRestorer excerpt)"
+gui:
+  custom:
+    enabled: true
+    index: 0
+    onlyShowList: true
+    list:
+      - "lobby"
+      - "builder"
+  players:
+    enabled: false
+  recommendations:
+    enabled: false
+```
+
+3. Run `/sr reload`.
+4. Open `/skins` with a regular player account.
+5. Select each listed skin and check the result.
+
+`onlyShowList` filters visible entries. It does not grant permission to use a skin. [Per-skin permissions](/docs/configuration/restrict-skins) still apply.
+
+## Show player or recommended skins
+
+Set the category's `enabled` value to `true`. Its `index` controls its position relative to the other categories. Smaller values appear earlier.
+
+A curated `gui.players.list` uses player UUIDs. A curated recommendations list uses recommendation IDs. Neither list uses custom skin names.
+
+Recommended entries also require `api.fetchRecommendedSkins: true`.
+
+## If entries are missing
+
+Check that the category is enabled and that each listed identifier exists. A locked entry can mean missing per-skin permission. Check [the GUI reference](/docs/reference/gui) for defaults and exact keys.

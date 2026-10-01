@@ -1,0 +1,31 @@
+---
+title: "Messages and diagnostics"
+description: "Exact keys, types, and defaults for messages and diagnostics."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "MessagesSquare"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/configuration/locale-translations).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `dev.debug` | boolean | `false` | Record additional diagnostic details in the log. |
+| `messages.consoleLocale` | locale | `"en"` | Console locale. |
+| `messages.dateFormat` | string | `"dd MMMM yyyy"` | Java date format for message timestamps. |
+| `messages.disablePrefix` | boolean | `false` | Omit the message prefix. |
+| `messages.locale` | locale | `"en"` | Default player locale. Language-country codes use underscores. |
+| `messages.perIssuerLocale` | boolean | `true` | Use each player's client locale when a translation exists. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [DevConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/DevConfig.java).
+- [MessageConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java).

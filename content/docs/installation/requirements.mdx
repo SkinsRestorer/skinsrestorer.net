@@ -1,0 +1,41 @@
+---
+title: "Requirements and compatibility"
+description: "Match the SkinsRestorer artifact, Minecraft version, and Java runtime."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ClipboardCheck"
+---
+
+There are three release artifacts: a server/proxy plugin, a Fabric mod, and a NeoForge mod. Mod builds target specific Minecraft versions.
+
+## Server and proxy plugins
+
+Use the server/proxy artifact on Bukkit-compatible servers, BungeeCord, and Velocity. Choose a Java runtime that satisfies both your platform and the plugin release.
+
+The platform can require a newer Java version than SkinsRestorer. Read [Paper's requirements](https://docs.papermc.io/paper/getting-started/) or [Velocity's requirements](https://docs.papermc.io/velocity/getting-started/) for your exact release.
+
+Forks and hybrid mod/plugin servers can change profile behavior. A successful startup alone does not prove compatibility. Reproduce problems on an upstream platform before you report a [platform conflict](/docs/troubleshooting/incompatibility-list).
+
+## Fabric and NeoForge 15.12.6
+
+The source for this release targets **Minecraft 26.3**. The Fabric metadata requires Java 25 or newer and Fabric Loader 0.16.0 or newer. The build uses Fabric Loader 0.19.5.
+
+The NeoForge build targets NeoForge 26.3.0.7-beta. Use the loader and Java runtime required by that Minecraft release. An older Minecraft server needs a matching older SkinsRestorer mod artifact.
+
+These values come from the [release build configuration](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties) and [Fabric metadata](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/mod/fabric/src/main/resources/fabric.mod.json).
+
+## Clients and networks
+
+Players do not need the Bukkit plugin on their client. The server sends skin properties to Java clients. Client skin mods can override those properties.
+
+A proxy network needs correct UUID and profile forwarding before skin troubleshooting. For Velocity, use the [official forwarding guide](https://docs.papermc.io/velocity/player-information-forwarding/).
+
+Bedrock clients and custom client renderers can handle skins differently. Do not use their appearance as the only check of a Java server skin change.
+
+## Downloads and dependencies
+
+Use the packaged release artifact, rather than a `raw` development JAR. The Fabric release bundles Fabric API, Cloud, and the Fabric permissions API. If the loader reports a missing dependency, inspect the artifact and loader versions first.
+
+Continue with [your installation guide](/docs/installation).

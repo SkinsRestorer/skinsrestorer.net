@@ -1,0 +1,46 @@
+---
+title: "Grant player access"
+description: "Give players and staff the command permissions they need."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "KeyRound"
+---
+
+Configure permissions on the platform that owns the command. On a proxy network, ordinary skin commands run through the proxy.
+
+## Allow normal player commands
+
+Grant `skinsrestorer.player` to the player group in your permission plugin. This group covers ordinary skin changes, URLs, history, favorites, search, edit, and the menu.
+
+For LuckPerms, a typical grant is:
+
+```text
+/lp group default permission set skinsrestorer.player true
+```
+
+Use the permission manager installed on your proxy or server. This example is a LuckPerms command, not a SkinsRestorer command.
+
+Some platforms provide player permissions by default. `commands.forceDefaultPermissions` controls fallback defaults on platforms without that support. An explicit denial can override a grant.
+
+## Limit access to specific commands
+
+Use individual nodes from the [command reference](/docs/configuration/commands-permissions). For example, a URL change needs `skinsrestorer.command.set.url` and the relevant command access.
+
+If a broad group already grants URL access, adding a narrower positive permission does not remove it. Remove the broad grant or explicitly deny the unwanted node.
+
+## Grant staff commands
+
+Grant only the nodes needed for the staff task. `skinsrestorer.admin` includes player commands, other-player operations, and several administrative actions.
+
+The built-in admin group does **not** list `reload`, `dump`, or `purgeolddata` in 15.12.6. Grant those operational permissions explicitly if staff need them. A permission plugin's wildcard behavior can differ from SkinsRestorer's groups.
+
+## Check
+
+1. Join with a regular player account.
+2. Run `/skin set xknat`.
+3. Try a staff-only operation with that account.
+4. Check the permission manager's effective permissions if results differ.
+
+Do not use an operator account as the only permission check. For denied commands, use [permission troubleshooting](/docs/troubleshooting/permissions).

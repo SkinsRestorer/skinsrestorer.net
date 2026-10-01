@@ -1,0 +1,47 @@
+---
+title: "Use the API on a proxy network"
+description: "Choose a proxy integration or give a backend access to shared skin storage."
+docType: "how-to"
+appliesTo: "Velocity / BungeeCord integrations and proxy backends"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+Choose where your integration runs before configuring storage.
+
+## Integration on the proxy
+
+Call the API from the proxy plugin and use that platform's player type. The proxy owns the ordinary saved selection and skin command behavior.
+
+A backend can communicate with your proxy plugin using an appropriate plugin-message protocol. Validate message sources and payloads in your integration.
+
+## Integration on a backend
+
+You need all of these:
+
+- Correct player identity and profile forwarding.
+- SkinsRestorer on the proxy and backend.
+- `server.proxyMode.api: true` on the backend.
+- The same MySQL or PostgreSQL database and table prefix on both instances.
+- Working database access and successful API initialization on the backend.
+
+File storage does not support backend API initialization in proxy mode.
+
+## Configure and check
+
+1. [Back up the current storage](/docs/configuration/backups).
+2. Configure [shared SQL storage](/docs/configuration/database) on the proxy and API-enabled backends.
+3. Restart the affected instances.
+4. Inspect database and API initialization logs.
+5. Change a skin through the proxy.
+6. Resolve the same player's selected identifier through the backend plugin.
+7. Switch backends and check the visible skin.
+
+Matching server names alone does not prove matching player UUIDs. Inspect forwarded identity if records disagree.
+
+## If the provider is unavailable
+
+`SkinsRestorerProvider.get()` can throw when backend storage initialization fails. A plugin load-order dependency cannot fix missing shared storage.
+
+If no backend plugin needs the API, disable backend API access and keep ordinary proxy skin forwarding. Use [proxy troubleshooting](/docs/troubleshooting/proxy-mode).

@@ -1,37 +1,23 @@
 ---
-title: Integrations
-description: Learn how to integrate third-party software with SkinsRestorer.
-icon: Plug
+title: "Integrations"
+description: "Show selected skins in placeholders, avatars, and chat bridges."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Plug"
 ---
 
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { MessageCircle, MessagesSquare, Code, User } from 'lucide-react';
+Choose the integration for your platform. A Bukkit PlaceholderAPI expansion is not a Fabric placeholder system.
 
-SkinsRestorer can share skin data with other plugins and services.
+| Integration | Platform | Purpose |
+| --- | --- | --- |
+| [PlaceholderAPI](/docs/integrations/placeholderapi) | Bukkit-compatible servers | Selected skin identifiers and current textures |
+| [DiscordSRV](/docs/integrations/discordsrv) | Bukkit-compatible servers | Player avatars in Discord |
+| [Discord-MC-Chat](/docs/integrations/discord-mc-chat) | Supported DMCC mod versions | Profile texture avatars |
+| [Avatar URLs](/docs/integrations/avatar-url) | Plugins with placeholder support | Render a texture as a player head |
+| [MineSkin](/docs/integrations/mineskin) | Server URL generation and website uploads | Generate signed skin properties |
 
-## Integrations
+A proxy backend that resolves stored skin data through the API needs [shared storage](/docs/development/proxy-api). A placeholder that reads an online profile and one that reads a saved selection can return different information.
 
-Select the plugin or service that you want to configure.
-
-<Cards>
-  <Card
-    icon={<Code />}
-    title="PlaceholderAPI"
-    href="/docs/integrations/placeholderapi"
-  ></Card>
-  <Card
-    icon={<MessagesSquare />}
-    title="DiscordSRV"
-    href="/docs/integrations/discordsrv"
-  ></Card>
-  <Card
-    icon={<MessageCircle />}
-    title="Discord MC Chat"
-    href="/docs/integrations/discord-mc-chat"
-  ></Card>
-  <Card
-    icon={<User />}
-    title="Avatar URL"
-    href="/docs/integrations/avatar-url"
-  ></Card>
-</Cards>
+For your own Java integration, start with [the developer tutorial](/docs/development/first-plugin).

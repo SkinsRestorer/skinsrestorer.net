@@ -1,16 +1,15 @@
 {
-  "icon": "BookOpen",
+  "title": "Documentation",
   "pages": [
     "index",
-    "---Getting Started---",
     "installation",
-    "configuration",
-    "---Features & Integrations---",
     "features",
+    "troubleshooting",
+    "configuration",
     "integrations",
-    "---Advanced---",
     "development",
-    "troubleshooting"
+    "reference",
+    "concepts"
   ],
   "defaultOpen": true
 }

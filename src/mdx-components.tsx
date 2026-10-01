@@ -15,6 +15,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...defaultMdxComponents,
     Accordion,
     Accordions,
+    Callout,
     Step,
     Steps,
     ...TabsComponents,

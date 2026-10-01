@@ -1,0 +1,923 @@
+{
+  "version": "15.12.6",
+  "reviewed": "2026-10-01",
+  "repository": "https://github.com/SkinsRestorer/SkinsRestorer",
+  "config": [
+    {
+      "key": "advanced.disableOnJoinSkins",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java"
+    },
+    {
+      "key": "advanced.enablePaperJoinListener",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java"
+    },
+    {
+      "key": "advanced.noConnections",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java"
+    },
+    {
+      "key": "advanced.playerHeadChatObjects",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java"
+    },
+    {
+      "key": "advanced.teleportRefresh",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java"
+    },
+    {
+      "key": "api.elyByEnabled",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java"
+    },
+    {
+      "key": "api.fetchRecommendedSkins",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java"
+    },
+    {
+      "key": "api.mineskinAPIKey",
+      "type": "String",
+      "default": "key",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java"
+    },
+    {
+      "key": "api.mineskinSecretSkins",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java"
+    },
+    {
+      "key": "api.mojangBatchWindowSeconds",
+      "type": "Integer",
+      "default": 1,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java"
+    },
+    {
+      "key": "commands.customHelp.enabled",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.customHelp.message",
+      "type": "List<String>",
+      "default": [
+        "<yellow>Skin plugin Help",
+        "<gray>---------------------",
+        "<gray>/skin set <skin> - <yellow>Set your skin"
+      ],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.disableGUICommand",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.disableSkinCommand",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.disableSkullCommand",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.disabledSkins.enabled",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.disabledSkins.list",
+      "type": "List<String>",
+      "default": ["steve", "owner"],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.forceDefaultPermissions",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.maxFavouriteLength",
+      "type": "Integer",
+      "default": 180,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "commands.maxHistoryLength",
+      "type": "Integer",
+      "default": 36,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "commands.perSkinPermissions",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.perSkinPermissionsConsent",
+      "type": "String",
+      "default": "",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.restrictSkinUrls.enabled",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.restrictSkinUrls.list",
+      "type": "List<String>",
+      "default": [
+        "https://i.imgur.com",
+        "http://i.imgur.com",
+        "https://storage.googleapis.com",
+        "http://storage.googleapis.com",
+        "https://cdn.discordapp.com",
+        "http://cdn.discordapp.com",
+        "https://textures.minecraft.net",
+        "http://textures.minecraft.net"
+      ],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java"
+    },
+    {
+      "key": "commands.skinChangeCooldown",
+      "type": "Integer",
+      "default": 30,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "commands.skinErrorCooldown",
+      "type": "Integer",
+      "default": 5,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "commands.skullErrorCooldown",
+      "type": "Integer",
+      "default": 5,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "commands.skullGetCooldown",
+      "type": "Integer",
+      "default": 30,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "database.connectionOptions",
+      "type": "String",
+      "default": "sslMode=trust&serverTimezone=UTC",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "database.database",
+      "type": "String",
+      "default": "db",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "database.host",
+      "type": "String",
+      "default": "localhost",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "database.maxPoolSize",
+      "type": "Integer",
+      "default": 10,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java",
+      "min": 1,
+      "max": 1000
+    },
+    {
+      "key": "database.password",
+      "type": "String",
+      "default": "pass",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "database.port",
+      "type": "Integer",
+      "default": 3306,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java",
+      "min": 1,
+      "max": 65535
+    },
+    {
+      "key": "database.tablePrefix",
+      "type": "String",
+      "default": "sr_",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "database.type",
+      "type": "DatabaseType",
+      "default": "FILE",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "database.username",
+      "type": "String",
+      "default": "root",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java"
+    },
+    {
+      "key": "dev.debug",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/DevConfig.java"
+    },
+    {
+      "key": "gui.custom.enabled",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.custom.index",
+      "type": "Integer",
+      "default": 0,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "gui.custom.list",
+      "type": "List<String>",
+      "default": ["xknat", "pistonmaster"],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.custom.onlyShowList",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.notUnlockedSkin",
+      "type": "String",
+      "default": "c10591e6909e6a281b371836e462d67a2c78fa0952e910f32b41a26c48c1757c",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.players.enabled",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.players.index",
+      "type": "Integer",
+      "default": 1,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "gui.players.list",
+      "type": "List<String>",
+      "default": [
+        "7dcfc130-344a-4719-9fbe-3176bc2075c6",
+        "b1ae0778-4817-436c-96a3-a72c67cda060"
+      ],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.players.onlyShowList",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.recommendations.enabled",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.recommendations.index",
+      "type": "Integer",
+      "default": 2,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "gui.recommendations.list",
+      "type": "List<String>",
+      "default": ["vampire", "space-suit"],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "gui.recommendations.onlyShowList",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java"
+    },
+    {
+      "key": "login.alwaysApplyPremium",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/LoginConfig.java"
+    },
+    {
+      "key": "login.noSkinIfLoginCanceled",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/LoginConfig.java"
+    },
+    {
+      "key": "login.offlineModeWarning.enabled",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/LoginConfig.java"
+    },
+    {
+      "key": "messages.consoleLocale",
+      "type": "Locale",
+      "default": "en",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java"
+    },
+    {
+      "key": "messages.dateFormat",
+      "type": "String",
+      "default": "dd MMMM yyyy",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java"
+    },
+    {
+      "key": "messages.disablePrefix",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java"
+    },
+    {
+      "key": "messages.locale",
+      "type": "Locale",
+      "default": "en",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java"
+    },
+    {
+      "key": "messages.perIssuerLocale",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java"
+    },
+    {
+      "key": "proxy.notAllowedCommandServers.allowList",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java"
+    },
+    {
+      "key": "proxy.notAllowedCommandServers.enabled",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java"
+    },
+    {
+      "key": "proxy.notAllowedCommandServers.ifNoServerBlockCommand",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java"
+    },
+    {
+      "key": "proxy.notAllowedCommandServers.list",
+      "type": "List<String>",
+      "default": ["auth"],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java"
+    },
+    {
+      "key": "server.dismountPassengersOnSkinUpdate",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.dismountPlayerOnSkinUpdate",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.proxyMode.api",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.proxyMode.detection",
+      "type": "ProxyMode",
+      "default": "AUTO",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.remountPlayerOnSkinUpdate",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.resourcePackFix",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.sound.enabled",
+      "type": "Boolean",
+      "default": true,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "server.sound.value",
+      "type": "String",
+      "default": "ENTITY_PLAYER_TELEPORT, 0.7",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java"
+    },
+    {
+      "key": "storage.defaultSkins.applyForPremium",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java"
+    },
+    {
+      "key": "storage.defaultSkins.enabled",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java"
+    },
+    {
+      "key": "storage.defaultSkins.list",
+      "type": "List<String>",
+      "default": ["xknat", "pistonmaster", "<random>"],
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java"
+    },
+    {
+      "key": "storage.disallowAutoUpdateSkin",
+      "type": "Boolean",
+      "default": false,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java"
+    },
+    {
+      "key": "storage.skinExpiresAfter",
+      "type": "Integer",
+      "default": 15,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "key": "storage.uuidExpiresAfter",
+      "type": "Integer",
+      "default": 60,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java",
+      "min": 0,
+      "max": 2147483647
+    }
+  ],
+  "permissions": [
+    "skinsrestorer.admincommand",
+    "skinsrestorer.admincommand.applyskin",
+    "skinsrestorer.admincommand.createcustom",
+    "skinsrestorer.admincommand.drop",
+    "skinsrestorer.admincommand.dump",
+    "skinsrestorer.admincommand.info",
+    "skinsrestorer.admincommand.purgeolddata",
+    "skinsrestorer.admincommand.reload",
+    "skinsrestorer.admincommand.skull.get",
+    "skinsrestorer.admincommand.skull.get.other",
+    "skinsrestorer.admincommand.skull.get.url",
+    "skinsrestorer.admincommand.skull.random",
+    "skinsrestorer.admincommand.skull.random.other",
+    "skinsrestorer.admincommand.status",
+    "skinsrestorer.bypasscooldown",
+    "skinsrestorer.bypassdisabled",
+    "skinsrestorer.command",
+    "skinsrestorer.command.clear",
+    "skinsrestorer.command.clear.other",
+    "skinsrestorer.command.edit",
+    "skinsrestorer.command.favourite",
+    "skinsrestorer.command.favourite.other",
+    "skinsrestorer.command.gui",
+    "skinsrestorer.command.random",
+    "skinsrestorer.command.random.other",
+    "skinsrestorer.command.search",
+    "skinsrestorer.command.set",
+    "skinsrestorer.command.set.other",
+    "skinsrestorer.command.set.url",
+    "skinsrestorer.command.skull",
+    "skinsrestorer.command.undo",
+    "skinsrestorer.command.undo.other",
+    "skinsrestorer.command.update",
+    "skinsrestorer.command.update.other",
+    "skinsrestorer.ownskin"
+  ],
+  "commands": [
+    {
+      "root": "skin",
+      "syntax": "",
+      "permission": "skinsrestorer.command",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "help [query]",
+      "permission": "skinsrestorer.command",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "<skinName>",
+      "permission": "skinsrestorer.command.set",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "<skinName> <selector>",
+      "permission": "skinsrestorer.command.set.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "clear|reset",
+      "permission": "skinsrestorer.command.clear",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "clear|reset <selector>",
+      "permission": "skinsrestorer.command.clear.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "random",
+      "permission": "skinsrestorer.command.random",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "random <selector>",
+      "permission": "skinsrestorer.command.random.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "search <searchString>",
+      "permission": "skinsrestorer.command.search",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "edit",
+      "permission": "skinsrestorer.command.edit",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "upload",
+      "permission": "skinsrestorer.command.set.url",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "update|refresh",
+      "permission": "skinsrestorer.command.update",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "update|refresh <selector>",
+      "permission": "skinsrestorer.command.update.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "set|select <skinName>",
+      "permission": "skinsrestorer.command.set",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "set|select <skinName> <selector>",
+      "permission": "skinsrestorer.command.set.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "set|select <skinName> <selector> <skinVariant>",
+      "permission": "skinsrestorer.command.set.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "url <url> [skinVariant]",
+      "permission": "skinsrestorer.command.set.url",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "undo|revert",
+      "permission": "skinsrestorer.command.undo",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "undo|revert <selector>",
+      "permission": "skinsrestorer.command.undo.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "history",
+      "permission": "skinsrestorer.command.undo",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "history <selector>",
+      "permission": "skinsrestorer.command.undo.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "favourite",
+      "permission": "skinsrestorer.command.favourite",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "favourite <selector>",
+      "permission": "skinsrestorer.command.favourite.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "favourites",
+      "permission": "skinsrestorer.command.favourite",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "favourites <selector>",
+      "permission": "skinsrestorer.command.favourite.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "menu|gui",
+      "permission": "skinsrestorer.command.gui",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "skin",
+      "syntax": "notification ignore-cracked-client",
+      "permission": null,
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "",
+      "permission": "skinsrestorer.admincommand",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "help [query]",
+      "permission": "skinsrestorer.admincommand",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "reload",
+      "permission": "skinsrestorer.admincommand.reload",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "docs permissions",
+      "permission": "skinsrestorer.admincommand",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "status",
+      "permission": "skinsrestorer.admincommand.status",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "drop|remove player <target>",
+      "permission": "skinsrestorer.admincommand.drop",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "drop|remove skin <target>",
+      "permission": "skinsrestorer.admincommand.drop",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "info|props|lookup player <input>",
+      "permission": "skinsrestorer.admincommand.info",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "info|props|lookup skin <input>",
+      "permission": "skinsrestorer.admincommand.info",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "applyskin <selector>",
+      "permission": "skinsrestorer.admincommand.applyskin",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "createcustom <skinName> <skinInput>",
+      "permission": "skinsrestorer.admincommand.createcustom",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "createcustom <skinName> <skinInput> <skinVariant>",
+      "permission": "skinsrestorer.admincommand.createcustom",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "setcustomname <skinName> <displayName>",
+      "permission": "skinsrestorer.admincommand.createcustom",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "purgeolddata <days>",
+      "permission": "skinsrestorer.admincommand.purgeolddata",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "sr",
+      "syntax": "dump",
+      "permission": "skinsrestorer.admincommand.dump",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "",
+      "permission": "skinsrestorer.command.skull",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "help [query]",
+      "permission": "skinsrestorer.command.skull",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "<skinName>",
+      "permission": "skinsrestorer.admincommand.skull.get",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "<skinName> <selector>",
+      "permission": "skinsrestorer.admincommand.skull.get.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "random",
+      "permission": "skinsrestorer.admincommand.skull.random",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "random <selector>",
+      "permission": "skinsrestorer.admincommand.skull.random.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "get|give <skinName>",
+      "permission": "skinsrestorer.admincommand.skull.get",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "get|give <skinName> <selector>",
+      "permission": "skinsrestorer.admincommand.skull.get.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "get|give <skinName> <selector> <skinVariant>",
+      "permission": "skinsrestorer.admincommand.skull.get.other",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skull",
+      "syntax": "url <url> [skinVariant]",
+      "permission": "skinsrestorer.admincommand.skull.get.url",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java"
+    },
+    {
+      "root": "skins",
+      "syntax": "",
+      "permission": "skinsrestorer.command.gui",
+      "source": "shared/src/main/java/net/skinsrestorer/shared/commands/GUICommand.java"
+    }
+  ],
+  "sources": {
+    "shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java": "c40faa9f4522afc9302aa223e745d22b5243c2233e786d57b514d8122c985598",
+    "shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java": "ff0afec5e702f9c221e85898c3aa0b7d0456ed9cd8dae5615eac90484327731c",
+    "shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java": "741e52162c16c15d8cb7b71de747bd2293685bad6aa1e950d50a3242766d7404",
+    "shared/src/main/java/net/skinsrestorer/shared/config/CommentsConfig.java": "049675cbf5d354fb58f6c26ed22688880f94e9db59f17ea151c2c2e93c1b1cde",
+    "shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java": "780dcab05f97d4152b569fbd7b4c6c4ac380b3ee41674df07b164f1fc476be18",
+    "shared/src/main/java/net/skinsrestorer/shared/config/DevConfig.java": "334aec6b06cda9ab1b79d71a4e45becc72773559543fc4846e71b73074492a92",
+    "shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java": "41612c679d3e4d3d0ea58262eafbc0c1bc8117a9384dab9ea6f8c47e63bc15d0",
+    "shared/src/main/java/net/skinsrestorer/shared/config/LoginConfig.java": "e51d386a0af034a70714f9ace7aae4be9f2ab6c6c225520a35a7a0da81c6d6ca",
+    "shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java": "4fd33f6f4e5777542f1b68aeb092393210198b1bc948745ad35c3361ba8dc320",
+    "shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java": "537002b6c84a269a242cecb2fc98374780a242f4519385a816d637263915b142",
+    "shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java": "d6774e243f2a4afef23cad9b735ed981e2f318a1650d9b64e94bce2a49149c21",
+    "shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java": "a13a25f829215342f857e3a8c48970af87840c6fb05267075dc11d5c839bf5bd",
+    "shared/src/main/java/net/skinsrestorer/shared/subjects/permissions/PermissionRegistry.java": "0dad0957147b5bab7cebf20d71bc2acdf9f12d303623707065e6ada9b2b14e80",
+    "shared/src/main/java/net/skinsrestorer/shared/commands/SkinCommand.java": "3a5bff1986b8783dd16baa1347af8bc0d08435b264ccd46960b1a9c69fe3ce86",
+    "shared/src/main/java/net/skinsrestorer/shared/commands/SRCommand.java": "66eb6e9c358b2154dac602c8c83af9ab76b7ec3303c7ca6ed5876fe18200dc25",
+    "shared/src/main/java/net/skinsrestorer/shared/commands/SkullCommand.java": "b93998563eac0c118aafe4265bbe29e6e05c36a6f0eba14b347dacb63b2f5e21",
+    "shared/src/main/java/net/skinsrestorer/shared/commands/GUICommand.java": "bce8c2e3c8b92409d36fef8027c5e7efb5698afcf10a120b2d6a2cc422ff3079",
+    "api/src/main/java/net/skinsrestorer/api/VersionProvider.java": "f1c891fbcbb08d086d2aaa50a2b2e726ea54bbbcf8d41f8d486dbd3f5dfc15f0",
+    "api/src/main/java/net/skinsrestorer/api/SkinsRestorerProvider.java": "478c99be011d9594da90bc2db1034fd579c6793a407e2df88092aacee96eb590",
+    "api/src/main/java/net/skinsrestorer/api/SkinsRestorer.java": "c9216903ddf8ac7329a144a0af0275a045206c58901c56f405559fa73d207676",
+    "api/src/main/java/net/skinsrestorer/api/PropertyUtils.java": "67e1aef4f5cbf570d1693a9adf4a3a5fd10375d8da88e847597152fc3c9a57f2",
+    "api/src/main/java/net/skinsrestorer/api/storage/PlayerStorage.java": "8603290c6ce6740820ac83e384c43d0fc156f53e28f4dbdcfe37917bb2bb360f",
+    "api/src/main/java/net/skinsrestorer/api/storage/SkinStorage.java": "c95c718e4619d25787c3fc31666912b1285318121c0a1a11e66b18e451b82460",
+    "api/src/main/java/net/skinsrestorer/api/connections/MineSkinAPI.java": "0fe7ad9e1714fac3cd9c01bcadd5e55f33450d623d1c9c8a46eb5ccc17c40840",
+    "api/src/main/java/net/skinsrestorer/api/property/SkinApplier.java": "9d16482adefd027119a0d43183b8c06c9bf8eb5b55c8f4b3535e89fa83a3ac50",
+    "api/src/main/java/net/skinsrestorer/api/property/InputDataResult.java": "87a315266e1ea1c57b5e412d3f5d0391dea3a5c69033ef631403299ae2f5bfa0",
+    "shared/src/main/java/net/skinsrestorer/shared/subjects/permissions/PermissionGroup.java": "9d7e3e5b2832d4053b14e3790afddd7b098d2a9ea5e916ae5fb596a25e02c212",
+    "shared/src/main/java/net/skinsrestorer/shared/subjects/permissions/SkinPermissionManager.java": "c4f62036c5a5c7f91603bc5e33abe226c89ad1f9011e7f05a94826d2a9dc8e4e",
+    "shared/src/main/java/net/skinsrestorer/shared/gui/SharedGUI.java": "2171d4673f5027d44b74adf5b6e286d945c30504368d647f09ffef3294881107",
+    "shared/src/main/java/net/skinsrestorer/shared/plugin/SRServerPlugin.java": "a45d5a6df30e2d4e4cc2ef65d2d0ca26470f41aa8740c4a267845520cc76d379",
+    "shared/src/main/java/net/skinsrestorer/shared/connections/ServiceCheckerService.java": "a1d5638d3fc1a7335802c721e4639a9607bd084a4724db10b6e973a78dbebc76",
+    "shared/src/main/java/net/skinsrestorer/shared/connections/DumpService.java": "531bcc630557b83e489717bba801f067981dedc372dca6ee22a7cb5379d2238c",
+    "shared/src/main/java/net/skinsrestorer/shared/connections/MineSkinAPIImpl.java": "56ac2d226644ea81ec875503acc77e4763336b419c9a2a563a3cc65e32cc17ab",
+    "shared/src/main/java/net/skinsrestorer/shared/connections/MojangAPIImpl.java": "9d0292bc568fc0c4f6413404d9e00a95ba5a0500cd401053b0ef120e46f6a634",
+    "shared/src/main/java/net/skinsrestorer/shared/update/UpdateCheckInit.java": "689cdbffa0e9a439f4e0896178ec39d76c3c09ef7cb95d10b071993e8659d954",
+    "shared/src/main/java/net/skinsrestorer/shared/update/UpdateDownloader.java": "13a2d5bf736a34b43c9c9436d63249672dff4105466195fd9552411c164d00f9",
+    "bukkit/src/main/java/net/skinsrestorer/bukkit/hooks/SRPlaceholderAPIExpansion.java": "4b89b4f75e3cc7b7f1e8898f9a26b93f9005d8c1ba3a0327ece64cad826ddfe0",
+    "bukkit/src/main/java/net/skinsrestorer/bukkit/SkinApplierBukkit.java": "0240c47dbb817c09877a0b51601822ff8d0e7a96f651cd1525a2623cdce2b3e0",
+    "mod/fabric/src/main/resources/fabric.mod.json": "1925a8c3af0693b8e9c1c766ef8c2928f598636171623dfeb1ad81e6185299a4",
+    "mod/fabric/build.gradle.kts": "8e0e6fccf1c70d6821ef3f9374db0d5b2d62e5c88ce54f1c39fc2984f3231f4a",
+    "mod/neoforge/src/main/resources/META-INF/neoforge.mods.toml": "9bb176f5dee82e1bd6f57788004bd132c70c33b027595f61227d99409e6f8aa0",
+    "gradle.properties": "f479cd01944e846b0016c597b65a044c35a4a2d103ea255711d8fb5b2ae4f208",
+    "shared/src/main/java/net/skinsrestorer/shared/storage/PlayerStorageImpl.java": "cbb0e815bb9c0967a04a5db631615bee4862718e55bde22c40e5104f53cb112f",
+    "shared/src/main/java/net/skinsrestorer/shared/plugin/SRPlugin.java": "634e93990891324b0b0b2ef2ea703c53ac0971a053626e69b5241fd3523478db",
+    "shared/src/main/java/net/skinsrestorer/shared/update/UpdateCheckExecutor.java": "4adc4762854cd4c22b530a815f268011d1d8e0fd33ffece700a562d5e81adc88",
+    "shared/src/main/java/net/skinsrestorer/shared/utils/ValidationUtil.java": "15090c155d5b3d64f0663d2bb4b20ac2a51dbcd3b018cde2d309d400199cee17"
+  },
+  "websiteSources": {
+    "src/lib/mineskin.ts": "ba4b6671b6f7a86368c47e72dab8333f51dd57446a6e9d74dc3e782eeb8b0520",
+    "src/lib/hooks/use-cape-selection.ts": "db26cf95ad8664265b38904d17e75b39bd3f126e6095f8fb6c01eb5727577aab",
+    "src/lib/hooks/use-skin-file.ts": "ca41e6ce425bf1e90c7541ffc5266dd40537d745d5ec9afcc0b70466b3711373",
+    "src/app/(home)/upload/upload-card.tsx": "f3614311f6a0441170bedc7ee599214b331b8d1054faf8bf9558fb638a73f087",
+    "src/app/(home)/generator/generator-card.tsx": "c0d59ce9e9019c52e09a0f9d2bed91ba1653d4005c093832f8c49a49aa500a8d"
+  }
+}

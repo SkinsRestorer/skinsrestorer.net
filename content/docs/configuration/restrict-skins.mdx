@@ -1,0 +1,67 @@
+---
+title: "Restrict skins and URLs"
+description: "Control allowed URLs, blocked skin names, and per-skin permissions."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ShieldCheck"
+---
+
+These restrictions control skin selection. They do not replace your permission manager or the server's authentication policy.
+
+## Restrict URL sources
+
+Edit the existing `commands` section:
+
+```yaml title="config.yml (SkinsRestorer excerpt)"
+commands:
+  restrictSkinUrls:
+    enabled: true
+    list:
+      - "https://textures.minecraft.net/"
+      - "https://minesk.in/"
+      - "skinsrestorer-axolotl://"
+```
+
+Run `/sr reload`. Then try a permitted texture URL and a URL outside the list. Generated commands can use a texture URL, a MineSkin URL, or an opaque Axolotl value. Keep only the prefixes your players need.
+
+URL restrictions use literal prefix matching. Include the slash after the host to avoid matching similarly named hosts.
+
+Keep `skinsrestorer.command.set.url` only for players who need URL changes.
+
+## Block named skins
+
+```yaml title="config.yml (SkinsRestorer excerpt)"
+commands:
+  disabledSkins:
+    enabled: true
+    list:
+      - "owner"
+```
+
+Players with `skinsrestorer.bypassdisabled` bypass this restriction. Do not grant that bypass to the normal player group.
+
+## Require permission for each skin
+
+The release requires consent to these rules:
+
+- Players must not pay to use their own skin.
+- Do not replace player skins with Steve to force payment.
+- You can charge for custom skins that you provide.
+
+If you accept those rules, use:
+
+```yaml title="config.yml (SkinsRestorer excerpt)"
+commands:
+  perSkinPermissions: true
+  perSkinPermissionsConsent: "I will follow the rules"
+```
+
+`perSkinPermissions` is a boolean. There is no `perSkinPermissions.enabled` or configured permission list.
+
+Grant `skinsrestorer.skin.<name>` for an allowed skin. Grant `skinsrestorer.ownskin` so players can select their own account name. Keep ordinary command permissions too.
+
+## Check
+
+After `/sr reload`, check allowed and denied choices with a non-operator account. If both fail, inspect [effective permissions](/docs/troubleshooting/permissions) and the console for consent errors.

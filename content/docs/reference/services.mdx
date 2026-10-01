@@ -1,0 +1,29 @@
+---
+title: "External services"
+description: "Exact keys, types, and defaults for external services."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Cloud"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/integrations/mineskin).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `api.elyByEnabled` | boolean | `false` | Use Ely.by account skins instead of Mojang account skins. |
+| `api.fetchRecommendedSkins` | boolean | `true` | Load recommendations for random skins and the menu. |
+| `api.mineskinAPIKey` | string | `"key"` | Optional server-side MineSkin key. Keep it private. |
+| `api.mineskinSecretSkins` | boolean | `false` | Request unlisted generated skins. Texture URLs remain accessible. |
+| `api.mojangBatchWindowSeconds` | integer | `1` | Seconds before an account lookup batch ends. A batch also ends at 10 requests. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [APIConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/APIConfig.java).

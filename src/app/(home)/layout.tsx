@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           type: "main",
           text: "Generator",
           url: "/generator",
-          description: "Generate skin files for SkinsRestorer",
+          description: "Generate a command for a named custom skin",
         },
         {
           type: "main",

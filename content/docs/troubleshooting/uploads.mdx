@@ -1,0 +1,42 @@
+---
+title: "An upload or generated command fails"
+description: "Separate image problems, generation queues, and server command failures."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Upload"
+---
+
+The website generates a command. Your server then runs that command. Identify which stage fails before you retry.
+
+## The website rejects the file
+
+Use a standard PNG skin template. The website's file limit is 5 MB. A screenshot, JPEG, or HD image is not a standard skin template.
+
+If the preview shows arm gaps, switch between classic and slim. Read [the model guide](/docs/features/skin-design).
+
+## Generation fails or waits
+
+1. Read the error shown on the page.
+2. Wait for an active queue job to finish.
+3. Check your API key if the error concerns authorization.
+4. Check the available cape list if the error concerns cape access.
+
+A selected cape in **Axolotl** mode uses the proxy route. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
+
+Do not repeatedly submit the same file while a job is pending.
+
+## The generated command fails
+
+Keep the URL quoted and the generated model value intact. An opaque `skinsrestorer-axolotl://` result is valid command input, rather than a browser link. Run a `/skin url` result in game chat for your own player.
+
+A `/sr createcustom` result needs administrative access on the server or proxy that owns storage. It creates a named skin, rather than selecting it for a player.
+
+Inspect `skinsrestorer.command.set.url` and [URL restrictions](/docs/configuration/restrict-skins). If generation succeeded but the server cannot load the result, inspect [service connections](/docs/troubleshooting/firewall).
+
+## Report a problem
+
+Include the stage, error text, model, whether you selected a cape, and whether you used an API key. Do not include the key itself.
+
+Use [support diagnostics](/docs/troubleshooting/debugging) for a server-side error.

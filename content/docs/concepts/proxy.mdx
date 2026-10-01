@@ -1,0 +1,35 @@
+---
+title: "Who owns skins on a proxy network?"
+description: "Separate proxy selections, backend forwarding, and backend API access."
+docType: "explanation"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+The public proxy receives the player connection. It owns ordinary SkinsRestorer commands and selected skins. Each backend receives the forwarded profile.
+
+## Normal forwarding
+
+SkinsRestorer runs on the proxy and every backend. The platform forwards identity and profile information. Backend SkinsRestorer detects proxy mode and participates in the skin application path.
+
+The proxy can use file storage. The backends do not need shared SQL storage solely to display forwarded skins.
+
+## Backend API consumers
+
+A plugin on a backend can ask for stored selections or change them through the Java API. That requires the same MySQL or PostgreSQL storage as the proxy.
+
+`server.proxyMode.api` controls backend API availability. It does not turn profile forwarding into a database operation.
+
+## Permissions and administration
+
+Grant player command permissions where the commands run, usually the proxy. Use the proxy for storage administration.
+
+Proxy-mode backends expose local status and dump diagnostics. A backend warning can concern API availability while visible forwarded skins still work.
+
+## Why mismatches happen
+
+Incorrect UUID forwarding can make the same player appear as different records. Independent backend commands can also create competing selections.
+
+A shared database does not correct identity forwarding. First configure [Velocity](/docs/installation/velocity) or [BungeeCord](/docs/installation/bungeecord). Then configure [backend API access](/docs/development/proxy-api) if an integration needs it.

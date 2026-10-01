@@ -1,66 +1,57 @@
 ---
-title: Custom Skins
-description: Create a shared skin with a custom name.
-icon: Paintbrush
+title: "Create a named custom skin"
+description: "Save a reusable server skin for commands, defaults, and the menu."
+docType: "how-to"
+appliesTo: "Server and proxy administrators"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Tag"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+A custom skin gives a signed texture a server-owned name, such as `lobby`. Players can then use `/skin set lobby`.
 
-Each custom skin has a name that works across the server.
-Players apply the skin with `/skin <name>`.
+## Before you start
 
-Create a custom skin with a command or a skin file.
+You need console access or `skinsrestorer.admincommand.createcustom`. On a network, create the skin through the proxy that owns skin storage.
 
-## Choose a custom skin name
+## Create from a PNG
 
-SkinsRestorer stores custom skins in the database or in local files.
-A custom skin name applies to the complete server.
+1. Open [Generator](/generator).
+2. Choose your skin PNG.
+3. Enter a short skin name, such as `lobby`.
+4. Choose **Classic** or **Slim**.
+5. Choose the generation method and select a supported cape if you need one.
+6. Select **Generate /sr createcustom command**.
+7. Run the generated command in the server or proxy console.
 
-For example, create a custom skin named `Dinnerbone`.
-Then `/skin Dinnerbone` applies the custom skin instead of the Minecraft account skin.
+The generator returns a command. It does not download a storage file or install the skin on your server.
 
-Do not use the name of a player on your server.
-The custom skin replaces the account skin for that name.
+## Create from a player name or URL
 
-<Callout type="info" emoji="ℹ️">
-  To change another player's skin, use `/skin [name] [playername]`.
-  Do not create a custom skin for this task.
-</Callout>
+```text
+/sr createcustom lobby xknat
+```
 
-## Create a custom skin
+For an image URL, keep the URL quoted and specify the model:
 
-### Run a command
+```text title="Replace the example URL with a real skin PNG"
+/sr createcustom lobby "https://example.com/lobby.png" classic
+```
 
-Run `/sr createcustom <name> <url> <variant>` to create a custom skin from a URL.
+Creating an existing name updates that custom skin. Back up valuable custom skins before replacement.
 
-### Skinfile Generator
+## Check and reuse
 
-The [Skinfile Generator](/generator) converts a `.png` skin file to the `.customskin` format.
+1. Run `/skin set lobby` in game.
+2. Check the appearance from another player.
+3. Run `/sr info skin lobby` to inspect the stored texture.
 
-<Callout type="warning" emoji="⚠️">
-  The Skinfile Generator works only with file storage. If you use MySQL, run `/sr createcustom` instead.
-</Callout>
+Use `lobby` in a [default skin list](/docs/configuration/default-skins) or the [custom menu list](/docs/configuration/skin-menu).
 
-Use the Skinfile Generator:
+To change the menu label, run `/sr setcustomname lobby Lobby skin`. The command uses the same permission as `createcustom`.
 
-1. Save your skin as a `.png` file.
-2. Open the [Skinfile Generator](/generator).
-3. Select **Browse**.
-4. Select the skin file.
-5. Enter an optional skin name. Use lowercase letters and no spaces.
-6. Select **Upload!**.
-7. Download the `name.customskin` file.
-8. Put the file in `plugins/SkinsRestorer/skins`.
-9. If you use a proxy, put the file on the proxy.
-10. Run `/skin <name>` to apply the skin.
+## Existing skin files
 
-## Apply custom default skins
+The generator's reverse conversion can read supported existing skin storage files. Use it to recover the texture for editing. Do not hand-edit a texture value or signature.
 
-To use a custom skin as the server default:
-
-1. Create a custom skin with a method on this page.
-2. Put the file in the skin folder on the proxy or Spigot server.
-3. Enable default skins in `config.yml`.
-4. Run `/sr reload`.
-
-SkinsRestorer applies the default skin to players who have not selected another skin.
+Read [storage and backups](/docs/configuration/backups) before you remove stored data.

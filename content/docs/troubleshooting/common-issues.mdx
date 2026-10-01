@@ -1,63 +1,45 @@
 ---
-title: Common issues
-description: Find the cause of a common SkinsRestorer problem.
-icon: TriangleAlert
+title: "Common questions"
+description: "Answers to common setup, skin, and storage questions."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "CircleQuestionMark"
 ---
 
-This page lists common causes of SkinsRestorer problems.
+## Do I need offline mode?
 
-## Host-specific issues
+No. SkinsRestorer supports online and offline authentication. Keep your authentication policy. A proxy backend has separate forwarding requirements.
 
-Your Minecraft hosting provider can block some SkinsRestorer functions.
+## Do I need a database for a network?
 
-### Servers with a forced proxy
+Ordinary proxy-managed skins do not require SQL. A backend API consumer in proxy mode needs shared MySQL or PostgreSQL storage.
 
-Some providers, such as Minehut, put each server behind a proxy.
-Customers cannot always configure this proxy.
+Read [proxy mode](/docs/troubleshooting/proxy-mode) before you change storage.
 
-If the proxy manages skins and capes, it can override SkinsRestorer.
-Ask the hosting provider if it can disable the proxy skin system.
+## Why does clear not always show Steve?
 
-### Servers with a misconfigured firewall
+`/skin clear` removes the saved selection. Account skin lookup and default skin rules determine the result afterward.
 
-A hosting firewall can block the SkinsRestorer APIs.
-If `/sr status` reports connection errors, use the [firewall guide](/docs/troubleshooting/firewall).
+## Why does the URL image not change after I edit it?
 
-## Platform-specific issues
+A generated URL skin is a cached signed texture. Upload the revised PNG and select the new result. `/skin update` refreshes account skin data.
 
-Unsupported server software can cause errors.
+## Can I use a custom cape image?
 
-### Supported platforms
+The website supports selected existing capes through its generation route. It does not accept arbitrary cape PNGs or grant account ownership.
 
-We only support the following platforms:
+Read [cape support](/docs/features/capes).
 
-- Bukkit
-- Spigot
-- Paper and supported forks, such as Purpur and Pufferfish
-- Folia
-- BungeeCord (and forks like Waterfall)
-- Velocity
-- Latest Fabric
-- Latest NeoForge
+## Does a green status mean all services work?
 
-Hybrid platforms such as Magma, Mohist, and Cardboard are not supported.
+No. `/sr status` checks account UUID and profile services. MineSkin, website uploads, recommendations, and database access need their own checks.
 
-## Plugin-specific issues
+## Where is the full reference?
 
-Other plugins can change player profiles. These changes can override SkinsRestorer.
+Use [commands and permissions](/docs/configuration/commands-permissions), [configuration](/docs/configuration/options), and [placeholders](/docs/integrations/placeholderapi).
 
-### Plugins with known issues
+## What do I send to support?
 
-Read the [incompatibility list](/docs/troubleshooting/incompatibility-list). If a plugin is listed, contact its developer.
-
-## Client-specific issues
-
-Some launchers include a skin system that overrides server skins.
-Use the [launcher guide](/docs/troubleshooting/launcher-issues) to disable that system.
-
-## Get more help
-
-If these guides do not correct the problem, contact the SkinsRestorer team:
-
-- [Discord](https://skinsrestorer.net/discord)
-- [GitHub Issues](https://github.com/SkinsRestorer/SkinsRestorer/issues)
+Send the setup, exact command, full error, diagnostic report, and recent log. Use [the support checklist](/docs/troubleshooting/debugging).

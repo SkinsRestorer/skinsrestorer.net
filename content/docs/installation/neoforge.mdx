@@ -1,66 +1,41 @@
 ---
-title: Installation on NeoForge
-description: Learn how to install the SkinsRestorer mod on NeoForge-based Minecraft servers.
-icon: Hammer
+title: "Install on NeoForge"
+description: "Install the NeoForge mod and check a server skin change."
+docType: "tutorial"
+appliesTo: "NeoForge servers"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Box"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { Callout } from 'fumadocs-ui/components/callout';
+This guide covers a standalone NeoForge server. A proxy backend also needs compatible profile forwarding and proxy mode.
 
-Before you start, read the [main installation page](/docs/installation).
+## Before you start
 
-<Callout type="warning" emoji="🆕">
-  The NeoForge mod supports **only the latest Minecraft release**. It does not support older versions.
-</Callout>
+Match the mod download to your Minecraft version. SkinsRestorer 15.12.6 targets Minecraft 26.3. Read the [requirements](/docs/installation/requirements) before you update an existing modpack.
 
-<Callout type="info" emoji="🔁">
-  On a supported version, the NeoForge mod works like the Bukkit plugin.
-  It uses the same features and configuration.
-</Callout>
+Use a matching NeoForge loader. The 15.12.6 build targets NeoForge 26.3.0.7-beta.
 
-## Install the mod
+## Install
 
-These steps also apply to Forge forks that can load NeoForge mods.
+1. Stop the server.
+2. Download the NeoForge artifact from the [official release](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Remove older SkinsRestorer mod JARs from `mods`. Keep the configuration and data.
+4. Put the new mod JAR in `mods`.
+5. Start the server.
+6. Read the log for loader dependency errors and SkinsRestorer startup errors.
 
-<Steps>
-  <Step>
-    ### Install NeoForge
-    Download the latest NeoForge installer from [neoforged.net](https://neoforged.net/).
-    Install it for the newest Minecraft version.
-  </Step>
+Use the configuration location reported by the mod. Do not copy a Bukkit plugin JAR into `mods`.
 
-  <Step>
-    ### Create or update the mods folder
-    Run the generated `run.bat` or `run.sh` file once.
-    NeoForge creates its folders, including `mods`.
+## Check
 
-    If NeoForge is already installed, update it to the latest build.
-  </Step>
+1. Join the server.
+2. Run `/skin set xknat`.
+3. Ask another player to check your skin.
+4. Reconnect and check that the selection remains.
 
-  <Step>
-    ### Add SkinsRestorer
-    Download the latest SkinsRestorer mod from [Modrinth](https://modrinth.com/mod/skinsrestorer).
-    Put it in the server's `mods` folder.
-  </Step>
+If access is denied, configure the platform's permissions or read [player access](/docs/configuration/player-access). If the loader rejects the mod, compare Minecraft, Java, and loader versions with the artifact requirements.
 
-  <Step>
-    ### Start the server
-    Start the server.
-    Read the console for errors or missing dependencies.
-  </Step>
+## Next
 
-  <Step>
-    ### Make sure that the mod works
-    Run `/skinsrestorer status` or `/sr status` in the game or server console.
-  </Step>
-
-  <Step>
-    ### Configure SkinsRestorer
-    Edit the files in `config/SkinsRestorer/`.
-    The [configuration guide](/docs/configuration) explains each option.
-  </Step>
-</Steps>
-
-## Need help?
-
-If you need help, send the latest server log on our [Discord server](https://skinsrestorer.net/discord).
+Complete the [first skin check](/docs/installation/quick-start), then [upload a PNG](/docs/features/skin-upload).

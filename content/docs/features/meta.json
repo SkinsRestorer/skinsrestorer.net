@@ -1,12 +1,14 @@
 {
-  "icon": "Sparkles",
+  "title": "Use skins",
   "pages": [
-    "custom-skins",
-    "skin-url",
+    "change-skin",
     "skin-upload",
+    "skin-menu",
     "skin-edit",
     "skin-design",
     "capes"
   ],
-  "defaultOpen": false
+  "defaultOpen": false,
+  "icon": "Palette",
+  "pagesIndex": "index"
 }

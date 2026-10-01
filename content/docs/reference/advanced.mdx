@@ -1,0 +1,29 @@
+---
+title: "Advanced behavior"
+description: "Exact keys, types, and defaults for advanced behavior."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Wrench"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/troubleshooting/no-skin).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `advanced.disableOnJoinSkins` | boolean | `false` | Prevent automatic join application. |
+| `advanced.enablePaperJoinListener` | boolean | `true` | Use the Paper join integration and resource-pack refresh handling. |
+| `advanced.noConnections` | boolean | `false` | Disable external services, URL generation, account requests, and update checks. |
+| `advanced.playerHeadChatObjects` | boolean | `false` | Use player-head components in messages when supported. |
+| `advanced.teleportRefresh` | boolean | `false` | Teleport away and back during refresh. Use only for a diagnosed refresh problem. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [AdvancedConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/AdvancedConfig.java).

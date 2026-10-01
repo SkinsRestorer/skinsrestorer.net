@@ -1,105 +1,56 @@
 ---
-title: Installation on BungeeCord
-description: Learn how to install SkinsRestorer on your BungeeCord proxy.
-icon: Network
+title: "Install on a BungeeCord network"
+description: "Forward player profiles and install SkinsRestorer on the proxy and backends."
+docType: "tutorial"
+appliesTo: "BungeeCord networks"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { Callout } from 'fumadocs-ui/components/callout';
+SkinsRestorer runs on BungeeCord and each backend. The proxy manages skin commands and sends the selected profile to backends.
 
-Before you start, read the [main installation page](/docs/installation).
+## Before you start
 
-## Install the plugin
+You need access to the proxy and every backend. Legacy forwarding requires backend protection. Read [backend security](/docs/troubleshooting/firewall#protect-proxy-backends) before you expose the network.
 
-<Callout type="info" emoji="ℹ️">
-  Install SkinsRestorer on the proxy and every backend server.
-  Some features do not work without the backend installation.
-</Callout>
+## Configure forwarding
 
-<Callout type="info" emoji="ℹ️">
-  Waterfall uses the same installation process.
-  SkinsRestorer does not support FlameCord, Aegis, or other BungeeCord-like proxies.
-</Callout>
+1. Stop the proxy and backends.
+2. Enable IP forwarding in the proxy configuration.
+3. Enable BungeeCord forwarding on each Bukkit backend.
+4. Disable account authentication on the backends.
 
-<Steps>
-  <Step>
-    ### Download the plugin
-    Download the latest version from [Modrinth](https://modrinth.com/plugin/skinsrestorer).
-  </Step>
+```yaml title="BungeeCord config.yml (excerpt)"
+ip_forward: true
+```
 
-<Step>
-  ### Install the proxy plugin
-  Put `SkinsRestorer.jar` in the `plugins` folder of the **BungeeCord proxy**.
-</Step>
+```yaml title="Backend spigot.yml (excerpt)"
+settings:
+  bungeecord: true
+```
 
-<Step>
-  ### Install the backend plugin
-  Put `SkinsRestorer.jar` in the `plugins` folder of **every Spigot server**.
-</Step>
+```properties title="Backend server.properties (excerpt)"
+online-mode=false
+```
 
-  <Step>
-    ### Configure player information forwarding
-    Follow the [BungeeCord forwarding guide](https://www.spigotmc.org/wiki/bungeecord-installation/#post-installation).
-    SkinsRestorer needs forwarding to communicate with backend servers.
+Keep the proxy's authentication policy separate from backend configuration. Do not disable proxy authentication just to use skins.
 
-    Make sure that these values are set:
+## Install
 
-    ```yaml filename="spigot.yml" /true/
-    settings:
-    bungeecord: true
-    ```
+1. Put the server/proxy SkinsRestorer JAR in the proxy's `plugins` folder.
+2. Install the same release on every backend.
+3. Start the backends and proxy.
+4. Read all startup logs.
 
-    ```properties filename="server.properties" /false/
-    online-mode=false
-    ```
+A modded backend needs the matching mod artifact and compatible forwarding support. Leave backend `server.proxyMode.detection` at `AUTO` unless detection fails.
 
-  </Step>
+## Check
 
-<Step>
-  ### Restart the network
-  Restart all Spigot servers and the BungeeCord proxy.
-  Use `/restart`, `/stop`, or `/end`.
-</Step>
+Complete the [first skin check](/docs/installation/quick-start), including a switch between backends. Grant command permissions on BungeeCord or its proxy permission plugin.
 
-  <Step>
-    ### Make sure that Proxy Mode is active
-    Find this message in the log of each Spigot server:
-    ```ansi filename="logs/latest.log"
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m +==================+
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m | SkinsRestorer |
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m |------------------|
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m | [33;1mProxy Mode[32;22m |
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m +==================+
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
-    ```
-    If the message is absent, make sure that player information forwarding is correct.
+Ordinary proxy-managed skins do not require SQL storage. Backend API integrations need [shared storage](/docs/development/proxy-api).
 
-  </Step>
+## If it fails
 
-<Step>
-  ### Configure the plugin
-  [Configure SkinsRestorer](/docs/configuration) on the BungeeCord proxy.
-</Step>
-
-<Step>
-  ### Copy the configuration
-  Copy the same `plugins/SkinsRestorer/config.yml` file to the proxy and every backend server.
-</Step>
-
-<Step>
-  ### Restart the network again
-  Restart all Spigot servers and the BungeeCord proxy.
-</Step>
-
-<Step>
-  ### Read the logs
-  Read the proxy and server logs.
-  If you find an error, send it to us on [Discord](https://skinsrestorer.net/discord).
-</Step>
-
-  <Step>
-    ### Test the plugin
-    Join the network and use `/skin Notch`.
-  </Step>
-</Steps>
+If only one backend shows the skin, compare its forwarding configuration and installed release with a working backend. Use [proxy troubleshooting](/docs/troubleshooting/proxy-mode) for mode warnings and duplicate commands.

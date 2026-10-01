@@ -1,49 +1,36 @@
 ---
-title: Avatar URL
-description: Show SkinsRestorer avatars in another plugin.
-icon: Image
+title: "Build an avatar URL"
+description: "Use a texture hash to show the selected skin in another plugin."
+docType: "how-to"
+appliesTo: "Bukkit plugins that expand PlaceholderAPI avatar fields"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Image"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { Callout } from 'fumadocs-ui/components/callout';
+An account UUID avatar can show the account's original skin. A texture-hash avatar can show the texture currently applied by SkinsRestorer.
 
-Use a SkinsRestorer placeholder to show a player's current head in another plugin.
+## Before you start
 
-<Callout type="info" emoji="ℹ️">
-  For Discord messages, use the guide for
-  [DiscordSRV](/docs/integrations/discordsrv) or
-  [Discord-MC-Chat](/docs/integrations/discord-mc-chat).
-</Callout>
+The consuming plugin must support PlaceholderAPI in its avatar URL field. Install [PlaceholderAPI and check the texture placeholder](/docs/integrations/placeholderapi).
 
-<Steps>
-  <Step>
-    ### Prepare your server
-    Install the latest version of [SkinsRestorer](/docs/installation).
-    Then install the latest version of
-    [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/).
+## Configure an avatar
 
-    Make sure that the other plugin accepts PlaceholderAPI placeholders in avatar URLs.
+Use this URL in the consuming plugin's avatar field:
 
-  </Step>
+```text
+https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png
+```
 
-  <Step>
-    ### Configure the plugin
-    Find the avatar URL in the plugin's configuration or message file.
-    Replace it with:
+Reload that plugin using its supported procedure. Change the player's skin, then trigger a new avatar or message.
 
-    ```yaml
-    https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png
-    ```
+## Diagnose the result
 
-  </Step>
+- **Literal placeholder:** The field does not expand PlaceholderAPI, or the expansion did not load.
+- **`Error`:** Inspect the SkinsRestorer log and data resolution.
+- **Correct hash, old avatar:** Inspect the image service or consuming application's cache.
+- **Steve fallback:** The placeholder has no resolved skin property.
 
-<Step>
-  ### Reload the plugin
-  Reload the plugin to apply the change.
-</Step>
+MC-Heads is an external renderer. Its availability is separate from server skin application.
 
-  <Step>
-    ### Test the avatar
-    Send a message that uses the avatar. It must show the player's SkinsRestorer skin.
-  </Step>
-</Steps>
+Use the focused guides for [DiscordSRV](/docs/integrations/discordsrv) and [Discord-MC-Chat](/docs/integrations/discord-mc-chat).

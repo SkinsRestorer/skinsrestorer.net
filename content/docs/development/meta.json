@@ -1,5 +1,7 @@
 {
+  "title": "Developers",
+  "pages": ["first-plugin", "api", "storage", "proxy-api"],
+  "defaultOpen": false,
   "icon": "Code",
-  "pages": ["api", "storage", "inner-workings"],
-  "defaultOpen": false
+  "pagesIndex": "index"
 }

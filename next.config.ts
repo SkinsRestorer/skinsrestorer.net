@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { createMDX } from "fumadocs-mdx/next";
 import type { NextConfig } from "next";
+import { docsRedirects } from "./src/lib/docs-redirects";
 
 const withMDX = createMDX();
 
@@ -84,6 +85,14 @@ const config: NextConfig = {
   },
   redirects: async () => {
     return [
+      ...docsRedirects.flatMap(({ source, destination }) => [
+        { source, destination, permanent: true },
+        {
+          source: `${source}.mdx`,
+          destination: `${destination}.mdx`,
+          permanent: true,
+        },
+      ]),
       {
         source: "/discord",
         destination: process.env.NEXT_PUBLIC_DISCORD_LINK ?? "",

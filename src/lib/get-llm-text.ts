@@ -6,6 +6,9 @@ export async function getLLMText(page: InferPageType<typeof source>) {
 
   return `# ${page.data.title}
 URL: ${page.url}
+SkinsRestorer: ${page.data.version}
+Applies to: ${page.data.appliesTo}
+Reviewed: ${page.data.reviewed}
 
 ${page.data.description}
 

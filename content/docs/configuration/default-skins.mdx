@@ -1,0 +1,43 @@
+---
+title: "Set default skins"
+description: "Choose the fallback skin for players without a saved selection."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Users"
+---
+
+Default skins apply during skin resolution. An explicit player selection takes priority over the fallback list.
+
+## Configure one default
+
+1. [Create a custom skin](/docs/features/custom-skins) named `lobby`.
+2. Edit the existing `storage` section.
+
+```yaml title="config.yml (SkinsRestorer excerpt)"
+storage:
+  defaultSkins:
+    enabled: true
+    applyForPremium: false
+    list:
+      - "lobby"
+```
+
+3. Run `/sr reload` on the server or proxy that owns storage.
+4. Run `/skin clear` with a test player.
+5. Reconnect and check the resolved skin.
+
+With `applyForPremium: false`, players with an account skin keep that skin. Set it to `true` if the default must also apply to those players without a saved selection.
+
+## Use several defaults
+
+Add more names to `storage.defaultSkins.list`. SkinsRestorer chooses a list entry at random. `"<random>"` requests a random recommended skin.
+
+Recommended skins need `api.fetchRecommendedSkins`. If recommendations are unavailable, a random entry cannot provide one.
+
+## If the default does not appear
+
+Check that the custom name exists with `/sr info skin lobby`. Remove the test player's saved selection with `/skin clear`. Then inspect proxy mode and `advanced.disableOnJoinSkins`.
+
+For priorities and caching, read [the skin lifecycle](/docs/development/inner-workings).

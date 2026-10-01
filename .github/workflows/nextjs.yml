@@ -25,6 +25,12 @@ jobs:
         with:
           bun-version-file: package.json
 
+      - name: Install Java for documentation examples
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: Restore Bun cache
         uses: actions/cache@v6
         with:
@@ -42,6 +48,9 @@ jobs:
 
       - name: Run check
         run: bun run check
+
+      - name: Compile the documented Java plugin
+        run: bun run docs:java
 
       - name: Run build
         run: bun run build

@@ -1,0 +1,30 @@
+---
+title: "Storage and caches"
+description: "Exact keys, types, and defaults for storage and caches."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Database"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/configuration/default-skins).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `storage.defaultSkins.applyForPremium` | boolean | `false` | Apply default skins to account players without a saved selection too. |
+| `storage.defaultSkins.enabled` | boolean | `false` | Use the configured fallback list. |
+| `storage.defaultSkins.list` | string list | `["xknat", "pistonmaster", "<random>"]` | Choose a listed name randomly. `<random>` uses recommendations. |
+| `storage.disallowAutoUpdateSkin` | boolean | `false` | Require `/skin update` for newer cached account skin data. |
+| `storage.skinExpiresAfter` | integer | `15` | Skin cache lifetime in minutes. Zero requests fresh data each time. |
+| `storage.uuidExpiresAfter` | integer | `60` | UUID cache lifetime in minutes. Zero requests fresh data each time. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [StorageConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/StorageConfig.java).

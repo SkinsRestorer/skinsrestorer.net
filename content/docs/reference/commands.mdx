@@ -1,0 +1,42 @@
+---
+title: "Command behavior"
+description: "Exact keys, types, and defaults for command behavior."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Terminal"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/configuration/player-access).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `commands.customHelp.enabled` | boolean | `false` | Use the custom skin help message. |
+| `commands.customHelp.message` | string list | `["<yellow>Skin plugin Help", "<gray>---------------------", "<gray>/skin set <skin> - <yellow>Set your skin"]` | MiniMessage lines for custom help. |
+| `commands.disableGUICommand` | boolean | `false` | Skip /skins registration. Restart required. |
+| `commands.disableSkinCommand` | boolean | `false` | Skip /skin registration. Restart required. |
+| `commands.disableSkullCommand` | boolean | `false` | Skip /skull registration. Restart required. |
+| `commands.disabledSkins.enabled` | boolean | `false` | Block the configured skin names. |
+| `commands.disabledSkins.list` | string list | `["steve", "owner"]` | Blocked names. The bypassdisabled permission bypasses this restriction. |
+| `commands.forceDefaultPermissions` | boolean | `true` | Grant fallback player permissions on platforms without default permission support. |
+| `commands.maxFavouriteLength` | integer | `180` | Maximum favorites per player. Zero disables favorites. |
+| `commands.maxHistoryLength` | integer | `36` | Maximum saved history entries per player. Zero disables history. |
+| `commands.perSkinPermissions` | boolean | `false` | Require a `skinsrestorer.skin.<name>` permission. |
+| `commands.perSkinPermissionsConsent` | string | `""` | Required consent text: I will follow the rules. |
+| `commands.restrictSkinUrls.enabled` | boolean | `false` | Restrict skin URLs to the configured list. |
+| `commands.restrictSkinUrls.list` | string list | `["https://i.imgur.com", "http://i.imgur.com", "https://storage.googleapis.com", "http://storage.googleapis.com", "https://cdn.discordapp.com", "http://cdn.discordapp.com", "https://textures.minecraft.net", "http://textures.minecraft.net"]` | Allowed URL prefixes for restricted URL selection. |
+| `commands.skinChangeCooldown` | integer | `30` | Seconds between successful skin changes. Zero disables the cooldown. |
+| `commands.skinErrorCooldown` | integer | `5` | Seconds of cooldown after a skin error. |
+| `commands.skullErrorCooldown` | integer | `5` | Seconds of cooldown after a skull error. |
+| `commands.skullGetCooldown` | integer | `30` | Seconds between skull requests. Zero disables the cooldown. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [CommandConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java).

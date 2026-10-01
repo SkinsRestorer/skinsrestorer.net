@@ -1,0 +1,44 @@
+---
+title: "A skin resets after joining or switching"
+description: "Check persistence, join behavior, resource packs, and profile forwarding."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "RotateCcw"
+---
+
+The event that resets the skin is useful evidence. Record whether it happens on reconnect, backend switch, world change, or resource-pack load.
+
+## Check persistence first
+
+1. Select a skin with `/skin set xknat`.
+2. Inspect `/sr info player <playerName>` on the storage owner.
+3. Reconnect.
+4. Inspect the player record again.
+
+If an integration only calls `applySkin(player, property)`, it changes the current appearance without saving the selection. Read [persistent and temporary changes](/docs/development/storage).
+
+## After a reconnect
+
+Inspect `advanced.disableOnJoinSkins`. It prevents automatic application on join when enabled.
+
+On an online-mode server, `login.alwaysApplyPremium` controls application of stored skins to authenticated account players. If that is your intended policy, enable it and repeat the check.
+
+Default skin rules and saved selections also affect the result. `/skin clear` deliberately removes the saved selection.
+
+## After a backend switch
+
+Check the proxy's selected skin and every backend's forwarding configuration. Do not let each backend independently own skin commands and player selections.
+
+The same player's UUID must remain consistent across the proxy and backends. Shared database configuration cannot fix incorrect forwarding.
+
+## After a resource pack or world change
+
+Keep `server.resourcePackFix` enabled unless another integration handles the refresh. Check plugins that replace profiles, nicknames, or world state.
+
+Reproduce on a separate server with only SkinsRestorer. Then add the suspected plugins one at a time.
+
+## Next
+
+Use [proxy troubleshooting](/docs/troubleshooting/proxy-mode) for network-only resets, or [conflict isolation](/docs/troubleshooting/incompatibility-list) for plugin-specific resets.

@@ -1,42 +1,30 @@
 ---
-title: Troubleshooting
-description: Find and correct common SkinsRestorer problems.
-icon: CircleAlert
+title: "Fix a problem"
+description: "Start with the symptom, then narrow down the cause."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "LifeBuoy"
 ---
 
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { Monitor, AlertTriangle, Flame, Globe, LifeBuoy } from 'lucide-react';
+Choose the result that you actually see. Changing several configuration values at once makes the cause harder to find.
 
-If SkinsRestorer does not work as expected, use these guides.
+## Choose your symptom
 
-## Choose a guide
+| Symptom | Guide |
+| --- | --- |
+| Command succeeds, skin stays unchanged | [No visible skin](/docs/troubleshooting/no-skin) |
+| Command is denied | [Permission denied](/docs/troubleshooting/permissions) |
+| Skin disappears after a join, world change, or server switch | [Skin resets](/docs/troubleshooting/skin-resets) |
+| Backend warns about proxy mode or an unavailable API | [Proxy mode and backend API](/docs/troubleshooting/proxy-mode) |
+| Account skin or URL cannot load | [Service connections](/docs/troubleshooting/firewall) |
+| Upload or generation fails | [Upload problems](/docs/troubleshooting/uploads) |
+| Only one client sees the wrong skin | [Client and launcher overrides](/docs/troubleshooting/launcher-issues) |
+| A plugin, mod, or fork changes the result | [Conflicts](/docs/troubleshooting/incompatibility-list) |
 
-Select the guide that matches your problem.
+For quick answers, read [common questions](/docs/troubleshooting/common-issues). If these checks do not explain the problem, collect [diagnostics for support](/docs/troubleshooting/debugging).
 
-<Cards>
-  <Card
-    icon={<LifeBuoy />}
-    title="Common issues"
-    href="/docs/troubleshooting/common-issues"
-  ></Card>
-  <Card
-    icon={<Globe />}
-    title="Proxy Mode"
-    href="/docs/troubleshooting/proxy-mode"
-  ></Card>
-  <Card
-    icon={<Flame />}
-    title="Firewall"
-    href="/docs/troubleshooting/firewall"
-  ></Card>
-  <Card
-    icon={<AlertTriangle />}
-    title="Incompatibility list"
-    href="/docs/troubleshooting/incompatibility-list"
-  ></Card>
-  <Card
-    icon={<Monitor />}
-    title="Launcher issues"
-    href="/docs/troubleshooting/launcher-issues"
-  ></Card>
-</Cards>
+## Report useful evidence
+
+A useful report includes the exact command, full error, versions, setup, and the result after reconnecting. A screenshot of an unchanged skin alone does not identify the failed step.

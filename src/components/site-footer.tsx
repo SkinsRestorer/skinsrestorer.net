@@ -10,7 +10,13 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t py-6 text-sm text-fd-muted-foreground">
       <div className="mx-auto flex w-full max-w-[var(--fd-layout-width)] flex-col items-center gap-3 px-4 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
         <p>&copy; {year} SkinsRestorer</p>
-        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <nav
+          aria-label="Footer"
+          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
+        >
+          <Link href="/donate" className="hover:text-fd-foreground">
+            Support SkinsRestorer
+          </Link>
           <Link href="/terms-of-service" className="hover:text-fd-foreground">
             Terms of Service
           </Link>

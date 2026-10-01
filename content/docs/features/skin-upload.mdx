@@ -1,115 +1,58 @@
 ---
-title: Skin Upload
-description: Upload and apply a custom skin PNG.
-icon: Upload
+title: "Upload a PNG skin"
+description: "Turn a PNG into a /skin url command and apply it in game."
+docType: "how-to"
+appliesTo: "Website users and Java server players"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Upload"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+Use the [skin upload page](/upload) to generate a command from a skin PNG. The page does not connect to your Minecraft server. You apply the result yourself.
 
-You can apply a custom skin PNG from the website or a public URL.
+## Before you start
 
-## In-game command
+You need a Minecraft skin PNG and permission for `skinsrestorer.command.set.url`. The website accepts PNG files up to 5 MB. Use a standard skin template, rather than a screenshot or an HD texture.
 
-Run `/skin upload` in the game to see upload information.
-This command requires the `skinsrestorer.command.set.url` permission.
+Read [classic and slim models](/docs/features/skin-design) if you are unsure which model matches your image.
 
-Then use one of these methods.
+## Generate and apply
 
-## Upload methods
+1. Open [Upload](/upload).
+2. Select **Browse files** and choose your PNG.
+3. Check the preview and choose **Classic** or **Slim**.
+4. Choose **Axolotl** or **Official** under **Upload method**.
+5. If you want a cape, select one from the available cape list.
+6. Select **Generate /skin url**.
+7. Copy the generated command.
+8. Paste the command into your Minecraft chat.
 
-### Method 1: Use the website
+Keep the generated URL inside quotation marks. The command includes the model selected on the page. A result can use a MineSkin URL or an opaque `skinsrestorer-axolotl://` value.
 
-Use the [/upload](/upload) page to upload a skin from your computer.
+Copy that value exactly. An Axolotl value is for the command, rather than a browser link.
 
-1. Open [skinsrestorer.net/upload](/upload).
-2. Select your skin PNG file.
-3. Select **Generate /skin url**.
-4. Copy the command.
-5. Paste the command into the game chat.
-
-See the [Skin URL Upload guide](/docs/features/skin-url) for detailed instructions.
-
-### Method 2: Direct URL command
-
-If the skin has a public URL, use `/skin url`:
-
-```
-/skin url "https://example.com/myskin.png"
+```text title="Command shape, not a ready-to-use texture URL"
+/skin url "https://textures.minecraft.net/texture/TEXTURE_HASH" slim
 ```
 
-For a slim skin, add the variant:
+Wait for a success message. Ask another player to check your skin, then reconnect to check persistence.
 
-```
-/skin url "https://example.com/myskin.png" slim
-```
+## API key and capes
 
-<Callout type="info">
-  The URL must be public and must point directly to a PNG file. Put the URL inside quotation marks.
-</Callout>
+The **Axolotl** method offers supported capes without your own key. The **Official** method accepts a MineSkin key and checks its cape grants.
 
-## Skin variants
+A selected cape with **Axolotl** uses the proxy route. **Official** uploads and uploads without a selected cape use MineSkin directly.
 
-You can select the arm model:
+The key field on the website and `api.mineskinAPIKey` on your server are separate. Read [MineSkin integration](/docs/integrations/mineskin) for queues, limits, and privacy.
 
-| Variant | Description |
-|---------|-------------|
-| `classic` | Standard Steve-style arms (4 pixels wide) |
-| `slim` | Alex-style arms (3 pixels wide) |
+The available list contains supported existing capes. It does not accept arbitrary cape images or transfer cape ownership to your account.
 
-If you do not enter a variant, SkinsRestorer detects it from the skin file.
+## If generation fails
 
-## Supported formats
+- **Invalid image:** Export a standard PNG skin template again.
+- **Queue or rate limit:** Wait for the queue to finish before you retry.
+- **Unauthorized key:** Check the key and its current account grants.
+- **Arm artifacts:** Generate again with the [correct model](/docs/features/skin-design).
+- **Command denied:** Check [URL permissions and restrictions](/docs/configuration/restrict-skins).
 
-- **Dimensions**: 64x64 pixels (modern) or 64x32 pixels (legacy)
-- **Format**: PNG only
-- **File size**: Under 3 MB
-- **Transparency**: Supported for overlay layers
-
-## How it works
-
-When you apply a skin from a URL, this process occurs:
-
-1. SkinsRestorer sends the URL to [MineSkin](https://mineskin.org).
-2. MineSkin applies the skin to an account in its Minecraft account pool.
-3. MineSkin gets signed skin data from Mojang.
-4. SkinsRestorer applies the data to your player.
-
-The Minecraft client shows only skin data with a valid Mojang signature.
-
-<Callout type="info">
-  For higher limits, add a [MineSkin API key](https://mineskin.org/apikey) to `config.yml`.
-  Code `SKINSRESTORER10` gives you 10% off the first three months of plans above Lite.
-</Callout>
-
-## URL restrictions
-
-Server administrators can restrict skin upload URLs.
-
-If `commands.restrictSkinUrls.enabled` is `true`, SkinsRestorer accepts only URLs from the configured domains.
-
-The default domains are:
-- `https://i.imgur.com`
-- `https://storage.googleapis.com`
-- `https://cdn.discordapp.com`
-- `https://textures.minecraft.net`
-
-## Troubleshooting
-
-### `Invalid URL`
-
-- Make sure that the URL points directly to a PNG file.
-- Make sure that the URL is public.
-- If the URL contains special characters, put it inside quotation marks.
-
-### `Rate limited`
-
-MineSkin limits the number of skin requests.
-
-- Wait a few minutes, then try again.
-- For higher limits, add a MineSkin API key.
-
-### The skin does not apply correctly
-
-- Make sure that the PNG is 64x64 or 64x32 pixels.
-- For Alex-style arms, add the `slim` variant.
-- Make sure that the file is a PNG, not a renamed JPG file.
+To give the result a reusable server name, [create a custom skin](/docs/features/custom-skins).

@@ -1,92 +1,65 @@
 ---
-title: Installation on Velocity
-description: Learn how to install SkinsRestorer on your Velocity proxy.
-icon: Gauge
+title: "Install on a Velocity network"
+description: "Configure forwarding and install SkinsRestorer on the proxy and backends."
+docType: "tutorial"
+appliesTo: "Velocity with Paper backends"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { Callout } from 'fumadocs-ui/components/callout';
+This guide covers Velocity with Paper backends. For a modded backend, configure its forwarding support using the [Velocity compatibility guide](https://docs.papermc.io/velocity/server-compatibility/).
 
-Before you start, read the [main installation page](/docs/installation).
+## Before you start
 
-## Install the plugin
+You need access to the proxy and every backend. Players must connect through the proxy. Backend ports must accept connections only from trusted sources.
 
-<Callout type="info" emoji="ℹ️">
-  Install SkinsRestorer on the proxy and every backend server.
-  Some features do not work without the backend installation.
-</Callout>
+Modern forwarding requires compatible Minecraft versions and backends. Read the [official forwarding instructions](https://docs.papermc.io/velocity/player-information-forwarding/) before you choose a different mode.
 
-<Callout type="info" emoji="ℹ️">
-  Use Paper or a Paper fork for the backend servers.
-</Callout>
+## Configure modern forwarding
 
-<Steps>
-  <Step>
-    ### Download the plugin
-    Download the latest version from [Modrinth](https://modrinth.com/plugin/skinsrestorer).
-  </Step>
+1. Stop the proxy and backends.
+2. Set `player-info-forwarding-mode` to `modern` in `velocity.toml`.
+3. Read the proxy's `forwarding.secret` file.
+4. Configure each Paper backend with that same secret.
 
-<Step>
-  ### Install the proxy plugin
-  Put `SkinsRestorer.jar` in the `plugins` folder of the **Velocity proxy**.
-</Step>
+```toml title="velocity.toml (excerpt)"
+player-info-forwarding-mode = "modern"
+```
 
-<Step>
-  ### Install the backend plugin
-  Put `SkinsRestorer.jar` in the `plugins` folder of **every Spigot server**.
-</Step>
+```properties title="Backend server.properties (excerpt)"
+online-mode=false
+```
 
-<Step>
-  ### Configure player information forwarding
-  Follow the [Velocity forwarding guide](https://docs.papermc.io/velocity/player-information-forwarding).
-  SkinsRestorer needs forwarding to communicate with backend servers.
-</Step>
+```yaml title="Backend config/paper-global.yml (Paper 1.19+ excerpt)"
+proxies:
+  velocity:
+    enabled: true
+    online-mode: true
+    secret: "YOUR_FORWARDING_SECRET"
+```
 
-<Step>
-  ### Restart the network
-  Restart all Spigot servers and the Velocity proxy.
-  Use `/restart`, `/stop`, or `/end`.
-</Step>
+Set `proxies.velocity.online-mode` to the proxy's `online-mode` value. The `true` value above assumes an authenticated proxy. Keep `settings.bungeecord` disabled in `spigot.yml` for modern forwarding.
 
-  <Step>
-    ### Make sure that Proxy Mode is active
-    Find this message in the log of each Spigot server:
-    ```ansi filename="logs/latest.log"
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    +==================+
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    |   SkinsRestorer  |
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    |------------------|
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    |    [33;1mProxy Mode[32;22m    |
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m    +==================+
-    [33;1m[[32;22mSkinsRestorer[33;1m] [32;22m----------------------------------------------
-    ```
-    If the message is absent, make sure that player information forwarding is correct.
+Paper 1.18.2 and older use `settings.velocity-support` in `paper.yml`. Use the platform guide for those releases.
 
-  </Step>
+## Install SkinsRestorer
 
-<Step>
-  ### Configure the plugin
-  [Configure SkinsRestorer](/docs/configuration) on the Velocity proxy.
-</Step>
+1. Put the server/proxy SkinsRestorer JAR in the proxy's `plugins` folder.
+2. Put the same release in every Bukkit backend's `plugins` folder.
+3. Start the backends and proxy.
+4. Read all startup logs for forwarding or SkinsRestorer errors.
 
-<Step>
-  ### Copy the configuration
-  Copy the same `plugins/SkinsRestorer/config.yml` file to the proxy and every backend server.
-</Step>
+For Fabric or NeoForge backends, install the matching mod artifact instead of a Bukkit JAR.
 
-<Step>
-  ### Restart the network again
-  Restart all Spigot servers and the Velocity proxy.
-</Step>
+Leave `server.proxyMode.detection: AUTO` on the backends unless detection fails. Correct forwarding normally lets SkinsRestorer detect the proxy.
 
-<Step>
-  ### Read the logs
-  Read the proxy and server logs.
-  If you find an error, send it to us on [Discord](https://skinsrestorer.net/discord).
-</Step>
+## Check
 
-  <Step>
-    ### Test the plugin
-    Join the network and use `/skin Notch`.
-  </Step>
-</Steps>
+Complete the [first skin and server-switch check](/docs/installation/quick-start). Skin commands use proxy permissions, so grant access on the proxy.
+
+The default file storage is enough for ordinary proxy-managed skins. A backend plugin that calls the API needs [shared MySQL or PostgreSQL storage](/docs/development/proxy-api).
+
+## If it fails
+
+An invalid forwarding secret is a connection problem. Fix it before you change skin configuration. For backend mode warnings or commands that work on one server only, use [proxy troubleshooting](/docs/troubleshooting/proxy-mode).

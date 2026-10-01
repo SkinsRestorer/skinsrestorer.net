@@ -32,9 +32,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
     <DocsPage
       toc={page.data.toc}
       full={page.data.full}
-      lastUpdate={
-        page.data.lastModified ? new Date(page.data.lastModified) : undefined
-      }
+      lastUpdate={new Date(page.data.reviewed)}
       tableOfContent={{
         style: "clerk",
       }}
@@ -44,6 +42,14 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         <DocsDescription className="mb-2.5">
           {page.data.description}
         </DocsDescription>
+        <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fd-muted-foreground">
+          <span>SkinsRestorer {page.data.version}</span>
+          <span>{page.data.appliesTo}</span>
+          <span>
+            Reviewed{" "}
+            <time dateTime={page.data.reviewed}>{page.data.reviewed}</time>
+          </span>
+        </p>
         <div className="flex flex-row items-center gap-2 border-b pt-2 pb-6">
           <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
           <ViewOptions
@@ -86,7 +92,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           })}
         />
       </DocsBody>
-      <Feedback key={page.url} url={page.url} />
+      <Feedback key={page.url} url={page.url} version={page.data.version} />
       <EnderDashSponsor placement="docs-footer" />
     </DocsPage>
   );

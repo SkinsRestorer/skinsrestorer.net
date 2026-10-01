@@ -1,49 +1,41 @@
 ---
-title: Installation on Bukkit/Spigot/Paper
-description: Learn how to install SkinsRestorer on your Bukkit/Spigot/Paper server.
-icon: Server
+title: "Install on Paper or Spigot"
+description: "Install the plugin on a standalone Bukkit-compatible server."
+docType: "tutorial"
+appliesTo: "Paper, Spigot, Bukkit"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Server"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { Callout } from 'fumadocs-ui/components/callout';
+By the end of this guide, your server will load SkinsRestorer and accept a skin change.
 
-Before you start, read the [main installation page](/docs/installation).
+## Before you start
 
-<Callout type="info" emoji="ℹ️">
-  If you use BungeeCord or Velocity, use the
-  [BungeeCord guide](/docs/installation/bungeecord) or the
-  [Velocity guide](/docs/installation/velocity) instead.
-</Callout>
+You need file access, console access, and a supported [Java runtime](/docs/installation/requirements). If players connect through a proxy, use the [Velocity](/docs/installation/velocity) or [BungeeCord](/docs/installation/bungeecord) guide instead.
 
-## Install the plugin
+## Install
 
-<Steps>
-  <Step>
-    ### Download the plugin
-    Download the latest version from [Modrinth](https://modrinth.com/plugin/skinsrestorer).
-  </Step>
+1. Stop the server.
+2. Download the server/proxy JAR from the [15.12.6 release](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Remove older SkinsRestorer JARs from `plugins`. Keep the existing data folder.
+4. Put the new JAR in `plugins`.
+5. Start the server.
+6. Read the console for SkinsRestorer startup errors.
 
-<Step>
-  ### Add the plugin
-  Put `SkinsRestorer.jar` in the `plugins` folder.
-</Step>
+The plugin creates `plugins/SkinsRestorer/config.yml`. Keep the defaults for this first check. Do not use the server-wide `/reload` command to install or update plugins.
 
-<Step>
-  ### Restart the server
-  Restart the server with `/restart` or `/stop`.
+## Check the installation
 
-  CAUTION: Do not use `/reload` or PlugMan. These tools can break SkinsRestorer.
-</Step>
+1. Join the server with a Java client.
+2. Run `/skin set xknat`.
+3. Ask another player to check your skin.
+4. Reconnect and check that the selection remains.
 
-<Step>
-  ### Make sure that the plugin works
-  Run `/plugins`. SkinsRestorer must appear in green.
+If the command is unavailable, check the startup log and `commands.disableSkinCommand`. If access is denied, read [player access](/docs/configuration/player-access).
 
-  If SkinsRestorer is red or absent, read the server log for errors.
-</Step>
+If the command succeeds but the skin stays unchanged, use [no visible skin](/docs/troubleshooting/no-skin).
 
-  <Step>
-    ### Configure the plugin
-    Continue to the [configuration guide](/docs/configuration).
-  </Step>
-</Steps>
+## Next
+
+[Upload your own PNG](/docs/features/skin-upload), or configure [default skins](/docs/configuration/default-skins).

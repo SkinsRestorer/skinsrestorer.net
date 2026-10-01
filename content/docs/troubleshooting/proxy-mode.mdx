@@ -1,199 +1,48 @@
 ---
-title: Proxy Mode
-description: Configure Proxy Mode and correct common proxy problems.
-icon: Network
+title: "Proxy mode and the backend API"
+description: "Resolve mode warnings without adding an unnecessary database."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+A backend in proxy mode receives skins from the proxy. This is separate from exposing the Java API to plugins on that backend.
 
-This page applies to networks that use BungeeCord, Waterfall, or Velocity.
+## Ordinary proxy-managed skins
 
-If you use a proxy, install SkinsRestorer on the proxy and every backend server.
+Install SkinsRestorer on the proxy and every backend. Configure profile forwarding. Leave `server.proxyMode.detection` at `AUTO` on each backend.
 
-## How Proxy Mode works
+You do not need MySQL or PostgreSQL just because you have multiple backends. The proxy can own file storage and forward skins normally.
 
-In Proxy Mode, the proxy controls SkinsRestorer for the whole network.
+If backend plugins do not call the API, you can disable backend API access:
 
-When Proxy Mode is active on backend servers:
-
-- Commands are forwarded to the proxy
-- Skin data is managed centrally by the proxy
-- The proxy provides the main configuration
-- The proxy handles all API communication with Mojang/MineSkin
-
-## Install on a proxy
-
-Follow the [installation guide](/docs/installation#select-your-platform) for your proxy.
-
-## Configure Proxy Mode
-
-Set Proxy Mode in the `config.yml` file on each backend server:
-
-```yaml filename="config.yml"
+```yaml title="Backend config.yml (SkinsRestorer excerpt)"
 server:
   proxyMode:
-    # Options: ENABLED, DISABLED, or AUTO (default)
     detection: AUTO
-    # Enable API access on backend servers (requires database)
-    api: true
+    api: false
 ```
 
-### Proxy Mode detection
+Restart the backend, then complete the [server-switch check](/docs/installation/quick-start).
 
-The `detection` option has three values:
+## A backend plugin needs the API
 
-- `AUTO` (default): SkinsRestorer detects whether the server is behind a proxy
-- `ENABLED`: Proxy Mode is always active
-- `DISABLED`: Proxy Mode is always inactive
+Set `server.proxyMode.api: true`. Configure the proxy and each API-enabled backend with the same MySQL or PostgreSQL database and table prefix.
 
-### Backend API access
+File storage does not support this backend API mode. The provider can remain unavailable even though ordinary forwarded skins work.
 
-The `api` option lets backend plugins use the SkinsRestorer API.
-Its default value is `true`.
+Follow [the backend API guide](/docs/development/proxy-api), then inspect database initialization logs.
 
-This option requires MySQL.
-The proxy and backend servers must use the same database.
+## Automatic detection fails
 
-### Disable Proxy Mode
+First correct the platform's forwarding configuration. If detection still fails on a known proxy backend, set `server.proxyMode.detection: ENABLED` there and restart.
 
-Without Proxy Mode, each backend server manages its own skins.
-The servers do not automatically share skin data.
+Use `DISABLED` only for a genuinely standalone server or an intentional independent installation. Forcing a backend into standalone mode can produce competing skin behavior.
 
-To disable Proxy Mode, set `detection: DISABLED` in the backend `config.yml` file.
+## Where to run diagnostics
 
-## Troubleshooting
+Proxy-mode backends provide `/sr status` and `/sr dump` for local diagnostics. Run storage administration and normal skin commands on the proxy.
 
-### Make sure that Proxy Mode is active
-
-Find this message in each backend startup log:
-
-```ansi filename="logs/latest.log"
-[SkinsRestorer] +==================+
-[SkinsRestorer] |   SkinsRestorer  |
-[SkinsRestorer] |------------------|
-[SkinsRestorer] |    Proxy Mode    |
-[SkinsRestorer] +==================+
-```
-
-If "Proxy Mode" is absent, the mode is not active.
-
-### Using /sr status
-
-Run `/sr status` on the proxy:
-
-```
-/sr status
-```
-
-The command shows the status of all required API endpoints.
-
-### Using /sr dump
-
-To collect information for support, run:
-
-```
-/sr dump
-```
-
-The command uploads diagnostic information and returns a link.
-Send the link to support.
-
-### Common issues
-
-#### "Proxy Mode not detected"
-
-**Symptom:** Backend logs do not show "Proxy Mode".
-
-**Causes and solutions:**
-
-1. **Player information forwarding is not configured**
-   - For BungeeCord, set `bungeecord: true` in `spigot.yml` and `online-mode=false` in `server.properties`.
-   - For Velocity, follow the [Velocity forwarding guide](https://docs.papermc.io/velocity/player-information-forwarding).
-
-2. **SkinsRestorer is not installed on the proxy**
-   - Put `SkinsRestorer.jar` in the proxy's `plugins` folder.
-   - Restart the proxy.
-
-3. **SkinsRestorer is not installed on a backend server**
-   - Put `SkinsRestorer.jar` in each backend server's `plugins` folder.
-   - Restart all backend servers.
-
-4. **A security plugin blocks plugin messages**
-   - Permit the SkinsRestorer channel in the security plugin.
-
-#### Commands not working on backend servers
-
-**Symptom:** `/skin` commands do not work from a backend console.
-
-This is expected in Proxy Mode.
-Run administrator commands from the proxy console.
-Players must connect through the proxy.
-
-#### Skins not applying on server switch
-
-**Symptom:** Players lose their skin when they switch servers.
-
-**Solutions:**
-
-1. Install SkinsRestorer on all backend servers.
-2. Find "Proxy Mode" in each backend log.
-3. Make sure that player information forwarding works.
-
-#### API not working on backend servers
-
-**Symptom:** A backend plugin gets SkinsRestorer API errors.
-
-**Solutions:**
-
-1. Enable MySQL storage on the proxy.
-2. Configure the same database on all backend servers.
-3. Set `server.proxyMode.api: true` in each backend configuration.
-
-See the [Database Setup guide](/docs/configuration/database) for details.
-
-### Configuration synchronization errors
-
-<Callout type="warning">
-  Use the same `config.yml` file on the proxy and every backend server.
-</Callout>
-
-If the configuration files are different:
-
-1. Change `config.yml` on the proxy.
-2. Copy the file to all backend servers.
-3. Run `/sr reload` on the proxy.
-4. Restart all backend servers.
-
-### Set Proxy Mode manually
-
-If automatic detection fails, set the mode in each backend configuration.
-
-**Force proxy mode ON** (on backend servers):
-```yaml filename="config.yml"
-server:
-  proxyMode:
-    detection: ENABLED
-```
-
-**Force proxy mode OFF** (use standalone mode):
-```yaml filename="config.yml"
-server:
-  proxyMode:
-    detection: DISABLED
-```
-
-<Callout type="warning">
-  If you disable Proxy Mode, each server manages its own skins.
-  The servers do not share skin data.
-</Callout>
-
-## BungeeCord vs Velocity
-
-| Feature | BungeeCord | Velocity |
-|---------|------------|----------|
-| Forwarding setup | `bungeecord: true` in spigot.yml | Modern or Legacy forwarding |
-| Config location | `plugins/SkinsRestorer/` | `plugins/skinsrestorer/` |
-| Recommended | For legacy setups | For new installations |
-
-SkinsRestorer supports both proxies.
-For a new network, Velocity provides newer security and performance features.
+For forwarding setup, use [Velocity](/docs/installation/velocity) or [BungeeCord](/docs/installation/bungeecord). For the architecture, read [proxy ownership](/docs/concepts/proxy).

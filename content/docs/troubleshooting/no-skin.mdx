@@ -1,0 +1,39 @@
+---
+title: "A skin change is not visible"
+description: "Separate fetching, profile application, and client rendering problems."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "EyeOff"
+---
+
+Use this guide when a command reports success but the player still looks unchanged.
+
+## Compare two views
+
+1. Run `/skin set xknat` with a Java client.
+2. Ask another player to check the result.
+3. Disconnect and join again.
+4. Compare both views again.
+
+If another player sees the new skin, the server applied it. Inspect the affected client's [skin mods and launcher configuration](/docs/troubleshooting/launcher-issues).
+
+## Inspect the selected data
+
+Run `/sr info player <playerName>` on the instance that owns storage. Inspect the texture and selected skin. On a network, use the proxy console for ordinary administrative commands.
+
+If a texture cannot load, read [service connections](/docs/troubleshooting/firewall). If the stored selection is correct, continue with profile application.
+
+## Check the application path
+
+- **Proxy:** Check forwarding and install SkinsRestorer on every backend. Use [proxy troubleshooting](/docs/troubleshooting/proxy-mode).
+- **Join only:** Inspect `advanced.disableOnJoinSkins` and online-mode behavior. Use [skin resets](/docs/troubleshooting/skin-resets).
+- **Resource pack:** Keep `server.resourcePackFix` enabled unless another integration handles profile refresh.
+- **Specific plugin or world:** Reproduce without competing profile plugins on a separate test server.
+
+Do not enable `advanced.teleportRefresh` as a first fix. It teleports players far away and back during refresh.
+
+## Still unchanged
+
+Collect a [diagnostic report and recent log](/docs/troubleshooting/debugging), including whose client sees the problem and whether reconnecting changes it.

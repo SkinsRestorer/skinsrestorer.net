@@ -1,0 +1,226 @@
+---
+title: "Build your first skin plugin"
+description: "Compile a Bukkit plugin that saves and applies a player-name skin."
+docType: "tutorial"
+appliesTo: "Paper / Spigot, Bukkit scheduling, API 15.12.6"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Hammer"
+---
+
+This tutorial creates `/exampleskin <accountName>`. It fetches the skin outside the main thread, saves the selection, and applies the resolved property.
+
+## Before you start
+
+You need Maven, JDK 21 or newer, and a standalone Paper or Spigot test server with SkinsRestorer 15.12.6. The example uses Bukkit scheduling and does **not** declare Folia support.
+
+A proxy backend also needs [backend API configuration](/docs/development/proxy-api).
+
+## Create the project
+
+Create these files in an empty directory:
+
+```text
+pom.xml
+src/main/resources/plugin.yml
+src/main/java/example/ExampleSkinPlugin.java
+```
+
+### Maven build
+
+```xml title="pom.xml"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>example</groupId>
+  <artifactId>example-skin</artifactId>
+  <version>1.0.0</version>
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <repositories>
+    <repository>
+      <id>spigot</id>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>codemc</id>
+      <url>https://repo.codemc.org/repository/maven-public/</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>1.20.1-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.skinsrestorer</groupId>
+      <artifactId>skinsrestorer-api</artifactId>
+      <version>15.12.6</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.1</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+```
+
+The Bukkit dependency supplies the compile-time API. Run the result on a compatible platform and Java runtime. Both dependencies use `provided`, so the server supplies them at runtime.
+
+### Plugin metadata
+
+```yaml title="src/main/resources/plugin.yml"
+name: ExampleSkin
+version: 1.0.0
+main: example.ExampleSkinPlugin
+api-version: '1.20'
+depend: [SkinsRestorer]
+commands:
+  exampleskin:
+    description: Save and apply a Minecraft account skin
+    usage: /exampleskin <accountName>
+    permission: exampleskin.use
+permissions:
+  exampleskin.use:
+    default: op
+```
+
+The hard dependency loads SkinsRestorer first. The example command is operator-only by default.
+
+### Plugin implementation
+
+```java title="src/main/java/example/ExampleSkinPlugin.java"
+package example;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
+import net.skinsrestorer.api.SkinsRestorer;
+import net.skinsrestorer.api.SkinsRestorerProvider;
+import net.skinsrestorer.api.VersionProvider;
+import net.skinsrestorer.api.exception.DataRequestException;
+import net.skinsrestorer.api.exception.MineSkinException;
+import net.skinsrestorer.api.property.SkinProperty;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class ExampleSkinPlugin extends JavaPlugin {
+    private final Set<UUID> pending = new HashSet<>();
+    private SkinsRestorer skinsRestorer;
+
+    @Override
+    public void onEnable() {
+        try {
+            skinsRestorer = SkinsRestorerProvider.get();
+            if (!VersionProvider.isCompatibleWith("15")) {
+                throw new IllegalStateException("This example requires API major 15");
+            }
+        } catch (IllegalStateException exception) {
+            getLogger().log(Level.SEVERE, "SkinsRestorer API is unavailable", exception);
+            getServer().getPluginManager().disablePlugin(this);
+        }
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command,
+                             String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Run this command as a player.");
+            return true;
+        }
+        if (args.length != 1 || !args[0].matches("[A-Za-z0-9_]{1,16}")) {
+            return false;
+        }
+
+        UUID playerId = player.getUniqueId();
+        if (!pending.add(playerId)) {
+            player.sendMessage("A skin request is already pending.");
+            return true;
+        }
+        String accountName = args[0];
+        player.sendMessage("Fetching the skin...");
+        getServer().getScheduler().runTaskAsynchronously(this, () -> {
+            try {
+                var result = skinsRestorer.getSkinStorage()
+                        .findOrCreateSkinData(accountName);
+                if (result.isEmpty()) {
+                    finish(player, playerId, null, "No skin found for that account.");
+                    return;
+                }
+                var skin = result.get();
+                skinsRestorer.getPlayerStorage()
+                        .setSkinIdOfPlayer(playerId, skin.getIdentifier());
+                finish(player, playerId, skin.getProperty(), null);
+            } catch (DataRequestException | MineSkinException exception) {
+                getLogger().log(Level.WARNING, "Skin lookup failed", exception);
+                finish(player, playerId, null, "The skin service request failed.");
+            } catch (RuntimeException exception) {
+                getLogger().log(Level.SEVERE, "Skin storage operation failed", exception);
+                finish(player, playerId, null, "The skin could not be saved.");
+            }
+        });
+        return true;
+    }
+
+    private void finish(Player originalPlayer, UUID playerId,
+                        SkinProperty property, String error) {
+        if (!isEnabled()) {
+            return;
+        }
+        getServer().getScheduler().runTask(this, () -> {
+            pending.remove(playerId);
+            Player currentPlayer = getServer().getPlayer(playerId);
+            if (currentPlayer != originalPlayer || !currentPlayer.isOnline()) {
+                return;
+            }
+            if (property == null) {
+                currentPlayer.sendMessage(error);
+                return;
+            }
+            skinsRestorer.getSkinApplier(Player.class)
+                    .applySkin(currentPlayer, property);
+            currentPlayer.sendMessage("Skin saved. The server will refresh your appearance.");
+        });
+    }
+}
+```
+
+The pending set stays on the server thread. The worker performs lookup and storage access. The callback avoids updating a disconnected or replaced player session.
+
+The saved selection remains if the player leaves during the request. The visual refresh only targets the original session. A saved selection and immediate appearance are separate results.
+
+SkinsRestorer's Bukkit applier schedules its own profile refresh. Other Bukkit operations, including messages and player access, still need the correct server thread.
+
+## Build and check
+
+1. Run `mvn package` in the project directory.
+2. Stop the test server.
+3. Copy `target/example-skin-1.0.0.jar` into `plugins`.
+4. Start the server and read the startup log.
+5. Join as an operator and run `/exampleskin xknat`.
+6. Ask another player to check the skin.
+7. Reconnect and check the saved selection.
+
+If startup says the API is unavailable on a backend, inspect [shared storage](/docs/development/proxy-api). If compilation fails, check the repository connection and both dependency versions.
+
+## Extend the example
+
+Add your own authorization, cooldown, and request policy before exposing this command broadly. API calls do not automatically enforce `/skin` command restrictions.
+
+For Folia, replace the Bukkit scheduling with an appropriate global or entity scheduler. Do not mark this example `folia-supported` without that work.
+
+Continue with [persistent and temporary changes](/docs/development/storage).

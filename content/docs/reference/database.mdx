@@ -1,0 +1,33 @@
+---
+title: "Database configuration"
+description: "Exact keys, types, and defaults for database configuration."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Database"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/configuration/database).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `database.connectionOptions` | string | `"sslMode=trust&serverTimezone=UTC"` | Driver connection options. Choose values appropriate for the database and TLS policy. |
+| `database.database` | string | `"db"` | SQL database name. |
+| `database.host` | string | `"localhost"` | SQL server hostname or address. |
+| `database.maxPoolSize` | integer | `10` | Maximum pooled connections per instance, from 1 to 1000. |
+| `database.password` | string | `"pass"` | SQL login password. Replace the default before use. |
+| `database.port` | integer | `3306` | SQL server port, from 1 to 65535. PostgreSQL usually uses 5432. |
+| `database.tablePrefix` | string | `"sr_"` | Prefix for SkinsRestorer tables. Match it across shared instances. |
+| `database.type` | enum | `"FILE"` | Storage backend: FILE, MYSQL, or POSTGRESQL. Restart required. |
+| `database.username` | string | `"root"` | SQL login username. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [DatabaseConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/DatabaseConfig.java).

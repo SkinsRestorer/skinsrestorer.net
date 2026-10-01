@@ -1,0 +1,21 @@
+{
+  "title": "Reference",
+  "pages": [
+    "[Terminal][Commands and permissions](/docs/configuration/commands-permissions)",
+    "[SlidersHorizontal][Configuration overview](/docs/configuration/options)",
+    "storage",
+    "commands",
+    "database",
+    "server",
+    "services",
+    "gui",
+    "messages",
+    "advanced",
+    "[Braces][Placeholders](/docs/integrations/placeholderapi)",
+    "network",
+    "documentation"
+  ],
+  "defaultOpen": false,
+  "icon": "List",
+  "pagesIndex": "index"
+}

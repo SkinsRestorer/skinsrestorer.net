@@ -1,90 +1,60 @@
 ---
-title: How SkinsRestorer stores data
-description: Understand the skin and player data that SkinsRestorer stores.
-icon: HardDrive
+title: "Persistent and temporary skin changes"
+description: "Choose whether a change survives reconnects before calling the applier."
+docType: "how-to"
+appliesTo: "Java plugins using API 15.12.6"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Database"
 ---
 
-SkinsRestorer stores skin data in local files or a database.
-Your configuration selects the storage type.
+Player storage saves an identifier. Skin storage resolves that identifier to a signed property. The skin applier changes a live profile.
 
-## Why SkinsRestorer stores skins
+## Persistent change
 
-Stored skin data is a local cache.
-It contains the same data that Mojang sends to an online-mode server.
+The [complete plugin example](/docs/development/first-plugin) performs these operations:
 
-The cache reduces requests to the Mojang API.
-It can also provide skins when Mojang is unavailable.
+1. Resolve input with `SkinStorage.findOrCreateSkinData(input)`.
+2. Handle an empty result.
+3. Save `result.getIdentifier()` with `PlayerStorage.setSkinIdOfPlayer(uuid, identifier)`.
+4. Apply `result.getProperty()` to the live player with the platform's skin applier.
 
-## Stored data
+The saved identifier controls future resolution. Applying the already-resolved property avoids another lookup during the immediate refresh.
 
-When you run `/skin Dinnerbone`, SkinsRestorer stores the skin data for Dinnerbone.
-It updates the cache after that account changes its skin.
+A storage write and a visual refresh are not one transaction. A player can disconnect after the selection saves. Keep that distinction in error messages.
 
-When you run `/sr createcustom`, SkinsRestorer stores a fixed custom skin.
+## Temporary change
 
-### How Minecraft stores skin PNGs
+`applySkin(player, property)` changes the live appearance without writing the selected identifier. The same is true of the identifier overload alone.
 
-The Minecraft launcher and SkinsRestorer get skin images from the [Minecraft CDN](https://textures.minecraft.net).
+Use this for previews or temporary effects. On reconnect, normal saved selection and default rules apply again.
 
-Mojang signs skin data with the Yggdrasil private key. The Minecraft client displays only data with a valid signature.
+## Apply the saved selection
 
-The signature does not expire. However, Mojang can remove a reported skin from the CDN.
+`applySkin(player)` resolves the skin that would apply on join. It can throw `DataRequestException` because resolution can request account data.
 
-If Mojang removes a skin, Minecraft clients cannot show it.
-A local PNG file does not bypass this restriction.
+Do not assume that every overload performs the same storage work or throws the same checked exceptions.
 
-SkinsRestorer copies signed data from an existing skin.
-It does not upload the skin to your Minecraft account.
+## Generate a URL property
 
-URL skins use a pool of community-provided Minecraft accounts to create signed data.
+`MineSkinAPI.genSkin(url, SkinVariant.CLASSIC)` returns a generated property. It can throw `DataRequestException` and `MineSkinException`.
 
-## What is skin data?
+Applying that property directly is temporary. For a persistent URL selection, use the skin storage resolution path and save its identifier, as the tutorial does.
 
-Skin data is a Base64-encoded profile property.
-It contains URLs for skin and cape textures.
+File and image generation overloads can also throw `IOException`. Inspect the [release API signatures](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/api/src/main/java/net/skinsrestorer/api) for the overload you use.
 
-SkinsRestorer requests this data from the Mojang API with a player UUID.
-Mojang's signature lets the Minecraft client validate the data.
+## Read or create data
 
-Use a [Base64 decoder](https://www.base64decode.org/live) to read the property.
+`PlayerStorage.getSkinForPlayer(uuid, name)` resolves a saved or fallback property and can throw `DataRequestException`.
 
-The decoded data looks like this:
+`SkinStorage.setCustomSkinData(name, property)` stores a named custom entry. Preserve the signed value and signature together.
 
-```json
-{
-  "timestamp": 1705586820658,
-  "profileId": "61699b2ed3274a019f1e0ea8c3f06bc6",
-  "profileName": "Dinnerbone",
-  "signatureRequired": true,
-  "textures": {
-    "SKIN": {
-      "url": "http://textures.minecraft.net/texture/50c410fad8d9d8825ad56b0e443e2777a6b46bfa20dacd1d2f55edc71fbeb06d"
-    },
-    "CAPE": {
-      "url": "http://textures.minecraft.net/texture/5786fe99be377dfb6858859f926c4dbc995751e91cee373468c5fbf4865e7151"
-    }
-  }
-}
-```
+`PropertyUtils.getSkinTextureUrl(property)` extracts the skin URL. A texture URL alone is not a complete signed property.
 
-1. `timestamp` is the creation date in [epoch time](https://www.epochconverter.com/).
-2. `profileId` is the player's [Mojang UUID](https://api.mojang.com/users/profiles/minecraft/Dinnerbone).
-3. `profileName` is the player name for this skin.
-4. `signatureRequired` must be `true` for signed skin data.
-5. `url` points to the skin or cape texture.
+## Failure policy
 
-## How SkinsRestorer requests skin data
+Keep separate outcomes for missing input, service errors, storage errors, and disconnected players. Do not retry generation in a tight loop.
 
-SkinsRestorer uses two Mojang API requests:
+The API does not automatically apply the command layer's cooldowns, per-skin permissions, or URL restrictions. Your integration must enforce its intended policy.
 
-1. The [player name endpoint](https://api.mojang.com/users/profiles/minecraft/Dinnerbone) returns the UUID for a player name.
-2. The [profile endpoint](https://sessionserver.mojang.com/session/minecraft/profile/61699b2ed3274a019f1e0ea8c3f06bc6?unsigned=false) returns the Base64-encoded skin data for that UUID.
-
-## Rate limits
-
-Mojang limits API requests.
-SkinsRestorer uses cached data to reduce requests and avoid this limit.
-
-## Other resources
-
-- [Mojang API](https://wiki.vg/Mojang_API)
+For a proxy backend, configure [shared API storage](/docs/development/proxy-api) first.

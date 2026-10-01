@@ -1,123 +1,38 @@
 ---
-title: Launcher skin issues
-description: Stop third-party launchers from replacing server skins.
-icon: Monitor
+title: "Client and launcher skin overrides"
+description: "Diagnose a skin that looks wrong on one client only."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Monitor"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+A client mod or launcher skin system can replace the skin sent by the server. SkinsRestorer cannot detect which launcher a player uses.
 
-Some Minecraft launchers use their own skin system.
-That system can replace skins from SkinsRestorer.
+## Compare clients
 
-## TLauncher
+1. Apply a known skin with `/skin set xknat`.
+2. Ask another player to check your appearance.
+3. Join with an unmodified Java client.
+4. Compare the results.
 
-Disable TLauncher skins to show server skins.
+If the unmodified client shows the correct skin, the server's skin property works. Inspect the affected client's mods and skin-system configuration.
 
-### CAUTION: TLauncher can contain malware
+## Remove the override
 
-<Callout type="error" emoji="💣">
-  Do not use TLauncher.
-  It can expose your account or computer to malware.
+Disable custom skin or cape replacements in the affected client. Choose official/server-provided skins if the client offers that option. Restart the client and reconnect.
 
-  For more information, watch the [video by TheMisterEpic](https://www.youtube.com/watch?v=SBTH9n6lz9o).
+Exact controls depend on the launcher and version. Use the launcher's current instructions instead of an old screenshot or video.
 
-</Callout>
+Minecraft's Skin Customization controls only show or hide outer-layer parts. They do not choose a different server skin.
 
-### How to fix
+## About the launcher warning
 
-If you continue to use TLauncher, disable its skin feature.
+The offline-mode warning is general advice. It does not identify your launcher. `/skin notification ignore-cracked-client` hides that warning for your player.
 
-#### Watch this YouTube clip
+Hiding the warning does not fix a client override.
 
-<iframe
-  src="https://www.youtube.com/embed/fvXggVnLVMs?start=50"
-  title="DISABLE OR TURN OFF TLAUNCHER SKINS"
-  frameBorder="0"
-  className="w-full aspect-video mt-4"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-  allowFullScreen
-></iframe>
+## If all clients look wrong
 
-#### Disable or turn off TLauncher skins
-
-1. Open TLauncher.
-2. Select `Accounts`.
-3. Select `Configure account`.
-4. Clear the `Use skins TLauncher` checkbox.
-5. Select `Yes`.
-6. Close the `Accounts` window.
-
-## SKlauncher
-
-SKlauncher can override server skins.
-Enable Compatibility Mode to disable its skin system.
-
-### How to fix
-
-1. Open SKlauncher.
-2. Open `Installations Manager`.
-3. Edit the installation that you use for the server.
-4. Enable `Compatibility Mode`.
-5. Save the installation.
-6. Start Minecraft again.
-
-Compatibility Mode applies to one installation.
-Repeat these steps for each installation that uses SkinsRestorer.
-
-For more information, see the
-[official SKlauncher documentation](https://docs.skmedix.pl/faq/launcher-related#can-i-use-clients-mods-resource-packs-shaders-etc-in-sklauncher).
-
-## Crystal Launcher
-
-Crystal Launcher can override server skins.
-
-### How to fix
-
-1. Open **Launcher Settings**.
-2. Select **Advanced**.
-3. Enable **Disable Crystal Launcher skin system**.
-4. Restart Minecraft.
-
-## Legacy Launcher / TL Legacy
-
-Legacy Launcher can apply Ely.by skins to offline accounts.
-These skins override SkinsRestorer.
-
-### How to fix
-
-1. Open the **Account Manager**.
-2. Select the Free/offline account you use to play.
-3. Edit the account.
-4. Disable **Use Ely.by skins**.
-5. Save the account and restart Minecraft.
-
-If you use an Ely.by account, change to a normal free or offline account first.
-
-## HMCL
-
-HMCL can use its own skin system for offline accounts.
-This system can override SkinsRestorer.
-
-### How to fix
-
-1. Open the **Account List**.
-2. Select your offline account.
-3. Click **Upload/Edit Skin**.
-4. Select **Default**.
-5. Save the change and restart Minecraft.
-
-Do not select Steve, Alex, a local file, LittleSkin, or Blessing Skin.
-These options enable the HMCL skin system.
-
-## PCL2 / Plain Craft Launcher 2
-
-The custom offline skin option in PCL2 uses a resource pack.
-This pack replaces player skins on your computer.
-
-### How to fix
-
-1. Open **Settings**.
-2. Open the **Launch** settings.
-3. Find **Offline Skin**.
-4. Click **Reset Skin**, or change the skin type from **Custom** to **Random**.
-5. Restart Minecraft.
+Return to [no visible skin](/docs/troubleshooting/no-skin). Collect [diagnostics](/docs/troubleshooting/debugging) if the server-side application fails.

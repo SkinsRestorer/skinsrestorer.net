@@ -6,3 +6,8 @@ The code for our website and documentation!
     <img height="34px" src="/public/assets/powered-by-vercel.svg" alt="Powered by vercel">
   </a>
 </p>
+
+## Documentation
+
+Read [the documentation maintenance guide](documentation/README.md) for the source
+inventory, writing conventions, release workflow, and validation commands.

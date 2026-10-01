@@ -1,122 +1,52 @@
 ---
-title: MineSkin Integration
-description: Add a MineSkin API key for higher upload limits.
-icon: Globe
+title: "MineSkin keys and generation"
+description: "Understand signed skin generation, service limits, and optional API keys."
+docType: "explanation"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "CloudUpload"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+MineSkin turns a skin image into a signed property that Minecraft clients can use. It is an external service with its own queues and limits.
 
-SkinsRestorer uses [MineSkin](https://mineskin.org) to convert custom PNG files into valid Minecraft skins.
+## Server URL generation
 
-MineSkin works without an API key.
-An API key provides higher limits and more features.
+`/skin url` and URL-based custom skins use skin generation when needed. You can configure an optional server key:
 
-## Why use a MineSkin API key?
-
-| Feature | Without API Key | With API Key |
-|---------|-----------------|--------------|
-| Request limit | Low | Higher (depends on plan) |
-| Request speed | Slower | Faster |
-| Secret skins | No | Yes |
-| Priority queue | No | Yes |
-
-## Getting an API key
-
-1. Open [mineskin.org/apikey](https://mineskin.org/apikey).
-2. Create an account or sign in.
-3. Select a plan.
-4. Create an API key.
-
-<Callout type="info">
-  Code `SKINSRESTORER10` gives you 10% off the first three months of plans above Lite.
-  SkinsRestorer does not receive a commission.
-</Callout>
-
-## Configuring your API key
-
-Add your API key to `config.yml`:
-
-```yaml filename="config.yml"
+```yaml title="config.yml (SkinsRestorer excerpt)"
 api:
-  mineSkinApiKey: "your-api-key-here"
+  mineskinAPIKey: "REPLACE_WITH_YOUR_API_KEY"
+  mineskinSecretSkins: true
 ```
 
-Then reload SkinsRestorer:
-```
-/sr reload
-```
+Run `/sr reload`. Try one valid URL and inspect the result. Keep the key private. The spelling and capitalization of `mineskinAPIKey` are significant.
 
-## Secret skins
+`mineskinSecretSkins: true` requests an unlisted generated skin. It does not make a Minecraft texture URL private or prevent others from copying it.
 
-If `mineSkinSecretSkins` is enabled, MineSkin does not show generated skins in its public gallery.
+## Website generation
 
-```yaml filename="config.yml"
-api:
-  mineSkinApiKey: "your-api-key-here"
-  mineSkinSecretSkins: true
-```
+The [Upload](/upload) and [Generator](/generator) pages accept their own optional key. They do not read your server configuration.
 
-Use this option for:
-- Custom server skins that must stay private
-- Event-specific skins
-- Private branding
+Choose **Axolotl** for the free supported-cape route. Choose **Official** to supply your MineSkin key and check its cape grants.
 
-## Rate limits and batching
+The Axolotl route handles uploads with a selected cape in Axolotl mode. Plain uploads and Official-mode uploads use MineSkin's queue directly.
 
-SkinsRestorer can group Mojang API requests. This reduces rate-limit errors.
+Generated commands can contain a MineSkin URL or an opaque `skinsrestorer-axolotl://` value. SkinsRestorer resolves that opaque value through Axolotl when the command runs.
 
-```yaml filename="config.yml"
-api:
-  mojangBatchWindowSeconds: 1
-```
+The server's generation API and the website's queue are separate request paths. Success on one does not prove the other works.
 
-The value sets the request window in seconds.
-The default value of one second works for most servers.
+## Limits and keys
 
-For a server with heavy traffic:
+Use [MineSkin's API key page](https://mineskin.org/apikey) for current access and plan limits. Use [MineSkin's documentation](https://docs.mineskin.org/) for current generation behavior.
 
-- Increase the request window to two or three seconds.
-- Use a MineSkin plan with higher limits.
-- Monitor the MineSkin usage dashboard.
+Do not assume a paid key permits every cape. The website checks available cape grants and supported cape choices.
 
-## What MineSkin does
+## Failures
 
-MineSkin applies your PNG to an account in its Minecraft account pool.
-Mojang then creates signed skin data for SkinsRestorer.
+- **Rate limit or queue delay:** Wait before another request.
+- **Invalid image or URL:** Use a reachable standard PNG skin template.
+- **Authorization error:** Check the key and its grants.
+- **Transport error:** Inspect [outbound connections](/docs/troubleshooting/firewall).
 
-<Callout type="warning">
-  MineSkin creates only skin textures.
-  It cannot create capes because Mojang assigns capes to specific accounts.
-  Read [Cape Support](/docs/features/capes) for more information.
-</Callout>
-
-## Troubleshooting
-
-### `Rate limited`
-
-- The API key can be above its request limit.
-- Wait a few minutes, then try again.
-- For higher limits, select a different MineSkin plan.
-
-### `Invalid API key`
-
-- Make sure that you copied the complete key.
-- Make sure that the key did not expire.
-- Create a new key on the MineSkin website.
-
-### Slow skin generation
-
-- Read the queue status on the MineSkin dashboard.
-- Plans with higher limits get priority.
-- High server load can make generation slower.
-
-## MineSkin plans comparison
-
-| Plan | Best for |
-|------|----------|
-| Free (no key) | Testing, very low volume |
-| Lite | Small servers, basic features |
-| Standard | Medium servers, higher limits |
-| Pro | Large networks, high volume |
-
-Visit [mineskin.org/apikey](https://mineskin.org/apikey) for current pricing and features.
+For account-name lookups, SkinsRestorer uses account services instead of image generation. Mojang batching configuration does not change MineSkin limits.

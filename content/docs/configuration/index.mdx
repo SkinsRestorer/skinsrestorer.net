@@ -1,38 +1,37 @@
 ---
-title: Configuration
-description: Learn how to set up SkinsRestorer on your server.
-icon: Settings
+title: "Manage your server"
+description: "Control player access, default skins, storage, messages, and updates."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Settings"
 ---
 
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { RefreshCw, MessageSquare, Settings, Terminal } from 'lucide-react';
+Start with the behavior you want to change. The guides use configuration excerpts, not full replacement files.
 
-SkinsRestorer works with the default configuration.
-If your server needs different behavior, change the related options.
+## Common tasks
 
-## Choose a guide
+- [Grant player access](/docs/configuration/player-access).
+- [Set default skins](/docs/configuration/default-skins).
+- [Create named custom skins](/docs/features/custom-skins).
+- [Restrict skins and URLs](/docs/configuration/restrict-skins).
+- [Configure the skin menu](/docs/configuration/skin-menu).
+- [Change messages and translations](/docs/configuration/locale-translations).
+- [Configure shared SQL storage](/docs/configuration/database).
+- [Update SkinsRestorer](/docs/configuration/auto-update).
+- [Back up skin data](/docs/configuration/backups).
 
-Select the guide for the part that you want to change.
+## Change configuration safely
 
-<Cards>
-  <Card
-    icon={<Settings />}
-    title="Configuration Options"
-    href="/docs/configuration/options"
-  ></Card>
-  <Card
-    icon={<Terminal />}
-    title="Commands and Permissions"
-    href="/docs/configuration/commands-permissions"
-  ></Card>
-  <Card
-    icon={<MessageSquare />}
-    title="Locale and Translations"
-    href="/docs/configuration/locale-translations"
-  ></Card>
-  <Card
-    icon={<RefreshCw />}
-    title="Auto update"
-    href="/docs/configuration/auto-update"
-  ></Card>
-</Cards>
+1. Back up the active configuration file.
+2. Edit the existing section in `config.yml`.
+3. Keep YAML indentation consistent.
+4. Apply the change with `/sr reload` or a restart, as the guide specifies.
+5. Repeat the task that the configuration controls.
+
+Do not paste a second copy of the same top-level section. A YAML parser can replace one copy silently.
+
+On Bukkit servers, the file is `plugins/SkinsRestorer/config.yml`. On other platforms, use the data directory reported at startup.
+
+The [configuration reference](/docs/configuration/options) lists exact keys and defaults. Command registration, storage changes, and platform forwarding need a restart.

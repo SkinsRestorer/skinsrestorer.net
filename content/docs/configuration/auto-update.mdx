@@ -1,47 +1,40 @@
 ---
-title: Auto update
-description: Understand how SkinsRestorer installs updates.
-icon: RefreshCw
+title: "Update SkinsRestorer"
+description: "Choose automatic downloads or a controlled manual update."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "RefreshCw"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+SkinsRestorer checks for updates at startup and periodically afterward. The repeating interval is randomized between 60 and 240 minutes.
 
-SkinsRestorer looks for updates when the server starts.
-If an update is available, it downloads the file.
+Update checks and automatic downloads are different actions. Download behavior depends on the platform.
 
-SkinsRestorer installs the update during the next server restart.
+## Manual update
 
-<Callout type="info" emoji="ℹ️">
-  On BungeeCord and Velocity networks, only backend servers update automatically.
-  If SkinsRestorer reports an update, update the proxy manually.
-</Callout>
+1. Read the target release notes and [platform requirements](/docs/installation/requirements).
+2. [Back up the active storage](/docs/configuration/backups).
+3. Stop the affected instances.
+4. Replace the old JAR with the matching release artifact.
+5. Remove duplicate SkinsRestorer JARs.
+6. Start the instances.
+7. Read the startup logs.
+8. Complete the [first skin check](/docs/installation/quick-start).
 
-## Why automatic updates are enabled
+On a network, update the proxy and backends together. A Fabric or NeoForge update also needs a matching Minecraft and loader version.
 
-Updates contain security fixes, bug fixes, and new features. The project supports only the latest version.
+## Disable automatic downloads
 
-Before you request support, update SkinsRestorer.
-The latest version can already contain a fix for the problem.
+Create an empty `noautoupdate.txt` file in the SkinsRestorer data directory. The older `noupdate.txt` filename is also recognized by this release.
 
-## Benefits of the latest version
+Restart after changing the file. This controls the updater's download behavior. Plan manual updates instead of relying on a disabled downloader.
 
-- **Security:** The latest version contains current security fixes.
-- **Features:** The latest version contains current features and bug fixes.
-- **Support:** The project provides support only for the latest version.
-- **Compatibility:** The latest version contains current compatibility fixes.
+`advanced.noConnections` also stops update connections, but it disables skin lookups and URL generation too. Do not use it only to manage updates.
 
-## Update security
+## If the update fails
 
-SkinsRestorer compares the downloaded file hash with the hash from the GitHub release.
-This comparison finds damaged or changed files.
+Restore the backup and compatible previous artifact. Keep the failed startup log for diagnosis. Do not delete storage to make an incompatible release start.
 
-Automated tests and project testers examine each release before publication.
-
-## Disable automatic updates
-
-The project does not provide support for installations with automatic updates disabled.
-
-The automatic updater installs updates for you.
-It also shows an in-game message when an update is available.
-
-If you still want to disable it, read the instructions at the bottom of `config.yml`.
+Read [support diagnostics](/docs/troubleshooting/debugging) if you need help with an update error.

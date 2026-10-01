@@ -1,261 +1,141 @@
 ---
-title: Commands and Permissions
-description: Find SkinsRestorer commands and configure their permissions.
-icon: Terminal
+title: "Commands and permissions"
+description: "Exact command forms, aliases, permission nodes, and built-in groups."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Terminal"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+`<argument>` is required. `[argument]` is optional. `a|b` lists aliases. Keep URLs and multi-word quoted arguments inside quotation marks.
 
-A permission works only when the player also has its parent permissions.
-
-For example, `skinsrestorer.command.set.other` also needs `skinsrestorer.command.set` and `skinsrestorer.command`.
-
-<Callout type="info">
-  If commands do not work, read the [installation guide](/docs/installation).
-</Callout>
+Run player-only commands in game. Console commands omit the leading slash. Availability depends on the platform and proxy mode.
 
 ## Commands
 
-SkinsRestorer provides player commands and administrator commands.
-
 ### Player commands
 
-These parent permissions give access to all player commands:
-`skinsrestorer.player` / `skinsrestorer.command.*`
+| Syntax | Permission |
+| --- | --- |
+| `/skin` | `skinsrestorer.command` |
+| `/skin help [query]` | `skinsrestorer.command` |
+| `/skin <skinName>` | `skinsrestorer.command.set` |
+| `/skin <skinName> <selector>` | `skinsrestorer.command.set.other` |
+| `/skin clear\|reset` | `skinsrestorer.command.clear` |
+| `/skin clear\|reset <selector>` | `skinsrestorer.command.clear.other` |
+| `/skin random` | `skinsrestorer.command.random` |
+| `/skin random <selector>` | `skinsrestorer.command.random.other` |
+| `/skin search <searchString>` | `skinsrestorer.command.search` |
+| `/skin edit` | `skinsrestorer.command.edit` |
+| `/skin upload` | `skinsrestorer.command.set.url` |
+| `/skin update\|refresh` | `skinsrestorer.command.update` |
+| `/skin update\|refresh <selector>` | `skinsrestorer.command.update.other` |
+| `/skin set\|select <skinName>` | `skinsrestorer.command.set` |
+| `/skin set\|select <skinName> <selector>` | `skinsrestorer.command.set.other` |
+| `/skin set\|select <skinName> <selector> <skinVariant>` | `skinsrestorer.command.set.other` |
+| `/skin url <url> [skinVariant]` | `skinsrestorer.command.set.url` |
+| `/skin undo\|revert` | `skinsrestorer.command.undo` |
+| `/skin undo\|revert <selector>` | `skinsrestorer.command.undo.other` |
+| `/skin history` | `skinsrestorer.command.undo` |
+| `/skin history <selector>` | `skinsrestorer.command.undo.other` |
+| `/skin favourite` | `skinsrestorer.command.favourite` |
+| `/skin favourite <selector>` | `skinsrestorer.command.favourite.other` |
+| `/skin favourites` | `skinsrestorer.command.favourite` |
+| `/skin favourites <selector>` | `skinsrestorer.command.favourite.other` |
+| `/skin menu\|gui` | `skinsrestorer.command.gui` |
+| `/skin notification ignore-cracked-client` | No explicit command permission |
 
-| Command                                       | Description                          | Permission                           |
-| --------------------------------------------- | ------------------------------------ | ------------------------------------ |
-| `/skin`                                       | Changes your own skin.               | `skinsrestorer.command`              |
-| `/skin set <skinName>`                        | Changes your skin.                   | `skinsrestorer.command.set`          |
-| `/skin set <skinName> <target>`               | Sets the skin for a target player.   | `skinsrestorer.command.set.other`    |
-| `/skin set <skinName> <target> <skinVariant>` | Sets the skin for a target player.   | `skinsrestorer.command.set.other`    |
-| `/skin url <url>`                             | Changes your skin from a URL.        | `skinsrestorer.command.set.url`      |
-| `/skin url <url> <skinVariant>`               | Changes your skin from a URL.        | `skinsrestorer.command.set.url`      |
-| `/skin update`                                | Updates your skin.                   | `skinsrestorer.command.update`       |
-| `/skin update <target>`                       | Updates the skin of a target player. | `skinsrestorer.command.update.other` |
-| `/skin search <searchString>`                 | Searches for a skin.                 | `skinsrestorer.command.search`       |
-| `/skin clear`                                 | Clears your skin.                    | `skinsrestorer.command.clear`        |
-| `/skin clear <target>`                        | Clears the skin of a target player.  | `skinsrestorer.command.clear.other`  |
-| `/skin random`                                | Applies a random recommended skin.   | `skinsrestorer.command`              |
-| `/skin undo`                                  | Reverts to your previous skin.       | `skinsrestorer.command`              |
-| `/skin history`                               | Shows your skin change history.      | `skinsrestorer.command`              |
-| `/skin favourite`                             | Adds or removes the current favorite. | `skinsrestorer.command`             |
-| `/skin favourites`                            | Lists your favorited skins.          | `skinsrestorer.command`              |
-| `/skin edit`                                  | Opens the skin editor in browser.    | `skinsrestorer.command`              |
-| `/skin upload`                                | Shows skin upload information.       | `skinsrestorer.command.set.url`      |
-| `/skin <skinName>`                            | Changes your own skin.               | `skinsrestorer.command`              |
-| `/skin help`                                  | Shows command help.                  | `skinsrestorer.command.set`          |
-| `/skins`                                      | Opens the skins GUI.                 | `skinsrestorer.command.gui`          |
+### Menu command
+
+| Syntax | Permission |
+| --- | --- |
+| `/skins` | `skinsrestorer.command.gui` |
+
+### Skull commands
+
+| Syntax | Permission |
+| --- | --- |
+| `/skull` | `skinsrestorer.command.skull` |
+| `/skull help [query]` | `skinsrestorer.command.skull` |
+| `/skull <skinName>` | `skinsrestorer.admincommand.skull.get` |
+| `/skull <skinName> <selector>` | `skinsrestorer.admincommand.skull.get.other` |
+| `/skull random` | `skinsrestorer.admincommand.skull.random` |
+| `/skull random <selector>` | `skinsrestorer.admincommand.skull.random.other` |
+| `/skull get\|give <skinName>` | `skinsrestorer.admincommand.skull.get` |
+| `/skull get\|give <skinName> <selector>` | `skinsrestorer.admincommand.skull.get.other` |
+| `/skull get\|give <skinName> <selector> <skinVariant>` | `skinsrestorer.admincommand.skull.get.other` |
+| `/skull url <url> [skinVariant]` | `skinsrestorer.admincommand.skull.get.url` |
 
 ### Admin commands
 
-These parent permissions give access to all administrator commands:
-`skinsrestorer.admin` / `skinsrestorer.admincommand.*`
-
-| Command                                                 | Description                                    | Permission                                |
-| ------------------------------------------------------- | ---------------------------------------------- | ----------------------------------------- |
-| `/sr`                                                   | Admin commands for SkinsRestorer.              | `skinsrestorer.admincommand`              |
-| `/sr createcustom <skinName> <skinInput>`               | Creates a custom server-wide skin.             | `skinsrestorer.admincommand.createcustom` |
-| `/sr createcustom <skinName> <skinInput> <skinVariant>` | Creates a custom server-wide skin.             | `skinsrestorer.admincommand.createcustom` |
-| `/sr setskinall <skinName> <skinVariant>`               | Sets one skin for every player.                | `skinsrestorer.admincommand.setskinall`   |
-| `/sr info <playerOrSkin> <input>`                       | Displays info about a player or skin.          | `skinsrestorer.admincommand.info`         |
-| `/sr props <playerOrSkin> <input>`                      | Displays info about a player or skin.          | `skinsrestorer.admincommand.info`         |
-| `/sr lookup <playerOrSkin> <input>`                     | Displays info about a player or skin.          | `skinsrestorer.admincommand.info`         |
-| `/sr drop <playerOrSkin> <target>`                      | Removes player or skin data from the database. | `skinsrestorer.admincommand.drop`         |
-| `/sr remove <playerOrSkin> <target>`                    | Removes player or skin data from the database. | `skinsrestorer.admincommand.drop`         |
-| `/sr purgeolddata <days>`                               | Removes skin data older than the given age.    | `skinsrestorer.admincommand.purgeolddata` |
-| `/sr applyskin <target>`                                | Applies the target player's skin again.        | `skinsrestorer.admincommand.applyskin`    |
-| `/sr dump`                                              | Uploads support data to bytebin.lucko.me.      | `skinsrestorer.admincommand.dump`         |
-| `/sr applyskinall`                                      | Applies every online player's skin again.      | `skinsrestorer.admincommand.applyskinall` |
-| `/sr status`                                            | Shows the required API services.               | `skinsrestorer.admincommand.status`       |
-| `/sr reload`                                            | Reloads the configuration file.                | `skinsrestorer.admincommand.reload`       |
+| Syntax | Permission |
+| --- | --- |
+| `/sr` | `skinsrestorer.admincommand` |
+| `/sr help [query]` | `skinsrestorer.admincommand` |
+| `/sr reload` | `skinsrestorer.admincommand.reload` |
+| `/sr docs permissions` | `skinsrestorer.admincommand` |
+| `/sr status` | `skinsrestorer.admincommand.status` |
+| `/sr drop\|remove player <target>` | `skinsrestorer.admincommand.drop` |
+| `/sr drop\|remove skin <target>` | `skinsrestorer.admincommand.drop` |
+| `/sr info\|props\|lookup player <input>` | `skinsrestorer.admincommand.info` |
+| `/sr info\|props\|lookup skin <input>` | `skinsrestorer.admincommand.info` |
+| `/sr applyskin <selector>` | `skinsrestorer.admincommand.applyskin` |
+| `/sr createcustom <skinName> <skinInput>` | `skinsrestorer.admincommand.createcustom` |
+| `/sr createcustom <skinName> <skinInput> <skinVariant>` | `skinsrestorer.admincommand.createcustom` |
+| `/sr setcustomname <skinName> <displayName>` | `skinsrestorer.admincommand.createcustom` |
+| `/sr purgeolddata <days>` | `skinsrestorer.admincommand.purgeolddata` |
+| `/sr dump` | `skinsrestorer.admincommand.dump` |
 
 ## Special permissions
 
-These permissions control specific features.
+| Permission | Purpose |
+| --- | --- |
+| `skinsrestorer.player` | Built-in player group: ordinary self-service commands and the menu |
+| `skinsrestorer.command.*` | Alternate grant for the built-in player group |
+| `skinsrestorer.admin` | Built-in admin group, including the player group and other-player operations |
+| `skinsrestorer.admincommand.*` | Alternate grant for the built-in admin group |
+| `skinsrestorer.bypasscooldown` | Bypass command cooldowns |
+| `skinsrestorer.bypassdisabled` | Bypass blocked skin names |
+| `skinsrestorer.ownskin` | Select your own account name with per-skin permissions enabled |
+| `skinsrestorer.skin.<name>` | Select an individual permitted skin |
 
-| Permission                     | Description                                                          |
-| ------------------------------ | -------------------------------------------------------------------- |
-| `skinsrestorer.bypasscooldown` | Bypasses any command cooldown in the configuration.                  |
-| `skinsrestorer.bypassdisabled` | Bypasses the list of disabled skins in the configuration.            |
-| `skinsrestorer.ownskin`        | Allows access to set your own skin.                                  |
-| `skinsrestorer.skin.<skin>`    | Allows access to a specific skin if `perSkinPermissions` is enabled. |
+The built-in admin group omits `reload`, `dump`, and `purgeolddata`. Grant those nodes explicitly when needed. A permission plugin can interpret wildcards differently.
+
+Commands can require their parent command access too. The root nodes are `skinsrestorer.command`, `skinsrestorer.admincommand`, and `skinsrestorer.command.skull`.
+
+Use [player access](/docs/configuration/player-access) to configure groups. Use [skin restrictions](/docs/configuration/restrict-skins) for per-skin access and required consent.
+
+## Target selectors and administrative behavior
+
+A `<selector>` identifies the target player or players through the platform's selector parser. Use an explicit player name first. Selector support can depend on the platform.
+
+`/skin set <skinName> <selector>` changes a target's saved selection. `/sr applyskin <selector>` reapplies the skin resolved for the target. There are no `setskinall` or `applyskinall` commands in this release.
+
+`/sr createcustom` stores a named skin. `/sr setcustomname` changes its display label and uses the same permission. `drop` and `purgeolddata` remove stored data, so [back up first](/docs/configuration/backups).
+
+`/skin favourite` toggles the current selection in favorites. `history` uses the `undo` permission. `search`, `edit`, and `upload` provide browser links rather than saving an edited image themselves.
+
+`/sr status` checks account services. `/sr dump` uploads a diagnostic report. Read [diagnostic collection](/docs/troubleshooting/debugging) for what each includes.
+
+## Proxy mode
+
+Run normal player commands and storage administration through the proxy. Proxy-mode backends provide local `/sr status` and `/sr dump`. Other commands can be unavailable there by design.
 
 ## Cooldowns
 
-Cooldowns limit repeated commands.
+Skin changes and skull requests each use a 30-second cooldown by default. Their error cooldowns default to 5 seconds. `skinsrestorer.bypasscooldown` bypasses these cooldowns.
 
-### Default cooldowns
-
-| Action | Default | Config option |
-|--------|---------|---------------|
-| Skin change | 30 seconds | `commands.skinChangeCooldown` |
-| Skin error retry | 5 seconds | `commands.skinErrorCooldown` |
-| Skull command | 30 seconds | `commands.skullCooldown` |
-| Skull error retry | 5 seconds | `commands.skullErrorCooldown` |
-
-### Bypassing cooldowns
-
-Grant `skinsrestorer.bypasscooldown` to ignore all cooldowns.
-
-## Permission plugin examples
-
-### LuckPerms
-
-<Tabs items={['Basic setup', 'VIP ranks', 'Per-skin permissions']}>
-  <Tab>
-    **Give all players basic skin access:**
-    ```
-    /lp group default permission set skinsrestorer.player true
-    ```
-
-    **Give staff admin commands:**
-    ```
-    /lp group staff permission set skinsrestorer.admin true
-    ```
-  </Tab>
-  <Tab>
-    **Give VIPs cooldown bypass:**
-    ```
-    /lp group vip permission set skinsrestorer.bypasscooldown true
-    ```
-
-    **Give VIPs access to URL skins:**
-    ```
-    /lp group vip permission set skinsrestorer.command.set.url true
-    ```
-
-    **Give VIPs access to set other players' skins:**
-    ```
-    /lp group vip permission set skinsrestorer.command.set.other true
-    ```
-  </Tab>
-  <Tab>
-    **First, enable per-skin permissions in `config.yml`:**
-    ```yaml filename="config.yml"
-    commands:
-      perSkinPermissions:
-        enabled: true
-        list:
-          - "Notch"
-          - "Dream"
-          - "Technoblade"
-    ```
-
-    **Then grant access to specific skins:**
-    ```
-    /lp group vip permission set skinsrestorer.skin.Notch true
-    /lp group mvp permission set skinsrestorer.skin.Dream true
-    ```
-
-    The GUI shows a locked skin to players without permission.
-  </Tab>
-</Tabs>
-
-### PermissionsEx (Legacy)
-
-```
-/pex group default add skinsrestorer.player
-/pex group staff add skinsrestorer.admin
-/pex group vip add skinsrestorer.bypasscooldown
-```
+Use [command configuration](/docs/reference/commands) to change the durations.
 
 ## Restricting skin access
 
-### Disable specific skins
-
-Add skins to the disabled list in `config.yml`:
-
-```yaml filename="config.yml"
-commands:
-  disabledSkins:
-    - "steve"
-    - "owner"
-    - "admin"
-    - "inappropriateskin"
-```
-
-Players with `skinsrestorer.bypassdisabled` can still use these skins.
-
-### Restrict URL domains
-
-Allow skin URLs only from specific domains:
-
-```yaml filename="config.yml"
-commands:
-  restrictSkinUrls:
-    enabled: true
-    list:
-      - "https://i.imgur.com"
-      - "https://textures.minecraft.net"
-```
-
-### Per-skin permissions
-
-Require a permission for each listed skin:
-
-```yaml filename="config.yml"
-commands:
-  perSkinPermissions:
-    enabled: true
-    list:
-      - "Notch"
-      - "specialskin"
-```
-
-Players need `skinsrestorer.skin.<skinname>` to use skins in the list.
-
-## Command usage examples
-
-### Set skin for every player
-
-Use this command to change every online player's skin until they rejoin:
-
-```
-/sr setskinall <skinName> <skinVariant>
-```
-
-Example:
-```
-/sr setskinall Santa classic
-```
-
-### Create a custom server skin
-
-Create a skin that all players can use:
-
-```
-/sr createcustom <name> <playerName|url>
-```
-
-Examples:
-```
-/sr createcustom staff Notch
-/sr createcustom event "https://i.imgur.com/abc123.png" slim
-```
-
-### Look up skin information
-
-```
-/sr info player <playerName>
-/sr info skin <skinName>
-```
-
-### Remove old data
-
-Purge skin data older than 30 days:
-
-```
-/sr purgeolddata 30
-```
+Use [player access](/docs/configuration/player-access) for permission groups. Use [skin restrictions](/docs/configuration/restrict-skins) for blocked names, URL prefixes, and per-skin permissions.
 
 ## Create a support report
 
-If you need support, run `/sr dump`. Then send the generated link to the developers.
+Use [diagnostic collection](/docs/troubleshooting/debugging) for `/sr dump`, debug logs, and a reproducible support report.
 
-```
-/sr dump
-```
+## Source
 
-The command uploads server information, the configuration, and logs to a paste service.
+The syntax and nodes above come from the [15.12.6 command definitions](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/shared/src/main/java/net/skinsrestorer/shared/commands) and [permission groups](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/subjects/permissions/PermissionGroup.java).

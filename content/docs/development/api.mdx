@@ -1,281 +1,84 @@
 ---
-title: SkinsRestorer API
-description: Add the SkinsRestorer API to a Java plugin.
-icon: Braces
+title: "Dependencies and API lifecycle"
+description: "Add the public API without bundling it and initialize after SkinsRestorer."
+docType: "reference"
+appliesTo: "Java plugins using API 15.12.6"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Braces"
 ---
 
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Callout } from 'fumadocs-ui/components/callout';
-
-Java plugins can use the public SkinsRestorer API to read and change skin data.
-
-<Callout type="warning">
-  CAUTION: The API can change between releases.
-  A new release can break your integration.
-</Callout>
-
-## Resources
-
-These resources contain complete API details and an example plugin:
-
-- [Example Plugin](https://github.com/SkinsRestorer/SkinsRestorerAPIExample)
-- [Javadocs](https://jd.skinsrestorer.net)
+Use `net.skinsrestorer:skinsrestorer-api:15.12.6` as a compile-time dependency. The installed SkinsRestorer plugin supplies it at runtime.
 
 ## Add to your build file
 
-Select your build tool, then add the repository and dependency.
+The [first plugin tutorial](/docs/development/first-plugin) contains a complete Maven project. For Gradle, use:
 
-Use the latest version number without the `v` prefix:
-![Latest Version](https://img.shields.io/github/v/tag/SkinsRestorer/SkinsRestorer?label=version)
+<Tabs items={['Kotlin', 'Groovy']}>
+<Tab value="Kotlin">
 
-<Tabs items={['Maven', 'Gradle (Groovy)', 'Gradle (Kotlin)']}>
-  <Tab>
-    Add the following repository and dependency to your `pom.xml` file:
+```kotlin title="build.gradle.kts (excerpt)"
+repositories {
+    maven("https://repo.codemc.org/repository/maven-public/")
+}
+dependencies {
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.12.6")
+}
+```
 
-    ```xml filename="pom.xml"
-    <repositories>
-      <repository>
-        <id>codemc</id>
-        <url>https://repo.codemc.org/repository/maven-public/</url>
-      </repository>
-    </repositories>
+</Tab>
+<Tab value="Groovy">
 
-    <dependencies>
-      <!-- SkinsRestorer API -->
-      <dependency>
-        <groupId>net.skinsrestorer</groupId>
-        <artifactId>skinsrestorer-api</artifactId>
-        <version>VERSION</version>
-        <scope>provided</scope>
-      </dependency>
-    </dependencies>
-    ```
+```groovy title="build.gradle (excerpt)"
+repositories {
+    maven { url = 'https://repo.codemc.org/repository/maven-public/' }
+}
+dependencies {
+    compileOnly 'net.skinsrestorer:skinsrestorer-api:15.12.6'
+}
+```
 
-  </Tab>
-  <Tab>
-    Add the following repository and dependency to your `build.gradle` file:
-
-    ```groovy filename="build.gradle"
-    repositories {
-        maven {
-            name 'codemc'
-            url 'https://repo.codemc.org/repository/maven-public/'
-        }
-    }
-
-    dependencies {
-        // SkinsRestorer API
-        compileOnly 'net.skinsrestorer:skinsrestorer-api:VERSION'
-    }
-    ```
-
-  </Tab>
-  <Tab>
-    Add the following repository and dependency to your `build.gradle.kts` file:
-
-    ```kotlin filename="build.gradle.kts"
-    repositories {
-        maven("https://repo.codemc.org/repository/maven-public/") {
-            name = "codemc"
-        }
-    }
-
-    dependencies {
-        // SkinsRestorer API
-        compileOnly("net.skinsrestorer:skinsrestorer-api:VERSION")
-    }
-    ```
-
-  </Tab>
+</Tab>
 </Tabs>
+
+Do not shade or relocate the API. Do not import `net.skinsrestorer.shared` or platform implementation classes.
 
 ## Add SkinsRestorer as a dependency
 
-Add SkinsRestorer as a plugin dependency.
-The server then loads SkinsRestorer before your plugin.
+For a Bukkit plugin that requires SkinsRestorer:
 
-These examples use an optional dependency.
-Your plugin can load without SkinsRestorer, but API calls will fail.
-
-If your build generates plugin metadata, add the dependency in the build tool instead.
-
-<Tabs items={['Bukkit', 'BungeeCord', 'Velocity']}>
-  <Tab>
-    Add the following dependency to your `plugin.yml` file:
-
-    ```yml filename="plugin.yml"
-    softdepend: [ "SkinsRestorer" ]
-    ```
-
-  </Tab>
-  <Tab>
-    BungeeCord uses `softDepends` instead of the Bukkit `softdepend` key.
-    Add the following dependency to your `bungee.yml` or `plugin.yml` file:
-
-    ```yml filename="bungee.yml"
-    softDepends: [ "SkinsRestorer" ]
-    ```
-
-  </Tab>
-  <Tab>
-    Add the following dependency to your plugin entry file annotation:
-
-    ```java filename="YourPluginClass.java"
-    @Plugin(dependencies = {@Dependency(id = "skinsrestorer", optional = true)})
-    ```
-
-  </Tab>
-</Tabs>
-
-## Code examples
-
-### Getting the API instance
-
-```java
-import net.skinsrestorer.api.SkinsRestorer;
-import net.skinsrestorer.api.SkinsRestorerProvider;
-
-public class MyPlugin extends JavaPlugin {
-    private SkinsRestorer skinsRestorerAPI;
-
-    @Override
-    public void onEnable() {
-        // Get the API instance
-        this.skinsRestorerAPI = SkinsRestorerProvider.get();
-    }
-}
+```yaml title="plugin.yml (dependency excerpt)"
+depend: [SkinsRestorer]
 ```
 
-### Setting a player's skin by name
+For an optional Bukkit integration, use `softdepend: [SkinsRestorer]`. Check that SkinsRestorer is enabled before loading API-dependent integration classes.
 
-```java
-import net.skinsrestorer.api.storage.PlayerStorage;
-import net.skinsrestorer.api.storage.SkinStorage;
-import net.skinsrestorer.api.property.InputDataResult;
+BungeeCord uses `depends` or `softDepends` in `bungee.yml`. Velocity declares dependencies with `@Dependency(id = "skinsrestorer", optional = true)` inside the plugin annotation. Remove `optional = true` for a required dependency.
 
-public void setSkinByName(Player player, String skinName) {
-    SkinStorage skinStorage = skinsRestorerAPI.getSkinStorage();
-    PlayerStorage playerStorage = skinsRestorerAPI.getPlayerStorage();
+## Getting the API instance
 
-    // Find or fetch the skin data
-    Optional<InputDataResult> result = skinStorage.findOrCreateSkinData(skinName);
+Call `SkinsRestorerProvider.get()` after SkinsRestorer initializes, usually in your enable callback. Do not call it from a static initializer or plugin constructor.
 
-    if (result.isPresent()) {
-        // Set the skin identifier for the player
-        playerStorage.setSkinIdOfPlayer(
-            player.getUniqueId(),
-            result.get().getIdentifier()
-        );
+An installed JAR does not prove that the API initialized. The provider throws `IllegalStateException` when unavailable. Backend proxy API mode can require [shared SQL storage](/docs/development/proxy-api).
 
-        // Apply the skin visually
-        skinsRestorerAPI.getSkinApplier(Player.class).applySkin(player);
-    }
-}
-```
+## Checking API version compatibility
 
-### Setting a skin from a URL
+`VersionProvider.isCompatibleWith("15")` checks major-version compatibility. It is not a test for “version 15 or newer.”
 
-```java
-import net.skinsrestorer.api.connections.MineSkinAPI;
-import net.skinsrestorer.api.connections.model.MineSkinResponse;
-import net.skinsrestorer.api.property.SkinProperty;
-import net.skinsrestorer.api.property.SkinVariant;
-
-public void setSkinFromUrl(Player player, String url) {
-    MineSkinAPI mineSkinAPI = skinsRestorerAPI.getMineSkinAPI();
-
-    // Generate skin from URL (use CLASSIC or SLIM)
-    MineSkinResponse response = mineSkinAPI.genSkin(url, SkinVariant.CLASSIC);
-    SkinProperty skinProperty = response.getProperty();
-
-    // Apply directly to player
-    skinsRestorerAPI.getSkinApplier(Player.class).applySkin(player, skinProperty);
-}
-```
-
-### Getting a player's current skin
-
-```java
-import net.skinsrestorer.api.property.SkinProperty;
-
-public SkinProperty getPlayerSkin(Player player) {
-    PlayerStorage playerStorage = skinsRestorerAPI.getPlayerStorage();
-
-    Optional<SkinProperty> property = playerStorage.getSkinForPlayer(
-        player.getUniqueId(),
-        player.getName()
-    );
-
-    return property.orElse(null);
-}
-```
-
-### Creating a custom server skin
-
-```java
-import net.skinsrestorer.api.property.SkinProperty;
-
-public void createCustomSkin(String skinName, String value, String signature) {
-    SkinStorage skinStorage = skinsRestorerAPI.getSkinStorage();
-
-    // Create a skin property from raw data
-    SkinProperty property = SkinProperty.of(value, signature);
-
-    // Store it as a custom skin
-    skinStorage.setCustomSkinData(skinName, property);
-}
-```
-
-### Getting the texture URL from skin data
-
-```java
-import net.skinsrestorer.api.property.SkinProperty;
-import net.skinsrestorer.api.PropertyUtils;
-
-public String getTextureUrl(SkinProperty skinProperty) {
-    return PropertyUtils.getSkinTextureUrl(skinProperty);
-}
-```
-
-### Checking API version compatibility
-
-```java
-import net.skinsrestorer.api.VersionProvider;
-
-public boolean isCompatible() {
-    // Check if running at least version 15
-    return VersionProvider.isCompatibleWith("15");
-}
-```
-
-## Use the API on a proxy network
-
-On BungeeCord or Velocity, use one of these options:
-
-1. **Call the API from the proxy:** Put your API plugin on BungeeCord or Velocity.
-   Use plugin messages to communicate with plugins on backend servers.
-
-2. **Call the API from backend servers:** Enable `server.proxyMode.api` on every backend server.
-   Use the same MySQL database on the proxy and backend servers.
+Pin the dependency version used by your build. Test your integration against the installed release before you change its dependency.
 
 ## Error handling
 
-Handle errors from API calls:
+Skin lookup and generation can perform blocking requests. Storage can also perform database I/O. Keep this work outside the platform's main or entity thread.
 
-```java
-try {
-    Optional<InputDataResult> result = skinStorage.findOrCreateSkinData(skinName);
-    // ... handle result
-} catch (DataRequestException e) {
-    // Handle API/network errors
-    getLogger().warning("Failed to fetch skin: " + e.getMessage());
-}
-```
+Schedule your own player operations with the platform's supported scheduler. The [complete Bukkit example](/docs/development/first-plugin) shows that boundary. A Bukkit scheduler example does not automatically work on Folia, Velocity, or BungeeCord.
 
-## Fix common API problems
+Read [storage operations](/docs/development/storage) before choosing an apply method.
 
-- If you see `Cannot find symbol` or `Cannot resolve symbol`, add the required imports.
-- Get the API with `this.skinsRestorer = SkinsRestorerProvider.get();{:java}`.
-- Add the `private SkinsRestorer skinsRestorer;{:java}` field to the class.
-- Add the dependency to the build file and plugin metadata.
-- On a backend server, enable `server.proxyMode.api` and use the proxy's MySQL database.
+## Code examples
+
+Start with [the complete plugin tutorial](/docs/development/first-plugin). Then choose [persistent or temporary changes](/docs/development/storage) for your integration.
+
+## Use the API on a proxy network
+
+Follow [proxy API setup](/docs/development/proxy-api) before requesting the provider on a backend.

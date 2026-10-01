@@ -1,0 +1,12 @@
+{
+  "title": "Understand skins",
+  "pages": [
+    "[Workflow][Skin lifecycle](/docs/development/inner-workings)",
+    "skin-properties",
+    "proxy",
+    "[Flag][Capes](/docs/features/capes)"
+  ],
+  "defaultOpen": false,
+  "icon": "Lightbulb",
+  "pagesIndex": "index"
+}

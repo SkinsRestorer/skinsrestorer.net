@@ -1,47 +1,38 @@
 ---
-title: DiscordSRV
-description: Show SkinsRestorer avatars in DiscordSRV.
-icon: MessagesSquare
+title: "Show skins in DiscordSRV"
+description: "Use the current profile texture for player message avatars."
+docType: "how-to"
+appliesTo: "Bukkit-compatible servers with DiscordSRV and PlaceholderAPI"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "MessageCircle"
 ---
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
+This guide changes DiscordSRV's player avatar source. Complete DiscordSRV's bot and channel setup first.
 
-Use PlaceholderAPI to show SkinsRestorer skins in DiscordSRV messages.
+## Before you start
 
-## Setup instructions
+Install SkinsRestorer, DiscordSRV, and PlaceholderAPI on the same Bukkit-compatible server. Restart the server, then [check the texture placeholder](/docs/integrations/placeholderapi).
 
-<Steps>
-  <Step>
-    ### Prepare your server
-    Install the latest version of [SkinsRestorer](/docs/installation).
-    Then install [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/).
-    Also install [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/).
-  </Step>
+## Configure the avatar
 
-  <Step>
-    ### Configure DiscordSRV
-    Open the DiscordSRV `config.yml` file.
-    Find the `Embed & webhook image/avatar url format` section:
+1. Back up `plugins/DiscordSRV/config.yml`.
+2. Replace its existing `AvatarUrl` value:
 
-    ```yaml filename="plugins/DiscordSRV/config.yml"
-    AvatarUrl: https://crafatar.com/avatars/{uuid - nodashes}.png?size={size}&overlay#{texture}
-    ```
+```yaml title="plugins/DiscordSRV/config.yml (excerpt)"
+AvatarUrl: "https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png#{texture}"
+```
 
-    Replace it with:
+3. Run `/discord reload`.
+4. Change your skin and send a new chat message.
+5. Check the new message's avatar in Discord.
 
-    ```yaml filename="plugins/DiscordSRV/config.yml"
-    AvatarUrl: https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png#{username}
-    ```
+The URL uses a skin texture hash instead of an account UUID. The `{texture}` fragment follows DiscordSRV's cache workaround. DiscordSRV documents both this fragment and PlaceholderAPI support in [its AvatarUrl reference](https://docs.discordsrv.com/config/#avatarurl).
 
-  </Step>
+## If the avatar is unchanged
 
-<Step>
-  ### Reload DiscordSRV
-  Run `/discord reload`.
-</Step>
+Parse the PlaceholderAPI value first. If it is literal or `Error`, fix that before changing DiscordSRV.
 
-  <Step>
-    ### Test the avatar
-    Send a message. DiscordSRV must show the player's SkinsRestorer skin.
-  </Step>
-</Steps>
+If the hash is correct, open the resulting avatar URL and compare a newly sent message. Discord can cache older avatars. Also inspect DiscordSRV's linked-account avatar configuration if it uses Discord avatars.
+
+For backend storage requirements, read [proxy API setup](/docs/development/proxy-api).

@@ -1,81 +1,51 @@
 ---
-title: Locale and Translations
-description: Change or translate SkinsRestorer messages.
-icon: Globe
+title: "Change messages and translations"
+description: "Select a locale and customize translated messages."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Languages"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+SkinsRestorer uses locale files and MiniMessage text. Player messages and console messages have separate locale configuration.
 
-SkinsRestorer can show messages in the language of each player's Minecraft client.
+## Select the locale
 
-## Default values
+Edit the existing `messages` section:
 
-The default locale is `en` for English. Change the default locale in `config.yml`.
+```yaml title="config.yml (SkinsRestorer excerpt)"
+messages:
+  locale: "en"
+  consoleLocale: "en"
+  perIssuerLocale: false
+  disablePrefix: false
+  dateFormat: "dd MMMM yyyy"
+```
 
-## Community translation
+With `perIssuerLocale: true`, a player's client locale can take priority over the configured default. Use `false` if all players must receive the same language.
 
-Community members translate SkinsRestorer. You can add a translation or improve an existing one.
+Run `/sr reload`, then check a player message and the console. Use a locale code supported by the installed release.
 
-### Contribute a translation
+## Customize messages
 
-Add translations on the [SkinsRestorer Crowdin page](https://translate.skinsrestorer.net).
+1. Back up the `locales` directory inside the SkinsRestorer data folder.
+2. Open the locale file for the language in use.
+3. Change the message text without removing its placeholders.
+4. Keep the JSON valid.
+5. Run `/sr reload`.
+6. Trigger the changed message with a test account.
 
-If your locale is absent, contact us on [Discord](https://skinsrestorer.net/discord).
+The bundled default file is `locales/locale.json`. Inspect the generated directory for the exact filenames of other languages.
 
-## Custom translations
+MiniMessage tags control formatting. A placeholder such as `<name>` supplies data from the command. Removing it can make a message less useful.
 
-<Callout type="warning" emoji="⚠️">
-  If you use BungeeCord or Velocity, copy the locale files to the proxy and every backend server.
-</Callout>
+## Custom command help
 
-The `plugins/SkinsRestorer/locale` folder contains two folders: `repository` and `custom`.
+`commands.customHelp.enabled` and `commands.customHelp.message` replace the configured `/skin` help text. They do not replace every command error or subcommand message.
 
-The `repository` folder contains the default locale files.
-SkinsRestorer uses these files when `custom` does not contain the requested locale.
+## Contribute a translation
 
-Do not edit files in `repository`. Updates and reloads replace these files.
+Use the [SkinsRestorer translation project](https://translate.skinsrestorer.net). Keep technical names and placeholders unchanged.
 
-To change a locale:
-
-1. Copy its file from `repository` to `custom`.
-2. Edit the copy in `custom`.
-
-After an update, compare your custom file with the new default file.
-The update can add or change messages.
-
-## Locale list
-
-SkinsRestorer includes these locales:
-
-### Locale codes
-
-| Locale                          | code    | file name           |
-| ------------------------------- | ------- | ------------------- |
-| Arabic                          | `ar`    | `locale_ar.json`    |
-| Bulgarian                       | `bg`    | `locale_bg.json`    |
-| Catalan                         | `ca`    | `locale_ca.json`    |
-| Czech                           | `cs`    | `locale_cs.json`    |
-| Danish                          | `da`    | `locale_da.json`    |
-| German                          | `de`    | `locale_de.json`    |
-| Argentinian Spanish             | `es_ar` | `locale_es_ar.json` |
-| Spanish                         | `es`    | `locale_es.json`    |
-| Finnish                         | `fi`    | `locale_fi.json`    |
-| French                          | `fr`    | `locale_fr.json`    |
-| Canadian French                 | `fr_ca` | `locale_fr_ca.json` |
-| Hungarian                       | `hu`    | `locale_hu.json`    |
-| Italian                         | `it`    | `locale_it.json`    |
-| Japanese                        | `ja`    | `locale_ja.json`    |
-| Korean                          | `ko`    | `locale_ko.json`    |
-| Lithuanian                      | `lt`    | `locale_lt.json`    |
-| Dutch                           | `nl`    | `locale_nl.json`    |
-| Norwegian Bokmål                | `no`    | `locale_no.json`    |
-| Norwegian Nynorsk               | `nn_no` | `locale_nn_no.json` |
-| Polish                          | `pl`    | `locale_pl.json`    |
-| Brazilian Portuguese            | `pt_br` | `locale_pt_br.json` |
-| Romanian                        | `ro`    | `locale_ro.json`    |
-| Thai                            | `th`    | `locale_th.json`    |
-| Turkish                         | `tr`    | `locale_tr.json`    |
-| Ukrainian                       | `uk`    | `locale_uk.json`    |
-| Simplified Chinese (China)      | `zh_cn` | `locale_zh_cn.json` |
-| Traditional Chinese (Hong Kong) | `zh_hk` | `locale_zh_hk.json` |
-| Traditional Chinese (Taiwan)    | `zh_tw` | `locale_zh_tw.json` |
+For configuration defaults, read [messages and diagnostics](/docs/reference/messages).

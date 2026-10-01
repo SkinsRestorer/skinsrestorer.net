@@ -1,0 +1,41 @@
+---
+title: "Server, login, and proxy behavior"
+description: "Exact keys, types, and defaults for server, login, and proxy behavior."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Server"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/troubleshooting/proxy-mode).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `login.alwaysApplyPremium` | boolean | `false` | Apply stored skins to account players on online-mode joins. |
+| `login.noSkinIfLoginCanceled` | boolean | `true` | Skip skin processing for a canceled login. |
+| `login.offlineModeWarning.enabled` | boolean | `true` | Show the general client skin-override warning to offline-mode players. |
+| `proxy.notAllowedCommandServers.allowList` | boolean | `false` | False blocks listed backends. True allows only listed backends. |
+| `proxy.notAllowedCommandServers.enabled` | boolean | `true` | Restrict commands by backend name. |
+| `proxy.notAllowedCommandServers.ifNoServerBlockCommand` | boolean | `true` | Block commands before a player joins a backend. |
+| `proxy.notAllowedCommandServers.list` | string list | `["auth"]` | Backend names for the command restriction. |
+| `server.dismountPassengersOnSkinUpdate` | boolean | `false` | Dismount passengers from the player before refresh. |
+| `server.dismountPlayerOnSkinUpdate` | boolean | `true` | Dismount the player before refresh to avoid mount synchronization problems. |
+| `server.proxyMode.api` | boolean | `true` | Expose the API on a proxy backend. Requires shared SQL storage. |
+| `server.proxyMode.detection` | enum | `"AUTO"` | AUTO detects the proxy. Other values: ENABLED and DISABLED. Restart after changes. |
+| `server.remountPlayerOnSkinUpdate` | boolean | `true` | Remount afterward. Requires dismountPlayerOnSkinUpdate. |
+| `server.resourcePackFix` | boolean | `true` | Reapply skins after resource-pack changes. |
+| `server.sound.enabled` | boolean | `true` | Play the skin-change sound. |
+| `server.sound.value` | string | `"ENTITY_PLAYER_TELEPORT, 0.7"` | Sound name and playback parameters. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [LoginConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/LoginConfig.java).
+- [ProxyConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java).
+- [ServerConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/ServerConfig.java).

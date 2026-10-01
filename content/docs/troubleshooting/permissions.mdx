@@ -1,0 +1,39 @@
+---
+title: "A command is denied"
+description: "Find the effective permission and the platform that owns the command."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ShieldAlert"
+---
+
+A permission error is different from a network error. `/sr status` cannot diagnose a missing command permission.
+
+## Find the permission
+
+1. Read the complete error message.
+2. Find the command in the [command reference](/docs/configuration/commands-permissions).
+3. Inspect the player's effective permission with your permission manager.
+4. Check parent grants, explicit denials, and server-specific contexts.
+
+For a skin URL, inspect `skinsrestorer.command.set.url`. For history, inspect `skinsrestorer.command.undo`. For the menu, inspect `skinsrestorer.command.gui`.
+
+## Check the correct instance
+
+On a network, a backend permission grant can leave a proxy command denied. Apply permissions on the proxy when the proxy owns `/skin`.
+
+A server listed in `proxy.notAllowedCommandServers.list` can block commands independently of permissions. The default block list contains `auth`.
+
+## Check additional restrictions
+
+- Per-skin access needs `skinsrestorer.skin.<name>` when enabled.
+- An allowed command does not bypass a disabled skin or URL restriction.
+- A cooldown is a timing restriction, not a missing permission.
+- A disabled command needs configuration and a restart, not another grant.
+
+## Check the fix
+
+Use a regular player account. Run one allowed command and one denied command. Operator access or broad wildcards can hide an incorrect group configuration.
+
+Read [player access](/docs/configuration/player-access) to design the grants, or collect [diagnostics](/docs/troubleshooting/debugging) if the effective permission and command result disagree.

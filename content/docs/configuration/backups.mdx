@@ -1,0 +1,45 @@
+---
+title: "Back up and restore skin data"
+description: "Preserve selections, custom skins, and configuration before an update."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Archive"
+---
+
+A backup must match the storage backend in use. The configuration file alone does not contain player selections or custom skin data.
+
+## File storage
+
+1. Stop the instance that writes skin data.
+2. Copy its complete SkinsRestorer data directory to a separate location.
+3. Record the plugin or mod version with the backup.
+4. Start the instance again.
+
+Keep the configuration, locales, and all storage subdirectories together. On a proxy network, the proxy usually owns the selections.
+
+## SQL storage
+
+Use your database host's consistent backup or dump procedure. Back up the SkinsRestorer tables and the configuration of every connected instance.
+
+A copy of `config.yml` cannot restore SQL records. Do not copy live database files without a database-specific backup procedure.
+
+## Restore
+
+1. Stop all instances that write to the affected storage.
+2. Preserve the current data as a separate recovery copy.
+3. Restore the saved data and matching configuration.
+4. Start one instance and read its startup log.
+5. Check a custom skin and a player's saved selection.
+6. Start the remaining instances.
+
+Use a compatible release for the restored data. Older releases can fail to read newer formats.
+
+## Remove old data
+
+`/sr purgeolddata <days>` removes old skin data. `/sr drop player <target>` removes a player record. `/sr drop skin <target>` removes stored skin data.
+
+Back up before these operations. They are administrative maintenance commands, not fixes for every skin problem.
+
+Continue with [updates](/docs/configuration/auto-update) or [shared storage](/docs/configuration/database).

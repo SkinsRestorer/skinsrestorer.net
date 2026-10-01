@@ -1,0 +1,45 @@
+---
+title: "Documentation sources and maintenance"
+description: "Understand the version boundary and keep these guides accurate."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "BookOpen"
+---
+
+These pages target **SkinsRestorer 15.12.6**, reviewed on **October 1, 2026**. Website workflows describe this repository's upload and generator implementations.
+
+## Source of truth
+
+| Subject | Primary source |
+| --- | --- |
+| Configuration keys and defaults | [Release configuration classes](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config) |
+| Commands and permissions | [Release command definitions](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/shared/src/main/java/net/skinsrestorer/shared/commands) |
+| API signatures and exceptions | [Release public API](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/api/src/main/java/net/skinsrestorer/api) |
+| Fabric requirements | [Release metadata](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/mod/fabric/src/main/resources/fabric.mod.json) |
+| Velocity forwarding | [PaperMC instructions](https://docs.papermc.io/velocity/player-information-forwarding/) |
+| DiscordSRV avatar configuration | [DiscordSRV reference](https://docs.discordsrv.com/config/) |
+| MineSkin limits and grants | [MineSkin documentation](https://docs.mineskin.org/) |
+
+Do not replace release facts with an unreviewed development branch. External platform configuration and service limits need their own version check.
+
+## Documentation design
+
+The structure separates guided learning, task procedures, exact reference, and explanations. It follows [Diátaxis](https://diataxis.fr/) and uses [Fumadocs](https://www.fumadocs.dev/docs/ui) for navigation, code blocks, and search.
+
+A procedure needs prerequisites, working steps, an expected result, and a useful failure branch. Reference tables need exact names and a source version.
+
+## Contribute a correction
+
+Use the page's GitHub link to edit its MDX source. Include the affected release and a reproducible reason for a technical correction.
+
+For a broken step, state what you tried and the actual result. For a new feature, add the procedure and reference together.
+
+## Release checklist
+
+Maintainers can find the source inventory and local validation instructions in the repository's `documentation/README.md`.
+
+For each release, compare source declarations, update the inventory and affected pages, compile the complete Java example, and build the website. Then inspect representative installation, upload, proxy, and API pages.
+
+Treat page feedback as a correction queue. Record the URL, release, reported result, and resolution in an issue or documentation change.

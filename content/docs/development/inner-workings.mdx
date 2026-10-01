@@ -1,73 +1,50 @@
 ---
-title: How SkinsRestorer works
-description: Understand how SkinsRestorer requests and applies skin data.
-icon: Cog
+title: "How a skin reaches a player"
+description: "Understand saved selections, cached properties, and profile application."
+docType: "explanation"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Workflow"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Mermaid } from '../../../src/components/mdx/mermaid';
+A skin change has three separate pieces: an identifier, a signed texture property, and the profile that the client sees.
 
-<Callout type="info">
-  Read the [storage page](/docs/development/storage) first.
-  It explains the skin data used on this page.
-</Callout>
+## From input to visible skin
 
-This page explains how SkinsRestorer gets and applies skins.
+1. A command or API consumer supplies a player name, URL, or custom name.
+2. Skin storage resolves that input to an identifier and signed property.
+3. Player storage saves the selected identifier if the operation is persistent.
+4. The platform skin applier updates the player's profile.
+5. Minecraft clients download and display the texture.
 
-## Recap
+A correct saved identifier does not prove that a client displays the property. A visible temporary change does not prove that the selection is saved.
 
-SkinsRestorer gets signed player skin data from Mojang.
-The Minecraft client accepts only skin data that Mojang signed.
+## Skin sources
 
-This rule also keeps official capes linked to approved accounts.
+- **Player skin:** Account data associated with a player UUID.
+- **URL skin:** A generated property associated with an image URL and model.
+- **Custom skin:** A named server entry containing a signed property.
+- **Recommended skin:** An entry supplied by the recommendations service.
 
-<Callout emoji="📔">
-  Signed-skin restrictions apply to players, not Minecraft heads.
-  Citizens NPCs also use the player skin rules.
-</Callout>
+A custom entry can keep a snapshot of an account or URL texture under a stable server name.
 
-SkinsRestorer gets skins in two ways:
+## Resolution on join
 
-1. It gets the signed skin data of a Minecraft player.
-2. It sends a custom PNG to an account service that gets signed skin data.
+A saved player selection is separate from account skin lookup and server defaults. If no selection exists, account and default rules determine the resolved property.
 
-SkinsRestorer uses [MineSkin](https://mineskin.org) for the second method.
+Online-mode join behavior also depends on `login.alwaysApplyPremium`. `advanced.disableOnJoinSkins` prevents automatic join application.
 
-<Callout emoji="🎉">
-  Paid MineSkin plans above Lite include higher limits and more features. Visit the
-  <a href="https://mineskin.org/apikey" target="_blank" rel="noreferrer">MineSkin API keys page</a>
-  and use coupon code <code>SKINSRESTORER10</code>.
-  The code gives you 10% off the first three months.
-  SkinsRestorer does not receive a commission.
-</Callout>
+The default list can choose one of several skins. With `storage.defaultSkins.applyForPremium: false`, account skins keep their normal priority over that fallback.
 
-## Skin request flow
+## Caching
 
-This diagram shows a skin request by player name:
+Player skin and UUID caches reduce service requests. Their durations use minutes. A duration of zero requests fresh data on each lookup.
 
-<Mermaid chart="
-sequenceDiagram
-    create participant U as User
-    create participant SR as SkinsRestorer
-    U->>SR: /skin <name>
-    create participant M as Mojang
-    SR->>M: UUID of <name>?
-    M->>SR: <uuid>
-    SR->>M: Skin of <uuid>?
-    destroy M
-    M->>SR: Skin <value> & <signature>
-    SR->>U: Skin <value> & <signature>
-" />
+Generated URL textures do not follow account skin changes. A changed PNG needs a new generation. A copied account skin can refresh with `/skin update`.
 
-## SkinsRestorer API endpoints
+## Proxy networks
 
-SkinsRestorer uses these endpoints to cache and distribute skin data:
+The proxy owns ordinary commands and selections. It forwards profile data to the backends. A backend API consumer needs access to the same SQL records.
 
-- `eclipse.skinsrestorer.net` - Handles UUID lookups and profile data
-- `axolotl.skinsrestorer.net` - Handles MineSkin URL decryption
-- `cool-skins.skinsrestorer.net` - Provides recommended/featured skins
-
-These endpoints provide a cache between your server and Mojang.
-The cache reduces Mojang API requests and rate-limit errors.
-
-It can also provide cached skin data when Mojang is slow or unavailable.
+Read [proxy ownership](/docs/concepts/proxy) for that boundary, or [persistent and temporary API changes](/docs/development/storage) for implementation.

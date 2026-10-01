@@ -1,12 +1,15 @@
 {
-  "icon": "Download",
+  "title": "Get started",
   "pages": [
-    "quick-start",
+    "requirements",
     "bukkit",
-    "bungeecord",
     "velocity",
+    "bungeecord",
     "fabric",
-    "neoforge"
+    "neoforge",
+    "quick-start"
   ],
-  "defaultOpen": false
+  "defaultOpen": false,
+  "icon": "Download",
+  "pagesIndex": "index"
 }

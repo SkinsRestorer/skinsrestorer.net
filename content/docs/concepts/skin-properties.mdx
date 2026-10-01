@@ -1,0 +1,35 @@
+---
+title: "Signed skin properties"
+description: "Understand texture URLs, models, signatures, and cape data."
+docType: "explanation"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "FingerprintPattern"
+---
+
+Minecraft profiles carry a `textures` property. Its value is Base64-encoded JSON. Its signature authenticates that value.
+
+## What the property contains
+
+The decoded data can include a skin URL, model metadata, and a cape URL. A skin texture URL identifies an image on Minecraft's texture service.
+
+A texture hash is the identifier at the end of that URL. It is not a player UUID or a saved SkinsRestorer custom name.
+
+## Why a PNG needs generation
+
+A local PNG does not contain a signed profile property. A generation service uploads the image and returns the property that a server can apply.
+
+Changing the encoded value without a matching signature makes the signature invalid. Keep the value and signature together when storing or transferring a property.
+
+## Model and cape
+
+Classic and slim use different arm layouts. The image and model metadata must agree.
+
+A cape belongs to the complete profile property. Copying an account property can copy its equipped cape. The website can also generate supported cape combinations through its cape-aware route.
+
+Showing that property on a server does not transfer account ownership of a cape.
+
+## Next
+
+[Upload an image](/docs/features/skin-upload), or [fetch and apply a property through the API](/docs/development/storage).

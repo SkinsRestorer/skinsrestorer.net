@@ -1,37 +1,59 @@
 ---
-title: PlaceholderAPI
-description: Use SkinsRestorer data in PlaceholderAPI placeholders.
-icon: Braces
+title: "PlaceholderAPI"
+description: "Read selected skin identifiers and current textures on Bukkit servers."
+docType: "reference"
+appliesTo: "Bukkit-compatible servers with PlaceholderAPI"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Braces"
 ---
 
-SkinsRestorer provides PlaceholderAPI placeholders.
-It registers them automatically when both plugins are installed.
+SkinsRestorer registers its expansion when PlaceholderAPI is available. You do not need to download a separate SkinsRestorer expansion from eCloud.
 
-## SkinsRestorer placeholders
+## Before you start
 
-The following placeholders are available.
-If a database error occurs, a placeholder returns `Error` and records the error in the log.
+Install SkinsRestorer and [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) on the same Bukkit-compatible server. Restart after installation.
 
-| Placeholder                                | Description                                                                                         |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `%skinsrestorer_skin_name%`                | Selected skin name, or `Error` when no skin is set.                                |
-| `%skinsrestorer_skin_name_or_empty%`       | Selected skin name, or an empty string when no skin is set.                        |
-| `%skinsrestorer_skin_name_or_player_name%` | Selected skin name, or the player name when no skin is set.                        |
-| `%skinsrestorer_texture_url%`              | Applied texture URL, or `Error` when no skin exists.                              |
-| `%skinsrestorer_texture_url_or_empty%`     | Applied texture URL, or an empty string when no skin exists.                       |
-| `%skinsrestorer_texture_url_or_steve%`     | Applied texture URL, or the Steve texture URL when no skin exists.                 |
-| `%skinsrestorer_texture_url_or_alex%`      | Applied texture URL, or the Alex texture URL when no skin exists.                  |
-| `%skinsrestorer_texture_id%`               | Applied texture ID, or `Error` when no skin exists.                               |
-| `%skinsrestorer_texture_id_or_empty%`      | Applied texture ID, or an empty string when no skin exists.                        |
-| `%skinsrestorer_texture_id_or_steve%`      | Applied texture ID, or the Steve texture ID when no skin exists.                   |
-| `%skinsrestorer_texture_id_or_alex%`       | Applied texture ID, or the Alex texture ID when no skin exists.                    |
+On a proxy backend, configure [backend API storage](/docs/development/proxy-api) if the integration needs saved selections or offline skin resolution.
 
-## Texture IDs and URLs
+## Check one placeholder
 
-A texture ID identifies a skin on the Minecraft Content Delivery Network (CDN).
-The Minecraft client uses the texture URL to download the skin.
+1. Select a skin with `/skin set xknat`.
+2. Run `/papi parse me %skinsrestorer_texture_id_or_steve%`.
+3. Check that the result is a texture hash, rather than the original placeholder text.
 
-For example, the Steve skin URL ends with its texture ID:
+If the placeholder stays literal, inspect plugin loading and the consuming plugin's PlaceholderAPI support. `Error` means the expansion ran but could not provide the requested value.
 
-- URL: `https://textures.minecraft.net/texture/6d3b06c38504ffc0229b9492147c69fcf59fd2ed7885f78502152f77b4d50de1`
-- Texture ID: `6d3b06c38504ffc0229b9492147c69fcf59fd2ed7885f78502152f77b4d50de1`
+## Selected skin identifier
+
+| Placeholder | No saved selection |
+| --- | --- |
+| `%skinsrestorer_skin_name%` | `Error` |
+| `%skinsrestorer_skin_name_or_empty%` | Empty string |
+| `%skinsrestorer_skin_name_or_player_name%` | Player name |
+
+These values describe the saved identifier. They do not guarantee that a skin is currently visible on the client.
+
+## Texture URL
+
+| Placeholder | No resolved skin |
+| --- | --- |
+| `%skinsrestorer_texture_url%` | `Error` |
+| `%skinsrestorer_texture_url_or_empty%` | Empty string |
+| `%skinsrestorer_texture_url_or_steve%` | Steve texture URL |
+| `%skinsrestorer_texture_url_or_alex%` | Alex texture URL |
+
+## Texture hash
+
+| Placeholder | No resolved skin |
+| --- | --- |
+| `%skinsrestorer_texture_id%` | `Error` |
+| `%skinsrestorer_texture_id_or_empty%` | Empty string |
+| `%skinsrestorer_texture_id_or_steve%` | Steve texture hash |
+| `%skinsrestorer_texture_id_or_alex%` | Alex texture hash |
+
+Online texture placeholders read the current profile. Offline resolution uses storage and can require a service request. A request error returns `Error` and records a log entry, even for a fallback placeholder.
+
+A texture hash is the final identifier in a Minecraft texture URL. It is different from a player UUID.
+
+Continue with [DiscordSRV](/docs/integrations/discordsrv) or [avatar URLs](/docs/integrations/avatar-url).

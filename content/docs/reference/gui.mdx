@@ -1,0 +1,37 @@
+---
+title: "Skin menu configuration"
+description: "Exact keys, types, and defaults for skin menu configuration."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "PanelsTopLeft"
+---
+
+These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
+
+For a task-based guide, read [the related procedure](/docs/configuration/skin-menu).
+
+## Keys and defaults
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `gui.custom.enabled` | boolean | `true` | Show the custom category. |
+| `gui.custom.index` | integer | `0` | Category order. Smaller indexes appear first. |
+| `gui.custom.list` | string list | `["xknat", "pistonmaster"]` | Allowed custom entries when onlyShowList is true. |
+| `gui.custom.onlyShowList` | boolean | `false` | Show only entries from this category's list. |
+| `gui.notUnlockedSkin` | string | `"c10591e6909e6a281b371836e462d67a2c78fa0952e910f32b41a26c48c1757c"` | Texture hash for a locked menu entry. |
+| `gui.players.enabled` | boolean | `false` | Show the players category. |
+| `gui.players.index` | integer | `1` | Category order. Smaller indexes appear first. |
+| `gui.players.list` | string list | `["7dcfc130-344a-4719-9fbe-3176bc2075c6", "b1ae0778-4817-436c-96a3-a72c67cda060"]` | Allowed players entries when onlyShowList is true. |
+| `gui.players.onlyShowList` | boolean | `false` | Show only entries from this category's list. |
+| `gui.recommendations.enabled` | boolean | `true` | Show the recommendations category. |
+| `gui.recommendations.index` | integer | `2` | Category order. Smaller indexes appear first. |
+| `gui.recommendations.list` | string list | `["vampire", "space-suit"]` | Allowed recommendations entries when onlyShowList is true. |
+| `gui.recommendations.onlyShowList` | boolean | `false` | Show only entries from this category's list. |
+
+## Source and reload behavior
+
+Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+
+- [GUIConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java).

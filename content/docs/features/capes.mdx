@@ -1,109 +1,42 @@
 ---
-title: Cape Support
-description: Understand which capes SkinsRestorer can show.
-icon: Crown
+title: "Use skins with capes"
+description: "Copy an equipped cape or select a supported cape during upload."
+docType: "how-to"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Flag"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+A cape can be part of the same signed profile property as the skin. A client that receives this property can display both textures.
 
-Capes are cosmetic items on a Minecraft player's back. They do not affect the game.
+## Copy a player's equipped cape
 
-## How capes work in Minecraft
+1. Find a Minecraft account with the cape equipped.
+2. Run `/skin set <playerName>` with that account name.
+3. Ask another player to check the skin and cape.
 
-Capes come from:
+The copied property contains the skin and the equipped cape together. If the source account changes its cape, run `/skin update` to request fresh account data.
 
-- **Account events:** Migration capes and the Vanilla cape for linked Bedrock and Java accounts
-- **Events:** Minecraft Live, MINECON, and social media campaigns
-- **Staff or volunteer work:** Mojang employees, translators, and moderators
-- **Personal awards:** Capes for specific Java Edition players
-- **Pan Cape:** The only cape given automatically to all players
+## Add a supported cape to an uploaded skin
 
-<Callout type="info">
-  You cannot create a custom cape or move a cape to another account.
-  Each cape belongs to a Mojang or Microsoft account.
-</Callout>
+The website's [Upload](/upload) and [Generator](/generator) pages show cape choices supported by their generation route.
 
-## How SkinsRestorer handles capes
+1. Upload your skin PNG.
+2. Choose **Axolotl** for its supported capes, or **Official** with a key that grants cape access.
+3. Choose a cape from the available list.
+4. Generate the command.
+5. Apply the command on the server.
 
-When you use `/skin <playerName>`, SkinsRestorer gets the complete skin data from Mojang.
-The data contains:
+The list and service grants can change. If a cape is unavailable, inspect the available list and your API key grants. Do not assume every MineSkin key can generate every cape.
 
-- The skin texture
-- The cape texture (if the player has one equipped)
-- Mojang's cryptographic signature
+## Limits
 
-If the source player has an equipped cape, your character also shows it.
+- This changes the profile shown on a server. It does not grant a cape to your Microsoft account.
+- Arbitrary cape PNG uploads are not supported by these pages.
+- Editing signed texture data invalidates its signature.
+- Client cape mods can override the server-provided cape.
 
-### Example
+A selected cape in **Axolotl** mode uses the website's cape-aware proxy route. **Official** mode uses MineSkin with your key.
 
-```
-/skin Dinnerbone
-```
-
-If Dinnerbone equips a Mojang employee cape, your character shows the same skin and cape.
-
-## Limitations
-
-### What SkinsRestorer can do
-
-- Copy skins from players who have capes (cape included)
-- Display the cape that comes with the copied skin data
-
-### What SkinsRestorer cannot do
-
-- **Create custom capes:** Capes need Mojang's signature and belong to specific accounts.
-- **Add capes to URL skins:** `/skin url` creates only a skin texture.
-- **Remove a cape from copied data:** Copied skin data includes the skin and its cape.
-- **Create other capes:** Mojang does not provide an API for new capes.
-
-<Callout type="warning">
-  MineSkin creates only skin textures for `/skin url`. It cannot create capes because capes require Mojang account verification.
-</Callout>
-
-## Finding players with capes
-
-To copy a cape, find a player who has equipped one.
-
-Players with capes include:
-- Mojang employees (Mojang cape)
-- MINECON attendees (various years)
-- Minecraft Live participants
-- Content creators with personal capes
-
-<Callout type="info">
-  SkinsRestorer copies the cape that the source player equips. Cached data can show the old cape until you refresh it.
-</Callout>
-
-## Refreshing cape data
-
-If the source player changes their cape, refresh the cached data:
-
-```
-/skin update
-```
-
-You can also clear and apply the skin again:
-```
-/skin clear
-/skin <playerName>
-```
-
-## Technical details
-
-Cape data is part of Mojang's signed skin property. The Base64-encoded texture data contains URLs for the skin and cape:
-
-```json
-{
-  "textures": {
-    "SKIN": {
-      "url": "http://textures.minecraft.net/texture/..."
-    },
-    "CAPE": {
-      "url": "http://textures.minecraft.net/texture/..."
-    }
-  }
-}
-```
-
-The cape URL exists only when the player equips a cape.
-Mojang signs the complete data. Therefore, SkinsRestorer cannot create custom capes.
+Read [skin properties and signatures](/docs/concepts/skin-properties) for the technical model, or [upload a PNG](/docs/features/skin-upload) to try it.

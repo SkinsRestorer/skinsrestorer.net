@@ -1,28 +1,28 @@
 ---
-title: Development
-description: Use SkinsRestorer data in your plugin or application.
-icon: Code
+title: "Develop with the Java API"
+description: "Build an integration that fetches, saves, and applies skin data."
+docType: "tutorial"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Code"
 ---
 
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { Database, Settings, Terminal } from 'lucide-react';
+The public API gives Java plugins access to skin storage, player selections, generation services, and platform skin application.
 
-The SkinsRestorer API lets a plugin or application read and change skin data.
+## Start here
 
-## Choose a development guide
+1. Build [your first plugin](/docs/development/first-plugin) with a complete Bukkit example.
+2. Read [dependencies and lifecycle](/docs/development/api) for other build tools and platforms.
+3. Choose [persistent or temporary application](/docs/development/storage).
+4. Configure [backend API access](/docs/development/proxy-api) for a proxy network.
 
-Select a guide for the API, data storage, or internal process.
+The examples target **API 15.12.6**. Use the same API major as the installed plugin. Do not bundle the API or depend on internal implementation classes.
 
-<Cards>
-  <Card icon={<Terminal />} title="API" href="/docs/development/api"></Card>
-  <Card
-    icon={<Database />}
-    title="Data Storage"
-    href="/docs/development/storage"
-  ></Card>
-  <Card
-    icon={<Settings />}
-    title="Inner workings"
-    href="/docs/development/inner-workings"
-  ></Card>
-</Cards>
+## API resources
+
+- [Public Javadocs](https://jd.skinsrestorer.net).
+- [Release API source](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/api/src/main/java/net/skinsrestorer/api).
+- [Upstream example plugin](https://github.com/SkinsRestorer/SkinsRestorerAPIExample).
+
+The [skin lifecycle](/docs/development/inner-workings) explains identifiers, signed properties, and join resolution. Use [support diagnostics](/docs/troubleshooting/debugging) when an integration behaves differently from ordinary commands.

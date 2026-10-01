@@ -1,161 +1,46 @@
 ---
-title: Quick Start Guide
-description: Install SkinsRestorer on a single server or proxy network.
-icon: Zap
+title: "Check your first skin"
+description: "Check commands, persistence, and network switching after installation."
+docType: "tutorial"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "CircleCheck"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+Run this check after your [platform installation](/docs/installation). It separates command access, skin fetching, and profile application.
 
-Select your server setup. Then complete the steps in that tab.
+## First change
 
-## Choose your setup
+1. Join the server with a Java client.
+2. Run `/skin set xknat`.
+3. Wait for the success message.
+4. Ask another player to check your appearance.
+5. Disconnect and join again.
 
-<Tabs items={['Single Server', 'Small Network (2-5 servers)', 'Large Network (5+ servers)']}>
-  <Tab>
-    ### Single Server Setup
+Your selected skin must remain after you reconnect. Your own client can briefly show an older skin, so use another player's view too.
 
-    Use this setup for one Bukkit, Spigot, or Paper server without a proxy.
+## Proxy network check
 
-    1. Download SkinsRestorer from [Modrinth](https://modrinth.com/plugin/skinsrestorer).
-    2. Put `SkinsRestorer.jar` in the `plugins` folder.
-    3. Restart the server.
+1. Connect through the proxy address.
+2. Change your skin on the first backend.
+3. Switch to a second backend.
+4. Check your skin again.
 
-    The default configuration works for a single server.
+If it changes on one backend only, use [proxy troubleshooting](/docs/troubleshooting/proxy-mode). Do not add a database just because the network has several servers.
 
-    **Optional configuration changes:**
+## Return to your account skin
 
-    ```yaml filename="plugins/SkinsRestorer/config.yml"
-    # Optional: Set default skins for players without Mojang accounts
-    storage:
-      defaultSkins:
-        enabled: true
-        list:
-          - "<random>"
+Run `/skin clear`. This removes your saved selection. Account lookup and server default rules then determine your skin.
 
-    # Optional: Reduce cooldown for smaller servers
-    commands:
-      skinChangeCooldown: 15
-    ```
+## If a check fails
 
-    **Test the plugin:** Run this command in the game.
-    ```
-    /skin Notch
-    ```
-  </Tab>
-  <Tab>
-    ### Small Network Setup
+| Result | Next step |
+| --- | --- |
+| Unknown command | Read the startup log and check the installed artifact |
+| Permission denied | [Check permissions](/docs/troubleshooting/permissions) |
+| Name or URL cannot load | [Check service connections](/docs/troubleshooting/firewall) |
+| Success message, unchanged skin | [Check profile application](/docs/troubleshooting/no-skin) |
+| Selection disappears after reconnect | [Check join and proxy behavior](/docs/troubleshooting/skin-resets) |
 
-    Use this setup for a BungeeCord or Velocity network with two to five backend servers.
-
-    1. Download SkinsRestorer.
-    2. Place `SkinsRestorer.jar` in:
-       - The proxy's `plugins` folder.
-       - Each backend server's `plugins` folder.
-    3. Configure player information forwarding.
-    4. Restart all servers.
-
-    **Proxy configuration:**
-    ```yaml filename="plugins/SkinsRestorer/config.yml"
-    # Default config works well for small networks
-    # No database needed - file storage is fine
-    ```
-
-    **Backend server configuration:**
-    ```yaml filename="plugins/SkinsRestorer/config.yml"
-    # Should auto-detect proxy mode
-    # Verify by checking logs for "Proxy Mode"
-    ```
-
-    **Test the network:**
-
-    - Find "Proxy Mode" in the startup log of each backend server.
-    - Run `/skin Notch`.
-    - Switch to another server. The skin must stay active.
-
-    <Callout type="info">
-      Copy the same `config.yml` file to the proxy and all backend servers.
-    </Callout>
-  </Tab>
-  <Tab>
-    ### Large Network Setup
-
-    Use this setup for five or more servers, many players, or backend API access.
-
-    This setup requires:
-    - MySQL database
-    - BungeeCord or Velocity proxy
-
-    1. Create a MySQL database.
-    2. Install SkinsRestorer on the proxy and all backend servers.
-    3. Configure the same database on all servers.
-    4. Restart the network.
-
-    **Proxy configuration:**
-    ```yaml filename="plugins/SkinsRestorer/config.yml"
-    database:
-      enabled: true
-      host: your-mysql-host
-      port: 3306
-      database: skinsrestorer
-      username: sr_user
-      password: secure_password
-      maxPoolSize: 20
-
-    # Optional: Get a MineSkin API key for high volume
-    api:
-      mineSkinApiKey: "your-key-here"
-    ```
-
-    **Backend server configuration:**
-    ```yaml filename="plugins/SkinsRestorer/config.yml"
-    # Same database config as proxy
-    database:
-      enabled: true
-      host: your-mysql-host
-      port: 3306
-      database: skinsrestorer
-      username: sr_user
-      password: secure_password
-      maxPoolSize: 10
-
-    # API will work on backends with shared database
-    server:
-      proxyMode:
-        detection: AUTO
-        api: true
-    ```
-
-    This setup provides:
-
-    - One shared skin database
-    - API access on all servers
-    - Better performance for large networks
-    - Skin access for plugins such as BedWars and Dynmap
-  </Tab>
-</Tabs>
-
-## Post-installation checklist
-
-After the installation, make sure that each item works:
-
-- [ ] `/skin Notch` changes your skin
-- [ ] `/skins` opens the GUI
-- [ ] Skins stay active after players rejoin
-- [ ] On a proxy network, skins stay active when players switch servers
-- [ ] The console logs contain no errors
-
-## Common quick fixes
-
-| Issue | Solution |
-|-------|----------|
-| Commands do not work | Grant permission: `/lp user <player> permission set skinsrestorer.player true` |
-| A skin does not apply | Allow connections to `*.skinsrestorer.net` through the firewall |
-| Proxy Mode is not active | Configure player information forwarding |
-| Database errors occur | Make sure that the credentials are correct and MySQL is available |
-
-## Next steps
-
-- [Full configuration options](/docs/configuration/options)
-- [Commands and permissions](/docs/configuration/commands-permissions)
-- [Troubleshooting guide](/docs/troubleshooting/common-issues)
+After these checks pass, read [change or reset a skin](/docs/features/change-skin).

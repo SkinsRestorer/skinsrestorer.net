@@ -1,11 +1,13 @@
 {
-  "icon": "Plug",
+  "title": "Integrations",
   "pages": [
-    "mineskin",
     "placeholderapi",
     "discordsrv",
     "discord-mc-chat",
-    "avatar-url"
+    "avatar-url",
+    "mineskin"
   ],
-  "defaultOpen": false
+  "defaultOpen": false,
+  "icon": "Plug",
+  "pagesIndex": "index"
 }

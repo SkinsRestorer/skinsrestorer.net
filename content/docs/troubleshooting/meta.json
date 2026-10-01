@@ -1,12 +1,18 @@
 {
-  "icon": "CircleAlert",
+  "title": "Fix a problem",
   "pages": [
-    "common-issues",
+    "no-skin",
+    "permissions",
+    "skin-resets",
     "proxy-mode",
     "firewall",
-    "debugging",
+    "uploads",
+    "launcher-issues",
     "incompatibility-list",
-    "launcher-issues"
+    "common-issues",
+    "debugging"
   ],
-  "defaultOpen": false
+  "defaultOpen": false,
+  "icon": "LifeBuoy",
+  "pagesIndex": "index"
 }

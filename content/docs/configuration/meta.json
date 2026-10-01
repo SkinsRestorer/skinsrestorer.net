@@ -1,11 +1,17 @@
 {
-  "icon": "Settings",
+  "title": "Manage your server",
   "pages": [
-    "options",
-    "database",
-    "commands-permissions",
+    "player-access",
+    "default-skins",
+    "[Tag][Named custom skins](/docs/features/custom-skins)",
+    "restrict-skins",
+    "skin-menu",
     "locale-translations",
-    "auto-update"
+    "database",
+    "auto-update",
+    "backups"
   ],
-  "defaultOpen": false
+  "defaultOpen": false,
+  "icon": "Settings",
+  "pagesIndex": "index"
 }

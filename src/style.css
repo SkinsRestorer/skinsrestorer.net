@@ -3,7 +3,6 @@
 @import "fumadocs-ui/css/catppuccin.css";
 @import "fumadocs-ui/css/preset.css";
 @import "shadcn/tailwind.css";
-@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -216,6 +215,6 @@
 @layer base {
   html,
   body {
-    @apply min-h-dvh w-dvw font-sans;
+    @apply min-h-dvh w-full font-sans;
   }
 }

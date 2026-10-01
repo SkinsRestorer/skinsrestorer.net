@@ -1,37 +1,43 @@
 ---
-title: Introduction
-description: Learn what SkinsRestorer does and how to get started.
-icon: BookOpen
+title: "SkinsRestorer documentation"
+description: "Install SkinsRestorer, change a skin, or solve a server problem."
+docType: "explanation"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "BookOpen"
 ---
 
-import { DownloadIcon } from 'lucide-react';
-import { Card, Cards } from 'fumadocs-ui/components/card';
+SkinsRestorer lets players change their Minecraft Java Edition skin on a server. Server owners can restore account skins, offer custom skins, and manage who can change them.
 
-SkinsRestorer shows player skins on Minecraft servers. It works on online-mode and offline-mode servers.
-
-Players can change their skin with one command. Server networks can also share cached skin data.
-
-## Why use SkinsRestorer?
-
-SkinsRestorer works on a single server or a large proxy network.
-
-The default permissions work without another plugin.
-If you need more control, use a permissions plugin.
-
-### Main features
-
-- Apply a custom skin with `/skin url "<url>"`.
-- Create a shared server skin with `/sr createcustom`.
-- Use cached skins when Mojang is unavailable.
-- Replace the default Steve and Alex skins.
-- Apply skin changes without reconnecting.
-
-## Getting started
+## What do you want to do?
 
 <Cards>
-  <Card
-    icon={<DownloadIcon />}
-    title="Install SkinsRestorer"
-    href="/docs/installation"
-  ></Card>
+  <Card title="Install SkinsRestorer" href="/docs/installation">
+    Choose your server or proxy and check your first skin.
+  </Card>
+  <Card title="Change a skin" href="/docs/features/change-skin">
+    Use a player name, upload a PNG, or restore your account skin.
+  </Card>
+  <Card title="Fix a problem" href="/docs/troubleshooting">
+    Start with the symptom and collect the right diagnostics.
+  </Card>
+  <Card title="Build an integration" href="/docs/development">
+    Fetch, save, and apply skins through the Java API.
+  </Card>
 </Cards>
+
+## Find the right guide
+
+- **New server owner:** Start with [installation](/docs/installation). A proxy network needs SkinsRestorer on the proxy and every backend.
+- **Player:** Read [change or reset your skin](/docs/features/change-skin). Your server must provide SkinsRestorer and permission to use it.
+- **Administrator:** Configure [player access](/docs/configuration/player-access), [default skins](/docs/configuration/default-skins), or [shared storage](/docs/configuration/database).
+- **Developer:** Start with the [first plugin tutorial](/docs/development/first-plugin), then read about [persistent and temporary changes](/docs/development/storage).
+
+Exact command syntax and configuration keys live in the [reference](/docs/reference). The [skin lifecycle](/docs/development/inner-workings) explains why a visible skin and a saved selection can differ.
+
+## Version and support
+
+These guides target **SkinsRestorer 15.12.6**. Each page shows its applicable platform and review date. Minecraft and Java requirements depend on the platform and download.
+
+Use the [compatibility guide](/docs/installation/requirements) before you install a mod or update a server. For a support request, collect a [diagnostic report and recent log](/docs/troubleshooting/debugging).

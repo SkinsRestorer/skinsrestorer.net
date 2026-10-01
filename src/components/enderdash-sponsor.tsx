@@ -33,41 +33,29 @@ export function EnderDashSponsor({
     return (
       <aside
         className={cn(
-          "mt-8 rounded-xl border border-primary/20 bg-card/60 p-4 shadow-sm",
+          "flex flex-wrap items-center gap-3 border-t py-4 text-sm text-muted-foreground",
           className,
         )}
+        aria-label="Sponsor"
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border bg-background p-2">
-              <Image
-                src="/assets/sponsors/enderdash-logo.png"
-                alt="EnderDash logo"
-                width={56}
-                height={56}
-                className="h-auto w-full"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-medium text-muted-foreground">
-                Partnered
-              </p>
-              <p className="font-semibold">
-                Need a more capable admin panel for your server?
-              </p>
-              <p className="text-sm text-muted-foreground">
-                EnderDash adds an advanced dashboard to your existing Minecraft
-                servers with a single plugin, batteries included.
-              </p>
-            </div>
-          </div>
-          <Button asChild variant="outline" className="sm:self-start">
-            <a href={href} target="_blank" rel="noopener">
-              Check out EnderDash
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
-          </Button>
-        </div>
+        <Image
+          src="/assets/sponsors/enderdash-logo.png"
+          alt=""
+          width={24}
+          height={24}
+        />
+        <p>
+          Sponsored by{" "}
+          <a
+            href={href}
+            target="_blank"
+            rel="sponsored noopener"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            EnderDash
+          </a>
+          , a dashboard for Minecraft server administration.
+        </p>
       </aside>
     );
   }

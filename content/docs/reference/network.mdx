@@ -1,0 +1,43 @@
+---
+title: "Network hosts and services"
+description: "Identify outbound HTTPS requests by the feature that uses them."
+docType: "reference"
+appliesTo: "All platforms"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+SkinsRestorer uses outbound connections. It does not require a new inbound port for skin APIs. Permit DNS through your configured resolver and HTTPS response traffic for established connections.
+
+## Feature-specific hosts
+
+| Feature | Host | Notes |
+| --- | --- | --- |
+| Account UUID lookup | `api.mojang.com`, `api.minecraftservices.com`, `eclipse.skinsrestorer.net` | Account lookup and fallback routes |
+| Account profile lookup | `sessionserver.mojang.com`, `eclipse.skinsrestorer.net` | Signed account textures |
+| URL skin generation | `api.mineskin.org` | Server generation and website queue requests |
+| Website and cape-aware generation | `axolotl.skinsrestorer.net` | Website route and generated URL resolution |
+| Recommended skins | `cool-skins.skinsrestorer.net` | Random skins and recommended menu entries |
+| Diagnostic upload | `bytebin.lucko.me` | `/sr dump` report upload |
+| Update checks and downloads | `api.github.com`, `github.com` | Downloads can redirect to GitHub asset hosts |
+| Optional Ely.by account source | `account.ely.by`, `skinsystem.ely.by` | Only with `api.elyByEnabled` |
+| Client texture download | `textures.minecraft.net` | Java clients fetch the skin image |
+
+HTTPS uses port 443. DNS transport follows your host's resolver configuration. Do not assume one static IP per API host.
+
+The exact request list depends on enabled features and the release. GitHub downloads can involve additional redirected asset hosts. Inspect the failed request instead of opening every domain indiscriminately.
+
+## Status check scope
+
+`/sr status` exercises account UUID and profile services. It does not check MineSkin, Axolotl uploads, recommendations, or database access.
+
+The website's MineSkin availability indicator also does not prove every cape or upload route works.
+
+## Sources
+
+- [Release connection implementations](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/shared/src/main/java/net/skinsrestorer/shared/connections).
+- [Release update implementations](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/shared/src/main/java/net/skinsrestorer/shared/update).
+- [Website generation implementation](https://github.com/SkinsRestorer/skinsrestorer.net/blob/main/src/lib/mineskin.ts).
+
+For connection diagnosis and backend protection, use [the firewall guide](/docs/troubleshooting/firewall).

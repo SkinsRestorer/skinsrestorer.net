@@ -1,0 +1,54 @@
+---
+title: "Change or reset your skin"
+description: "Select a player skin, refresh it, or return to your account skin."
+docType: "how-to"
+appliesTo: "Players on a SkinsRestorer server"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "UserRound"
+---
+
+These commands run in game chat. Replace `xknat` with the name of the Minecraft account whose skin you want.
+
+## Change your skin
+
+```text
+/skin set xknat
+```
+
+Wait for the success message. Ask another player to check your appearance. The server saves your selection for future joins.
+
+`/skin xknat` is a shortcut. To apply your own PNG, use [the upload guide](/docs/features/skin-upload).
+
+## Restore your account skin
+
+```text
+/skin clear
+```
+
+This command removes your saved selection. The server then resolves your account skin or its configured default. It does not delete the source skin from storage.
+
+## Refresh a copied account skin
+
+```text
+/skin update
+```
+
+Use this after the source account changes its skin or cape. URL skins are cached generated textures. To change a URL skin, upload the revised image again.
+
+## Undo a change
+
+```text
+/skin undo
+```
+
+Undo uses the server's saved skin history. If history is disabled or empty, there is no previous selection to restore.
+
+## If the command fails
+
+- **Permission denied:** Ask the administrator to check [player access](/docs/configuration/player-access).
+- **Cooldown:** Wait for the displayed time. Repeated attempts do not speed up a request.
+- **Skin cannot load:** Check the account name, then ask the administrator to inspect [service connections](/docs/troubleshooting/firewall).
+- **Success without a visible change:** Use [profile troubleshooting](/docs/troubleshooting/no-skin).
+
+Continue with [the skin menu and favorites](/docs/features/skin-menu).

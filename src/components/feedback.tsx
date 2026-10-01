@@ -7,7 +7,7 @@ import {
 } from "fumadocs-ui/components/ui/collapsible";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import posthog from "posthog-js";
-import { type SubmitEvent, useEffect, useState } from "react";
+import { type SubmitEvent, useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const rateButtonVariants = cva(
@@ -27,11 +27,12 @@ interface FeedbackData {
   message: string;
 }
 
-export function Feedback({ url }: { url: string }) {
+export function Feedback({ url, version }: { url: string; version: string }) {
+  const messageId = useId();
   const [previous, setPrevious] = useState<FeedbackData | null>(null);
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
   const [message, setMessage] = useState("");
-  const storageKey = `docs-feedback-${url}`;
+  const storageKey = `docs-feedback-${version}-${url}`;
 
   useEffect(() => {
     try {
@@ -55,7 +56,7 @@ export function Feedback({ url }: { url: string }) {
     if (opinion === null) return;
 
     const feedback = { opinion, message };
-    posthog.capture("on_rate_docs", { url, ...feedback });
+    posthog.capture("on_rate_docs", { url, version, ...feedback });
     setPrevious(feedback);
     setMessage("");
     setOpinion(null);
@@ -77,7 +78,7 @@ export function Feedback({ url }: { url: string }) {
       className="border-y py-3"
     >
       <div className="flex flex-row items-center gap-2">
-        <p className="text-sm font-medium pe-2">How is this guide?</p>
+        <p className="text-sm font-medium pe-2">Did this page help?</p>
         <button
           type="button"
           disabled={previous !== null}
@@ -91,7 +92,7 @@ export function Feedback({ url }: { url: string }) {
           }}
         >
           <ThumbsUp />
-          Good
+          Yes
         </button>
         <button
           type="button"
@@ -106,7 +107,7 @@ export function Feedback({ url }: { url: string }) {
           }}
         >
           <ThumbsDown />
-          Bad
+          No
         </button>
       </div>
       <CollapsibleContent className="mt-3">
@@ -138,14 +139,18 @@ export function Feedback({ url }: { url: string }) {
           </div>
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
+            <label htmlFor={messageId} className="text-sm">
+              What worked, or which step needs a correction?
+            </label>
             <textarea
+              id={messageId}
               // oxlint-disable-next-line jsx-a11y/no-autofocus -- Focus the feedback field when it opens.
               autoFocus
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none placeholder:text-fd-muted-foreground"
-              placeholder="Leave your feedback..."
+              placeholder="Include the step, your setup, and the result. Keep credentials private."
               onKeyDown={(e) => {
                 if (!e.shiftKey && e.key === "Enter") {
                   e.preventDefault();
