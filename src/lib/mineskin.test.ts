@@ -100,7 +100,9 @@ test("rejects failed or incomplete results instead of polling forever", async ()
 });
 
 test("does not fetch capes when the API key lacks access", async () => {
-  const fetchMock = mockFetch(async () => Response.json({ success: true, grants: {} }));
+  const fetchMock = mockFetch(async () =>
+    Response.json({ success: true, grants: {} }),
+  );
   assert.deepEqual(await fetchCapeSupport("test-key"), {
     hasCapeGrant: false,
     capes: [],
