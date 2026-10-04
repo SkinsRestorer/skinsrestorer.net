@@ -31,9 +31,7 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
     { success: true, job: { id: "job-id", status: "generating" } },
     { success: true, job: { id: "job-id", status: "completed" }, skin },
   ];
-  const fetchMock = mockFetch(async () =>
-    Response.json(responses.shift()),
-  );
+  const fetchMock = mockFetch(async () => Response.json(responses.shift()));
 
   const result = await uploadMineSkinFile({
     file,
@@ -61,9 +59,7 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
 });
 
 test("accepts immediate proxy results without forwarding the API key", async () => {
-  const fetchMock = mockFetch(async () =>
-    Response.json({ skin }),
-  );
+  const fetchMock = mockFetch(async () => Response.json({ skin }));
   const result = await uploadMineSkinFile({
     file,
     variant: "classic",
@@ -104,9 +100,7 @@ test("rejects failed or incomplete results instead of polling forever", async ()
 });
 
 test("does not fetch capes when the API key lacks access", async () => {
-  const fetchMock = mockFetch(async () =>
-    Response.json({ success: true, grants: {} }),
-  );
+  const fetchMock = mockFetch(async () => Response.json({ success: true, grants: {} }));
   assert.deepEqual(await fetchCapeSupport("test-key"), {
     hasCapeGrant: false,
     capes: [],
