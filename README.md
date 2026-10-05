@@ -11,3 +11,8 @@ The code for our website and documentation!
 
 Read [the documentation maintenance guide](documentation/README.md) for the source
 inventory, writing conventions, release workflow, and validation commands.
+
+## Contributing and support
+
+Read [the contribution guide](CONTRIBUTING.md) for development and review.
+Use [the support guide](SUPPORT.md) for questions and issue routing.
