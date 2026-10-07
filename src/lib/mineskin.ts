@@ -6,9 +6,10 @@ interface MineSkinError {
 }
 
 type MineSkinJobStatus =
-  | "queued"
-  | "pending"
-  | "generating"
+  | "unknown"
+  | "waiting"
+  | "active"
+  | "processing"
   | "completed"
   | "failed";
 
@@ -19,6 +20,7 @@ export const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
 interface MineSkinJobDetails {
   id: string;
   status: MineSkinJobStatus;
+  result?: string;
 }
 
 interface MineSkinSkinData {
@@ -36,7 +38,7 @@ interface MineSkinSkinData {
 interface MineSkinResponse {
   success?: boolean;
   job?: MineSkinJobDetails;
-  skin?: MineSkinSkinData;
+  skin?: MineSkinSkinData | false | null;
   errors?: MineSkinError[];
 }
 
@@ -118,6 +120,17 @@ export async function uploadMineSkinFile({
       throw new Error("Job not found in response");
     }
     if (data.job.status === "completed") {
+      if (!useCapeProxy && data.job.result) {
+        const result = await readMineSkinResponse(
+          await fetch(
+            `${MINESKIN_API_BASE_URL}/skins/${encodeURIComponent(data.job.result)}`,
+            { headers },
+          ),
+        );
+        if (result.skin) {
+          return { ...data, skin: result.skin };
+        }
+      }
       throw new Error("Skin not found in completed job response");
     }
 

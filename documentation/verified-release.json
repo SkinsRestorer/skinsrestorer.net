@@ -914,7 +914,7 @@
     "shared/src/main/java/net/skinsrestorer/shared/utils/ValidationUtil.java": "15090c155d5b3d64f0663d2bb4b20ac2a51dbcd3b018cde2d309d400199cee17"
   },
   "websiteSources": {
-    "src/lib/mineskin.ts": "ba4b6671b6f7a86368c47e72dab8333f51dd57446a6e9d74dc3e782eeb8b0520",
+    "src/lib/mineskin.ts": "f2410dadfa8a68afc4e436d9fd7a231393062d729424b7d2ef654400e29c7953",
     "src/lib/hooks/use-cape-selection.ts": "db26cf95ad8664265b38904d17e75b39bd3f126e6095f8fb6c01eb5727577aab",
     "src/lib/hooks/use-skin-file.ts": "ca41e6ce425bf1e90c7541ffc5266dd40537d745d5ec9afcc0b70466b3711373",
     "src/app/(home)/upload/upload-card.tsx": "f3614311f6a0441170bedc7ee599214b331b8d1054faf8bf9558fb638a73f087",

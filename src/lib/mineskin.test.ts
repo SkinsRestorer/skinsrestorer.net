@@ -27,8 +27,8 @@ afterEach(() => {
 
 test("polls queued uploads and preserves credentials and cape fields", async () => {
   const responses = [
-    { success: true, job: { id: "job-id", status: "queued" } },
-    { success: true, job: { id: "job-id", status: "generating" } },
+    { success: true, job: { id: "job-id", status: "waiting" } },
+    { success: true, job: { id: "job-id", status: "active" } },
     { success: true, job: { id: "job-id", status: "completed" }, skin },
   ];
   const fetchMock = mockFetch(async () => Response.json(responses.shift()));
@@ -55,6 +55,60 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
       new Headers(call[1]?.headers).get("Authorization"),
       "Bearer test-key",
     );
+  }
+});
+
+test("loads completed job results when the skin is not included", async () => {
+  for (const queued of [false, true]) {
+    const job = { id: "job-id", status: "completed", result: skin.uuid };
+    const responses = [
+      ...(queued
+        ? [{ success: true, job: { id: job.id, status: "waiting" } }]
+        : []),
+      { success: true, job, skin: queued ? false : null },
+      { success: true, skin },
+    ];
+    const fetchMock = mockFetch(async () => Response.json(responses.shift()));
+
+    const result = await uploadMineSkinFile({
+      file,
+      variant: "classic",
+      apiKey: "test-key",
+      waitMs: 0,
+    });
+
+    assert.deepEqual(result.skin, skin);
+    assert.deepEqual(result.job, job);
+    assert.equal(fetchMock.length, queued ? 3 : 2);
+    const request = fetchMock.at(-1)!;
+    assert.equal(request[0], `https://api.mineskin.org/v2/skins/${skin.uuid}`);
+    assert.equal(
+      new Headers(request[1]?.headers).get("Authorization"),
+      "Bearer test-key",
+    );
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("rejects missing or failed skin lookups without resubmitting the upload", async () => {
+  for (const response of [
+    Response.json({ success: true, skin: false }),
+    Response.json({ success: false }, { status: 404 }),
+  ]) {
+    const responses = [
+      Response.json({
+        success: true,
+        job: { id: "job-id", status: "completed", result: skin.uuid },
+      }),
+      response,
+    ];
+    const fetchMock = mockFetch(async () => responses.shift()!);
+
+    await assert.rejects(
+      uploadMineSkinFile({ file, variant: "classic", waitMs: 0 }),
+    );
+    assert.equal(fetchMock.length, 2);
+    globalThis.fetch = originalFetch;
   }
 });
 
