@@ -1,14 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const sponsorHighlights = [
-  "Run commands with tab completion",
-  "Read logs and manage files",
-  "Invite your whole team",
-  "Manage players with Ocelot AI",
-] as const;
 
 function getEnderDashHref(placement: "home" | "docs-footer") {
   const url = new URL("https://enderdash.com");
@@ -61,69 +53,35 @@ export function EnderDashSponsor({
   }
 
   return (
-    <section
+    <aside
       className={cn(
-        "rounded-2xl border border-primary/20 bg-card px-6 py-8 shadow-sm sm:px-8 lg:px-10",
+        "flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6",
         className,
       )}
+      aria-label="Sponsor"
     >
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_180px] lg:items-center">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              Partnered
-            </p>
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Advanced administration for Minecraft servers without replacing
-              your stack.
-            </h2>
-            <p className="max-w-3xl text-muted-foreground">
-              EnderDash lets you manage your existing Minecraft servers from one
-              dashboard by installing a single plugin. Run commands, read logs,
-              manage files, invite your whole team, manage players, and keep
-              Ocelot close at hand without changing your current infrastructure
-              or panel.
-            </p>
-          </div>
-
-          <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-            {sponsorHighlights.map((highlight) => (
-              <li key={highlight} className="flex items-start gap-2">
-                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                <span>{highlight}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button asChild size="lg" className="sm:w-fit">
-              <a href={href} target="_blank" rel="noopener">
-                Visit EnderDash
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              Works with existing infrastructure and panels.
-            </p>
-          </div>
-        </div>
-
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener"
-          className="mx-auto flex w-full max-w-[180px] items-center justify-center rounded-2xl border bg-background p-6 transition-colors hover:bg-muted/40"
-        >
-          <Image
-            src="/assets/sponsors/enderdash-logo.png"
-            alt="EnderDash logo"
-            width={144}
-            height={144}
-            className="h-auto w-full"
-            priority
-          />
-        </a>
+      <Image
+        src="/assets/sponsors/enderdash-logo.png"
+        alt=""
+        width={40}
+        height={40}
+        className="shrink-0"
+      />
+      <div className="flex flex-1 flex-col gap-1">
+        <p className="text-xs text-muted-foreground">Sponsor: EnderDash</p>
+        <p className="text-sm text-muted-foreground">
+          Run server commands, read logs, and manage files in your browser.
+        </p>
       </div>
-    </section>
+      <a
+        href={href}
+        target="_blank"
+        rel="sponsored noopener"
+        className="inline-flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+      >
+        enderdash.com
+        <ArrowUpRight aria-hidden="true" className="size-4" />
+      </a>
+    </aside>
   );
 }

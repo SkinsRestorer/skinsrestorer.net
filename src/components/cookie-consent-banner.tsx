@@ -42,24 +42,24 @@ const CookieConsentBanner = () => {
     <div className="fixed bottom-0 left-0 z-50 sm:bottom-4 sm:left-4">
       <Card className="m-3 shadow-lg sm:max-w-md">
         <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
-          <CardTitle className="text-lg">We use cookies</CardTitle>
+          <CardTitle className="text-lg">Website analytics</CardTitle>
           <Cookie className="h-5 w-5" />
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <CardDescription>
-            We use tracking cookies to understand how you use the product and
-            help us improve it. Please accept cookies to help us improve.
+            We use analytics cookies to see which pages people visit and find
+            problems with the website.
           </CardDescription>
           <p className="text-xs text-muted-foreground">
-            By clicking <span className="font-medium">"Accept"</span>, you agree
-            to our use of cookies as described in our{" "}
+            Select <span className="font-medium">Allow analytics</span> to
+            enable these cookies. Read our{" "}
             <Link
               href="/cookie-policy"
               className="underline underline-offset-2"
             >
               Cookie Policy
-            </Link>
-            .
+            </Link>{" "}
+            for details.
           </p>
         </CardContent>
         <CardFooter className="flex gap-2 pt-2">
@@ -76,7 +76,7 @@ const CookieConsentBanner = () => {
             onClick={handleAcceptCookies}
             className="flex-1"
           >
-            Accept
+            Allow analytics
           </Button>
         </CardFooter>
       </Card>
