@@ -1,0 +1,62 @@
+/* Colors and text shadow follow the Minecraft Java chat. */
+
+.stage {
+  --night: #171913;
+  background: var(--night);
+}
+
+.ground {
+  background: linear-gradient(to top, var(--night), transparent);
+}
+
+.chat {
+  font-size: 13px;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+@media (min-width: 640px) {
+  .chat {
+    font-size: 14px;
+  }
+}
+
+.yellow {
+  color: #ffff55;
+}
+
+.darkGreen {
+  color: #00aa00;
+}
+
+/* The face and hat layers of a 64x64 skin texture. */
+.head {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
+  background-image:
+    url("/skinsrestorer-skin.png"), url("/skinsrestorer-skin.png");
+  background-size: 800% 800%;
+  background-position:
+    71.4286% 14.2857%,
+    14.2857% 14.2857%;
+  image-rendering: pixelated;
+}
+
+/* An inventory slot: flat gray with a dark top-left and light bottom-right edge. */
+.slot {
+  background: #8b8b8b;
+  border-style: solid;
+  border-width: 3px;
+  border-color: #373737 #ffffff #ffffff #373737;
+}
+
+:global(.dark) .slot {
+  background: #6f6f6f;
+  border-color: #2a2a2a #a8a8a8 #a8a8a8 #2a2a2a;
+}
+
+:global(a:hover) > .slot,
+:global(a:focus-visible) > .slot {
+  background: #a3a3a3;
+}
