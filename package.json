@@ -37,6 +37,7 @@
     "@vercel/og": "^0.11.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.2",
+    "discord-api-types": "^0.38.55",
     "fumadocs-core": "16.12.0",
     "fumadocs-mdx": "^15.0.0",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.12.0",

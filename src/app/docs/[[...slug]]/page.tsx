@@ -37,6 +37,11 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         style: "clerk",
       }}
     >
+      <link
+        rel="discord:component-embed"
+        type="application/json"
+        href={`https://skinsrestorer.net/discord-embed/${page.slugs.map(encodeURIComponent).join("/")}`}
+      />
       <div className="flex flex-col gap-2">
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription className="mb-2.5">
