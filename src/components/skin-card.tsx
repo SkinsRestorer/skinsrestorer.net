@@ -91,14 +91,31 @@ export function SkinCard(props: {
               <SelectValue placeholder="Choose an animation" />
             </SelectTrigger>
             <SelectContent>
+              {/* Wrap item labels in an element. Radix portals the selected
+                  label into the trigger, and browser translation replaces bare
+                  text nodes there, which makes React fail to remove them. */}
               <SelectGroup>
-                <SelectItem value="walking">Walking</SelectItem>
-                <SelectItem value="idle">Idle</SelectItem>
-                <SelectItem value="running">Running</SelectItem>
-                <SelectItem value="flying">Flying</SelectItem>
-                <SelectItem value="wave">Wave</SelectItem>
-                <SelectItem value="crouch">Crouch</SelectItem>
-                <SelectItem value="hit">Hit</SelectItem>
+                <SelectItem value="walking">
+                  <span>Walking</span>
+                </SelectItem>
+                <SelectItem value="idle">
+                  <span>Idle</span>
+                </SelectItem>
+                <SelectItem value="running">
+                  <span>Running</span>
+                </SelectItem>
+                <SelectItem value="flying">
+                  <span>Flying</span>
+                </SelectItem>
+                <SelectItem value="wave">
+                  <span>Wave</span>
+                </SelectItem>
+                <SelectItem value="crouch">
+                  <span>Crouch</span>
+                </SelectItem>
+                <SelectItem value="hit">
+                  <span>Hit</span>
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

@@ -132,7 +132,12 @@ export function CapeSupportFields({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value={NO_CAPE_VALUE}>No cape</SelectItem>
+              {/* Keep the label in an element. Radix portals the selected label
+                  into the trigger, and browser translation replaces bare text
+                  nodes there, which makes React fail to remove them. */}
+              <SelectItem value={NO_CAPE_VALUE}>
+                <span>No cape</span>
+              </SelectItem>
               {supportedCapes.map((cape) => (
                 <SelectItem
                   key={cape.uuid}
