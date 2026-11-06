@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { withPostHogConfig } from "@posthog/nextjs-config";
 import { createMDX } from "fumadocs-mdx/next";
 import type { NextConfig } from "next";
 import { docsRedirects } from "./src/lib/docs-redirects";
@@ -184,4 +185,19 @@ const config: NextConfig = {
   },
 };
 
-export default withMDX(config);
+const mdxConfig = withMDX(config);
+const posthogApiKey = process.env.POSTHOG_PERSONAL_API_KEY;
+
+export default posthogApiKey
+  ? withPostHogConfig(mdxConfig, {
+      personalApiKey: posthogApiKey,
+      projectId: "101544",
+      host: "https://eu.posthog.com",
+      sourcemaps: {
+        enabled: process.env.NODE_ENV === "production",
+        releaseName: "skinsrestorer.net",
+        releaseVersion: process.env.COMMIT_REF ?? process.env.GITHUB_SHA,
+        deleteAfterUpload: true,
+      },
+    })
+  : mdxConfig;

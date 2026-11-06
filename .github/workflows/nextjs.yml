@@ -53,4 +53,6 @@ jobs:
         run: bun run docs:java
 
       - name: Run build
+        env:
+          POSTHOG_PERSONAL_API_KEY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.POSTHOG_PERSONAL_API_KEY || '' }}
         run: bun run build

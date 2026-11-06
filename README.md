@@ -1,11 +1,16 @@
 # skinsrestorer.net
 The code for our website and documentation!
 
-<p align="center">
-  <a rel="noopener noreferrer" target="_blank" href="https://vercel.com/?utm_source=skinsrestorer&utm_campaign=oss">
-    <img height="34px" src="/public/assets/powered-by-vercel.svg" alt="Powered by vercel">
-  </a>
-</p>
+## Source map uploads
+
+Production builds upload source maps to SkinsRestorer's EU PostHog project (`101544`).
+Set `POSTHOG_PERSONAL_API_KEY` in the Netlify site's production environment with the Builds scope.
+Use a separate personal API key with error tracking write and organization read access.
+Also set this GitHub Actions secret to upload maps from builds on `main`.
+The Next.js integration supports Turbopack and removes uploaded maps.
+It uses Netlify's `COMMIT_REF` or GitHub's `GITHUB_SHA` as the release version.
+The private key stays in the build environment. Do not use a `NEXT_PUBLIC_` prefix for it.
+Local and pull-request builds skip uploads when the key is absent.
 
 ## Documentation
 
