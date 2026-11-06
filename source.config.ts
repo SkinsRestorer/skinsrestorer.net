@@ -1,13 +1,13 @@
 import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import lastModified from "fumadocs-mdx/plugins/last-modified";
-import { docsSchema } from "./src/lib/docs-schema";
+import { docsFrontmatterSchema } from "./src/lib/docs-schema";
 import { docsStringify } from "./src/lib/docs-stringify";
 import { remarkDocsTableHeaders } from "./src/lib/docs-table-headers";
 
 export const docs = defineDocs({
   dir: "content/docs",
   docs: {
-    schema: docsSchema,
+    schema: docsFrontmatterSchema,
     postprocess: {
       includeProcessedMarkdown: docsStringify,
       extractLinkReferences: true,

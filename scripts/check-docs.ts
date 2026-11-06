@@ -1,3 +1,4 @@
+import { Schema } from "effect";
 import { readdir, readFile, access } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -57,7 +58,7 @@ for (const file of documentFiles.filter((file) => file.endsWith(".mdx"))) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(raw);
   try {
     if (!match) throw new Error("Missing front matter");
-    const metadata = docsSchema.parse(parseYaml(match[1]));
+    const metadata = Schema.decodeUnknownSync(docsSchema)(parseYaml(match[1]));
     if (!(metadata.icon in icons)) {
       throw new Error(`Unknown sidebar icon ${metadata.icon}`);
     }

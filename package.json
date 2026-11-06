@@ -38,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.2",
     "discord-api-types": "^0.38.55",
+    "effect": "4.1.1",
     "fumadocs-core": "16.12.0",
     "fumadocs-mdx": "^15.0.0",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.12.0",
@@ -63,8 +64,7 @@
     "shiki": "^4.0.0",
     "skinview3d": "^3.4.1",
     "sonner": "^2.0.7",
-    "yaml": "^2.9.1",
-    "zod": "^4.0.17"
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@octokit/openapi-types": "^27.0.0",
