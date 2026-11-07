@@ -1,7 +1,7 @@
 "use client";
 
 import { Upload, X } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { OnlineCard } from "@/components/online-card";
@@ -32,7 +32,7 @@ import {
   useCapeSelection,
 } from "@/lib/hooks/use-cape-selection";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
-import { uploadMineSkinFile } from "@/lib/mineskin";
+import { useSkinUpload } from "@/lib/hooks/use-skin-upload";
 import type { SkinVariant } from "@/lib/skin";
 
 export const UploadCard = () => {
@@ -43,7 +43,7 @@ export const UploadCard = () => {
     setSkinType,
     handleFileChange,
   } = useSkinFile();
-  const [loading, setLoading] = useState(false);
+  const { loading, cancelUpload, runUpload } = useSkinUpload();
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   type SkinUploadTarget = "axolotl" | "mineskin";
   const [target, setTarget] = useState<SkinUploadTarget>("axolotl");
@@ -61,6 +61,18 @@ export const UploadCard = () => {
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
+  useEffect(
+    () => () => cancelUpload(),
+    [
+      cancelUpload,
+      selectedFile,
+      skinType,
+      selectedCapeUuid,
+      normalizedApiKey,
+      target,
+    ],
+  );
+
   function uploadSkin() {
     if (!selectedFile) {
       toast.warning("Please select a PNG skin file.");
@@ -68,29 +80,24 @@ export const UploadCard = () => {
     }
 
     setResultUrl(null);
-    setLoading(true);
-
-    toast.promise(
-      uploadMineSkinFile({
+    void runUpload(
+      {
         file: selectedFile,
         variant: skinType,
         capeUuid:
           selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
         apiKey: normalizedApiKey || undefined,
         useCapeProxy: useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE,
-      })
-        .then((completed) => {
-          const url =
-            completed.skin.url || `https://minesk.in/${completed.skin.uuid}`;
-
-          setResultUrl(url);
-        })
-        .finally(() => setLoading(false)),
+      },
       {
         loading: "Uploading skin to MineSkin...",
         success: "Skin uploaded successfully.",
         error: (e) => `Failed to upload skin: ${e}`,
       },
+      (completed) =>
+        setResultUrl(
+          completed.skin.url || `https://minesk.in/${completed.skin.uuid}`,
+        ),
     );
   }
 

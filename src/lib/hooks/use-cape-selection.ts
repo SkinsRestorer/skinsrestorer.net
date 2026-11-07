@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useLatestTask } from "./use-latest-task";
 
 import {
   fetchCapeSupport,
@@ -17,6 +18,8 @@ interface UseCapeSelectionOptions {
 
 export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
   const { autoGrantCapeAccess = false } = options;
+  const verification = useLatestTask();
+  const availableCapes = useLatestTask();
   const [apiKey, setApiKey] = useState("");
   const [capeStatus, setCapeStatus] = useState<CapeStatus>(
     autoGrantCapeAccess ? "granted" : "idle",
@@ -35,37 +38,21 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
   );
 
   useEffect(() => {
-    let isActive = true;
-
-    const loadSupportedCapes = async () => {
-      try {
-        const capes = await fetchMineSkinSupportedCapes();
-        if (!isActive) {
-          return;
-        }
-
-        setSupportedCapes(capes);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
+    void availableCapes.run(
+      (signal) => fetchMineSkinSupportedCapes(undefined, signal),
+      setSupportedCapes,
+      (error) =>
         toast.error(
           error instanceof Error
             ? error.message
             : "Failed to load available capes",
-        );
-      }
-    };
-
-    loadSupportedCapes();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+        ),
+    );
+    return () => availableCapes.cancel();
+  }, [availableCapes]);
 
   useEffect(() => {
+    verification.cancel();
     if (autoGrantCapeAccess) {
       setCapeStatus("granted");
       return;
@@ -73,9 +60,10 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
 
     setSelectedCapeUuid(NO_CAPE_VALUE);
     setCapeStatus((status) => (status === "granted" ? "idle" : status));
-  }, [autoGrantCapeAccess]);
+  }, [autoGrantCapeAccess, verification]);
 
   const handleApiKeyChange = (value: string) => {
+    verification.cancel();
     setApiKey(value);
     setCapeStatus("idle");
     setSelectedCapeUuid(NO_CAPE_VALUE);
@@ -112,33 +100,32 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
     setCapeStatus("loading");
     setSelectedCapeUuid(NO_CAPE_VALUE);
 
-    try {
-      const { hasCapeGrant, capes } = await fetchCapeSupport(normalizedApiKey);
-
-      if (!hasCapeGrant) {
-        setCapeStatus("denied");
+    availableCapes.cancel();
+    await verification.run(
+      (signal) => fetchCapeSupport(normalizedApiKey, signal),
+      ({ hasCapeGrant, capes }) => {
+        if (!hasCapeGrant) {
+          setCapeStatus("denied");
+          toast.error(
+            "Your API key does not have the capes grant. Please check your MineSkin plan.",
+          );
+          return;
+        }
+        setCapeStatus("granted");
+        setSupportedCapes(capes);
+        if (capes.length === 0)
+          toast.info("No supported capes are currently available.");
+        else toast.success("Cape support enabled for this API key.");
+      },
+      (error) => {
+        setCapeStatus("idle");
         toast.error(
-          "Your API key does not have the capes grant. Please check your MineSkin plan.",
+          error instanceof Error
+            ? error.message
+            : "Failed to verify cape support",
         );
-        return;
-      }
-
-      setCapeStatus("granted");
-      setSupportedCapes(capes);
-
-      if (capes.length === 0) {
-        toast.info("No supported capes are currently available.");
-      } else {
-        toast.success("Cape support enabled for this API key.");
-      }
-    } catch (error) {
-      setCapeStatus("idle");
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to verify cape support",
-      );
-    }
+      },
+    );
   };
 
   return {

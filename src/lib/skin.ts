@@ -1,60 +1,142 @@
 "use client";
 
-/**
- * Valid skin variants supported by MineSkin and SkinsRestorer.
- */
+import { Context, Data, Effect } from "effect";
+
 export type SkinVariant = "classic" | "slim";
 
-/**
- * Attempts to detect whether a skin texture is the slim (Alex) or classic (Steve) model.
- * The check relies on the transparency of specific pixel columns in the skin file.
- *
- * @throws When the image fails to load or the canvas context is unavailable.
- */
-export async function detectSkinVariant(
-  imageUrl: string,
-): Promise<SkinVariant> {
-  const isSlim = await new Promise<boolean>((resolve, reject) => {
-    const image = new Image();
-    image.crossOrigin = "Anonymous";
-    image.src = imageUrl;
+export class SkinImageError extends Data.TaggedError("SkinImageError")<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> {}
 
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        reject(new Error("Failed to get canvas context"));
-        return;
-      }
+export class SkinImages extends Context.Service<
+  SkinImages,
+  {
+    readonly create: () => HTMLImageElement;
+    readonly variant: (image: HTMLImageElement) => SkinVariant;
+  }
+>()("skinsrestorer/SkinImages") {}
 
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.drawImage(image, 0, 0);
+export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
+  function* (imageUrl: string) {
+    const images = yield* SkinImages;
+    return yield* Effect.acquireUseRelease(
+      Effect.try({
+        try: images.create,
+        catch: (cause) =>
+          new SkinImageError({ message: "Failed to load image", cause }),
+      }),
+      (image) =>
+        Effect.callback<SkinVariant, SkinImageError>((resume) => {
+          image.crossOrigin = "Anonymous";
+          image.onload = () =>
+            resume(
+              Effect.try({
+                try: () => images.variant(image),
+                catch: (cause) =>
+                  new SkinImageError({
+                    message:
+                      cause instanceof Error
+                        ? cause.message
+                        : "Failed to detect skin type",
+                    cause,
+                  }),
+              }),
+            );
+          image.onerror = () =>
+            resume(
+              Effect.fail(
+                new SkinImageError({ message: "Failed to load image" }),
+              ),
+            );
+          // Cached images can finish synchronously when src is assigned.
+          try {
+            image.src = imageUrl;
+          } catch (cause) {
+            resume(
+              Effect.fail(
+                new SkinImageError({ message: "Failed to load image", cause }),
+              ),
+            );
+          }
+        }),
+      (image) =>
+        Effect.sync(() => {
+          image.onload = null;
+          image.onerror = null;
+          image.removeAttribute("src");
+        }),
+    );
+  },
+);
 
-      const px1 = ctx.getImageData(46, 52, 1, 12).data;
-      const px2 = ctx.getImageData(54, 20, 1, 12).data;
+const browserImages: Context.Service.Shape<typeof SkinImages> = {
+  create: () => new Image(),
+  variant: (image) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Failed to get canvas context");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
+    const px1 = ctx.getImageData(46, 52, 1, 12).data;
+    const px2 = ctx.getImageData(54, 20, 1, 12).data;
+    for (let i = 3; i < 12 * 4; i += 4)
+      if (px1[i] === 255 || px2[i] === 255) return "classic";
+    return "slim";
+  },
+};
 
-      for (let i = 3; i < 12 * 4; i += 4) {
-        if (px1[i] === 255 || px2[i] === 255) {
-          resolve(false);
-          return;
-        }
-      }
-
-      resolve(true);
-    };
-
-    image.onerror = () => {
-      reject(new Error("Failed to load image"));
-    };
-  });
-
-  return isSlim ? "slim" : "classic";
+/** Keep the preview URL alive until image callbacks finish or are cancelled. */
+export function previewSkinFileEffect(
+  file: File,
+  events: {
+    preview: (url: string) => void;
+    detected: (variant: SkinVariant) => void;
+    failed: (cause: SkinImageError) => void;
+  },
+  urls = {
+    create: (file: File) => URL.createObjectURL(file),
+    revoke: (url: string) => URL.revokeObjectURL(url),
+  },
+) {
+  return Effect.acquireUseRelease(
+    Effect.try({
+      try: () => urls.create(file),
+      catch: (cause) =>
+        new SkinImageError({ message: "Failed to load image", cause }),
+    }),
+    (url) =>
+      Effect.gen(function* () {
+        yield* Effect.sync(() => events.preview(url));
+        yield* detectSkinVariantEffect(url).pipe(
+          Effect.tap((variant) => Effect.sync(() => events.detected(variant))),
+          Effect.catch((cause) => Effect.sync(() => events.failed(cause))),
+        );
+        // The component still displays this URL after detection completes.
+        yield* Effect.never;
+      }),
+    (url) => Effect.sync(() => urls.revoke(url)),
+  );
 }
 
-/**
- * Validates whether the provided skin name follows SkinsRestorer requirements.
- */
+export async function runSkinEffect<A, E>(
+  program: Effect.Effect<A, E, SkinImages>,
+  signal?: AbortSignal,
+): Promise<A> {
+  try {
+    return await Effect.runPromise(
+      program.pipe(Effect.provideService(SkinImages, browserImages)),
+      { signal },
+    );
+  } catch (cause) {
+    signal?.throwIfAborted();
+    throw cause;
+  }
+}
+export const detectSkinVariant = (imageUrl: string, signal?: AbortSignal) =>
+  runSkinEffect(detectSkinVariantEffect(imageUrl), signal);
+
 export function isValidSkinName(name: string): boolean {
   return /^[a-z0-9_]+$/.test(name);
 }

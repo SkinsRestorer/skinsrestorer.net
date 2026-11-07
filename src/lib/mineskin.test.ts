@@ -163,3 +163,63 @@ test("does not fetch capes when the API key lacks access", async () => {
   });
   assert.equal(fetchMock.length, 1);
 });
+
+test("Effect polling uses virtual time and interruption never resubmits an upload", async () => {
+  const { Effect, Fiber } = await import("effect");
+  const { TestClock } = await import("effect/testing");
+  const { HttpClient } = await import("./effect-http");
+  const { uploadMineSkinFileEffect } = await import("./mineskin");
+  let calls = 0;
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const upload = yield* Effect.forkChild(
+        uploadMineSkinFileEffect({ file, variant: "classic" }),
+      );
+      yield* TestClock.adjust(999);
+      assert.equal(calls, 1);
+      yield* TestClock.adjust(1);
+      assert.equal(calls, 2);
+      yield* Fiber.interrupt(upload);
+      yield* TestClock.adjust(10_000);
+      assert.equal(calls, 2);
+    }).pipe(
+      Effect.provideService(HttpClient, {
+        fetch: async () => {
+          calls++;
+          return Response.json({ job: { id: "job", status: "waiting" } });
+        },
+      }),
+      Effect.provide(TestClock.layer()),
+    ),
+  );
+});
+
+test("supported capes are normalized and private fields are validated at the boundary", async () => {
+  const { fetchMineSkinSupportedCapes } = await import("./mineskin");
+  mockFetch(async () =>
+    Response.json({
+      capes: [
+        {
+          uuid: "yes",
+          alias: "Cape",
+          url: "http://textures.example/cape",
+          supported: true,
+        },
+        {
+          uuid: "no",
+          alias: "No",
+          url: "http://textures.example/no",
+          supported: false,
+        },
+      ],
+    }),
+  );
+  assert.deepEqual(await fetchMineSkinSupportedCapes(), [
+    {
+      uuid: "yes",
+      alias: "Cape",
+      url: "https://textures.example/cape",
+      supported: true,
+    },
+  ]);
+});

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { runHttpEffect } from "@/lib/effect-http";
+import { fetchMineSkinStatusEffect } from "@/lib/mineskin";
 import {
   Card,
   CardContent,
@@ -15,13 +17,16 @@ export function OnlineCard() {
   );
 
   useEffect(() => {
-    fetch("https://api.mineskin.org/v2/delay", {
-      headers: {
-        "User-Agent": "SkinsRestorer-Generator/1.0",
-      },
-    })
-      .then((response) => setStatus(response.ok ? "online" : "offline"))
-      .catch(() => setStatus("offline"));
+    const controller = new AbortController();
+    void runHttpEffect(fetchMineSkinStatusEffect, controller.signal)
+      .then((online) => {
+        if (!controller.signal.aborted)
+          setStatus(online ? "online" : "offline");
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setStatus("offline");
+      });
+    return () => controller.abort();
   }, []);
 
   return (

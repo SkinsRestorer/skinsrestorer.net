@@ -1,7 +1,7 @@
 "use client";
 
 import { Upload, X } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { OnlineCard } from "@/components/online-card";
@@ -32,7 +32,7 @@ import {
   useCapeSelection,
 } from "@/lib/hooks/use-cape-selection";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
-import { uploadMineSkinFile } from "@/lib/mineskin";
+import { useSkinUpload } from "@/lib/hooks/use-skin-upload";
 import { isValidSkinName, type SkinVariant } from "@/lib/skin";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
 
@@ -45,7 +45,7 @@ export const GenerateFileCard = () => {
     handleFileChange,
   } = useSkinFile();
   const [customName, setCustomName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { loading, cancelUpload, runUpload } = useSkinUpload();
   const [result, setResult] = useState<{
     name: string;
     url: string;
@@ -68,6 +68,19 @@ export const GenerateFileCard = () => {
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
   const customNameId = useId();
+  useEffect(
+    () => () => cancelUpload(),
+    [
+      cancelUpload,
+      selectedFile,
+      skinType,
+      selectedCapeUuid,
+      normalizedApiKey,
+      target,
+      customName,
+    ],
+  );
+
   const customSkinCommandId = useId();
   const command = result
     ? `/sr createcustom ${result.name} "${result.url}" ${result.variant}`
@@ -226,9 +239,8 @@ export const GenerateFileCard = () => {
                 }
 
                 setResult(null);
-                setLoading(true);
-                toast.promise(
-                  uploadMineSkinFile({
+                void runUpload(
+                  {
                     file: selectedFile,
                     variant: skinType,
                     name: customName || undefined,
@@ -238,23 +250,19 @@ export const GenerateFileCard = () => {
                         : selectedCapeUuid,
                     apiKey: normalizedApiKey || undefined,
                     useCapeProxy: shouldUseCapeProxy,
-                  })
-                    .then((completedJob) => {
-                      const skin = completedJob.skin;
-                      const skinName = customName || skin.name || skin.uuid;
-                      const url = skin.url || `https://minesk.in/${skin.uuid}`;
-
-                      setResult({
-                        name: skinName,
-                        url,
-                        variant: skinType,
-                      });
-                    })
-                    .finally(() => setLoading(false)),
+                  },
                   {
                     loading: "Generating custom skin...",
                     success: "Command ready to copy.",
                     error: (e) => `Failed to generate custom skin: ${e}`,
+                  },
+                  (completedJob) => {
+                    const skin = completedJob.skin;
+                    setResult({
+                      name: customName || skin.name || skin.uuid,
+                      url: skin.url || `https://minesk.in/${skin.uuid}`,
+                      variant: skinType,
+                    });
                   },
                 );
               }}

@@ -914,10 +914,15 @@
     "shared/src/main/java/net/skinsrestorer/shared/utils/ValidationUtil.java": "15090c155d5b3d64f0663d2bb4b20ac2a51dbcd3b018cde2d309d400199cee17"
   },
   "websiteSources": {
-    "src/lib/mineskin.ts": "f2410dadfa8a68afc4e436d9fd7a231393062d729424b7d2ef654400e29c7953",
-    "src/lib/hooks/use-cape-selection.ts": "db26cf95ad8664265b38904d17e75b39bd3f126e6095f8fb6c01eb5727577aab",
-    "src/lib/hooks/use-skin-file.ts": "ca41e6ce425bf1e90c7541ffc5266dd40537d745d5ec9afcc0b70466b3711373",
-    "src/app/(home)/upload/upload-card.tsx": "f3614311f6a0441170bedc7ee599214b331b8d1054faf8bf9558fb638a73f087",
-    "src/app/(home)/generator/generator-card.tsx": "c0d59ce9e9019c52e09a0f9d2bed91ba1653d4005c093832f8c49a49aa500a8d"
+    "src/lib/mineskin.ts": "8b1b280275949ceeb8df7081cad0ea4eb5c2dbf11368aa97a5b236475bab8577",
+    "src/lib/hooks/use-cape-selection.ts": "aafeefecc445679663e1232bb7b360b51d8f18da73650fbfd119d070a69794c5",
+    "src/lib/hooks/use-skin-file.ts": "ae5d8eb9f55bff47362b14025a1331a79cc40406cc8f935ddacef1d2087aaf49",
+    "src/app/(home)/upload/upload-card.tsx": "8269930a5eb5255655781b19c289ee5093dd30f20e91040bbb9fef868e7cf3a3",
+    "src/app/(home)/generator/generator-card.tsx": "685de808e660668f541cedebfaa07fc6f4094bb8681c810ddbccd99f94fc553c",
+    "src/lib/effect-http.ts": "425d5d2766a5ed950c1f3952790db263ba0d67c12f299f67520176fa3932613f",
+    "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
+    "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
+    "src/lib/hooks/use-skin-upload.ts": "0a6bbbf07207de5d571b8dfac6ec9ea18b6801cc789504bdd94747c56334b8dd",
+    "src/lib/skin.ts": "41ad5759518e65f9593ed0bec23b0184b68fd75bc4192caa2b5df2704b653235"
   }
 }

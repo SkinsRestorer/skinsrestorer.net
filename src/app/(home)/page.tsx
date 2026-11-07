@@ -1,5 +1,4 @@
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
-import type { paths } from "@octokit/openapi-types";
 import { GeistPixelSquare } from "geist/font/pixel";
 import {
   ArrowRight,
@@ -11,11 +10,13 @@ import {
   WandSparkles,
 } from "lucide-react";
 import Image from "next/image";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { type ReactNode, Suspense } from "react";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getLatestRelease } from "@/lib/releases";
 import styles from "./minecraft.module.css";
 import { CopyCommand, HomeFaq } from "./page.client";
 import { SkinStage } from "./skin-stage";
@@ -30,21 +31,10 @@ const discordLink = process.env.NEXT_PUBLIC_DISCORD_LINK ?? "/discord";
 const linkClassName =
   "inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline";
 
-type LatestReleaseResponse =
-  paths["/repos/{owner}/{repo}/releases/latest"]["get"]["responses"]["200"]["content"]["application/json"];
-
 async function LatestRelease() {
-  let data: LatestReleaseResponse | null = null;
-
-  try {
-    const response = await fetch(
-      "https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest",
-      { next: { revalidate: 120 } },
-    );
-    if (response.ok) data = await response.json();
-  } catch {
-    // The download buttons do not depend on GitHub, so a failed request only hides the version.
-  }
+  "use cache";
+  cacheLife({ revalidate: 120 });
+  const data = await getLatestRelease();
 
   if (!data) return <ReleaseHistoryLink />;
 
