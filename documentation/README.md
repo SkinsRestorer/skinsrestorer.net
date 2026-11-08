@@ -42,7 +42,8 @@ bun run build
 `check` includes documentation validation. It checks page metadata, sidebar
 entries, internal links, heading anchors, local images, redirect destinations,
 configuration excerpts, reference defaults, and command/permission coverage.
-It also detects changes in the website's upload and generator implementations.
+It also detects changes in the website's upload, generator, and skin editor
+implementations.
 It uses the pinned inventory and does not require network access.
 
 `docs:java` extracts the complete Maven, Java, and plugin metadata files from
@@ -101,7 +102,7 @@ priority over wording improvements.
 ## Sources and framework
 
 Use release-tagged [SkinsRestorer source](https://github.com/SkinsRestorer/SkinsRestorer)
-for plugin behavior. Use the local website code for upload and generator behavior.
+for plugin behavior. Use the local website code for upload, generator, and skin editor behavior.
 Use official platform and integration documentation for external configuration.
 The public source list is at `/docs/reference/documentation`.
 

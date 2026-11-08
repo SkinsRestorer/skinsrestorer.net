@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
 import { Route as DocsDotmdxRouteImport } from './routes/docs[.]mdx'
+import { Route as EditorRouteImport } from './routes/editor'
 import { Route as GeneratorRouteImport } from './routes/generator'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
@@ -41,6 +42,11 @@ const CookiePolicyRoute = CookiePolicyRouteImport.update({
 const DocsDotmdxRoute = DocsDotmdxRouteImport.update({
   id: '/docs.mdx',
   path: '/docs.mdx',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorRoute = EditorRouteImport.update({
+  id: '/editor',
+  path: '/editor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GeneratorRoute = GeneratorRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cookie-policy': typeof CookiePolicyRoute
   '/docs.mdx': typeof DocsDotmdxRoute
+  '/editor': typeof EditorRoute
   '/generator': typeof GeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cookie-policy': typeof CookiePolicyRoute
   '/docs.mdx': typeof DocsDotmdxRoute
+  '/editor': typeof EditorRoute
   '/generator': typeof GeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cookie-policy': typeof CookiePolicyRoute
   '/docs.mdx': typeof DocsDotmdxRoute
+  '/editor': typeof EditorRoute
   '/generator': typeof GeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cookie-policy'
     | '/docs.mdx'
+    | '/editor'
     | '/generator'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cookie-policy'
     | '/docs.mdx'
+    | '/editor'
     | '/generator'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cookie-policy'
     | '/docs.mdx'
+    | '/editor'
     | '/generator'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CookiePolicyRoute: typeof CookiePolicyRoute
   DocsDotmdxRoute: typeof DocsDotmdxRoute
+  EditorRoute: typeof EditorRoute
   GeneratorRoute: typeof GeneratorRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
@@ -286,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/docs.mdx'
       fullPath: '/docs.mdx'
       preLoaderRoute: typeof DocsDotmdxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor': {
+      id: '/editor'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof EditorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generator': {
@@ -400,6 +420,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CookiePolicyRoute: CookiePolicyRoute,
   DocsDotmdxRoute: DocsDotmdxRoute,
+  EditorRoute: EditorRoute,
   GeneratorRoute: GeneratorRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,

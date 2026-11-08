@@ -232,3 +232,11 @@
   --font-geist-mono: "Geist Mono Variable", monospace;
   --font-geist-pixel-square: "Geist Pixel Square", monospace;
 }
+
+/*
+ * PostHog autocapture and session replay skip elements with this class and
+ * their children. The custom property only makes the class a known utility.
+ */
+@utility ph-no-capture {
+  --ph-no-capture: 1;
+}

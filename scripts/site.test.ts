@@ -21,6 +21,7 @@ test(
       ["/", "Player skins for your Minecraft server"],
       ["/generator", "Custom Skin Generator"],
       ["/upload", "Skin Upload"],
+      ["/editor", "Skin editor"],
       ["/pricing", "Simple, transparent pricing"],
       ["/privacy-policy", "Privacy Policy"],
       ["/terms-of-service", "Terms of Service"],
@@ -98,7 +99,7 @@ test(
       /Sitemap: https:\/\/skinsrestorer.net\/sitemap.xml/,
     );
     const sitemap = await (await request("/sitemap.xml")).text();
-    assert.equal((sitemap.match(/<url>/g) ?? []).length, 72);
+    assert.equal((sitemap.match(/<url>/g) ?? []).length, 74);
     assert.ok(
       sitemap.includes(
         "<loc>https://skinsrestorer.net/docs/installation</loc>",

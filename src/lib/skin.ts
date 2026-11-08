@@ -1,6 +1,7 @@
 "use client";
 
 import { Context, Data, Effect } from "effect";
+import { detectVariantFromPixels } from "./skin-document";
 
 export type SkinVariant = "classic" | "slim";
 
@@ -94,11 +95,7 @@ const browserImages: Context.Service.Shape<typeof SkinImages> = {
     canvas.width = 64;
     canvas.height = 64;
     ctx.drawImage(image, 0, 0, 64, 64);
-    const px1 = ctx.getImageData(46, 52, 1, 12).data;
-    const px2 = ctx.getImageData(54, 20, 1, 12).data;
-    for (let i = 3; i < 12 * 4; i += 4)
-      if (px1[i] === 255 || px2[i] === 255) return "classic";
-    return "slim";
+    return detectVariantFromPixels(ctx.getImageData(0, 0, 64, 64).data);
   },
 };
 

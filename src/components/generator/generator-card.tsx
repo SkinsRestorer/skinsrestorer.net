@@ -1,7 +1,9 @@
 "use client";
 
-import { Upload, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Pencil, Upload, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
+import posthog from "posthog-js";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { OnlineCard } from "@/components/online-card";
@@ -31,12 +33,14 @@ import {
   NO_CAPE_VALUE,
   useCapeSelection,
 } from "@/lib/hooks/use-cape-selection";
+import { useEditorHandoff } from "@/lib/hooks/use-editor-handoff";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
 import { useSkinUpload } from "@/lib/hooks/use-skin-upload";
 import { isValidSkinName, type SkinVariant } from "@/lib/skin";
+import { parseTextureReference } from "@/lib/skin-texture";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
 
-export const GenerateFileCard = () => {
+export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
   const {
     file: selectedFile,
     skinUrl,
@@ -44,6 +48,7 @@ export const GenerateFileCard = () => {
     setSkinType,
     handleFileChange,
   } = useSkinFile();
+  const handoffFile = useEditorHandoff(handoffId, handleFileChange);
   const [customName, setCustomName] = useState("");
   const { loading, cancelUpload, runUpload } = useSkinUpload();
   const [result, setResult] = useState<{
@@ -106,6 +111,8 @@ export const GenerateFileCard = () => {
             <div className="flex flex-col gap-2">
               <Label>Select skin .png file</Label>
               <FileUpload
+                key={handoffFile ? "editor" : "picker"}
+                defaultValue={handoffFile ? [handoffFile] : undefined}
                 accept=".png"
                 maxFiles={1}
                 maxSize={5 * 1024 * 1024}
@@ -275,6 +282,10 @@ export const GenerateFileCard = () => {
                       url: skin.url || `https://minesk.in/${skin.uuid}`,
                       variant: skinType,
                     });
+                    if (handoffFile && selectedFile === handoffFile)
+                      posthog.capture("editor_handoff_completed", {
+                        target: "generator",
+                      });
                   },
                 );
               }}
@@ -340,6 +351,7 @@ export const GenerateFileCard = () => {
 
 export const ReverseFileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [textureHash, setTextureHash] = useState<string | null>(null);
 
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -359,6 +371,7 @@ export const ReverseFileCard = () => {
             className="w-full"
             onValueChange={(files) => {
               setSelectedFile(files[0] || null);
+              setTextureHash(null);
             }}
             onFileReject={(file, message) => {
               toast(message, {
@@ -430,6 +443,7 @@ export const ReverseFileCard = () => {
                   decodedValue.textures.SKIN.url,
                 );
                 if (skinUrl) {
+                  setTextureHash(trustedTextureHash(skinUrl));
                   window.open(skinUrl, "_blank", "noopener,noreferrer");
                 } else {
                   toast.error("No skin URL found in file");
@@ -446,7 +460,26 @@ export const ReverseFileCard = () => {
         >
           Reverse
         </Button>
+        {textureHash && (
+          <Button
+            variant="outline"
+            className="w-full"
+            nativeButton={false}
+            render={<Link to="/editor" search={{ texture: textureHash }} />}
+          >
+            <Pencil data-icon="inline-start" />
+            Edit this skin
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
 };
+
+function trustedTextureHash(url: string) {
+  try {
+    return parseTextureReference(url).hash;
+  } catch {
+    return null;
+  }
+}

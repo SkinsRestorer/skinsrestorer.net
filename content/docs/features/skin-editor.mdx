@@ -1,0 +1,97 @@
+---
+title: "Edit a skin on the website"
+description: "Fix and paint a skin PNG in the browser, then download it or get a SkinsRestorer command."
+docType: "how-to"
+appliesTo: "Website users and Java server players"
+reviewed: "2026-11-08"
+version: "15.12.6"
+icon: "Brush"
+---
+
+The [skin editor](/editor) opens a Java Edition skin in your browser. You can fix problems, paint in 2D or on the 3D model, and download the result. The editor does not connect to your Minecraft server.
+
+## Open a skin
+
+The editor opens one of these sources:
+
+- A PNG file, 64×64 or legacy 64×32, up to 5 MB.
+- The classic or slim template. The templates are plain figures made by the editor.
+- A texture hash or a `https://textures.minecraft.net/texture/…` URL.
+
+The editor converts a 64×32 skin to the 64×64 layout. The left arm and left leg get mirrored copies of the right arm and right leg, as in the game. The editor does not open HD skins. Resize an HD skin to 64×64 in an image editor first.
+
+The editor accepts texture links only from `textures.minecraft.net`. For a skin from another site, download the PNG and open it as a file. The editor does not look up player names.
+
+If you reversed a `.skin` file on the [generator page](/generator), select **Edit this skin** to open its texture in the editor.
+
+## Paint
+
+1. Choose **Classic** or **Slim** under **Model**. The model changes how the game reads the arms. It does not move pixels.
+2. Choose the **Base** or **Outer** layer. Tools change only the active layer.
+3. Choose a tool: **Pencil**, **Eraser**, **Fill face**, or **Pick color**.
+4. Paint on the texture or on the 3D model.
+
+The base layer is always opaque in Java Edition. For this reason, the pencil paints opaque pixels on the base layer and the eraser works only on the outer layer. The outer layer can have see-through pixels.
+
+**Fill face** fills the connected area of one color, and stops at the edge of the face. On the 3D model, a stroke stays on the face where it started.
+
+Use **Visible parts** to hide a part or a layer. Tools do not change hidden parts. To paint the base layer under an outer-layer pixel, hide the outer layer of that part.
+
+Each stroke, fill, or fix is one undo step. Opening another skin and changing the model are also undo steps.
+
+## Move the view
+
+Select **Move view** to scroll the texture and turn the model with one finger or the mouse. Select **Paint** to use the tool again. In paint mode, a right drag or two fingers turn the model.
+
+Use the zoom buttons to zoom the texture and the model. Pinch zoom of the page does not work on the paint surfaces, but works on the rest of the page.
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| `B` | Pencil |
+| `E` | Eraser |
+| `G` | Fill face |
+| `I` | Pick color |
+| `L` | Switch between the base and outer layer |
+| `P` / `M` | Paint or move view |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Shift+Z` or `Ctrl+Y` | Redo |
+
+To paint with the keyboard, move the focus to the texture with `Tab`. The arrow keys move a pixel cursor, and `Shift` with an arrow key moves four pixels. `Space` or `Enter` uses the tool. A screen reader reads the part, face, layer, and position of the cursor. The shortcuts do nothing while a text field has the focus.
+
+## Skin check
+
+The skin check lists problems that change how the skin looks in Java Edition. The check does not change pixels. A fix runs only when you select its button, and you can undo it.
+
+| Problem | Fix |
+| --- | --- |
+| See-through base pixels | **Make opaque** keeps each color and sets it to opaque, which is how the game shows it. |
+| Pixels in unused areas | **Clear unused areas** removes pixels that the game does not show. |
+| The skin may be classic or slim | The editor suggests the other model. This is a guess, so look at the preview before you change the model. The editor does not erase arm pixels for this problem. |
+
+An opaque outer layer is not a problem. Some skins use it on purpose.
+
+## Finish
+
+- **Download PNG** saves a 64×64 PNG. The file keeps the exact color and opacity of every pixel.
+- **Use in Upload** opens [Upload](/upload) with the skin and its model selected. Follow [the upload guide](/docs/features/skin-upload) from the step where you choose the upload method.
+- **Use in Generator** opens the [generator](/generator) in the same way. Read [custom skins](/docs/features/custom-skins) for the `/sr createcustom` command.
+
+The Upload and Generator pages send nothing until you select their generate button. If you reload these pages, they still have the skin from the editor in the same tab.
+
+## Drafts
+
+The editor saves a draft in your browser after each change. When you open the editor again, it asks if you want to restore the draft. **Discard** deletes the draft. The editor keeps only one draft and does not keep the undo history.
+
+If your browser blocks site storage or the storage is full, the editor still works, but it does not save drafts. Download the PNG to keep your work.
+
+## Privacy
+
+Editing, drafts, and PNG downloads happen in your browser. The editor does not send your skin image to SkinsRestorer or to any other server.
+
+If you open a texture URL, your browser downloads the image from `textures.minecraft.net`. If you use **Use in Upload** or **Use in Generator**, that page sends the PNG to MineSkin, directly or through the SkinsRestorer Axolotl proxy. This happens only when you select its generate button. Read [MineSkin integration](/docs/integrations/mineskin) for more.
+
+## If the 3D model does not show
+
+The 3D model needs WebGL. If your browser turns off WebGL or loses the graphics context, the editor shows a message. The texture editor, the skin check, and the download still work. Select **Try the 3D model again** to start the model again.

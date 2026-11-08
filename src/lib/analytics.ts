@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { redactEditorParams } from "./analytics-redact";
 
 const apiKey = import.meta.env.VITE_POSTHOG_KEY;
 
@@ -21,5 +22,7 @@ if (typeof window !== "undefined" && apiKey) {
     session_recording: { sampleRate: 0.1 },
     debug: import.meta.env.DEV,
     cookieless_mode: "on_reject",
+    // Texture links identify a skin; keep them out of events and replays.
+    before_send: (event) => event && redactEditorParams(event),
   });
 }

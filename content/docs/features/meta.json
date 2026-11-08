@@ -3,6 +3,7 @@
   "pages": [
     "change-skin",
     "skin-upload",
+    "skin-editor",
     "skin-menu",
     "skin-edit",
     "skin-design",

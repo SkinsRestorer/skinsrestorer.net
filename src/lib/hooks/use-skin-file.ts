@@ -22,8 +22,12 @@ export function useSkinFile() {
     },
     [],
   );
+  /**
+   * Select a file and detect its model. An explicit model, such as one chosen
+   * in the skin editor, replaces the detected model when detection finishes.
+   */
   const handleFileChange = useCallback(
-    (nextFile: File | null) => {
+    (nextFile: File | null, explicitVariant?: SkinVariant) => {
       detection.cancel();
       if (notification.current !== undefined)
         toast.dismiss(notification.current);
@@ -44,10 +48,13 @@ export function useSkinFile() {
               preview: setSkinUrl,
               detected: (variant) => {
                 setFile(nextFile);
-                setSkinType(variant);
-                toast.success(`Skin file detected as a ${variant} skin.`, {
-                  id,
-                });
+                setSkinType(explicitVariant ?? variant);
+                toast.success(
+                  explicitVariant
+                    ? `Skin from the editor loaded as a ${explicitVariant} skin.`
+                    : `Skin file detected as a ${variant} skin.`,
+                  { id },
+                );
               },
               failed,
             }),

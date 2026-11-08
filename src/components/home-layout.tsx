@@ -22,6 +22,12 @@ export function HomeLayout({ children }: { children: ReactNode }) {
         },
         {
           type: "main",
+          text: "Skin editor",
+          url: "/editor",
+          description: "Fix and paint a skin in 2D or 3D in your browser",
+        },
+        {
+          type: "main",
           text: "Upload a skin",
           url: "/upload",
           description: "Get a /skin url command from a skin PNG",

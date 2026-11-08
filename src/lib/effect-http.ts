@@ -17,7 +17,7 @@ export class HttpError extends Data.TaggedError("HttpError")<{
 }> {}
 
 /** Own the complete response, including transports that resolve after cancellation. */
-export const readHttpText = Effect.fn("Http.readText")(function* (
+export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
   url: string,
   init: RequestInit = {},
   options: { timeoutMs?: number; maxBytes?: number } = {},
@@ -53,8 +53,7 @@ export const readHttpText = Effect.fn("Http.readText")(function* (
         });
         owner.reader = response.body?.getReader();
         let size = 0;
-        let text = "";
-        const decoder = new TextDecoder();
+        const parts: Uint8Array[] = [];
         if (owner.reader)
           while (true) {
             const part = yield* Effect.tryPromise({
@@ -73,12 +72,18 @@ export const readHttpText = Effect.fn("Http.readText")(function* (
                 reason: "response",
                 message: "The service response exceeds the size limit.",
               });
-            text += decoder.decode(part.value, { stream: true });
+            parts.push(part.value);
           }
+        const bytes = new Uint8Array(size);
+        parts.reduce((offset, part) => {
+          bytes.set(part, offset);
+          return offset + part.byteLength;
+        }, 0);
         return {
           ok: response.ok,
           status: response.status,
-          text: text + decoder.decode(),
+          contentType: response.headers.get("content-type"),
+          bytes,
         };
       }).pipe(
         Effect.timeoutOrElse({
@@ -112,6 +117,21 @@ export const readHttpText = Effect.fn("Http.readText")(function* (
       }),
   );
 });
+
+export function readHttpText(
+  url: string,
+  init: RequestInit = {},
+  options: { timeoutMs?: number; maxBytes?: number } = {},
+) {
+  return readHttpBytes(url, init, options).pipe(
+    Effect.map((response) => ({
+      ok: response.ok,
+      status: response.status,
+      text: new TextDecoder().decode(response.bytes),
+    })),
+    Effect.withSpan("Http.readText"),
+  );
+}
 
 export function readHttpJson<A>(
   url: string,

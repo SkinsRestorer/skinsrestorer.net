@@ -3,6 +3,7 @@ export const sitePages = [
   "/",
   "/upload",
   "/generator",
+  "/editor",
   "/pricing",
   "/privacy-policy",
   "/terms-of-service",

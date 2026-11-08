@@ -916,13 +916,17 @@
   "websiteSources": {
     "src/lib/mineskin.ts": "8b1b280275949ceeb8df7081cad0ea4eb5c2dbf11368aa97a5b236475bab8577",
     "src/lib/hooks/use-cape-selection.ts": "aafeefecc445679663e1232bb7b360b51d8f18da73650fbfd119d070a69794c5",
-    "src/lib/hooks/use-skin-file.ts": "6025c026aaf431ece7d40f42f1f8876aaac2277200c4aaa12b4ce5049e115769",
-    "src/components/upload/upload-card.tsx": "a4b4e4e6e00339f50298f55c9c17076d57c3f6912e49b190ed5254f147e0fadd",
-    "src/components/generator/generator-card.tsx": "b703b18b4c894bad9086304093ed5b14417c76fe9f6bca4f03cfb5dcb2fcb395",
-    "src/lib/effect-http.ts": "cf148e977246ced14078e859672e27e527b42a45ccf5c902c4d25c8fcdd5cfb5",
+    "src/lib/hooks/use-skin-file.ts": "ab0c180b2fd42d0a293c10a0efa51fbf1e9d15cc89c1dc367d746b7a1ed827f1",
+    "src/components/upload/upload-card.tsx": "0b373a832e7fbaacc7dabf9ac22c6208c600e69b1c3307a442e84a24862b4e3f",
+    "src/components/generator/generator-card.tsx": "d4450360943de60b43bb92f68e699c119c6e0f3f8ecbeb001e34494f5dfbe728",
+    "src/lib/effect-http.ts": "e68c36a5f56d07f233e3515949d12dc6de3a4f1a151393526eebe9fa3c4bbe51",
     "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
     "src/lib/hooks/use-skin-upload.ts": "0a6bbbf07207de5d571b8dfac6ec9ea18b6801cc789504bdd94747c56334b8dd",
-    "src/lib/skin.ts": "bc0ba986807112d2f3feef4794c28bc4422b0fcaee260910bc320e26c407d254"
+    "src/lib/skin.ts": "395140f0d185fdd9a315b9e87a8cb62109a2c6d7dff4ddccf0be0c73b07a9712",
+    "src/components/editor/skin-editor.tsx": "b9b3ed1b2fade44c997ecde2ef92dcf0c10915011a7b9cf62eede20942ef00ba",
+    "src/lib/skin-check.ts": "f34cbb19472822ce49a709efbcd7bddeb3571ce34e02f3e90a348ba2466896f8",
+    "src/lib/skin-draft.ts": "3bc974c48caaf3976bb23e5e5e0c7ab0ccd48c35ab5644b531275e0e92acbcab",
+    "src/lib/hooks/use-editor-handoff.ts": "8850f18a6dbc5ab96d9e222ed1e7ba6b2aa9a609da894098989d1cb51f9581fe"
   }
 }

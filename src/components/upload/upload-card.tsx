@@ -2,6 +2,7 @@
 
 import { Upload, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
+import posthog from "posthog-js";
 import { toast } from "sonner";
 import { CapeSupportFields } from "@/components/cape-support-fields";
 import { OnlineCard } from "@/components/online-card";
@@ -31,11 +32,12 @@ import {
   NO_CAPE_VALUE,
   useCapeSelection,
 } from "@/lib/hooks/use-cape-selection";
+import { useEditorHandoff } from "@/lib/hooks/use-editor-handoff";
 import { useSkinFile } from "@/lib/hooks/use-skin-file";
 import { useSkinUpload } from "@/lib/hooks/use-skin-upload";
 import type { SkinVariant } from "@/lib/skin";
 
-export const UploadCard = () => {
+export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
   const {
     file: selectedFile,
     skinUrl,
@@ -43,6 +45,7 @@ export const UploadCard = () => {
     setSkinType,
     handleFileChange,
   } = useSkinFile();
+  const handoffFile = useEditorHandoff(handoffId, handleFileChange);
   const { loading, cancelUpload, runUpload } = useSkinUpload();
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   type SkinUploadTarget = "axolotl" | "mineskin";
@@ -94,10 +97,13 @@ export const UploadCard = () => {
         success: "Skin uploaded successfully.",
         error: (e) => `Failed to upload skin: ${e}`,
       },
-      (completed) =>
+      (completed) => {
         setResultUrl(
           completed.skin.url || `https://minesk.in/${completed.skin.uuid}`,
-        ),
+        );
+        if (handoffFile && selectedFile === handoffFile)
+          posthog.capture("editor_handoff_completed", { target: "upload" });
+      },
     );
   }
 
@@ -121,6 +127,8 @@ export const UploadCard = () => {
           <div className="flex flex-col gap-2">
             <Label>Select skin .png file</Label>
             <FileUpload
+              key={handoffFile ? "editor" : "picker"}
+              defaultValue={handoffFile ? [handoffFile] : undefined}
               accept=".png"
               maxFiles={1}
               maxSize={5 * 1024 * 1024}
