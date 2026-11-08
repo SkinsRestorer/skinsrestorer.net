@@ -72,7 +72,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         className="flex size-full min-h-svh flex-col font-sans antialiased"
         suppressHydrationWarning
       >
-        <RootProvider>
+        <RootProvider search={{ options: { type: "static" } }}>
           {children}
           <Toaster richColors />
           <CookieConsentBanner />

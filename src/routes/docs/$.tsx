@@ -1,6 +1,7 @@
 import browserCollections from "fumadocs-mdx:collections/browser";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
 import { Schema } from "effect";
 import Link from "fumadocs-core/link";
 import { useFumadocsLoader } from "fumadocs-core/source/client";
@@ -29,6 +30,7 @@ const serverLoader = createServerFn({ method: "GET" })
   .validator(
     Schema.toStandardSchemaV1(Schema.mutable(Schema.Array(Schema.String))),
   )
+  .middleware([staticFunctionMiddleware])
   .handler(async ({ data: slugs }) => {
     const { source, getPageImage } = await import("@/lib/source");
     const page = source.getPage(slugs);

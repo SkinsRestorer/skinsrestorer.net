@@ -1,3 +1,7 @@
+import { docsFunctionId, staticDocsMetadata } from "./scripts/static-docs.ts";
+import { readdirSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { createGetUrl, getSlugs } from "fumadocs-core/source";
 import { execFileSync } from "node:child_process";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import posthog from "@posthog/rollup-plugin";
@@ -10,6 +14,22 @@ import { sitePages } from "./src/lib/site-pages.ts";
 import { securityHeaders } from "./src/lib/security-headers.ts";
 import * as MdxConfig from "./source.config.ts";
 
+function getDocsPrerenderPages() {
+  const directory = resolve(MdxConfig.docs.dir);
+  return readdirSync(directory, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.mdx?$/.test(entry.name))
+    .map((entry) => ({
+      path: createGetUrl("/docs")(
+        getSlugs(
+          relative(directory, join(entry.parentPath, entry.name)).replaceAll(
+            "\\",
+            "/",
+          ),
+        ),
+      ),
+    }));
+}
+
 export default defineConfig(({ command }) => ({
   server: { port: 3000, headers: securityHeaders },
   preview: { port: 3000, headers: securityHeaders },
@@ -21,6 +41,15 @@ export default defineConfig(({ command }) => ({
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     tanstackStart({
+      serverFns: { generateFunctionId: docsFunctionId },
+      pages: [
+        ...getDocsPrerenderPages(),
+        {
+          path: "/api/search",
+          prerender: { enabled: true, outputPath: "/api/search" },
+          sitemap: { exclude: true },
+        },
+      ],
       prerender: {
         enabled: true,
         crawlLinks: true,
@@ -28,12 +57,14 @@ export default defineConfig(({ command }) => ({
         failOnError: true,
         concurrency: 4,
         filter: ({ path }) =>
-          !/[?#]/.test(path) &&
-          ((sitePages as readonly string[]).includes(path) ||
-            ((path === "/docs" || path.startsWith("/docs/")) &&
-              !path.includes("."))),
+          path === "/api/search" ||
+          (!/[?#]/.test(path) &&
+            ((sitePages as readonly string[]).includes(path) ||
+              ((path === "/docs" || path.startsWith("/docs/")) &&
+                !path.includes(".")))),
       },
     }),
+    staticDocsMetadata(),
     react(),
     ...(command === "build" && process.env.POSTHOG_PERSONAL_API_KEY
       ? [

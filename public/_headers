@@ -3,3 +3,6 @@
   X-XSS-Protection: 0
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
+
+/api/search
+  Content-Type: application/json; charset=utf-8

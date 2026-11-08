@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { test } from "node:test";
+import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import { fromJSON } from "seroval";
 
 // Run against `bun run preview` with `bun run test:site` after building.
 const baseUrl = process.env.SITE_TEST_URL;
@@ -103,13 +106,44 @@ test(
     );
     assert.ok(!sitemap.includes(".mdx</loc>"));
 
-    const search = await request("/api/search?query=skin");
-    const results = (await search.json()) as { url: string }[];
+    const search = await request("/api/search");
+    assert.ok(search.headers.has("etag"));
+    const searchIndex = await search.json();
+    assert.ok(
+      typeof searchIndex === "object" &&
+        searchIndex !== null &&
+        "type" in searchIndex,
+    );
+    assert.equal(searchIndex.type, "advanced");
+    const client = oramaStaticClient({
+      from: new URL("/api/search", baseUrl).href,
+      search: { limit: 24 },
+    });
+    const results = await client.search("skin");
     assert.ok(results.length > 0 && results.length <= 24);
     assert.ok(results.every((result) => result.url.startsWith("/docs")));
-    assert.deepEqual(await (await request("/api/search")).json(), []);
     assert.equal(search.headers.get("x-content-type-options"), "nosniff");
     assert.equal(search.headers.get("x-frame-options"), "SAMEORIGIN");
+
+    for (const slugs of [[], ["installation"]]) {
+      const key = createHash("sha1")
+        .update(
+          `docs-metadata__${JSON.stringify(slugs).replace(/[/\\?%*:|"<>]/g, "-")}`,
+        )
+        .digest("hex");
+      const response = await request(`/__tsr/staticServerFnCache/${key}.json`);
+      assert.equal(response.status, 200);
+      assert.ok(response.headers.has("etag"));
+      const metadata = fromJSON(await response.json()) as {
+        result: { url: string; title: string; pageTree: unknown };
+      };
+      assert.equal(
+        metadata.result.url,
+        `/docs${slugs.length ? `/${slugs.join("/")}` : ""}`,
+      );
+      assert.ok(metadata.result.title);
+      assert.ok(metadata.result.pageTree);
+    }
 
     const embed = await request("/discord-embed/installation");
     assert.equal(embed.status, 200);
