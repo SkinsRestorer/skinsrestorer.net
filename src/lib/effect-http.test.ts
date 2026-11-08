@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { Effect, Fiber, Result, Schema } from "effect";
 import { TestClock } from "effect/testing";
 import { HttpClient, readHttpJson, readHttpText } from "./effect-http";
@@ -212,4 +213,51 @@ test("cancelling a response closes its reader before aborting the transport", as
   caller.abort();
   await pending;
   assert.deepEqual(events, ["cancel", "abort"]);
+});
+
+test("cancellation aborts a response while an observer holds its cloned body", async () => {
+  let transportSignal: AbortSignal | null | undefined;
+  let observer: ReadableStream<Uint8Array> | undefined;
+  let appBody: ReadableStream<Uint8Array> | undefined;
+  let reading!: () => void;
+  const started = new Promise<void>((resolve) => {
+    reading = resolve;
+  });
+  const transport: typeof fetch = async (_url, init) => {
+    transportSignal = init?.signal;
+    const body = new ReadableStream<Uint8Array>(
+      {
+        start(controller) {
+          init?.signal?.addEventListener(
+            "abort",
+            () => controller.error(init.signal?.reason),
+            { once: true },
+          );
+        },
+        pull() {
+          reading();
+        },
+      },
+      { highWaterMark: 0 },
+    );
+    // A response-body observer can keep the other branch unread indefinitely.
+    [appBody, observer] = body.tee();
+    return new Response(appBody);
+  };
+  const caller = new AbortController();
+  const pending = Effect.runPromiseExit(provide(readHttpText(url), transport), {
+    signal: caller.signal,
+  });
+  try {
+    await started;
+    await yieldToEventLoop();
+    caller.abort();
+    await yieldToEventLoop();
+    assert.equal(transportSignal?.aborted, true);
+    await pending;
+    assert.equal(appBody?.locked, false);
+  } finally {
+    await observer?.cancel().catch(() => undefined);
+    await pending;
+  }
 });

@@ -919,7 +919,7 @@
     "src/lib/hooks/use-skin-file.ts": "6025c026aaf431ece7d40f42f1f8876aaac2277200c4aaa12b4ce5049e115769",
     "src/app/(home)/upload/upload-card.tsx": "8269930a5eb5255655781b19c289ee5093dd30f20e91040bbb9fef868e7cf3a3",
     "src/app/(home)/generator/generator-card.tsx": "685de808e660668f541cedebfaa07fc6f4094bb8681c810ddbccd99f94fc553c",
-    "src/lib/effect-http.ts": "1fc8a2fb8adba2d7c0b83f97cd054b13ea28e02806f795713d3aa7098fabcd8e",
+    "src/lib/effect-http.ts": "e88565c249da28b7b15582b7860d0b5dac86ddbe07638c549357a09a872e3f9d",
     "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
     "src/lib/hooks/use-skin-upload.ts": "0a6bbbf07207de5d571b8dfac6ec9ea18b6801cc789504bdd94747c56334b8dd",

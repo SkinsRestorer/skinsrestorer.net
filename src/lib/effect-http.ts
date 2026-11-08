@@ -89,15 +89,21 @@ export const readHttpText = Effect.fn("Http.readText")(function* (
       ),
     (owner) =>
       Effect.promise(async () => {
+        let cancellation: Promise<void> | undefined;
         try {
           // Close pending body reads normally before abort can error the stream.
           if (owner.reader) {
-            await owner.reader.cancel().catch(() => undefined);
+            cancellation = owner.reader.cancel().catch(() => undefined);
             owner.reader.releaseLock();
-          } else await owner.response?.body?.cancel().catch(() => undefined);
+          } else
+            cancellation = owner.response?.body
+              ?.cancel()
+              .catch(() => undefined);
         } finally {
+          // A cloned body's cancellation can wait for the observer's branch.
           owner.controller.abort();
         }
+        await cancellation;
       }),
   );
 });
