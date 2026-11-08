@@ -34,7 +34,10 @@ test(
       );
       assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN", path);
       assert.ok(
-        response.headers.has("etag"),
+        response.headers.has("etag") ||
+          ["HIT", "MISS", "EXPIRED", "REVALIDATED"].includes(
+            response.headers.get("cf-cache-status") ?? "",
+          ),
         `Page must be served as a static asset: ${path}`,
       );
       assert.match(

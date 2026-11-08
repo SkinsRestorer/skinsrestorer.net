@@ -31,7 +31,12 @@ Run `bun run build`, then `bun run deploy:check` to validate deployment without 
 Run `bunx cf auth login` to sign in and `bun run deploy` to build and deploy the Worker.
 The configuration selects the existing SkinsRestorer Cloudflare account.
 Set `CLOUDFLARE_ACCOUNT_ID` to override it for another account.
-Custom-domain and DNS changes require configuration in the target Cloudflare account.
+The Worker serves `skinsrestorer.net` and `www.skinsrestorer.net` as custom domains.
+
+GitHub Actions deploys pushes to `main` after the build, checks, and production-route tests pass.
+It uses `bunx cf deploy --prebuilt --mode production`, then tests the public site.
+The `CLOUDFLARE_API_TOKEN` repository secret grants Worker deployment access in the SkinsRestorer account and route access for this zone.
+Cloudflare's GitHub app is not connected to this organization, so deployments run in GitHub Actions instead of Workers Builds.
 
 `bun run cf-typegen` generates Worker types in `.cloudflare/types/index.d.ts`.
 The typecheck command runs this step automatically.
@@ -39,9 +44,8 @@ The typecheck command runs this step automatically.
 ## Source map uploads
 
 Production builds upload source maps to SkinsRestorer's EU PostHog project (`101544`).
-Set `POSTHOG_PERSONAL_API_KEY` in the Cloudflare production build environment.
 Use a separate personal API key with error tracking write and organization read access.
-Also set this GitHub Actions secret to upload maps from builds on `main`.
+Set the `POSTHOG_PERSONAL_API_KEY` GitHub Actions secret to upload maps from builds on `main`.
 The PostHog Rollup plugin uploads browser source maps and removes uploaded maps.
 It uses GitHub's `GITHUB_SHA` or the current Git commit as the release version.
 The private key stays in the build environment. Do not use a `VITE_` prefix for it.

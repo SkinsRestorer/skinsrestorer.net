@@ -6,6 +6,7 @@ export default defineConfig({
     process.env.CLOUDFLARE_ACCOUNT_ID ?? "ba673a702aa9c7a8f9a68449adf70951",
   worker: {
     name: "skinsrestorer-website",
+    domains: ["skinsrestorer.net", "www.skinsrestorer.net"],
     compatibilityDate: "2026-04-13",
     compatibilityFlags: ["nodejs_compat"],
     entrypoint,
