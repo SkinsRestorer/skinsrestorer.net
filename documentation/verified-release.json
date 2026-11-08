@@ -916,13 +916,13 @@
   "websiteSources": {
     "src/lib/mineskin.ts": "8b1b280275949ceeb8df7081cad0ea4eb5c2dbf11368aa97a5b236475bab8577",
     "src/lib/hooks/use-cape-selection.ts": "aafeefecc445679663e1232bb7b360b51d8f18da73650fbfd119d070a69794c5",
-    "src/lib/hooks/use-skin-file.ts": "ae5d8eb9f55bff47362b14025a1331a79cc40406cc8f935ddacef1d2087aaf49",
+    "src/lib/hooks/use-skin-file.ts": "6025c026aaf431ece7d40f42f1f8876aaac2277200c4aaa12b4ce5049e115769",
     "src/app/(home)/upload/upload-card.tsx": "8269930a5eb5255655781b19c289ee5093dd30f20e91040bbb9fef868e7cf3a3",
     "src/app/(home)/generator/generator-card.tsx": "685de808e660668f541cedebfaa07fc6f4094bb8681c810ddbccd99f94fc553c",
-    "src/lib/effect-http.ts": "425d5d2766a5ed950c1f3952790db263ba0d67c12f299f67520176fa3932613f",
+    "src/lib/effect-http.ts": "1fc8a2fb8adba2d7c0b83f97cd054b13ea28e02806f795713d3aa7098fabcd8e",
     "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
     "src/lib/hooks/use-skin-upload.ts": "0a6bbbf07207de5d571b8dfac6ec9ea18b6801cc789504bdd94747c56334b8dd",
-    "src/lib/skin.ts": "41ad5759518e65f9593ed0bec23b0184b68fd75bc4192caa2b5df2704b653235"
+    "src/lib/skin.ts": "bc0ba986807112d2f3feef4794c28bc4422b0fcaee260910bc320e26c407d254"
   }
 }

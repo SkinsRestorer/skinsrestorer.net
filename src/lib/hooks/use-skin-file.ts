@@ -27,7 +27,7 @@ export function useSkinFile() {
       detection.cancel();
       if (notification.current !== undefined)
         toast.dismiss(notification.current);
-      setFile(nextFile);
+      setFile(null);
       setSkinUrl(null);
       if (!nextFile) return;
       const id = toast.loading("Detecting skin type...");
@@ -43,6 +43,7 @@ export function useSkinFile() {
             previewSkinFileEffect(nextFile, {
               preview: setSkinUrl,
               detected: (variant) => {
+                setFile(nextFile);
                 setSkinType(variant);
                 toast.success(`Skin file detected as a ${variant} skin.`, {
                   id,

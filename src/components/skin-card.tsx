@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
-import { ReactSkinview3d } from "react-skinview3d";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   CrouchAnimation,
   FlyingAnimation,
   HitAnimation,
   IdleAnimation,
   RunningAnimation,
-  type SkinViewer,
+  SkinViewer,
   WalkingAnimation,
   WaveAnimation,
 } from "skinview3d";
@@ -30,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
+import { startSkinPreview } from "@/lib/skin-preview";
 
 const animations = {
   walking: WalkingAnimation,
@@ -53,6 +53,8 @@ export function SkinCard(props: {
     () => new WalkingAnimation(),
   );
   const [viewer, setViewer] = useState<SkinViewer | null>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [previewFailed, setPreviewFailed] = useState(false);
   const animationSelectId = useId();
 
   useEffect(() => {
@@ -64,6 +66,40 @@ export function SkinCard(props: {
 
   const normalizedSkinUrl = ensureHttpsTextureUrl(props.skinUrl);
   const normalizedCapeUrl = ensureHttpsTextureUrl(props.capeUrl);
+
+  useEffect(() => {
+    if (!canvas.current) return;
+    const element = canvas.current;
+    setPreviewFailed(false);
+    const stop = startSkinPreview(
+      () => new SkinViewer({ canvas: element, height: 300, width: 200 }),
+      {
+        skin:
+          normalizedSkinUrl ||
+          "https://textures.minecraft.net/texture/26c156a5a28ba3647b3de3b5bfec4d399670b1f063d6526ba201c2be01b60df5",
+        cape: normalizedCapeUrl ?? undefined,
+      },
+      (current) => {
+        current.autoRotate = true;
+        setViewer(current);
+      },
+      () => {
+        setViewer(null);
+        setPreviewFailed(true);
+      },
+    );
+    const lost = (event: Event) => {
+      event.preventDefault();
+      stop();
+      setViewer(null);
+      setPreviewFailed(true);
+    };
+    element.addEventListener("webglcontextlost", lost);
+    return () => {
+      element.removeEventListener("webglcontextlost", lost);
+      stop();
+    };
+  }, [normalizedSkinUrl, normalizedCapeUrl]);
 
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -120,23 +156,19 @@ export function SkinCard(props: {
             </SelectContent>
           </Select>
         </div>
-        <ReactSkinview3d
+        <canvas
+          ref={canvas}
           height={300}
           width={200}
-          skinUrl={
-            normalizedSkinUrl ||
-            "https://textures.minecraft.net/texture/26c156a5a28ba3647b3de3b5bfec4d399670b1f063d6526ba201c2be01b60df5"
-          }
-          capeUrl={normalizedCapeUrl ?? undefined}
-          onReady={({ viewer }) => {
-            viewer.autoRotate = true;
-            setViewer(viewer);
-          }}
-          options={{
-            animation,
-            model: props.model,
-          }}
+          hidden={previewFailed}
+          aria-label="3D skin preview"
         />
+        {previewFailed && (
+          <output className="text-sm text-muted-foreground">
+            The 3D preview is unavailable. You can still upload or generate your
+            skin.
+          </output>
+        )}
       </CardContent>
     </Card>
   );

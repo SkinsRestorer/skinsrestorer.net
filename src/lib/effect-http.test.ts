@@ -173,3 +173,43 @@ test("HTTP cancellation waits for response reader cleanup", async () => {
   await pending;
   assert.equal(body.locked, false);
 });
+
+test("cancelling a response closes its reader before aborting the transport", async () => {
+  const events: string[] = [];
+  let reading!: () => void;
+  const started = new Promise<void>((resolve) => {
+    reading = resolve;
+  });
+  const transport: typeof fetch = async (_url, init) => {
+    const body = new ReadableStream<Uint8Array>(
+      {
+        start(controller) {
+          init?.signal?.addEventListener(
+            "abort",
+            () => {
+              events.push("abort");
+              controller.error(init.signal?.reason);
+            },
+            { once: true },
+          );
+        },
+        pull() {
+          reading();
+        },
+        cancel() {
+          events.push("cancel");
+        },
+      },
+      { highWaterMark: 0 },
+    );
+    return new Response(body);
+  };
+  const caller = new AbortController();
+  const pending = Effect.runPromiseExit(provide(readHttpText(url), transport), {
+    signal: caller.signal,
+  });
+  await started;
+  caller.abort();
+  await pending;
+  assert.deepEqual(events, ["cancel", "abort"]);
+});

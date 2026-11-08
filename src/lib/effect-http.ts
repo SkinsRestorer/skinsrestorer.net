@@ -89,11 +89,15 @@ export const readHttpText = Effect.fn("Http.readText")(function* (
       ),
     (owner) =>
       Effect.promise(async () => {
-        owner.controller.abort();
-        if (owner.reader) {
-          await owner.reader.cancel().catch(() => undefined);
-          owner.reader.releaseLock();
-        } else await owner.response?.body?.cancel().catch(() => undefined);
+        try {
+          // Close pending body reads normally before abort can error the stream.
+          if (owner.reader) {
+            await owner.reader.cancel().catch(() => undefined);
+            owner.reader.releaseLock();
+          } else await owner.response?.body?.cancel().catch(() => undefined);
+        } finally {
+          owner.controller.abort();
+        }
       }),
   );
 });

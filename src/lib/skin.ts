@@ -17,6 +17,14 @@ export class SkinImages extends Context.Service<
   }
 >()("skinsrestorer/SkinImages") {}
 
+export function validateSkinDimensions(width: number, height: number): void {
+  if (width <= 0 || height <= 0 || (width !== height && width !== height * 2)) {
+    throw new SkinImageError({
+      message: `This image is ${width}×${height}. Choose a square skin image, such as 64×64, or a legacy skin, such as 64×32.`,
+    });
+  }
+}
+
 export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
   function* (imageUrl: string) {
     const images = yield* SkinImages;
@@ -32,7 +40,13 @@ export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
           image.onload = () =>
             resume(
               Effect.try({
-                try: () => images.variant(image),
+                try: () => {
+                  validateSkinDimensions(
+                    image.naturalWidth,
+                    image.naturalHeight,
+                  );
+                  return images.variant(image);
+                },
                 catch: (cause) =>
                   new SkinImageError({
                     message:
@@ -73,12 +87,13 @@ export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
 const browserImages: Context.Service.Shape<typeof SkinImages> = {
   create: () => new Image(),
   variant: (image) => {
+    if (image.naturalWidth === image.naturalHeight * 2) return "classic";
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get canvas context");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    ctx.drawImage(image, 0, 0);
+    canvas.width = 64;
+    canvas.height = 64;
+    ctx.drawImage(image, 0, 0, 64, 64);
     const px1 = ctx.getImageData(46, 52, 1, 12).data;
     const px2 = ctx.getImageData(54, 20, 1, 12).data;
     for (let i = 3; i < 12 * 4; i += 4)
@@ -108,13 +123,19 @@ export function previewSkinFileEffect(
     }),
     (url) =>
       Effect.gen(function* () {
-        yield* Effect.sync(() => events.preview(url));
         yield* detectSkinVariantEffect(url).pipe(
-          Effect.tap((variant) => Effect.sync(() => events.detected(variant))),
+          Effect.flatMap((variant) =>
+            Effect.gen(function* () {
+              yield* Effect.sync(() => {
+                events.preview(url);
+                events.detected(variant);
+              });
+              // The component displays this URL until the next selection.
+              yield* Effect.never;
+            }),
+          ),
           Effect.catch((cause) => Effect.sync(() => events.failed(cause))),
         );
-        // The component still displays this URL after detection completes.
-        yield* Effect.never;
       }),
     (url) => Effect.sync(() => urls.revoke(url)),
   );

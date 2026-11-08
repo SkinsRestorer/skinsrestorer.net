@@ -3,7 +3,7 @@ title: "An upload or generated command fails"
 description: "Separate image problems, generation queues, and server command failures."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-08"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -12,7 +12,11 @@ The website generates a command. Your server then runs that command. Identify wh
 
 ## The website rejects the file
 
-Use a standard PNG skin template. The website's file limit is 5 MB. A screenshot, JPEG, or HD image is not a standard skin template.
+Use a PNG skin template. The website's file limit is 5 MB. A skin image must be square or twice as wide as it is tall. Standard sizes are 64×64 and 64×32. Scaled versions of these shapes also pass the preview check.
+
+If the page reports different dimensions, export the image with a skin editor. Renaming a screenshot does not turn it into a skin.
+
+If the 3D preview is unavailable, you can still upload or generate your skin. The preview needs WebGL support in your browser.
 
 If the preview shows arm gaps, switch between classic and slim. Read [the model guide](/docs/features/skin-design).
 

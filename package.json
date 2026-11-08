@@ -55,7 +55,6 @@
     "radix-ui": "^1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-skinview3d": "^7.0.0",
     "react-timeago": "^8.0.0",
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
