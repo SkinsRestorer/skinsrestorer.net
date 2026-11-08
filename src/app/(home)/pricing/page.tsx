@@ -77,9 +77,13 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild variant="outline" className="w-full" size="lg">
-                <Link href="/docs/installation">Get Started</Link>
-              </Button>
+              <Button
+                render={<Link href="/docs/installation">Get Started</Link>}
+                nativeButton={false}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              />
             </CardFooter>
           </Card>
 
@@ -115,12 +119,17 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" size="lg">
-                <a href="http://ko-fi.com/skinsrestorer/tiers">
-                  <SiKofi className="h-4 w-4" />
-                  Become a Supporter
-                </a>
-              </Button>
+              <Button
+                render={
+                  <a href="http://ko-fi.com/skinsrestorer/tiers">
+                    <SiKofi className="h-4 w-4" />
+                    Become a Supporter
+                  </a>
+                }
+                nativeButton={false}
+                className="w-full"
+                size="lg"
+              />
             </CardFooter>
           </Card>
         </div>

@@ -70,15 +70,16 @@ const BentoCard = ({
         {href && cta && (
           <Button
             variant="link"
-            asChild
+            render={
+              <a href={href}>
+                {cta}
+                <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
+              </a>
+            }
+            nativeButton={false}
             size="sm"
             className="pointer-events-auto p-0"
-          >
-            <a href={href}>
-              {cta}
-              <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
-            </a>
-          </Button>
+          />
         )}
       </div>
     </div>
@@ -91,15 +92,16 @@ const BentoCard = ({
       {href && cta && (
         <Button
           variant="link"
-          asChild
+          render={
+            <a href={href}>
+              {cta}
+              <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
+            </a>
+          }
+          nativeButton={false}
           size="sm"
           className="pointer-events-auto p-0"
-        >
-          <a href={href}>
-            {cta}
-            <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
-          </a>
-        </Button>
+        />
       )}
     </div>
 

@@ -148,22 +148,26 @@ export const UploadCard = () => {
                     Or click to browse (PNG only, up to 5MB)
                   </p>
                 </div>
-                <FileUploadTrigger asChild>
-                  <Button variant="outline" size="sm" className="mt-2 w-fit">
-                    Browse files
-                  </Button>
-                </FileUploadTrigger>
+                <FileUploadTrigger
+                  render={
+                    <Button variant="outline" size="sm" className="mt-2 w-fit">
+                      Browse files
+                    </Button>
+                  }
+                />
               </FileUploadDropzone>
               <FileUploadList>
                 {selectedFile && (
                   <FileUploadItem value={selectedFile}>
                     <FileUploadItemPreview />
                     <FileUploadItemMetadata />
-                    <FileUploadItemDelete asChild>
-                      <Button variant="ghost" size="icon" className="size-7">
-                        <X />
-                      </Button>
-                    </FileUploadItemDelete>
+                    <FileUploadItemDelete
+                      render={
+                        <Button variant="ghost" size="icon" className="size-7">
+                          <X />
+                        </Button>
+                      }
+                    />
                   </FileUploadItem>
                 )}
               </FileUploadList>

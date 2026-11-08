@@ -48,6 +48,19 @@ export function CapeSupportFields({
   const mineskinApiKeyId = useId();
   const capeSelectId = useId();
 
+  const capeItems = [
+    { value: NO_CAPE_VALUE, label: <span>No cape</span>, disabled: false },
+    ...(supportedCapes.map((cape) => ({
+      value: cape.uuid,
+      disabled: capeOptionsDisabled,
+      label: (
+        <div className="flex items-center gap-2">
+          <CapePreview texture={cape.url} />
+          <span>{cape.alias}</span>
+        </div>
+      ),
+    })) ?? []),
+  ];
   return (
     <>
       {showApiKeyFields && (
@@ -126,28 +139,25 @@ export function CapeSupportFields({
       )}
       <div className="flex flex-col gap-2">
         <Label htmlFor={capeSelectId}>Cape (optional)</Label>
-        <Select value={selectedCapeUuid} onValueChange={onCapeChange}>
+        <Select
+          items={capeItems}
+          value={selectedCapeUuid}
+          onValueChange={(value) => {
+            if (value !== null) onCapeChange(value);
+          }}
+        >
           <SelectTrigger id={capeSelectId}>
             <SelectValue placeholder="No cape" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {/* Keep the label in an element. Radix portals the selected label
-                  into the trigger, and browser translation replaces bare text
-                  nodes there, which makes React fail to remove them. */}
-              <SelectItem value={NO_CAPE_VALUE}>
-                <span>No cape</span>
-              </SelectItem>
-              {supportedCapes.map((cape) => (
+              {capeItems.map((item) => (
                 <SelectItem
-                  key={cape.uuid}
-                  value={cape.uuid}
-                  disabled={capeOptionsDisabled}
+                  key={item.value}
+                  value={item.value}
+                  disabled={item.disabled}
                 >
-                  <div className="flex items-center gap-2">
-                    <CapePreview texture={cape.url} />
-                    <span>{cape.alias}</span>
-                  </div>
+                  {item.label}
                 </SelectItem>
               ))}
             </SelectGroup>

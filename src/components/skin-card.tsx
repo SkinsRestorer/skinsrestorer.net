@@ -101,6 +101,15 @@ export function SkinCard(props: {
     };
   }, [normalizedSkinUrl, normalizedCapeUrl]);
 
+  const animationItems = [
+    { value: "walking" as const, label: <span>Walking</span> },
+    { value: "idle" as const, label: <span>Idle</span> },
+    { value: "running" as const, label: <span>Running</span> },
+    { value: "flying" as const, label: <span>Flying</span> },
+    { value: "wave" as const, label: <span>Wave</span> },
+    { value: "crouch" as const, label: <span>Crouch</span> },
+    { value: "hit" as const, label: <span>Hit</span> },
+  ];
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
@@ -113,9 +122,11 @@ export function SkinCard(props: {
         <div className="w-full max-w-xs flex flex-col gap-2">
           <Label htmlFor={animationSelectId}>Animation</Label>
           <Select
+            items={animationItems}
             value={animationType}
             onValueChange={(value) => {
-              const type = value as AnimationType;
+              if (value === null) return;
+              const type = value;
               setAnimationType(type);
               const Animation = animations[type];
               setAnimation((current) =>
@@ -127,31 +138,12 @@ export function SkinCard(props: {
               <SelectValue placeholder="Choose an animation" />
             </SelectTrigger>
             <SelectContent>
-              {/* Wrap item labels in an element. Radix portals the selected
-                  label into the trigger, and browser translation replaces bare
-                  text nodes there, which makes React fail to remove them. */}
               <SelectGroup>
-                <SelectItem value="walking">
-                  <span>Walking</span>
-                </SelectItem>
-                <SelectItem value="idle">
-                  <span>Idle</span>
-                </SelectItem>
-                <SelectItem value="running">
-                  <span>Running</span>
-                </SelectItem>
-                <SelectItem value="flying">
-                  <span>Flying</span>
-                </SelectItem>
-                <SelectItem value="wave">
-                  <span>Wave</span>
-                </SelectItem>
-                <SelectItem value="crouch">
-                  <span>Crouch</span>
-                </SelectItem>
-                <SelectItem value="hit">
-                  <span>Hit</span>
-                </SelectItem>
+                {animationItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>

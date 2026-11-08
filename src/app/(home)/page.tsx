@@ -290,18 +290,27 @@ export default function IndexPage() {
             command.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <a href={downloadLink}>
-                <Download aria-hidden="true" />
-                Download on Modrinth
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/docs/installation">
-                <BookOpen aria-hidden="true" />
-                Installation guide
-              </Link>
-            </Button>
+            <Button
+              render={
+                <a href={downloadLink}>
+                  <Download aria-hidden="true" />
+                  Download on Modrinth
+                </a>
+              }
+              nativeButton={false}
+              size="lg"
+            />
+            <Button
+              render={
+                <Link href="/docs/installation">
+                  <BookOpen aria-hidden="true" />
+                  Installation guide
+                </Link>
+              }
+              nativeButton={false}
+              size="lg"
+              variant="outline"
+            />
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
             <span>Open source, GPL-3.0</span>
@@ -491,18 +500,26 @@ export default function IndexPage() {
               or config get answered in Discord.
             </SectionHeading>
             <div className="flex flex-wrap gap-3">
-              <Button asChild variant="outline">
-                <a href={githubLink}>
-                  <SiGithub aria-hidden="true" />
-                  GitHub
-                </a>
-              </Button>
-              <Button asChild variant="outline">
-                <a href={discordLink}>
-                  <SiDiscord aria-hidden="true" />
-                  Discord
-                </a>
-              </Button>
+              <Button
+                render={
+                  <a href={githubLink}>
+                    <SiGithub aria-hidden="true" />
+                    GitHub
+                  </a>
+                }
+                nativeButton={false}
+                variant="outline"
+              />
+              <Button
+                render={
+                  <a href={discordLink}>
+                    <SiDiscord aria-hidden="true" />
+                    Discord
+                  </a>
+                }
+                nativeButton={false}
+                variant="outline"
+              />
             </div>
             <Link href="/pricing" className={linkClassName}>
               <Heart aria-hidden="true" className="size-4" />

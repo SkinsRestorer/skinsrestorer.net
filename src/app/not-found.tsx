@@ -16,11 +16,14 @@ export default function RootComponent() {
             className="rounded-xl"
           />
         </div>
-        <Button asChild>
-          <Link href="/" className="w-fit m-auto">
-            <span>Go back</span>
-          </Link>
-        </Button>
+        <Button
+          render={
+            <Link href="/" className="w-fit m-auto">
+              <span>Go back</span>
+            </Link>
+          }
+          nativeButton={false}
+        />
       </div>
     </main>
   );

@@ -52,7 +52,7 @@ export function HomeFaq({
   items: { question: string; answer: React.ReactNode }[];
 }) {
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion className="w-full">
       {items.map((item) => (
         <AccordionItem key={item.question} value={item.question}>
           <AccordionTrigger>{item.question}</AccordionTrigger>
