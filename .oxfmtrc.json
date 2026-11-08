@@ -21,6 +21,6 @@
     "**/*.md",
     "**/*.mdx",
     "src/routeTree.gen.ts",
-    ".netlify"
+    ".cloudflare"
   ]
 }

@@ -24,14 +24,11 @@ export function SiteFooter() {
             Cookie Policy
           </Link>
         </nav>
-        <a href="https://www.netlify.com" className="shrink-0">
-          <img
-            src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
-            alt="Deploys by Netlify"
-            width={114}
-            height={32}
-            className="h-8 w-auto"
-          />
+        <a
+          href="https://www.cloudflare.com"
+          className="shrink-0 hover:text-fd-foreground"
+        >
+          Hosted on Cloudflare
         </a>
       </div>
     </footer>

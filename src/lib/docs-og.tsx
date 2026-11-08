@@ -1,4 +1,4 @@
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "takumi-js/response";
 
 export function generateDocsImage({
   title,
@@ -28,6 +28,11 @@ export function generateDocsImage({
         SkinsRestorer
       </p>
     </div>,
-    { width: 1200, height: 630 },
+    {
+      width: 1200,
+      height: 630,
+      format: "png",
+      headers: { "Cache-Control": "public, max-age=3600" },
+    },
   );
 }

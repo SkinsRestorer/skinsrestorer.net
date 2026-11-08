@@ -78,7 +78,7 @@
     "shadcn/require-static-classes": "error",
     "shadcn/no-inline-styles": "error"
   },
-  "ignorePatterns": ["src/routeTree.gen.ts", ".netlify/**"],
+  "ignorePatterns": ["src/routeTree.gen.ts", ".cloudflare/**"],
   "overrides": [
     {
       "files": ["src/lib/docs-og.tsx"],

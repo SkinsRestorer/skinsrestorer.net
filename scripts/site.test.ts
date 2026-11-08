@@ -27,6 +27,16 @@ test(
     ]) {
       const response = await request(path);
       assert.equal(response.status, 200, path);
+      assert.equal(
+        response.headers.get("x-content-type-options"),
+        "nosniff",
+        path,
+      );
+      assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN", path);
+      assert.ok(
+        response.headers.has("etag"),
+        `Page must be served as a static asset: ${path}`,
+      );
       assert.match(
         response.headers.get("content-type") ?? "",
         /text\/html/,

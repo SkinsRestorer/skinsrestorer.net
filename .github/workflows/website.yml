@@ -57,6 +57,9 @@ jobs:
           POSTHOG_PERSONAL_API_KEY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.POSTHOG_PERSONAL_API_KEY || '' }}
         run: bun run build
 
+      - name: Validate Cloudflare deployment package
+        run: bun run deploy:check
+
       - name: Test production routes
         run: |
           node node_modules/vite/bin/vite.js preview --port 3000 > /tmp/site-preview.log 2>&1 &

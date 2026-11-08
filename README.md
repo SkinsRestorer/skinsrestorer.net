@@ -3,9 +3,9 @@ The SkinsRestorer website and documentation use TanStack Start, Vite, and Fumado
 
 ## Development
 
-Use the Bun version in `package.json` and Node.js 22.12 or later.
+Use the Bun version in `package.json` and Node.js 22.18 or later.
 Run `bun install --frozen-lockfile`, then `bun run dev`.
-Run `bun run build` to build the site for Netlify.
+Run `bun run build` to build the site for Cloudflare Workers.
 Run `bun run preview` to serve the production build locally.
 With the preview running, run `bun run test:site` to test production routes and endpoints.
 
@@ -14,23 +14,36 @@ Fumadocs generates the browser and server collections in `.source`.
 Run `bun run typecheck` to regenerate both before TypeScript checks.
 
 Public configuration uses the `VITE_` variables in `.env`.
-Netlify overrides must use the same names. These values are included in browser code.
+Cloudflare build overrides must use the same names. These values are included in browser code.
 Keep private keys in variables without the `VITE_` prefix.
 
 ## Deployment
 
-Netlify runs `bun run build` and publishes `dist/client`, as defined in `netlify.toml`.
-The Netlify Vite plugin also creates the server function for dynamic routes.
-The migration keeps the existing page URLs, documentation redirects, and public endpoints.
+The project uses the Cloudflare Vite plugin and `cf` CLI, matching SoulFire's deployment setup.
+`cloudflare.config.ts` defines the `skinsrestorer-website` Worker, Node.js compatibility, logs, and traces.
+Builds write the deployable Worker and static assets to `.cloudflare/output/v0`.
+
+Cloudflare serves matching static assets before invoking the Worker.
+Prerendered pages keep their complete HTML, while server functions and public endpoints remain available through the Worker.
+`public/_headers` supplies security headers for static files. Worker middleware supplies them for dynamic responses and redirects.
+
+Run `bun run build`, then `bun run deploy:check` to validate deployment without uploading anything.
+Run `bunx cf auth login` to sign in and `bun run deploy` to build and deploy the Worker.
+The configuration selects the existing SkinsRestorer Cloudflare account.
+Set `CLOUDFLARE_ACCOUNT_ID` to override it for another account.
+Custom-domain and DNS changes require configuration in the target Cloudflare account.
+
+`bun run cf-typegen` generates Worker types in `.cloudflare/types/index.d.ts`.
+The typecheck command runs this step automatically.
 
 ## Source map uploads
 
 Production builds upload source maps to SkinsRestorer's EU PostHog project (`101544`).
-Set `POSTHOG_PERSONAL_API_KEY` in the Netlify site's production environment with the Builds scope.
+Set `POSTHOG_PERSONAL_API_KEY` in the Cloudflare production build environment.
 Use a separate personal API key with error tracking write and organization read access.
 Also set this GitHub Actions secret to upload maps from builds on `main`.
 The PostHog Rollup plugin uploads browser source maps and removes uploaded maps.
-It uses Netlify's `COMMIT_REF` or GitHub's `GITHUB_SHA` as the release version.
+It uses GitHub's `GITHUB_SHA` or the current Git commit as the release version.
 The private key stays in the build environment. Do not use a `VITE_` prefix for it.
 Local and pull-request builds skip uploads when the key is absent.
 

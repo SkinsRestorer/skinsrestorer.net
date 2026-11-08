@@ -20,6 +20,6 @@
     "types": ["vite/client", "node"],
     "allowImportingTsExtensions": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "dist", ".netlify"]
+  "include": ["**/*.ts", "**/*.tsx", ".cloudflare/types/index.d.ts"],
+  "exclude": ["node_modules", "dist", ".cloudflare/output"]
 }

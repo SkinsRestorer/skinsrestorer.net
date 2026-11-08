@@ -74,5 +74,5 @@ public/sitemap*
 _pagefind/
 .source
 
-.netlify/
+.cloudflare/
 .tanstack/

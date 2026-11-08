@@ -1,4 +1,5 @@
-import netlify from "@netlify/vite-plugin-tanstack-start";
+import { execFileSync } from "node:child_process";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import posthog from "@posthog/rollup-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -10,13 +11,14 @@ import { securityHeaders } from "./src/lib/security-headers.ts";
 import * as MdxConfig from "./source.config.ts";
 
 export default defineConfig(({ command }) => ({
-  server: { headers: securityHeaders },
-  preview: { headers: securityHeaders },
+  server: { port: 3000, headers: securityHeaders },
+  preview: { port: 3000, headers: securityHeaders },
   resolve: { tsconfigPaths: true },
   build: { sourcemap: true },
   environments: { ssr: { build: { sourcemap: true } } },
   plugins: [
     mdx(MdxConfig),
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     tanstackStart({
       prerender: {
@@ -26,12 +28,13 @@ export default defineConfig(({ command }) => ({
         failOnError: true,
         concurrency: 4,
         filter: ({ path }) =>
-          (sitePages as readonly string[]).includes(path) ||
-          (path.startsWith("/docs") && !path.includes(".")),
+          !/[?#]/.test(path) &&
+          ((sitePages as readonly string[]).includes(path) ||
+            ((path === "/docs" || path.startsWith("/docs/")) &&
+              !path.includes("."))),
       },
     }),
     react(),
-    netlify({ dev: { edgeFunctions: { enabled: false } } }),
     ...(command === "build" && process.env.POSTHOG_PERSONAL_API_KEY
       ? [
           {
@@ -43,7 +46,10 @@ export default defineConfig(({ command }) => ({
                 enabled: true,
                 releaseName: "skinsrestorer.net",
                 releaseVersion:
-                  process.env.COMMIT_REF ?? process.env.GITHUB_SHA,
+                  process.env.GITHUB_SHA ??
+                  execFileSync("git", ["rev-parse", "HEAD"], {
+                    encoding: "utf8",
+                  }).trim(),
                 deleteAfterUpload: true,
               },
             }),
