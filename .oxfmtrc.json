@@ -13,14 +13,14 @@
   "bracketSpacing": true,
   "ignorePatterns": [
     "node_modules",
-    ".next",
     "dist",
     "build",
     "coverage",
     "out",
     ".source",
-    "postcss.config.mjs",
     "**/*.md",
-    "**/*.mdx"
+    "**/*.mdx",
+    "src/routeTree.gen.ts",
+    ".netlify"
   ]
 }

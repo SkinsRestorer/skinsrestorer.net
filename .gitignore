@@ -51,7 +51,6 @@ web_modules/
 .env.local
 .cache
 .parcel-cache
-.next
 out
 .nuxt
 dist
@@ -74,4 +73,6 @@ dist
 public/sitemap*
 _pagefind/
 .source
-next-env.d.ts
+
+.netlify/
+.tanstack/

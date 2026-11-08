@@ -1,0 +1,40 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { getSiteRedirect } from "./site-redirects";
+
+test("retired documentation and Markdown URLs move permanently to the replacement", () => {
+  assert.deepEqual(getSiteRedirect("/docs/features/skin-url"), {
+    destination: "/docs/features/skin-upload",
+    status: 308,
+  });
+  assert.deepEqual(getSiteRedirect("/docs/features/skin-url.mdx"), {
+    destination: "/docs/features/skin-upload.mdx",
+    status: 308,
+  });
+});
+
+test("legacy shortcuts resolve with temporary redirects, including trailing slashes", () => {
+  for (const [path, destination] of [
+    ["/skinurl", "/upload"],
+    ["/perms/", "/docs/configuration/commands-permissions"],
+    ["/install", "/docs/installation"],
+    ["/skinedit", "/docs/features/skin-edit"],
+    [
+      "/docs/troubleshooting/cannot-fetch-new-skins",
+      "/docs/troubleshooting/firewall",
+    ],
+  ]) {
+    assert.deepEqual(getSiteRedirect(path), { destination, status: 307 });
+  }
+  assert.equal(
+    getSiteRedirect("/github")?.destination,
+    import.meta.env.VITE_GITHUB_LINK ??
+      "https://github.com/SkinsRestorer/SkinsRestorer",
+  );
+});
+
+test("current and unknown routes pass through without redirects", () => {
+  for (const path of ["/", "/docs", "/docs/features/skin-upload", "/unknown"]) {
+    assert.equal(getSiteRedirect(path), undefined);
+  }
+});

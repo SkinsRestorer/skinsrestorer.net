@@ -13,7 +13,7 @@ Keep each change focused. Avoid unrelated formatting and dependency updates.
 
 ## Prepare a checkout
 
-Use the Bun version in `package.json`. Use a Node.js release supported by the installed Next.js version. Java example checks need JDK 21 and Maven.
+Use the Bun version in `package.json`. Use Node.js 22.12 or later. Java example checks need JDK 21 and Maven.
 
 ```bash
 bun install --frozen-lockfile

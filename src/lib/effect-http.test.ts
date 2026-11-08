@@ -1,3 +1,4 @@
+import type { HttpFetch } from "./effect-http";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
@@ -8,12 +9,12 @@ import { HttpClient, readHttpJson, readHttpText } from "./effect-http";
 const url = "https://service.example/result";
 const provide = <A, E, R>(
   program: Effect.Effect<A, E, R | HttpClient>,
-  fetcher: typeof fetch,
+  fetcher: HttpFetch,
 ) => program.pipe(Effect.provideService(HttpClient, { fetch: fetcher }));
 
 test("HTTP deadline aborts pending headers without waiting for the transport", async () => {
   let signal: AbortSignal | null | undefined;
-  const transport: typeof fetch = (_url, init) => {
+  const transport: HttpFetch = (_url, init) => {
     signal = init?.signal;
     return new Promise(() => undefined);
   };
@@ -70,7 +71,7 @@ test("late responses from a cancelled transport are discarded", async () => {
   const cancelled = new Promise<void>((resolve) => {
     closed = resolve;
   });
-  const transport: typeof fetch = () => {
+  const transport: HttpFetch = () => {
     started();
     return new Promise((resolve) => {
       finish = resolve;
@@ -181,7 +182,7 @@ test("cancelling a response closes its reader before aborting the transport", as
   const started = new Promise<void>((resolve) => {
     reading = resolve;
   });
-  const transport: typeof fetch = async (_url, init) => {
+  const transport: HttpFetch = async (_url, init) => {
     const body = new ReadableStream<Uint8Array>(
       {
         start(controller) {
@@ -223,7 +224,7 @@ test("cancellation aborts a response while an observer holds its cloned body", a
   const started = new Promise<void>((resolve) => {
     reading = resolve;
   });
-  const transport: typeof fetch = async (_url, init) => {
+  const transport: HttpFetch = async (_url, init) => {
     transportSignal = init?.signal;
     const body = new ReadableStream<Uint8Array>(
       {

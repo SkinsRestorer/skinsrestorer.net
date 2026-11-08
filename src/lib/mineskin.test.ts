@@ -1,3 +1,4 @@
+import type { HttpFetch } from "./effect-http";
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { fetchCapeSupport, uploadMineSkinFile } from "./mineskin";
@@ -12,12 +13,12 @@ const file = new File([new Uint8Array([1, 2, 3])], "skin.png", {
 
 const originalFetch = globalThis.fetch;
 
-function mockFetch(implementation: typeof fetch) {
-  const calls: Parameters<typeof fetch>[] = [];
-  globalThis.fetch = (...args) => {
+function mockFetch(implementation: HttpFetch) {
+  const calls: Parameters<HttpFetch>[] = [];
+  globalThis.fetch = Object.assign((...args: Parameters<HttpFetch>) => {
     calls.push(args);
     return implementation(...args);
-  };
+  }, originalFetch);
   return calls;
 }
 

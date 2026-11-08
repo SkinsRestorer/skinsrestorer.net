@@ -1,9 +1,6 @@
-import Image from "next/image";
-import Link from "next/link";
+import Link from "fumadocs-core/link";
 
-export async function SiteFooter() {
-  "use cache";
-
+export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
@@ -28,13 +25,12 @@ export async function SiteFooter() {
           </Link>
         </nav>
         <a href="https://www.netlify.com" className="shrink-0">
-          <Image
+          <img
             src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg"
             alt="Deploys by Netlify"
             width={114}
             height={32}
             className="h-8 w-auto"
-            unoptimized
           />
         </a>
       </div>

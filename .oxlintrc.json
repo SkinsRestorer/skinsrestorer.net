@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "jsx-a11y", "nextjs", "typescript", "unicorn", "oxc"],
+  "plugins": ["react", "jsx-a11y", "typescript", "unicorn", "oxc"],
   "jsPlugins": ["@shadcn/lint"],
   "rules": {
     "shadcn/no-unknown-classes": "error",
@@ -78,7 +78,12 @@
     "shadcn/require-static-classes": "error",
     "shadcn/no-inline-styles": "error"
   },
+  "ignorePatterns": ["src/routeTree.gen.ts", ".netlify/**"],
   "overrides": [
+    {
+      "files": ["src/lib/docs-og.tsx"],
+      "rules": { "shadcn/no-inline-styles": "off" }
+    },
     {
       "files": ["src/components/ui/**"],
       "rules": {

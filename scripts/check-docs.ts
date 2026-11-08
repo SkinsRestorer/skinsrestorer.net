@@ -1,3 +1,4 @@
+import { sitePages } from "../src/lib/site-pages";
 import { Effect, Schema } from "effect";
 import {
   runTool,
@@ -89,17 +90,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     }
   }
 
-  const homeRoutes = new Set(
-    (yield* walkFiles(path.resolve("src/app/(home)")))
-      .filter((file) => /\/page\.(tsx|mdx)$/.test(file))
-      .map(
-        (file) =>
-          `/${path.relative("src/app/(home)", path.dirname(file))}`.replace(
-            /\/$/,
-            "",
-          ) || "/",
-      ),
-  );
+  const homeRoutes = new Set<string>(sitePages);
   const siteAliases = new Set([
     "/discord",
     "/github",

@@ -1,8 +1,13 @@
 import { Context, Data, Effect, Layer, Schema } from "effect";
 
+/** The portable fetch call signature, without runtime-specific static helpers. */
+export type HttpFetch = (
+  ...args: Parameters<typeof fetch>
+) => ReturnType<typeof fetch>;
+
 export class HttpClient extends Context.Service<
   HttpClient,
-  { readonly fetch: typeof fetch }
+  { readonly fetch: HttpFetch }
 >()("skinsrestorer/HttpClient") {}
 
 export class HttpError extends Data.TaggedError("HttpError")<{

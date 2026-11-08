@@ -1,7 +1,7 @@
 "use client";
 
 import { Cookie } from "lucide-react";
-import Link from "next/link";
+import Link from "fumadocs-core/link";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 

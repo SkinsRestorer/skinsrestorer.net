@@ -8,11 +8,16 @@ const releaseSchema = Schema.Struct({
 
 export const latestReleaseEffect = readHttpJson(
   "https://api.github.com/repos/SkinsRestorer/SkinsRestorer/releases/latest",
-  { next: { revalidate: 120 } },
+  {},
   releaseSchema,
 ).pipe(
   Effect.map((response) => (response.ok ? response.data : null)),
   Effect.orElseSucceed(() => null),
 );
 
-export const getLatestRelease = () => runHttpEffect(latestReleaseEffect);
+export const cachedLatestReleaseEffect = Effect.runSync(
+  Effect.cachedWithTTL(latestReleaseEffect, "120 seconds"),
+);
+
+export const getLatestRelease = (signal?: AbortSignal) =>
+  runHttpEffect(cachedLatestReleaseEffect, signal);

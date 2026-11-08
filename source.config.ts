@@ -1,8 +1,8 @@
 import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import lastModified from "fumadocs-mdx/plugins/last-modified";
-import { docsFrontmatterSchema } from "./src/lib/docs-schema";
-import { docsStringify } from "./src/lib/docs-stringify";
-import { remarkDocsTableHeaders } from "./src/lib/docs-table-headers";
+import { docsFrontmatterSchema } from "./src/lib/docs-schema.ts";
+import { docsStringify } from "./src/lib/docs-stringify.ts";
+import { remarkDocsTableHeaders } from "./src/lib/docs-table-headers.ts";
 
 export const docs = defineDocs({
   dir: "content/docs",

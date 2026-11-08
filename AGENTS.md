@@ -45,5 +45,5 @@ Use the installed Effect v4 APIs for fallible application and tooling workflows.
 - Keep credentials out of proxy requests. Cancel superseded reads and suppress their late results through the current request owner.
 - Use `SkinImages` for image loading and detection. Release image handlers before the owning component revokes its object URL.
 - Use `scripts/lib/runtime.ts` for filesystem operations, temporary directories, and compiler processes. Reap a child process before removing its working directory.
-- Preserve Next caching and revalidation metadata in release reads. Keep documentation output order stable under bounded concurrency.
+- Preserve the 120-second release cache when changing release reads. Keep documentation output order stable under bounded concurrency.
 - Run `bun run test`, `bun run typecheck`, `bun run check`, `bun run docs:java`, and `bun run build` for changes across these workflows.

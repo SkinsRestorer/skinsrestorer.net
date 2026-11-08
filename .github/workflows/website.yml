@@ -1,0 +1,66 @@
+name: "Build and Test"
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    name: Build and Test
+
+    runs-on: ubuntu-26.04
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install Java for documentation examples
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Restore Bun cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+
+      - name: Install dependencies
+        run: bun ci
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Run typecheck
+        run: bun run typecheck
+
+      - name: Run check
+        run: bun run check
+
+      - name: Compile the documented Java plugin
+        run: bun run docs:java
+
+      - name: Run build
+        env:
+          POSTHOG_PERSONAL_API_KEY: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.POSTHOG_PERSONAL_API_KEY || '' }}
+        run: bun run build
+
+      - name: Test production routes
+        run: |
+          node node_modules/vite/bin/vite.js preview --port 3000 > /tmp/site-preview.log 2>&1 &
+          site_preview_pid=$!
+          trap 'kill "$site_preview_pid"' EXIT
+          curl --retry 20 --retry-connrefused --retry-delay 1 --fail --silent --show-error http://localhost:3000/ > /dev/null
+          bun run test:site

@@ -1,5 +1,4 @@
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 function getEnderDashHref(placement: "home" | "docs-footer") {
@@ -30,7 +29,7 @@ export function EnderDashSponsor({
         )}
         aria-label="Sponsor"
       >
-        <Image
+        <img
           src="/assets/sponsors/enderdash-logo.png"
           alt=""
           width={24}
@@ -60,7 +59,7 @@ export function EnderDashSponsor({
       )}
       aria-label="Sponsor"
     >
-      <Image
+      <img
         src="/assets/sponsors/enderdash-logo.png"
         alt=""
         width={40}
