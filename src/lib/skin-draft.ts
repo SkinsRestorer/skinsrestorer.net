@@ -1,12 +1,10 @@
 import { Schema } from "effect";
-import { encodePngSync } from "./png";
 import type { SkinVariant } from "./skin";
 import {
   exportSkinPng,
   importSkinPng,
   type SkinDocument,
 } from "./skin-document";
-import { SKIN_SIZE } from "./skin-regions";
 
 export const DRAFT_KEY = "skinsrestorer:editor:draft";
 export const DRAFT_VERSION = 1;
@@ -62,42 +60,6 @@ export function browserStorage(
   }
 }
 
-export type DraftSaveResult = "saved" | "unavailable" | "full";
-
-function isQuotaError(cause: unknown) {
-  return (
-    cause instanceof DOMException &&
-    (cause.name === "QuotaExceededError" ||
-      cause.name === "NS_ERROR_DOM_QUOTA_REACHED")
-  );
-}
-
-/** Save synchronously, so the page can also save while it unloads. */
-export function saveDraft(
-  storage: KeyValueStorage | undefined,
-  document: SkinDocument,
-  now = Date.now(),
-): DraftSaveResult {
-  if (!storage) return "unavailable";
-  const png = bytesToBase64(
-    encodePngSync(document.pixels, SKIN_SIZE, SKIN_SIZE),
-  );
-  try {
-    storage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({
-        version: DRAFT_VERSION,
-        variant: document.variant,
-        png,
-        updatedAt: now,
-      }),
-    );
-    return "saved";
-  } catch (cause) {
-    return isQuotaError(cause) ? "full" : "unavailable";
-  }
-}
-
 export type DraftReadResult =
   | { readonly status: "none" | "unavailable" | "corrupt" | "newer" }
   | {
@@ -115,7 +77,7 @@ async function decodeStoredSkin(png: string, variant: SkinVariant) {
 
 /** Read the saved draft. A damaged draft is reported and left for the user to discard. */
 export async function readDraft(
-  storage: KeyValueStorage | undefined,
+  storage: Pick<KeyValueStorage, "getItem"> | undefined,
 ): Promise<DraftReadResult> {
   if (!storage) return { status: "unavailable" };
   let raw: string | null;

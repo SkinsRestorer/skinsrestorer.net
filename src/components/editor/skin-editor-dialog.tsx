@@ -1,0 +1,211 @@
+"use client";
+
+import { X } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { toast } from "sonner";
+import {
+  SkinEditorWorkspace,
+  useEditorSession,
+} from "@/components/editor/skin-editor";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { documentOf, type SaveResult } from "@/lib/editor-session";
+import type { SkinVariant } from "@/lib/skin";
+import type { SkinDocument } from "@/lib/skin-document";
+
+export interface EditorDialogInitial {
+  readonly file: File;
+  readonly name: string;
+  readonly variant: SkinVariant;
+  readonly skinId?: string;
+  readonly revision?: number;
+}
+
+const HISTORY_MARK = "skinsrestorerEditor";
+
+/**
+ * The editor over the Upload or Generator form. The form stays mounted
+ * underneath, so its model, method, cape, key, and name do not change.
+ */
+export function SkinEditorDialog(props: {
+  initial: EditorDialogInitial;
+  page: "Upload" | "Generator";
+  onSaved: (result: Extract<SaveResult, { kind: "saved" }>) => void;
+  onClose: () => void;
+}) {
+  const { initial, onClose } = props;
+  const [document, setDocument] = useState<SkinDocument | null>(null);
+  useEffect(() => {
+    let active = true;
+    documentOf(initial.file, initial.variant).then(
+      (next) => {
+        if (active) setDocument(next);
+      },
+      (cause: unknown) => {
+        if (!active) return;
+        toast.error(
+          cause instanceof Error
+            ? cause.message
+            : "The skin could not be opened.",
+        );
+        onClose();
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [initial, onClose]);
+  if (!document) return null;
+  return <EditorDialogBody {...props} document={document} />;
+}
+
+function EditorDialogBody(
+  props: Parameters<typeof SkinEditorDialog>[0] & { document: SkinDocument },
+) {
+  const { initial, onClose } = props;
+  const { store, session } = useEditorSession(props.document, {
+    skinId: initial.skinId,
+    baseRevision: initial.revision,
+    name: initial.name,
+  });
+  const work = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getSnapshot,
+  );
+  const [asking, setAsking] = useState(false);
+  const closed = useRef(false);
+
+  const close = useCallback(() => {
+    if (closed.current) return;
+    closed.current = true;
+    onClose();
+  }, [onClose]);
+
+  /** Esc, the close button, and Back all ask first when there are changes. */
+  const requestClose = useCallback(() => {
+    if (session.getSnapshot().dirty) setAsking(true);
+    else close();
+  }, [session, close]);
+
+  // Back closes the editor instead of leaving the page.
+  useEffect(() => {
+    window.history.pushState(
+      { ...window.history.state, [HISTORY_MARK]: true },
+      "",
+    );
+    const pop = () => {
+      if (closed.current) return;
+      if (session.getSnapshot().dirty) {
+        window.history.pushState(
+          { ...window.history.state, [HISTORY_MARK]: true },
+          "",
+        );
+        setAsking(true);
+      } else close();
+    };
+    window.addEventListener("popstate", pop);
+    return () => {
+      window.removeEventListener("popstate", pop);
+      if (window.history.state?.[HISTORY_MARK]) window.history.back();
+    };
+  }, [session, close]);
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) requestClose();
+      }}
+    >
+      <DialogContent showCloseButton={false} size="fullscreen">
+        <header className="flex items-start justify-between gap-3 border-b px-4 py-3">
+          <div className="flex min-w-0 flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <DialogTitle>
+                <span className="ph-no-capture">Edit {initial.name}</span>
+              </DialogTitle>
+              <Badge variant="secondary">Beta</Badge>
+            </div>
+            <DialogDescription>
+              Return to {props.page} with your options kept. The skin is saved
+              only when you choose Save changes or Save as copy.
+            </DialogDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Close editor"
+            onClick={requestClose}
+          >
+            <X />
+          </Button>
+        </header>
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <SkinEditorWorkspace
+            mode="dialog"
+            store={store}
+            session={session}
+            onSaved={props.onSaved}
+            onClose={close}
+          />
+        </div>
+      </DialogContent>
+      <AlertDialog open={asking} onOpenChange={setAsking}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Close the editor?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {work.drafts.kind === "off"
+                ? "Your changes are not saved to the skin, and drafts are off in this browser. Closing loses them."
+                : "Your changes are not saved to the skin yet. Keep them as a draft to continue later, or discard them."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep editing</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setAsking(false);
+                void session.discard().then(close);
+              }}
+            >
+              Discard changes
+            </Button>
+            {work.drafts.kind !== "off" && (
+              <Button
+                onClick={() => {
+                  setAsking(false);
+                  void session.flush().then(close);
+                }}
+              >
+                Keep draft and close
+              </Button>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Dialog>
+  );
+}

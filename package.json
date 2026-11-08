@@ -88,6 +88,7 @@
     "@vitejs/plugin-react": "^6.2.1",
     "blurhash": "^2.0.5",
     "cf": "1.0.0-beta.13",
+    "fake-indexeddb": "^6.2.8",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",
     "shadcn": "^4.0.0",

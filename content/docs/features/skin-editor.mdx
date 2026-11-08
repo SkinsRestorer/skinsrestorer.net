@@ -3,17 +3,18 @@ title: "Edit a skin on the website"
 description: "Fix and paint a skin PNG in the browser, then download it or get a SkinsRestorer command."
 docType: "how-to"
 appliesTo: "Website users and Java server players"
-reviewed: "2026-11-08"
+reviewed: "2026-11-09"
 version: "15.12.6"
 icon: "Brush"
 ---
 
-The [skin editor](/editor) opens a Java Edition skin in your browser. You can fix problems, paint in 2D or on the 3D model, and download the result. The editor does not connect to your Minecraft server.
+The [skin editor](/editor) opens a Java Edition skin in your browser. You can fix problems, paint in 2D or on the 3D model, and download the result. The editor does not connect to your Minecraft server. The editor is in beta.
 
 ## Open a skin
 
 The editor opens one of these sources:
 
+- A skin from **Your skins**, the list of skins that this browser keeps.
 - A PNG file, 64×64 or legacy 64×32, up to 5 MB.
 - The classic or slim template. The templates are plain figures made by the editor.
 - A texture hash or a `https://textures.minecraft.net/texture/…` URL.
@@ -23,6 +24,8 @@ The editor converts a 64×32 skin to the 64×64 layout. The left arm and left le
 The editor accepts texture links only from `textures.minecraft.net`. For a skin from another site, download the PNG and open it as a file. The editor does not look up player names.
 
 If you reversed a `.skin` file on the [generator page](/generator), select **Edit this skin** to open its texture in the editor.
+
+When you open a PNG file or a texture, the editor adds it to **Your skins**. If the same skin with the same model is already in the list, the editor uses that skin. Read [Your skins](#your-skins) for more.
 
 ## Paint
 
@@ -37,7 +40,7 @@ The base layer is always opaque in Java Edition. For this reason, the pencil pai
 
 Use **Visible parts** to hide a part or a layer. Tools do not change hidden parts. To paint the base layer under an outer-layer pixel, hide the outer layer of that part.
 
-Each stroke, fill, or fix is one undo step. Opening another skin and changing the model are also undo steps.
+Each stroke, fill, or fix is one undo step. Changing the model is also an undo step. When you open another skin, the undo history starts again.
 
 ## Move the view
 
@@ -72,23 +75,58 @@ The skin check lists problems that change how the skin looks in Java Edition. Th
 
 An opaque outer layer is not a problem. Some skins use it on purpose.
 
+## Save your work
+
+The bar above the texture shows the name of the skin and whether it has unsaved changes.
+
+- **Save changes** writes your changes to the skin in **Your skins**. The skin keeps its original file, so you can revert to it later.
+- **Save as copy** adds a new skin with your changes. The skin that you opened does not change.
+- **Discard** deletes your unsaved changes. The skin stays as you last saved it.
+
+If you work on a new skin from a template, **Save changes** adds it to **Your skins**.
+
+If you edit the same skin in two tabs and save in one tab first, the other tab does not overwrite it. It asks you to save your work as a copy or to replace the other version. If another tab removed the skin, you can save your work as a copy.
+
+## Drafts
+
+While you paint, the editor keeps a draft of your unsaved changes in this browser. The draft does not change the saved skin. Each open editor has its own draft, so two tabs do not overwrite each other.
+
+If you close the tab or open another skin before you save, the draft stays. The next time you open the editor, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it. The editor does not keep the undo history.
+
+Earlier versions of the editor kept one draft in another place in the browser. The editor moves that draft to **Your skins** once, as a skin named "Recovered draft". If the old draft is damaged, the editor keeps it and shows a message with a **Discard draft** button.
+
+If your browser blocks site storage or the storage is full, the editor still works, but it does not keep skins or drafts. Download the PNG to keep your work. In this case, the browser asks before you leave the page with unsaved changes.
+
+## Your skins
+
+Upload, Generator, and the editor share one list of skins in this browser. A skin in the list keeps its original file and its current version, the model for each, and its name.
+
+- The list stays only in this browser on this device. It does not sync to other devices or accounts.
+- If you clear the site data, or if the browser removes old site data, the list is deleted. Use **Download PNG** to keep a copy of a skin.
+- Select **Show all** to search the list. Each skin has a menu with **Rename**, **Duplicate**, **Download PNG**, **Revert to original**, and **Remove from this browser**.
+- After you remove a skin, select **Undo** in the message to get it back.
+
 ## Finish
 
 - **Download PNG** saves a 64×64 PNG. The file keeps the exact color and opacity of every pixel.
-- **Use in Upload** opens [Upload](/upload) with the skin and its model selected. Follow [the upload guide](/docs/features/skin-upload) from the step where you choose the upload method.
+- **Use in Upload** opens [Upload](/upload) with the skin and its model selected. Follow [the upload guide](/docs/features/skin-upload) from the step where you choose the skin type.
 - **Use in Generator** opens the [generator](/generator) in the same way. Read [custom skins](/docs/features/custom-skins) for the `/sr createcustom` command.
 
 The Upload and Generator pages send nothing until you select their generate button. If you reload these pages, they still have the skin from the editor in the same tab.
 
-## Drafts
+## Edit from Upload or Generator
 
-The editor saves a draft in your browser after each change. When you open the editor again, it asks if you want to restore the draft. **Discard** deletes the draft. The editor keeps only one draft and does not keep the undo history.
+On [Upload](/upload) and the [generator](/generator), select **Edit** next to the selected skin to open the editor over the page. The page keeps the model, cape, method, API key, and custom name that you chose.
 
-If your browser blocks site storage or the storage is full, the editor still works, but it does not save drafts. Download the PNG to keep your work.
+- **Save changes** returns to the page with the edited skin selected.
+- **Save as copy** returns with the new copy selected. The skin that you edited does not change.
+- **Discard** returns without changes.
+
+If you close the editor with **Esc**, the close button, or the browser Back button, and you have unsaved changes, the editor asks first. You can keep editing, discard the changes, or keep them as a draft.
 
 ## Privacy
 
-Editing, drafts, and PNG downloads happen in your browser. The editor does not send your skin image to SkinsRestorer or to any other server.
+Editing, **Your skins**, drafts, and PNG downloads happen in your browser. The editor does not send your skin image to SkinsRestorer or to any other server. Adding, renaming, or removing a skin in **Your skins** does not send it either.
 
 If you open a texture URL, your browser downloads the image from `textures.minecraft.net`. If you use **Use in Upload** or **Use in Generator**, that page sends the PNG to MineSkin, directly or through the SkinsRestorer Axolotl proxy. This happens only when you select its generate button. Read [MineSkin integration](/docs/integrations/mineskin) for more.
 

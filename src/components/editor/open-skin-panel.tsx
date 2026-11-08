@@ -23,13 +23,20 @@ import {
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
+import { SkinLibraryDialog } from "@/components/skin-picker/skin-library-dialog";
+import { SkinThumbnail } from "@/components/skin-picker/skin-thumbnail";
+import type { useSkinLibrary } from "@/lib/hooks/use-skin-library";
 import type { SkinVariant } from "@/lib/skin";
+import type { StoredSkin } from "@/lib/skin-library";
 import { MAX_SKIN_FILE_BYTES } from "@/lib/skin-document";
 
 export function OpenSkinPanel(props: {
   textureLoading: boolean;
   textureError: string | null;
+  library: ReturnType<typeof useSkinLibrary>;
+  currentSkinId?: string;
   onFile: (file: File) => void;
+  onSaved: (skin: StoredSkin) => void;
   onTemplate: (variant: SkinVariant) => void;
   onTexture: (reference: string) => void;
 }) {
@@ -37,12 +44,17 @@ export function OpenSkinPanel(props: {
   const [texture, setTexture] = useState("");
   // A new picker for each file, so the same file can be opened again.
   const [pickerKey, setPickerKey] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+  const libraryState = props.library.state;
+  const skins =
+    libraryState.status === "ready" ? libraryState.listing.skins : [];
   return (
     <Card>
       <CardHeader>
         <CardTitle>Open a skin</CardTitle>
         <CardDescription>
-          Opening another skin replaces the current one. You can undo it.
+          Opening another skin keeps unsaved changes to the current one as a
+          draft in this browser.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -76,6 +88,56 @@ export function OpenSkinPanel(props: {
             />
           </FileUploadDropzone>
         </FileUpload>
+        {skins.length > 0 && (
+          <section
+            className="ph-no-capture flex flex-col gap-2"
+            aria-label="Your skins"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium">Your skins</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAll(true)}
+              >
+                Show all
+              </Button>
+            </div>
+            <ul className="grid grid-cols-4 gap-2">
+              {skins.slice(0, 4).map((skin) => (
+                <li key={skin.id} className="min-w-0">
+                  <button
+                    type="button"
+                    aria-pressed={skin.id === props.currentSkinId}
+                    aria-label={`Open ${skin.name}`}
+                    onClick={() => props.onSaved(skin)}
+                    className="flex w-full min-w-0 flex-col items-center gap-1 rounded-lg border bg-card px-1 pt-2 pb-1.5 text-xs outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:border-foreground"
+                  >
+                    <SkinThumbnail
+                      png={skin.current.png}
+                      variant={skin.current.variant}
+                      className="h-11 w-[1.375rem]"
+                    />
+                    <span className="w-full truncate text-center">
+                      {skin.name}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Kept in this browser only.
+            </p>
+          </section>
+        )}
+        <SkinLibraryDialog
+          open={showAll}
+          onOpenChange={setShowAll}
+          state={libraryState}
+          actions={props.library.actions}
+          selectedId={props.currentSkinId}
+          onSelect={props.onSaved}
+        />
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" onClick={() => props.onTemplate("classic")}>
             Classic template

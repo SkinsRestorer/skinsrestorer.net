@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/field";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
+import { ModelSelector } from "@/components/model-selector";
 import type { SkinVariant } from "@/lib/skin";
 import { allPartsVisible, type PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
@@ -53,23 +54,11 @@ export function LayersPanel(props: {
         <FieldGroup>
           <Field>
             <FieldTitle id="editor-model-label">Model</FieldTitle>
-            <ToggleGroup
+            <ModelSelector
               aria-labelledby="editor-model-label"
-              variant="outline"
-              spacing={0}
-              className="w-full"
-              value={[variant]}
-              onValueChange={(value) => {
-                if (value[0]) props.onVariantChange(value[0] as SkinVariant);
-              }}
-            >
-              <ToggleGroupItem value="classic" className="flex-1">
-                Classic, 4 px arms
-              </ToggleGroupItem>
-              <ToggleGroupItem value="slim" className="flex-1">
-                Slim, 3 px arms
-              </ToggleGroupItem>
-            </ToggleGroup>
+              value={variant}
+              onValueChange={props.onVariantChange}
+            />
             <FieldDescription>
               Changing the model does not move pixels. You can undo it.
             </FieldDescription>

@@ -53,7 +53,7 @@ Local and pull-request builds skip uploads when the key is absent.
 
 ## Skin editor privacy
 
-The `/editor` page keeps skin images in the browser. Its work surface carries the `ph-no-capture` class, so PostHog autocapture and session replay skip it. `src/lib/analytics.ts` also removes `texture` and `handoff` values from event URLs.
+The `/editor` page and the skin picker on Upload and Generator keep skin images in the browser. Kept skins and editor drafts live in the `skinsrestorer-skins` IndexedDB database (`src/lib/skin-library.ts`). The editor work surface, the skin lists, and skin names carry the `ph-no-capture` class, so PostHog autocapture and session replay skip them. Library events record only the action kind. `src/lib/analytics.ts` also removes `texture` and `handoff` values from event URLs.
 Keep canvas recording off in the PostHog replay configuration. A project owner can turn it on without a code change, and the editor privacy text would then be wrong.
 
 ## Documentation

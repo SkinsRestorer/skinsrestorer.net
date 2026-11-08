@@ -251,6 +251,18 @@ function unfilter(
   return { rows, end: offset };
 }
 
+/** Read the image size from the PNG header without inflating image data. */
+export function readPngSize(bytes: Uint8Array) {
+  if (
+    bytes.length < 33 ||
+    signature.some((value, i) => bytes[i] !== value) ||
+    String.fromCharCode(...bytes.subarray(12, 16)) !== "IHDR"
+  )
+    throw new PngError("This file is not a PNG image.");
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  return { width: view.getUint32(16), height: view.getUint32(20) };
+}
+
 /**
  * Decode a PNG file. The caller sets the allowed image sizes, so a large or
  * hostile file is rejected before its image data is inflated.

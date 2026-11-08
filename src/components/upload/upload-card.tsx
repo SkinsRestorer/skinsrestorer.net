@@ -1,10 +1,14 @@
 "use client";
 
-import { Upload, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import posthog from "posthog-js";
 import { toast } from "sonner";
-import { CapeSupportFields } from "@/components/cape-support-fields";
+import {
+  AdvancedOptions,
+  type UploadMethod,
+} from "@/components/advanced-options";
+import { CapeField, MineSkinKeyFields } from "@/components/cape-support-fields";
+import { ModelSelector } from "@/components/model-selector";
 import { OnlineCard } from "@/components/online-card";
 import { SkinCard } from "@/components/skin-card";
 import { Button } from "@/components/ui/button";
@@ -15,41 +19,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemMetadata,
-  FileUploadItemPreview,
-  FileUploadList,
-  FileUploadTrigger,
-} from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SkinPicker } from "@/components/skin-picker/skin-picker";
 import {
   NO_CAPE_VALUE,
   useCapeSelection,
 } from "@/lib/hooks/use-cape-selection";
 import { useEditorHandoff } from "@/lib/hooks/use-editor-handoff";
-import { useSkinFile } from "@/lib/hooks/use-skin-file";
+import { useSkinSelection } from "@/lib/hooks/use-skin-selection";
 import { useSkinUpload } from "@/lib/hooks/use-skin-upload";
-import type { SkinVariant } from "@/lib/skin";
+import {
+  sameGenerationInput,
+  type GenerationInput,
+} from "@/lib/skin-selection";
 
 export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
-  const {
-    file: selectedFile,
-    skinUrl,
-    skinType,
-    setSkinType,
-    handleFileChange,
-  } = useSkinFile();
-  const handoffFile = useEditorHandoff(handoffId, handleFileChange);
+  const selection = useSkinSelection();
+  const { store, state, file: selectedFile } = selection;
+  const skinType = state.variant;
+  useEditorHandoff(handoffId, (file, variant) =>
+    store.select(file, { origin: "handoff", variant }),
+  );
   const { loading, cancelUpload, runUpload } = useSkinUpload();
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
-  type SkinUploadTarget = "axolotl" | "mineskin";
-  const [target, setTarget] = useState<SkinUploadTarget>("axolotl");
+  const [result, setResult] = useState<{
+    input: GenerationInput;
+    url: string;
+  } | null>(null);
+  const [target, setTarget] = useState<UploadMethod>("axolotl");
   const useCapeProxy = target === "axolotl";
   const {
     apiKey,
@@ -64,8 +61,12 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
     loadCapeSupport,
   } = useCapeSelection({ autoGrantCapeAccess: useCapeProxy });
 
+  // Any change to the inputs cancels a pending upload and clears the result.
   useEffect(
-    () => () => cancelUpload(),
+    () => () => {
+      cancelUpload();
+      setResult(null);
+    },
     [
       cancelUpload,
       selectedFile,
@@ -76,17 +77,33 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
     ],
   );
 
+  const input: GenerationInput | null = selectedFile
+    ? {
+        file: selectedFile,
+        variant: skinType,
+        method: target,
+        capeUuid: selectedCapeUuid,
+        name: "",
+      }
+    : null;
+  const resultUrl =
+    result && input && sameGenerationInput(result.input, input)
+      ? result.url
+      : null;
+
   function uploadSkin() {
-    if (!selectedFile) {
+    if (!input) {
       toast.warning("Please select a PNG skin file.");
       return;
     }
 
-    setResultUrl(null);
+    const submitted = input;
+    const fromEditor = state.selection?.origin === "handoff";
+    setResult(null);
     void runUpload(
       {
-        file: selectedFile,
-        variant: skinType,
+        file: submitted.file,
+        variant: submitted.variant,
         capeUuid:
           selectedCapeUuid === NO_CAPE_VALUE ? undefined : selectedCapeUuid,
         apiKey: normalizedApiKey || undefined,
@@ -98,16 +115,18 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
         error: (e) => `Failed to upload skin: ${e}`,
       },
       (completed) => {
-        setResultUrl(
-          completed.skin.url || `https://minesk.in/${completed.skin.uuid}`,
-        );
-        if (handoffFile && selectedFile === handoffFile)
+        setResult({
+          input: submitted,
+          url: completed.skin.url || `https://minesk.in/${completed.skin.uuid}`,
+        });
+        if (fromEditor)
           posthog.capture("editor_handoff_completed", { target: "upload" });
       },
     );
   }
 
   const skinCommandId = useId();
+  const modelLabelId = useId();
   const command = resultUrl ? `/skin url "${resultUrl}" ${skinType}` : "";
 
   return (
@@ -124,121 +143,37 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <Label>Select skin .png file</Label>
-            <FileUpload
-              key={handoffFile ? "editor" : "picker"}
-              defaultValue={handoffFile ? [handoffFile] : undefined}
-              accept=".png"
-              maxFiles={1}
-              maxSize={5 * 1024 * 1024}
-              className="w-full"
-              onValueChange={(files) => {
-                const file = files[0] || null;
-                handleFileChange(file);
-                setResultUrl(null);
-              }}
-              onFileReject={(file, message) => {
-                toast(message, {
-                  description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
-                });
-              }}
-            >
-              <FileUploadDropzone>
-                <div className="flex flex-col items-center gap-1 text-center">
-                  <div className="flex items-center justify-center rounded-full border p-2.5">
-                    <Upload className="size-6 text-muted-foreground" />
-                  </div>
-                  <p className="font-medium text-sm">
-                    Drag & drop skin file here
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Or click to browse (PNG only, up to 5MB)
-                  </p>
-                </div>
-                <FileUploadTrigger
-                  render={
-                    <Button variant="outline" size="sm" className="mt-2 w-fit">
-                      Browse files
-                    </Button>
-                  }
-                />
-              </FileUploadDropzone>
-              <FileUploadList>
-                {selectedFile && (
-                  <FileUploadItem value={selectedFile}>
-                    <FileUploadItemPreview />
-                    <FileUploadItemMetadata />
-                    <FileUploadItemDelete
-                      render={
-                        <Button variant="ghost" size="icon" className="size-7">
-                          <X />
-                        </Button>
-                      }
-                    />
-                  </FileUploadItem>
-                )}
-              </FileUploadList>
-            </FileUpload>
-          </div>
+          <SkinPicker selection={selection} page="Upload" />
 
           <div className="flex flex-col gap-2">
-            <Label>Skin type</Label>
-            <Tabs
+            <Label id={modelLabelId}>Skin type</Label>
+            <ModelSelector
+              aria-labelledby={modelLabelId}
               value={skinType}
-              onValueChange={(value) => {
-                setSkinType(value as SkinVariant);
-                setResultUrl(null);
-              }}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="classic">Classic</TabsTrigger>
-                <TabsTrigger value="slim">Slim</TabsTrigger>
-              </TabsList>
-            </Tabs>
+              onValueChange={(value) => store.setVariant(value)}
+            />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label>Upload method</Label>
-            <Tabs
-              value={target}
-              onValueChange={(value) => {
-                setTarget(value as SkinUploadTarget);
-              }}
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="axolotl">Axolotl</TabsTrigger>
-                <TabsTrigger value="mineskin">Official</TabsTrigger>
-              </TabsList>
-              <TabsContent
-                value="axolotl"
-                className="text-xs text-muted-foreground"
-              >
-                Use SkinsRestorer Axolotl proxy to upload skins with cape
-                support. This is a free service thanks to a partnership with
-                MineSkin.
-              </TabsContent>
-              <TabsContent
-                value="mineskin"
-                className="text-xs text-muted-foreground"
-              >
-                Provide a MineSkin API key to upload skins directly with the
-                official MineSkin API.
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          <CapeSupportFields
-            apiKey={apiKey}
+          <CapeField
             capeStatus={capeStatus}
             capeOptionsDisabled={capeOptionsDisabled}
             supportedCapes={supportedCapes}
             selectedCapeUuid={selectedCapeUuid}
-            onApiKeyChange={handleApiKeyChange}
-            onCheckCapeAccess={loadCapeSupport}
             onCapeChange={handleCapeSelect}
-            showApiKeyFields={target === "mineskin"}
+            needsApiKey={target === "mineskin"}
+          />
+
+          <AdvancedOptions
+            method={target}
+            onMethodChange={setTarget}
+            officialFields={
+              <MineSkinKeyFields
+                apiKey={apiKey}
+                capeStatus={capeStatus}
+                onApiKeyChange={handleApiKeyChange}
+                onCheckCapeAccess={loadCapeSupport}
+              />
+            }
           />
 
           <Button onClick={uploadSkin} disabled={loading} className="w-full">
@@ -290,7 +225,7 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
       <div className="flex flex-col gap-6">
         <SkinCard
           model={skinType === "slim" ? "slim" : "default"}
-          skinUrl={skinUrl || undefined}
+          skinUrl={state.previewUrl || undefined}
           capeUrl={selectedCape?.url}
         />
         <OnlineCard />

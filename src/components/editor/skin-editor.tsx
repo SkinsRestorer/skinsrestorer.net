@@ -1,10 +1,13 @@
 "use client";
 
-import { useNavigate } from "@tanstack/react-router";
+import { useBlocker, useNavigate } from "@tanstack/react-router";
+import { Effect } from "effect";
 import {
+  Copy,
   Download,
   Grid3x3,
   Maximize,
+  Save,
   Upload,
   Wand2,
   ZoomIn,
@@ -27,6 +30,15 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -46,7 +58,15 @@ import { ModelCanvas } from "@/components/editor/model-canvas";
 import { OpenSkinPanel } from "@/components/editor/open-skin-panel";
 import { SkinCheckPanel } from "@/components/editor/skin-check-panel";
 import { TextureCanvas } from "@/components/editor/texture-canvas";
+import { CustomTimeAgo } from "@/components/time-ago";
+import {
+  documentOf,
+  EditorSession,
+  type EditTarget,
+  type SaveResult,
+} from "@/lib/editor-session";
 import { useLatestTask } from "@/lib/hooks/use-latest-task";
+import { useSkinLibrary } from "@/lib/hooks/use-skin-library";
 import { runHttpEffect } from "@/lib/effect-http";
 import type { SkinVariant } from "@/lib/skin";
 import { checkSkin, repairSkin, type SkinIssueId } from "@/lib/skin-check";
@@ -56,15 +76,19 @@ import {
   importSkinPng,
   type SkinDocument,
 } from "@/lib/skin-document";
-import {
-  browserStorage,
-  discardDraft,
-  readDraft,
-  saveDraft,
-  writeHandoff,
-  type KeyValueStorage,
-} from "@/lib/skin-draft";
+import { browserStorage, discardDraft, writeHandoff } from "@/lib/skin-draft";
 import { SkinEditorStore } from "@/lib/skin-editor-store";
+import {
+  browserLibrary,
+  withLibrary,
+  type LibraryClient,
+} from "@/lib/skin-library-client";
+import {
+  isEditableContent,
+  prepareSkinContent,
+  type SkinSource,
+  type StoredSkin,
+} from "@/lib/skin-library";
 import {
   allPartsVisible,
   type PaintSettings,
@@ -73,24 +97,6 @@ import {
 } from "@/lib/skin-paint";
 import { SKIN_SIZE, type SkinLayer } from "@/lib/skin-regions";
 import { loadTextureEffect } from "@/lib/skin-texture";
-
-type DraftState =
-  | {
-      readonly kind:
-        | "checking"
-        | "saving"
-        | "corrupt"
-        | "newer"
-        | "unavailable"
-        | "full";
-    }
-  | {
-      readonly kind: "offer";
-      readonly document: SkinDocument;
-      readonly updatedAt: number;
-    };
-
-const SAVE_DELAY_MS = 500;
 
 function errorMessage(cause: unknown) {
   if (cause && typeof cause === "object" && "message" in cause)
@@ -106,18 +112,87 @@ function isTyping(target: EventTarget | null) {
   );
 }
 
-export function SkinEditor({ texture }: { texture?: string }) {
-  const navigate = useNavigate();
-  const [store] = useState(() => {
-    const editor = new SkinEditorStore();
-    editor.load(createTemplate("classic"));
-    return editor;
+/** Create the pixel store and its library session for one editor. */
+export function useEditorSession(initial: SkinDocument, target: EditTarget) {
+  const [editor] = useState(() => {
+    const store = new SkinEditorStore();
+    const session = new EditorSession(store, browserLibrary());
+    session.start(initial, target);
+    return { store, session };
   });
+  useEffect(() => () => editor.session.dispose(), [editor]);
+  return editor;
+}
+
+/** Keep a newly opened PNG in the library, so edits can be saved to it. */
+async function keepOpened(
+  library: LibraryClient | undefined,
+  png: Blob,
+  name: string,
+  source: SkinSource,
+): Promise<EditTarget> {
+  if (!library) return { name };
+  try {
+    const { skin } = await library.run(
+      Effect.gen(function* () {
+        const content = yield* prepareSkinContent(png);
+        return yield* withLibrary((l) =>
+          l.add({ name, content, source }, { dedupe: true }),
+        );
+      }),
+    );
+    return { skinId: skin.id, baseRevision: skin.revision, name: skin.name };
+  } catch {
+    return { name };
+  }
+}
+
+type Confirm =
+  | { readonly kind: "changed" | "removed" }
+  | { readonly kind: "failed"; readonly message: string }
+  | { readonly kind: "discard"; readonly after?: () => void }
+  | { readonly kind: "replace"; readonly open: () => void };
+
+/** The editor page. */
+export function SkinEditor({ texture }: { texture?: string }) {
+  const { store, session } = useEditorSession(createTemplate("classic"), {
+    name: "New skin",
+  });
+  return (
+    <SkinEditorWorkspace
+      mode="page"
+      store={store}
+      session={session}
+      texture={texture}
+    />
+  );
+}
+
+export function SkinEditorWorkspace(props: {
+  mode: "page" | "dialog";
+  store: SkinEditorStore;
+  session: EditorSession;
+  texture?: string;
+  /** Dialog mode: the skin was saved or saved as a copy. */
+  onSaved?: (result: Extract<SaveResult, { kind: "saved" }>) => void;
+  /** Dialog mode: close the editor. */
+  onClose?: () => void;
+}) {
+  const { store, session, mode, texture } = props;
+  const navigate = useNavigate();
+  const library = useSkinLibrary();
   const snapshot = useSyncExternalStore(
     store.subscribe,
     store.getSnapshot,
     store.getSnapshot,
   );
+  const work = useSyncExternalStore(
+    session.subscribe,
+    session.getSnapshot,
+    session.getSnapshot,
+  );
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [tool, setTool] = useState<PaintTool>("pencil");
   const [layer, setLayer] = useState<SkinLayer>("base");
   const [color, setColor] = useState<Rgba>([76, 118, 160, 255]);
@@ -131,13 +206,14 @@ export function SkinEditor({ texture }: { texture?: string }) {
   const [legacy, setLegacy] = useState(false);
   const [highlight, setHighlight] = useState<SkinIssueId | null>(null);
   const [status, setStatus] = useState("");
-  const [draft, setDraft] = useState<DraftState>({ kind: "checking" });
   const [textureLoading, setTextureLoading] = useState(false);
   const [textureError, setTextureError] = useState<string | null>(null);
   const [handingOff, setHandingOff] = useState(false);
+  const [confirm, setConfirm] = useState<Confirm | null>(null);
+  const [legacyDraftHidden, setLegacyDraftHidden] = useState(false);
   const textureTask = useLatestTask();
-  const storage = useRef<KeyValueStorage | undefined>(undefined);
   const textureFrame = useRef<HTMLDivElement>(null);
+  const draftsOff = work.drafts.kind === "off";
 
   const settings = useMemo<PaintSettings>(
     () => ({ layer, color, visibility }),
@@ -155,101 +231,91 @@ export function SkinEditor({ texture }: { texture?: string }) {
   }, []);
   useEffect(() => () => clearTimeout(statusTimer.current), []);
 
-  // Drafts: one saved skin in this browser. Saving waits until the user has
-  // answered a restore offer, so an old draft is never overwritten unasked.
-  const draftRef = useAsRef(draft);
-  const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const savePending = useRef(false);
-  const saveNow = useCallback(() => {
-    clearTimeout(saveTimer.current);
-    if (!savePending.current) return;
-    const kind = draftRef.current.kind;
-    if (kind !== "saving" && kind !== "full") return;
-    savePending.current = false;
-    const result = saveDraft(storage.current, store.document());
-    if (result === "saved" && kind === "full") setDraft({ kind: "saving" });
-    else if (result !== "saved") setDraft({ kind: result });
-  }, [draftRef, store]);
-
+  // Drafts survive a closed tab. Without drafts, the browser asks first.
   useEffect(() => {
-    let revision = store.getSnapshot().revision;
-    return store.subscribe(() => {
-      const next = store.getSnapshot();
-      if (next.revision !== revision) {
-        revision = next.revision;
-        savePending.current = true;
-      }
-      clearTimeout(saveTimer.current);
-      if (savePending.current && !next.painting)
-        saveTimer.current = setTimeout(saveNow, SAVE_DELAY_MS);
-    });
-  }, [store, saveNow]);
-
-  useEffect(() => {
-    const flush = () => saveNow();
+    const flush = () => void session.flush();
     const hidden = () => {
-      if (document.visibilityState === "hidden") saveNow();
+      if (document.visibilityState === "hidden") flush();
     };
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", hidden);
     return () => {
       window.removeEventListener("pagehide", flush);
       document.removeEventListener("visibilitychange", hidden);
-      saveNow();
     };
-  }, [saveNow]);
+  }, [session]);
+  const unsafeToLeave = work.dirty && draftsOff;
+  useBlocker({
+    shouldBlockFn: ({ current, next }) =>
+      next.pathname !== current.pathname &&
+      !window.confirm(
+        "Leave without saving? Drafts are off in this browser, so your changes will be lost.",
+      ),
+    enableBeforeUnload: () => unsafeToLeave,
+    disabled: !unsafeToLeave,
+  });
 
+  // Offer earlier unsaved work. Each draft belongs to one editor session.
+  const initialTarget = useRef(work.target);
   useEffect(() => {
-    storage.current = browserStorage("localStorage");
-    let active = true;
-    void readDraft(storage.current).then((result) => {
-      if (!active) return;
-      if (result.status === "found")
-        setDraft({
-          kind: "offer",
-          document: result.document,
-          updatedAt: result.updatedAt,
-        });
-      else if (result.status === "none") setDraft({ kind: "saving" });
-      else setDraft({ kind: result.status });
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+    if (!mounted) return;
+    void session.loadRecovery(
+      mode === "dialog" ? { skinId: initialTarget.current.skinId } : undefined,
+    );
+  }, [mounted, mode, session]);
 
-  // Changes made before the draft check finished are saved once it allows.
-  useEffect(() => {
-    if (draft.kind === "saving") saveNow();
-  }, [draft.kind, saveNow]);
-
+  /** Switch to another skin. The current work stays as a draft. */
   const opened = useCallback(
     (
       document: SkinDocument,
-      source: "file" | "template" | "texture_url" | "draft",
+      target: EditTarget,
+      source: "file" | "template" | "texture_url" | "draft" | "library",
       wasLegacy = false,
     ) => {
-      // A template or restored draft also supersedes any pending import.
       textureTask.cancel();
       setTextureLoading(false);
       setTextureError(null);
-      store.replace(document);
-      setLegacy(wasLegacy);
-      setHighlight(null);
-      posthog.capture("editor_opened", { source });
+      const open = () => {
+        void session.flush();
+        session.start(document, target);
+        setLegacy(wasLegacy);
+        setHighlight(null);
+        posthog.capture("editor_opened", { source });
+      };
+      if (
+        session.getSnapshot().dirty &&
+        session.getSnapshot().drafts.kind === "off"
+      )
+        setConfirm({ kind: "replace", open });
+      else open();
     },
-    [store, textureTask],
+    [session, textureTask],
   );
 
   const openTexture = useCallback(
     (reference: string) => {
       setTextureLoading(true);
       setTextureError(null);
+      const client = library.client ?? browserLibrary();
       void textureTask.run(
-        (signal) => runHttpEffect(loadTextureEffect(reference), signal),
-        (result) => {
+        async (signal) => {
+          const result = await runHttpEffect(
+            loadTextureEffect(reference),
+            signal,
+          );
+          const target = await keepOpened(
+            client,
+            new Blob([result.bytes as Uint8Array<ArrayBuffer>], {
+              type: "image/png",
+            }),
+            `Texture ${result.hash.slice(0, 8)}`,
+            { kind: "texture", textureHash: result.hash },
+          );
+          return { result, target };
+        },
+        ({ result, target }) => {
           setTextureLoading(false);
-          opened(result.document, "texture_url", result.legacy);
+          opened(result.document, target, "texture_url", result.legacy);
           toast.success("Opened the texture from textures.minecraft.net.");
         },
         (cause) => {
@@ -258,27 +324,61 @@ export function SkinEditor({ texture }: { texture?: string }) {
         },
       );
     },
-    [opened, textureTask],
+    [opened, textureTask, library.client],
   );
 
   useEffect(() => {
-    if (texture) openTexture(texture);
-  }, [texture, openTexture]);
+    if (texture && mode === "page") openTexture(texture);
+  }, [texture, mode, openTexture]);
 
   const openFile = useCallback(
     (file: File) => {
       setTextureLoading(false);
       setTextureError(null);
+      const client = library.client ?? browserLibrary();
       return textureTask.run(
-        async () => importSkinPng(new Uint8Array(await file.arrayBuffer())),
-        (imported) => {
-          opened(imported.document, "file", imported.legacy);
+        async () => {
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          const imported = await importSkinPng(bytes);
+          const target = await keepOpened(
+            client,
+            new Blob([bytes], { type: "image/png" }),
+            file.name,
+            { kind: "file" },
+          );
+          return { imported, target };
+        },
+        ({ imported, target }) => {
+          opened(imported.document, target, "file", imported.legacy);
           toast.success(
             imported.legacy
               ? "Opened the skin and converted it from 64×32 to 64×64."
               : "Opened the skin.",
           );
         },
+        (cause) => toast.error(errorMessage(cause)),
+      );
+    },
+    [opened, textureTask, library.client],
+  );
+
+  const openSaved = useCallback(
+    (skin: StoredSkin) => {
+      if (!isEditableContent(skin.current)) {
+        toast.error(
+          "The editor opens 64×64 and legacy 64×32 skins. This skin can still be used on Upload and Generator.",
+        );
+        return;
+      }
+      void textureTask.run(
+        () => documentOf(skin.current.png, skin.current.variant),
+        (document) =>
+          opened(
+            document,
+            { skinId: skin.id, baseRevision: skin.revision, name: skin.name },
+            "library",
+            skin.current.height === 32,
+          ),
         (cause) => toast.error(errorMessage(cause)),
       );
     },
@@ -374,7 +474,7 @@ export function SkinEditor({ texture }: { texture?: string }) {
       );
       const link = document.createElement("a");
       link.href = url;
-      link.download = "skin.png";
+      link.download = `${work.target.name}.png`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 0);
       posthog.capture("editor_exported_png");
@@ -386,8 +486,7 @@ export function SkinEditor({ texture }: { texture?: string }) {
   const handOff = async (target: "upload" | "generator") => {
     setHandingOff(true);
     try {
-      savePending.current = true;
-      saveNow();
+      await session.flush();
       const handoff = await writeHandoff(
         browserStorage("sessionStorage"),
         store.document(),
@@ -401,80 +500,203 @@ export function SkinEditor({ texture }: { texture?: string }) {
     }
   };
 
+  const handle = (result: SaveResult, kind: "save" | "copy") => {
+    if (result.kind === "saved") {
+      posthog.capture("editor_saved", { kind, kept: !!result.skin });
+      if (mode === "dialog") {
+        props.onSaved?.(result);
+        props.onClose?.();
+        return;
+      }
+      toast.success(
+        kind === "copy"
+          ? "Saved as a copy. The original skin did not change."
+          : result.skin
+            ? "Changes saved in this browser."
+            : "Changes saved for this page. This browser cannot keep skins.",
+      );
+      return;
+    }
+    setConfirm(
+      result.kind === "failed"
+        ? { kind: "failed", message: result.message }
+        : { kind: result.kind },
+    );
+  };
+  const save = async (replace = false) => {
+    // Nothing changed: keep the form's exact file.
+    if (mode === "dialog" && !work.dirty) {
+      props.onClose?.();
+      return;
+    }
+    handle(await session.save({ replace }), "save");
+  };
+  const saveCopy = async () => handle(await session.saveCopy(), "copy");
+  const discard = () =>
+    setConfirm({
+      kind: "discard",
+      after: mode === "dialog" ? props.onClose : undefined,
+    });
+
   const zoomBy = (step: number) =>
     setZoom(Math.max(3, Math.min(24, scale + step)));
+
+  const sessionStatus = work.busy
+    ? "Saving…"
+    : work.dirty
+      ? draftsOff
+        ? "Unsaved changes. Drafts are off in this browser, so save or download the PNG to keep your work."
+        : "Unsaved changes. A draft is kept in this browser until you save or discard."
+      : work.target.skinId
+        ? "No unsaved changes. Kept in this browser."
+        : draftsOff
+          ? "Not kept in this browser."
+          : "Not in Your skins yet. Save to keep it.";
+
+  const migratedStatus = library.migrated?.status;
 
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-6">
-        {draft.kind === "offer" && (
+        {mounted && migratedStatus === "migrated" && mode === "page" && (
           <Alert>
-            <AlertTitle>Restore your last skin?</AlertTitle>
+            <AlertTitle>Your earlier draft is in Your skins</AlertTitle>
             <AlertDescription>
-              This browser has a draft from{" "}
-              {new Date(draft.updatedAt).toLocaleString()}. New changes are not
-              saved until you choose.
+              The editor now keeps skins in a list in this browser. Your last
+              draft is there as a skin named Recovered draft.
             </AlertDescription>
-            <AlertAction>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    opened(draft.document, "draft");
-                    setDraft({ kind: "saving" });
-                  }}
-                >
-                  Restore draft
-                </Button>
+          </Alert>
+        )}
+        {mounted &&
+          migratedStatus === "corrupt" &&
+          !legacyDraftHidden &&
+          mode === "page" && (
+            <Alert variant="destructive">
+              <AlertTitle>The saved draft could not be read</AlertTitle>
+              <AlertDescription>
+                The old draft from this browser is damaged. It is kept until you
+                remove it.
+              </AlertDescription>
+              <AlertAction>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    discardDraft(storage.current);
-                    setDraft({ kind: "saving" });
+                    discardDraft(browserStorage("localStorage"));
+                    setLegacyDraftHidden(true);
                   }}
                 >
-                  Discard
+                  Discard draft
                 </Button>
-              </div>
-            </AlertAction>
-          </Alert>
-        )}
-        {draft.kind === "corrupt" && (
-          <Alert variant="destructive">
-            <AlertTitle>The saved draft could not be read</AlertTitle>
+              </AlertAction>
+            </Alert>
+          )}
+        {mounted && migratedStatus === "newer" && mode === "page" && (
+          <Alert>
+            <AlertTitle>A newer draft is waiting</AlertTitle>
             <AlertDescription>
-              Drafts are paused so the damaged draft is kept until you remove
-              it.
+              A newer version of the editor saved a draft in this browser.
+              Reload the page to open it. This page does not replace it.
             </AlertDescription>
-            <AlertAction>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  discardDraft(storage.current);
-                  setDraft({ kind: "saving" });
-                }}
-              >
-                Discard draft
-              </Button>
-            </AlertAction>
           </Alert>
         )}
-        {(draft.kind === "unavailable" ||
-          draft.kind === "full" ||
-          draft.kind === "newer") && (
+        {work.recovery.length > 0 && (
+          <div className="ph-no-capture">
+            <Alert>
+              <AlertTitle>Continue unsaved changes?</AlertTitle>
+              <AlertDescription>
+                <ul className="flex flex-col gap-2">
+                  {work.recovery.map((draft) => (
+                    <li
+                      key={draft.id}
+                      className="flex flex-wrap items-center justify-between gap-2"
+                    >
+                      <span>
+                        {draft.name}, changed{" "}
+                        <CustomTimeAgo date={draft.updatedAt} />
+                      </span>
+                      <span className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            void session
+                              .continueDraft(draft)
+                              .then(() =>
+                                posthog.capture("editor_opened", {
+                                  source: "draft",
+                                }),
+                              )
+                              .catch((cause) =>
+                                toast.error(errorMessage(cause)),
+                              )
+                          }
+                        >
+                          Continue
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void session.discardDraft(draft.id)}
+                        >
+                          Discard
+                        </Button>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+        {mounted && draftsOff && (
           <Alert>
             <AlertTitle>Drafts are off</AlertTitle>
             <AlertDescription>
-              {draft.kind === "unavailable"
-                ? "This browser blocks site storage, so the editor cannot keep a draft. Everything else works. Download the PNG to keep your work."
-                : draft.kind === "full"
-                  ? "Browser storage is full, so the latest changes are not saved as a draft. Download the PNG to keep your work."
-                  : "A newer version of the editor saved the draft in this browser. Reload the page to open it. This page does not replace it."}
+              {work.drafts.kind === "off" && work.drafts.message} Everything
+              else works. Download the PNG to keep your work.
             </AlertDescription>
           </Alert>
         )}
+
+        <section
+          aria-label="Skin being edited"
+          className="ph-no-capture flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-3"
+        >
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <p className="truncate font-medium">{work.target.name}</p>
+            <output
+              aria-live="polite"
+              className="text-xs text-muted-foreground"
+            >
+              {mounted ? sessionStatus : ""}
+            </output>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(work.dirty || mode === "dialog") && (
+              <Button variant="ghost" disabled={work.busy} onClick={discard}>
+                Discard
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              disabled={work.busy}
+              onClick={() => void saveCopy()}
+            >
+              <Copy data-icon="inline-start" />
+              Save as copy
+            </Button>
+            <Button
+              disabled={
+                work.busy ||
+                (mode === "page" && !work.dirty && !!work.target.skinId)
+              }
+              onClick={() => void save()}
+            >
+              <Save data-icon="inline-start" />
+              Save changes
+            </Button>
+          </div>
+        </section>
 
         <div className="ph-no-capture grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <section
@@ -617,15 +839,24 @@ export function SkinEditor({ texture }: { texture?: string }) {
           </section>
 
           <aside aria-label="Skin settings" className="flex flex-col gap-6">
-            <OpenSkinPanel
-              textureLoading={textureLoading}
-              textureError={textureError}
-              onFile={(file) => void openFile(file)}
-              onTemplate={(variant) =>
-                opened(createTemplate(variant), "template")
-              }
-              onTexture={openTexture}
-            />
+            {mode === "page" && (
+              <OpenSkinPanel
+                textureLoading={textureLoading}
+                textureError={textureError}
+                library={library}
+                currentSkinId={work.target.skinId}
+                onFile={(file) => void openFile(file)}
+                onSaved={openSaved}
+                onTemplate={(variant) =>
+                  opened(
+                    createTemplate(variant),
+                    { name: "New skin" },
+                    "template",
+                  )
+                }
+                onTexture={openTexture}
+              />
+            )}
             <ColorPanel
               color={color}
               layer={layer}
@@ -660,41 +891,156 @@ export function SkinEditor({ texture }: { texture?: string }) {
               <CardHeader>
                 <CardTitle>Finish</CardTitle>
                 <CardDescription>
-                  Download the skin, or send it to a SkinsRestorer tool to get a
-                  command.
+                  {mode === "page"
+                    ? "Download the skin, or send it to a SkinsRestorer tool to get a command."
+                    : "Download the skin as it looks now."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
-                <Button onClick={() => void download()}>
+                <Button
+                  variant={mode === "page" ? "default" : "outline"}
+                  onClick={() => void download()}
+                >
                   <Download data-icon="inline-start" />
                   Download PNG
                 </Button>
-                <Button
-                  variant="outline"
-                  disabled={handingOff}
-                  onClick={() => void handOff("upload")}
-                >
-                  <Upload data-icon="inline-start" />
-                  Use in Upload
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={handingOff}
-                  onClick={() => void handOff("generator")}
-                >
-                  <Wand2 data-icon="inline-start" />
-                  Use in Generator
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Upload and Generator open with this skin and its{" "}
-                  {snapshot.variant} model selected. They send nothing until you
-                  press their button.
-                </p>
+                {mode === "page" && (
+                  <>
+                    <Button
+                      variant="outline"
+                      disabled={handingOff}
+                      onClick={() => void handOff("upload")}
+                    >
+                      <Upload data-icon="inline-start" />
+                      Use in Upload
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={handingOff}
+                      onClick={() => void handOff("generator")}
+                    >
+                      <Wand2 data-icon="inline-start" />
+                      Use in Generator
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Upload and Generator open with this skin and its{" "}
+                      {snapshot.variant} model selected. They send nothing until
+                      you press their button.
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </aside>
         </div>
       </div>
+
+      <AlertDialog
+        open={confirm !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirm(null);
+        }}
+      >
+        <AlertDialogContent>
+          {confirm && (
+            <ConfirmBody
+              confirm={confirm}
+              mode={mode}
+              onCopy={() => {
+                setConfirm(null);
+                void saveCopy();
+              }}
+              onReplace={() => {
+                setConfirm(null);
+                void save(true);
+              }}
+              onUnkept={async () => {
+                setConfirm(null);
+                handle(await session.save({ keep: false }), "save");
+              }}
+              onDiscard={async () => {
+                const after =
+                  confirm.kind === "discard" ? confirm.after : undefined;
+                setConfirm(null);
+                await session.discard();
+                after?.();
+              }}
+              onOpen={() => {
+                if (confirm.kind === "replace") confirm.open();
+                setConfirm(null);
+              }}
+            />
+          )}
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
+  );
+}
+
+function ConfirmBody(props: {
+  confirm: Confirm;
+  mode: "page" | "dialog";
+  onCopy: () => void;
+  onReplace: () => void;
+  onUnkept: () => void;
+  onDiscard: () => void;
+  onOpen: () => void;
+}) {
+  const { confirm } = props;
+  const text = {
+    changed: [
+      "This skin changed in another tab",
+      "Save your work as a copy to keep both versions, or replace the other version with yours.",
+    ],
+    removed: [
+      "This skin was removed from this browser",
+      "Save your work as a copy to keep it.",
+    ],
+    failed: [
+      "The skin could not be kept",
+      confirm.kind === "failed"
+        ? `${confirm.message} ${props.mode === "dialog" ? "You can still use the edited skin in the form without keeping it." : "Download the PNG to keep your work."}`
+        : "",
+    ],
+    discard: [
+      "Discard unsaved changes?",
+      "The skin stays as it was saved. Your changes and their draft are deleted.",
+    ],
+    replace: [
+      "Open another skin?",
+      "Drafts are off in this browser, so your unsaved changes will be lost.",
+    ],
+  }[confirm.kind];
+  return (
+    <>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{text[0]}</AlertDialogTitle>
+        <AlertDialogDescription>{text[1]}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        {confirm.kind === "changed" && (
+          <Button variant="outline" onClick={props.onReplace}>
+            Replace it
+          </Button>
+        )}
+        {(confirm.kind === "changed" || confirm.kind === "removed") && (
+          <Button onClick={props.onCopy}>Save as copy</Button>
+        )}
+        {confirm.kind === "failed" && props.mode === "dialog" && (
+          <Button onClick={props.onUnkept}>Use without keeping</Button>
+        )}
+        {confirm.kind === "discard" && (
+          <Button variant="destructive" onClick={props.onDiscard}>
+            Discard changes
+          </Button>
+        )}
+        {confirm.kind === "replace" && (
+          <Button variant="destructive" onClick={props.onOpen}>
+            Open and lose changes
+          </Button>
+        )}
+      </AlertDialogFooter>
+    </>
   );
 }

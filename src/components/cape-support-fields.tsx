@@ -22,154 +22,147 @@ import {
 import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/hooks/use-cape-selection";
 import type { MineSkinCape } from "@/lib/mineskin";
 
-interface CapeSupportFieldsProps {
+/** The MineSkin API key for the Official method. It stays in form state only. */
+export function MineSkinKeyFields(props: {
   apiKey: string;
+  capeStatus: CapeStatus;
+  onApiKeyChange: (value: string) => void;
+  onCheckCapeAccess: () => void;
+}) {
+  const mineskinApiKeyId = useId();
+  const { apiKey, capeStatus } = props;
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
+        <Popover>
+          <PopoverTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground"
+              />
+            }
+          >
+            <InfoIcon className="h-4 w-4" aria-hidden />
+            <span className="sr-only">MineSkin API key info</span>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            sideOffset={8}
+            className="w-72 flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
+          >
+            <p>
+              Need an API key? All MineSkin plans except Lite include cape
+              generation, higher limits, and exclusive features.
+            </p>
+            <p>
+              Visit the{" "}
+              <a
+                href="https://mineskin.org/apikey"
+                className="font-medium text-foreground underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                MineSkin API keys page
+              </a>{" "}
+              to get started and save 10% on your first three months (plans
+              except Lite) with the exclusive coupon code{" "}
+              <span className="font-mono font-semibold">SKINSRESTORER10</span>.
+              We don't receive a commission if you use this coupon—it's just a
+              community perk.
+            </p>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <Input
+        id={mineskinApiKeyId}
+        type="password"
+        placeholder="Required for cape support"
+        value={apiKey}
+        onChange={(event) => {
+          props.onApiKeyChange(event.target.value);
+        }}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        onClick={props.onCheckCapeAccess}
+        disabled={capeStatus === "loading"}
+      >
+        {capeStatus === "loading"
+          ? "Checking cape support..."
+          : "Check cape access"}
+      </Button>
+      {capeStatus === "denied" && (
+        <p className="text-xs text-muted-foreground">
+          Cape support requires an API key with the capes grant.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** The cape choice. It stays visible outside the advanced options. */
+export function CapeField(props: {
   capeStatus: CapeStatus;
   capeOptionsDisabled: boolean;
   supportedCapes: MineSkinCape[];
   selectedCapeUuid: string;
-  onApiKeyChange: (value: string) => void;
-  onCheckCapeAccess: () => void;
   onCapeChange: (value: string) => void;
-  showApiKeyFields?: boolean;
-}
-
-export function CapeSupportFields({
-  apiKey,
-  capeStatus,
-  capeOptionsDisabled,
-  supportedCapes,
-  selectedCapeUuid,
-  onApiKeyChange,
-  onCheckCapeAccess,
-  onCapeChange,
-  showApiKeyFields = true,
-}: CapeSupportFieldsProps) {
-  const mineskinApiKeyId = useId();
+  /** The Official method needs a key with the capes grant. */
+  needsApiKey: boolean;
+}) {
   const capeSelectId = useId();
-
   const capeItems = [
     { value: NO_CAPE_VALUE, label: <span>No cape</span>, disabled: false },
-    ...(supportedCapes.map((cape) => ({
+    ...props.supportedCapes.map((cape) => ({
       value: cape.uuid,
-      disabled: capeOptionsDisabled,
+      disabled: props.capeOptionsDisabled,
       label: (
         <div className="flex items-center gap-2">
           <CapePreview texture={cape.url} />
           <span>{cape.alias}</span>
         </div>
       ),
-    })) ?? []),
+    })),
   ];
   return (
-    <>
-      {showApiKeyFields && (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
-            <Popover>
-              <PopoverTrigger
-                render={
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-muted-foreground"
-                  />
-                }
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={capeSelectId}>Cape (optional)</Label>
+      <Select
+        items={capeItems}
+        value={props.selectedCapeUuid}
+        onValueChange={(value) => {
+          if (value !== null) props.onCapeChange(value);
+        }}
+      >
+        <SelectTrigger id={capeSelectId}>
+          <SelectValue placeholder="No cape" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {capeItems.map((item) => (
+              <SelectItem
+                key={item.value}
+                value={item.value}
+                disabled={item.disabled}
               >
-                <InfoIcon className="h-4 w-4" aria-hidden />
-                <span className="sr-only">MineSkin API key info</span>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                sideOffset={8}
-                className="w-72 flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
-              >
-                <p>
-                  Need an API key? All MineSkin plans except Lite include cape
-                  generation, higher limits, and exclusive features.
-                </p>
-                <p>
-                  Visit the{" "}
-                  <a
-                    href="https://mineskin.org/apikey"
-                    className="font-medium text-foreground underline"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    MineSkin API keys page
-                  </a>{" "}
-                  to get started and save 10% on your first three months (plans
-                  except Lite) with the exclusive coupon code{" "}
-                  <span className="font-mono font-semibold">
-                    SKINSRESTORER10
-                  </span>
-                  . We don't receive a commission if you use this coupon—it's
-                  just a community perk.
-                </p>
-              </PopoverContent>
-            </Popover>
-          </div>
-          <Input
-            id={mineskinApiKeyId}
-            type="password"
-            placeholder="Required for cape support"
-            value={apiKey}
-            onChange={(event) => {
-              onApiKeyChange(event.target.value);
-            }}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCheckCapeAccess}
-            disabled={capeStatus === "loading"}
-          >
-            {capeStatus === "loading"
-              ? "Checking cape support..."
-              : "Check cape access"}
-          </Button>
-          {capeStatus === "denied" && (
-            <p className="text-xs text-muted-foreground">
-              Cape support requires an API key with the capes grant.
-            </p>
-          )}
-        </div>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {props.needsApiKey && props.capeStatus !== "granted" && (
+        <p className="text-xs text-muted-foreground">
+          Load cape support with a valid API key under Advanced options to
+          preview and apply capes.
+        </p>
       )}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={capeSelectId}>Cape (optional)</Label>
-        <Select
-          items={capeItems}
-          value={selectedCapeUuid}
-          onValueChange={(value) => {
-            if (value !== null) onCapeChange(value);
-          }}
-        >
-          <SelectTrigger id={capeSelectId}>
-            <SelectValue placeholder="No cape" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {capeItems.map((item) => (
-                <SelectItem
-                  key={item.value}
-                  value={item.value}
-                  disabled={item.disabled}
-                >
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        {showApiKeyFields && capeStatus !== "granted" && (
-          <p className="text-xs text-muted-foreground">
-            Load cape support with a valid API key to preview and apply capes.
-          </p>
-        )}
-      </div>
-    </>
+    </div>
   );
 }
 

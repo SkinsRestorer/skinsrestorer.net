@@ -3,7 +3,7 @@ title: "Upload a PNG skin"
 description: "Turn a PNG into a /skin url command and apply it in game."
 docType: "how-to"
 appliesTo: "Website users and Java server players"
-reviewed: "2026-11-08"
+reviewed: "2026-11-09"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -18,18 +18,20 @@ Read [classic and slim models](/docs/features/skin-design) if you are unsure whi
 
 The page checks the image dimensions before it enables the selected file for generation. If your browser cannot show the 3D preview, you can still generate a skin command.
 
-To fix or change the skin first, use the [skin editor](/docs/features/skin-editor). Its **Use in Upload** button opens this page with the PNG and its model selected. The page sends nothing until you select **Generate /skin url**.
+To fix or change the skin first, select **Edit** next to the selected skin. The [skin editor](/docs/features/skin-editor) opens over the page and keeps your other choices. The **Use in Upload** button of the editor page also opens this page with the PNG and its model selected. The page sends nothing until you select **Generate /skin url**.
 
 ## Generate and apply
 
 1. Open [Upload](/upload).
-2. Select **Browse files** and choose your PNG.
-3. Check the preview and choose **Classic** or **Slim**.
-4. Choose **Axolotl** or **Official** under **Upload method**.
-5. If you want a cape, select one from the available cape list.
+2. Select **Browse files** and choose your PNG. You can also select a skin under **Your skins**.
+3. Check the preview and choose **Classic** (4 px arms) or **Slim** (3 px arms).
+4. If you want a cape, select one from the available cape list.
+5. Optional: open **Advanced options** to choose **Axolotl** or **Official** under **Upload method**. **Axolotl** is the default.
 6. Select **Generate /skin url**.
 7. Copy the generated command.
 8. Paste the command into your Minecraft chat.
+
+If you change the skin, the model, the cape, or the method after you generate, the page removes the old command. Generate again to get a command for the new choices.
 
 Keep the generated URL inside quotation marks. The command includes the model selected on the page. A result can use a MineSkin URL or an opaque `skinsrestorer-axolotl://` value.
 
@@ -41,9 +43,17 @@ Copy that value exactly. An Axolotl value is for the command, rather than a brow
 
 Wait for a success message. Ask another player to check your skin, then reconnect to check persistence.
 
+## Your skins
+
+The page keeps each skin that you select in this browser, under **Your skins**. The next time, select it there instead of browsing for the file. Keeping a skin does not send it anywhere. The page uploads the exact file that you selected, only when you select **Generate /skin url**.
+
+If you drop several PNG files, the page keeps all valid skins and selects the first one. It does not generate commands for the others.
+
+The list stays in this browser only. Read [Your skins](/docs/features/skin-editor#your-skins) to rename, download, or remove skins. If the browser cannot keep skins, for example in some private windows, the selected skin still works on the page.
+
 ## API key and capes
 
-The **Axolotl** method offers supported capes without your own key. The **Official** method accepts a MineSkin key and checks its cape grants.
+The **Axolotl** method offers supported capes without your own key. The **Official** method accepts a MineSkin key and checks its cape grants. Both settings are under **Advanced options**. The cape list is always visible.
 
 A selected cape with **Axolotl** uses the proxy route. **Official** uploads and uploads without a selected cape use MineSkin directly.
 

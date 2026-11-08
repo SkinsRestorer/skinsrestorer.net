@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { encodePngSync } from "./png";
 import { createTemplate, importSkinPng, pixelOffset } from "./skin-document";
+import type { SkinDocument } from "./skin-document";
 import {
+  bytesToBase64,
   DRAFT_KEY,
   discardDraft,
   HANDOFF_KEY,
   readDraft,
   readHandoff,
-  saveDraft,
   writeHandoff,
   type KeyValueStorage,
 } from "./skin-draft";
@@ -22,6 +24,23 @@ function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
   };
 }
 
+/** Write a draft as the earlier editor version did. */
+function storeDraft(
+  storage: KeyValueStorage,
+  document: SkinDocument,
+  updatedAt = Date.now(),
+) {
+  storage.setItem(
+    DRAFT_KEY,
+    JSON.stringify({
+      version: 1,
+      variant: document.variant,
+      png: bytesToBase64(encodePngSync(document.pixels, 64, 64)),
+      updatedAt,
+    }),
+  );
+}
+
 const throwing: KeyValueStorage = {
   getItem: () => {
     throw new DOMException("blocked", "SecurityError");
@@ -34,13 +53,13 @@ const throwing: KeyValueStorage = {
   },
 };
 
-test("a saved draft restores the same pixels and the chosen model", async () => {
+test("an earlier editor draft restores the same pixels and the chosen model", async () => {
   const storage = memoryStorage();
   const document = createTemplate("classic");
   document.pixels.set([1, 2, 3, 77], pixelOffset(40, 8));
   // The model is explicit, even if the pixels look like another model.
   const chosen = { pixels: document.pixels, variant: "slim" as const };
-  assert.equal(saveDraft(storage, chosen, 1234), "saved");
+  storeDraft(storage, chosen, 1234);
   const draft = await readDraft(storage);
   assert.equal(draft.status, "found");
   if (draft.status !== "found") return;
@@ -51,7 +70,7 @@ test("a saved draft restores the same pixels and the chosen model", async () => 
   assert.equal((await readDraft(storage)).status, "none");
 });
 
-test("damaged, newer, blocked, and full storage are reported without throwing", async () => {
+test("damaged, newer, and blocked storage are reported without throwing", async () => {
   const storage = memoryStorage();
   storage.data.set(DRAFT_KEY, "{not json");
   assert.equal((await readDraft(storage)).status, "corrupt");
@@ -69,15 +88,7 @@ test("damaged, newer, blocked, and full storage are reported without throwing", 
   assert.equal((await readDraft(storage)).status, "newer");
   assert.equal((await readDraft(throwing)).status, "unavailable");
   assert.equal((await readDraft(undefined)).status, "unavailable");
-  assert.equal(saveDraft(throwing, createTemplate("slim")), "unavailable");
   assert.equal(discardDraft(throwing), false);
-  const full: KeyValueStorage = {
-    ...memoryStorage(),
-    setItem: () => {
-      throw new DOMException("full", "QuotaExceededError");
-    },
-  };
-  assert.equal(saveDraft(full, createTemplate("slim")), "full");
 });
 
 test("a handoff is a stable snapshot with its explicit model", async () => {
@@ -90,7 +101,7 @@ test("a handoff is a stable snapshot with its explicit model", async () => {
     "a",
   );
   // A later draft from this or another tab does not change the handoff.
-  saveDraft(storage, createTemplate("slim"));
+  storeDraft(storage, createTemplate("slim"));
   const handoff = await readHandoff(storage, id);
   assert.ok(handoff);
   assert.equal(handoff.variant, "slim");

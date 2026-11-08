@@ -108,5 +108,5 @@ export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
         cause,
       }),
   });
-  return { ...imported, hash };
+  return { ...imported, hash, bytes: response.bytes };
 });
