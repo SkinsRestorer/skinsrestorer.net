@@ -76,3 +76,4 @@ _pagefind/
 
 .cloudflare/
 .tanstack/
+/public/_images/

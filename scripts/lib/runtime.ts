@@ -62,6 +62,8 @@ export const nodeFiles = {
     ),
   writeText: (file: string, content: string) =>
     toolOperation("write file", () => writeFile(file, content)),
+  writeBytes: (file: string, content: Uint8Array) =>
+    toolOperation("write file", () => writeFile(file, content)),
   remove: (directory: string) =>
     toolOperation("remove directory", () =>
       rm(directory, { recursive: true, force: true }),

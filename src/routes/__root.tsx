@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { ContentImage } from "@/components/content-image";
 import NotFound from "@/components/not-found";
 import { Toaster } from "@/components/ui/sonner";
 import { getPageHead } from "@/lib/seo";
@@ -72,7 +73,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         className="flex size-full min-h-svh flex-col font-sans antialiased"
         suppressHydrationWarning
       >
-        <RootProvider search={{ options: { type: "static" } }}>
+        <RootProvider
+          components={{ Image: ContentImage }}
+          search={{ options: { type: "static" } }}
+        >
           {children}
           <Toaster richColors />
           <CookieConsentBanner />

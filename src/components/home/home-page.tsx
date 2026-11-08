@@ -11,6 +11,7 @@ import {
 import Link from "fumadocs-core/link";
 import { type ReactNode, useEffect, useState } from "react";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
+import { Image } from "@/components/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getLatestRelease } from "@/lib/release-server";
@@ -279,7 +280,7 @@ export default function IndexPage() {
       >
         <div className="flex flex-col items-start gap-6">
           <p className="flex items-center gap-2.5 text-sm font-medium">
-            <img src="/logo.png" alt="" width={28} height={28} />
+            <Image src="/logo.png" alt="" width={28} height={28} priority />
             SkinsRestorer
           </p>
           <h1
@@ -366,7 +367,7 @@ export default function IndexPage() {
                         <span
                           className={`${styles.slot} flex size-14 items-center justify-center`}
                         >
-                          <img
+                          <Image
                             src={software.image}
                             alt=""
                             width={40}

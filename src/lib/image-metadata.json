@@ -1,0 +1,404 @@
+{
+  "/apple-icon.png": {
+    "width": 128,
+    "height": 128,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/64c586b3094d9091032e-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/64c586b3094d9091032e-96.webp"
+      },
+      {
+        "width": 128,
+        "src": "/_images/64c586b3094d9091032e-128.webp"
+      }
+    ]
+  },
+  "/assets/banner.png": {
+    "width": 728,
+    "height": 86,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAAfoWJfIOHfICFh4aHlpCNm5WNjY2CcXxvnKChmZ6flpqanJyaqKOeraeeoaCVi5OGur69uLu6tLi1t7ezwLu0w720ubesp66g09fU0dXT0NLQ0tLO19PN19PKzs3Cv8W55Onm5Ojm5+jn6ujn7Ojj6Obc3t/U09fO7fTx8fX0+Pf6/fn7+/j19PPr6ezi4eTe8vr29/z8////////////+/z07/Pq6Ovo8/z4+f7+/////////////f/38fXt6+3r",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/3ab3f31bba6338550922-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/3ab3f31bba6338550922-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/3ab3f31bba6338550922-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/3ab3f31bba6338550922-384.webp"
+      },
+      {
+        "width": 728,
+        "src": "/_images/3ab3f31bba6338550922-728.webp"
+      }
+    ]
+  },
+  "/assets/edit/save-as.png": {
+    "width": 421,
+    "height": 425,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAAxsLRwLvJtau7saa8vLTRycfm0NLrz9Plrqy3p6WwmJWkkY2jm5m0ra3Hur3Rv8TRkJGWiIuSdnuJaG6EcHOLh4mcnaGsrLO4goOCfH+DbXOAXGJ3WVpubm12jI2Poqioko+Pko6SjomVg3uMeGp5fHB0ko6MqauqsamttKqxuKm2sp6upY6bnoqRqJ6huri7yr7Gz8HK1sHP1LnJxqm3uaGsvK+2ysXL08fP2cnT4crY38LS0bPCw6q2xLa+0MrS",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/c7c6ef1166013d4d069e-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/c7c6ef1166013d4d069e-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/c7c6ef1166013d4d069e-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/c7c6ef1166013d4d069e-384.webp"
+      },
+      {
+        "width": 421,
+        "src": "/_images/c7c6ef1166013d4d069e-421.webp"
+      }
+    ]
+  },
+  "/assets/edit/save.png": {
+    "width": 551,
+    "height": 457,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAAeHOBgH2Nk5Cio56wpqCul5SedX2HPWJyknuHk4COl4ycnpaooZiolo2cdnWFPVZrrYeQp4eSnYqYmY6fm4+ilIaaeW+EQk1kw5WdupKcpY6al4yclo2dlIeWfXOCTVRl0qSqx6CorpilmZOhlpOblZCRg4GCW2pw2rG1z621taSynp+qmJ+cl52NiZKCaYF+3rm91LW+uq29o6mzm6memqiJjZ+Cc5OJ37zA1bnCvLHBpay2nayfmqyHjqSCdpmN",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/f8b124849a2f5b7d6c7e-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/f8b124849a2f5b7d6c7e-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/f8b124849a2f5b7d6c7e-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/f8b124849a2f5b7d6c7e-384.webp"
+      },
+      {
+        "width": 551,
+        "src": "/_images/f8b124849a2f5b7d6c7e-551.webp"
+      }
+    ]
+  },
+  "/assets/imgur/copy-link.png": {
+    "width": 1225,
+    "height": 576,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAAODQxSUZAZWNZenhvgX94eXZzZGBeSEE8ODMxSUZDZ2Vhfnx5iIWEgX9+bGhnTEZBODIwSUREZmRlf31/i4mLhoSFcG1tTklFODEuRkBCYF1ieHV7hYKGgn+BbmtqTklEODAtQDk6Uk1TZWJncW5xcG5tYV5bSEQ9OC8sOC8uPDQ1RD4+TUlFUUxFS0c+PzoxOC4rMSUhHAEAAAAAAAAAGQYALCUANTAiOC4rLiEZAAAAAAAAAAAAAAAAFQMAMSwa",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/319759190fc86842eb01-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/319759190fc86842eb01-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/319759190fc86842eb01-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/319759190fc86842eb01-384.webp"
+      },
+      {
+        "width": 768,
+        "src": "/_images/319759190fc86842eb01-768.webp"
+      },
+      {
+        "width": 1225,
+        "src": "/_images/319759190fc86842eb01-1225.webp"
+      }
+    ]
+  },
+  "/assets/imgur/download-folder.png": {
+    "width": 377,
+    "height": 263,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAA+fb39PPz7ezs7O3s8/X0+fr59fb16+zq9vX28vLy7Ozt7e7u9vf3/P39+Pn57e7u9PT18PHy6+3u7vDw+Pn6/////Pz88PHx9PX28fLz7O7v7/Hy+vr7/////f3+8vLz+Pj49fX17+/w8PHx+fr6/////Pz98fHy/vz8+vj48vHw8PDw9/j4/f7++fn67+7u///+//v69fLx8fDv9fb1+fv79vb37evr//////z69vPx8fDu9PX0+Pr59fX17Orq",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/129118fcefbecfe39da7-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/129118fcefbecfe39da7-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/129118fcefbecfe39da7-192.webp"
+      },
+      {
+        "width": 377,
+        "src": "/_images/129118fcefbecfe39da7-377.webp"
+      }
+    ]
+  },
+  "/assets/imgur/upload-image.png": {
+    "width": 1136,
+    "height": 534,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAAn6mpoqupo6ikkZKNZF1YAAAAAAAAAAAAytTTzNTUys7Nt7e2i4aGSzQyHwAARwAA7ff27vb26+7w1dXXqKWnbmJiUSUmaDhB+////f//+Pz/4uLntbG2e3ByYDxEdktZ8/7/9f7/8ff8293kr6uydmRuWyQ9cUBW2ePq2uXr2OHoxMrRmZWgXztWQgABXgA8t8POusfQusfOqLG6fniIPQAuCQAAQgAAp7PAqrjDq7rCmqWub2l8JAAAAAAAMAAA",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/cdaa5d4dc3d0591a5bad-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/cdaa5d4dc3d0591a5bad-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/cdaa5d4dc3d0591a5bad-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/cdaa5d4dc3d0591a5bad-384.webp"
+      },
+      {
+        "width": 768,
+        "src": "/_images/cdaa5d4dc3d0591a5bad-768.webp"
+      },
+      {
+        "width": 1136,
+        "src": "/_images/cdaa5d4dc3d0591a5bad-1136.webp"
+      }
+    ]
+  },
+  "/assets/imgur/valid-format.png": {
+    "width": 465,
+    "height": 226,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAALF5INmJFRmlITmpjTGKESFqcSFqmTWGkJmdsLWdYOWUlQWA6Qld6P06jO0uvOU2nNnaLOHNxPWsNQ2EAR1Z3RE2sOkS5Kj6rWIihWYaKXYFNYnlAZG6HYGK3U1bCQE2yfJqvfpyhhJ+GiZyFipKlhIPCdnfHZnG6mqq1nbC0pbuzrL25rLPEpKLLlZbKh5PCrbS3sr7AvM7Qw9TbwsraubjSqqvKnanItLi3ucLExNXay9zmytLhwL/UsbLKpLHK",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/708e99964b99d684eea5-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/708e99964b99d684eea5-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/708e99964b99d684eea5-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/708e99964b99d684eea5-384.webp"
+      },
+      {
+        "width": 465,
+        "src": "/_images/708e99964b99d684eea5-465.webp"
+      }
+    ]
+  },
+  "/assets/sponsors/enderdash-logo.png": {
+    "width": 1440,
+    "height": 1440,
+    "background": "data:image/bmp;base64,Qk32BAAAAAAAADYAAAAoAAAACAAAAAgAAAABABgAAAAAAMAAAAATCwAAEwsAAAAAAAAAAAAAKgAAKgAAKAAAHQAJAAoYAAAAEQAAKQAAMgAARgAAZCtCdz5ceUNibjxWWSc5QgAAPRgWXCw8iEdmpFmAql6Hm1Z7fENeViozRyYsaTdLmVB0uGKPv2eWr1+JjUxsYTRCUB0kbTBGmUpwtluKvWCRrliFjUZoZS0+VwAAaxAsjDJco0R2qEl9m0JxgS9UYwwlWwAAZgAAewA9iRpZjCJgghlUcAA0XwAAXAAAZAAAcgApfABJfQBQdQBDaAAdXQAA",
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/36778c9f40d808368a3f-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/36778c9f40d808368a3f-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/36778c9f40d808368a3f-192.webp"
+      },
+      {
+        "width": 384,
+        "src": "/_images/36778c9f40d808368a3f-384.webp"
+      },
+      {
+        "width": 768,
+        "src": "/_images/36778c9f40d808368a3f-768.webp"
+      },
+      {
+        "width": 1280,
+        "src": "/_images/36778c9f40d808368a3f-1280.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/_images/36778c9f40d808368a3f-1440.webp"
+      }
+    ]
+  },
+  "/icon.png": {
+    "width": 128,
+    "height": 128,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/64c586b3094d9091032e-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/64c586b3094d9091032e-96.webp"
+      },
+      {
+        "width": 128,
+        "src": "/_images/64c586b3094d9091032e-128.webp"
+      }
+    ]
+  },
+  "/logo.png": {
+    "width": 128,
+    "height": 128,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/64c586b3094d9091032e-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/64c586b3094d9091032e-96.webp"
+      },
+      {
+        "width": 128,
+        "src": "/_images/64c586b3094d9091032e-128.webp"
+      }
+    ]
+  },
+  "/nyan-cat.webp": {
+    "width": 476,
+    "height": 280
+  },
+  "/platform/bukkit.png": {
+    "width": 300,
+    "height": 300,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/b1b5bf7d845561b555af-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/b1b5bf7d845561b555af-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/b1b5bf7d845561b555af-192.webp"
+      },
+      {
+        "width": 300,
+        "src": "/_images/b1b5bf7d845561b555af-300.webp"
+      }
+    ]
+  },
+  "/platform/bungeecord.png": {
+    "width": 32,
+    "height": 32,
+    "variants": [
+      {
+        "width": 32,
+        "src": "/_images/d573103b3dc1182f8e2f-32.webp"
+      }
+    ]
+  },
+  "/platform/fabric.png": {
+    "width": 52,
+    "height": 56,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/d821c5323758e357e1dc-48.webp"
+      },
+      {
+        "width": 52,
+        "src": "/_images/d821c5323758e357e1dc-52.webp"
+      }
+    ]
+  },
+  "/platform/neoforge.png": {
+    "width": 128,
+    "height": 128,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/925d05fcd284b0237e92-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/925d05fcd284b0237e92-96.webp"
+      },
+      {
+        "width": 128,
+        "src": "/_images/925d05fcd284b0237e92-128.webp"
+      }
+    ]
+  },
+  "/platform/paper.png": {
+    "width": 256,
+    "height": 256,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/815bf332a9afb2c0e765-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/815bf332a9afb2c0e765-96.webp"
+      },
+      {
+        "width": 192,
+        "src": "/_images/815bf332a9afb2c0e765-192.webp"
+      },
+      {
+        "width": 256,
+        "src": "/_images/815bf332a9afb2c0e765-256.webp"
+      }
+    ]
+  },
+  "/platform/spigot.png": {
+    "width": 128,
+    "height": 128,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/_images/296836e2e09ac5b405f6-48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/_images/296836e2e09ac5b405f6-96.webp"
+      },
+      {
+        "width": 128,
+        "src": "/_images/296836e2e09ac5b405f6-128.webp"
+      }
+    ]
+  },
+  "/platform/velocity.svg": {
+    "width": 34,
+    "height": 34
+  },
+  "/skinsrestorer-character.png": {
+    "width": 640,
+    "height": 760
+  },
+  "/skinsrestorer-skin.png": {
+    "width": 64,
+    "height": 64
+  }
+}

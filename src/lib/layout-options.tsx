@@ -1,5 +1,6 @@
 import { SiDiscord, SiKofi, SiModrinth } from "@icons-pack/react-simple-icons";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import { Image } from "@/components/image";
 
 const discordLink = import.meta.env.VITE_DISCORD_LINK;
 const modrinthLink = import.meta.env.VITE_MODRINTH_LINK;
@@ -38,11 +39,12 @@ export const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
       <>
-        <img
+        <Image
           src={"/logo.png"}
           width={32}
           height={32}
           alt="SkinsRestorer Logo"
+          priority
         />
         <span className="font-medium">SkinsRestorer</span>
       </>
