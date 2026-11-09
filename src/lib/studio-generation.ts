@@ -6,6 +6,7 @@ import type {
 import { sameGenerationInput, type GenerationInput } from "./skin-selection";
 import {
   generatedCommand,
+  suggestSkinName,
   textureUrlFromValue,
   type StudioPurpose,
 } from "./studio";
@@ -43,16 +44,26 @@ export function generationResult(
   response: MineSkinCompletedResponse,
 ): GenerationResult {
   const { skin } = response;
-  const url = skin.url || `https://minesk.in/${skin.uuid}`;
-  const name = input.name || skin.name || skin.uuid;
+  const result =
+    "uuid" in skin
+      ? {
+          url: skin.url || `https://minesk.in/${skin.uuid}`,
+          name: skin.name || skin.uuid,
+          textureUrl: textureUrlFromValue(skin.texture.data.value),
+        }
+      : {
+          url: skin.url,
+          name: suggestSkinName(input.file.name) || "custom_skin",
+          textureUrl: null,
+        };
   return {
-    url,
+    url: result.url,
     command: generatedCommand(
       input.purpose as StudioPurpose,
-      { url, name },
+      { url: result.url, name: input.name || result.name },
       input.variant,
     ),
-    textureUrl: textureUrlFromValue(skin.texture.data.value),
+    textureUrl: result.textureUrl,
   };
 }
 

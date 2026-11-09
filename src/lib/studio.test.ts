@@ -11,7 +11,11 @@ import {
   suggestSkinName,
   textureUrlFromValue,
 } from "./studio";
-import { StudioGeneration, type Upload } from "./studio-generation";
+import {
+  generationResult,
+  StudioGeneration,
+  type Upload,
+} from "./studio-generation";
 
 const texture =
   "https://textures.minecraft.net/texture/26c156a5a28ba3647b3de3b5bfec4d399670b1f063d6526ba201c2be01b60df5";
@@ -189,7 +193,12 @@ test("the Axolotl cape route posts the selected bytes without the user key", asy
   const requests: Parameters<HttpFetch>[] = [];
   globalThis.fetch = Object.assign(async (...args: Parameters<HttpFetch>) => {
     requests.push(args);
-    return Response.json(response("uuid", "skinsrestorer-axolotl://uuid"));
+    return Response.json({
+      success: true,
+      skin: { url: "skinsrestorer-axolotl://uuid" },
+      warnings: [],
+      messages: [],
+    });
   }, originalFetch);
   const chosen = input({ capeUuid: "cape-id" });
   const generation = new StudioGeneration(uploadMineSkinFile);
@@ -215,4 +224,29 @@ test("the Axolotl cape route posts the selected bytes without the user key", asy
     state.status === "done" && state.result.command,
     '/skin url "skinsrestorer-axolotl://uuid" classic',
   );
+  assert.equal(state.status === "done" && state.result.textureUrl, null);
+});
+
+test("URL-only proxy results support explicit and default custom skin names", () => {
+  const url = "skinsrestorer-axolotl://v2.test-payload";
+  for (const [name, filename, expected] of [
+    ["lobby", "Forest ranger.png", "lobby"],
+    ["", "Forest ranger.png", "forest_ranger"],
+    ["", "Скин.png", "custom_skin"],
+  ]) {
+    const chosen = input({
+      purpose: "createcustom",
+      name,
+      file: new File([], filename),
+      variant: "slim",
+    });
+    assert.deepEqual(
+      generationResult(chosen, { success: true, skin: { url } }),
+      {
+        command: `/sr createcustom ${expected} "${url}" slim`,
+        url,
+        textureUrl: null,
+      },
+    );
+  }
 });

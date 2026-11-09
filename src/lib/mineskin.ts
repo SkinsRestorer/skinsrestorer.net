@@ -39,6 +39,16 @@ const responseSchema = Schema.Struct({
     Schema.Union([skinSchema, Schema.Literal(false), Schema.Null]),
   ),
 });
+// Axolotl waits for completion and returns only an opaque URL.
+const axolotlSkinSchema = Schema.Struct({
+  url: Schema.String.check(Schema.isMinLength(1)),
+});
+const axolotlResponseSchema = Schema.Struct({
+  error: Schema.optional(Schema.String),
+  success: Schema.optional(Schema.Boolean),
+  errors: errorsSchema,
+  skin: Schema.optional(Schema.Union([axolotlSkinSchema, Schema.Null])),
+});
 const capeSchema = Schema.Struct({
   uuid: Schema.String,
   alias: Schema.String,
@@ -59,9 +69,11 @@ export type MineSkinCape = typeof capeSchema.Type;
 export type MineSkinCapeResponse = typeof capesSchema.Type;
 export type MineSkinMeResponse = typeof grantsSchema.Type;
 type MineSkinResponse = typeof responseSchema.Type;
-export type MineSkinCompletedResponse = MineSkinResponse & {
-  skin: typeof skinSchema.Type;
-};
+export type MineSkinCompletedResponse =
+  | (MineSkinResponse & { skin: typeof skinSchema.Type })
+  | (typeof axolotlResponseSchema.Type & {
+      skin: typeof axolotlSkinSchema.Type;
+    });
 
 export class MineSkinError extends Data.TaggedError("MineSkinError")<{
   readonly reason: "request" | "job" | "result";
@@ -131,11 +143,21 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
     if (name) formData.append("name", name);
     if (capeUuid) formData.append(useCapeProxy ? "capeUuid" : "cape", capeUuid);
     const headers = createMineSkinHeaders(useCapeProxy ? undefined : apiKey);
-    const enqueueUrl = useCapeProxy
-      ? `${AXOLOTL_API_BASE_URL}/skins${waitMs ? `?waitMs=${waitMs}` : ""}`
-      : `${MINESKIN_API_BASE_URL}/queue`;
+    if (useCapeProxy) {
+      const data = yield* mineSkinRequest(
+        `${AXOLOTL_API_BASE_URL}/skins${waitMs ? `?waitMs=${waitMs}` : ""}`,
+        { method: "POST", headers, body: formData },
+        axolotlResponseSchema,
+      );
+      if (!data.skin)
+        return yield* new MineSkinError({
+          reason: "result",
+          message: "Skin not found in completed job response",
+        });
+      return { ...data, skin: data.skin };
+    }
     let data = yield* mineSkinRequest(
-      enqueueUrl,
+      `${MINESKIN_API_BASE_URL}/queue`,
       { method: "POST", headers, body: formData },
       responseSchema,
     );
@@ -152,7 +174,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
           message: "Job not found in response",
         });
       if (data.job.status === "completed") {
-        if (!useCapeProxy && data.job.result) {
+        if (data.job.result) {
           const result = yield* mineSkinRequest(
             `${MINESKIN_API_BASE_URL}/skins/${encodeURIComponent(data.job.result)}`,
             { headers },
@@ -165,9 +187,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
           message: "Skin not found in completed job response",
         });
       }
-      const jobUrl = useCapeProxy
-        ? `${AXOLOTL_API_BASE_URL}/jobs/${encodeURIComponent(data.job.id)}`
-        : `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;
+      const jobUrl = `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;
       yield* Effect.sleep(waitMs ?? 1000);
       data = yield* mineSkinRequest(jobUrl, { headers }, responseSchema);
     }

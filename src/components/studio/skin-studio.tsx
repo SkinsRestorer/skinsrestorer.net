@@ -858,9 +858,11 @@ function Result(props: { result: GenerationResult }) {
   return (
     <div className="flex flex-col gap-3 border-t pt-3.5" aria-live="polite">
       <CopyField label={t("Command")} value={result.command} />
-      {result.textureUrl && (
-        <CopyField label={t("Skin URL")} value={result.textureUrl} oneLine />
-      )}
+      <CopyField
+        label={t("Skin URL")}
+        value={result.textureUrl ?? result.url}
+        oneLine
+      />
     </div>
   );
 }

@@ -79,7 +79,7 @@ test("loads completed job results when the skin is not included", async () => {
     });
 
     assert.deepEqual(result.skin, skin);
-    assert.deepEqual(result.job, job);
+    assert.deepEqual("job" in result && result.job, job);
     assert.equal(fetchMock.length, queued ? 3 : 2);
     const request = fetchMock.at(-1)!;
     assert.equal(request[0], `https://api.mineskin.org/v2/skins/${skin.uuid}`);
@@ -144,7 +144,15 @@ test("rejects missing or failed skin lookups without resubmitting the upload", a
 });
 
 test("accepts immediate proxy results without forwarding the API key", async () => {
-  const fetchMock = mockFetch(async () => Response.json({ skin }));
+  const proxySkin = { url: "skinsrestorer-axolotl://v2.test-payload" };
+  const fetchMock = mockFetch(async () =>
+    Response.json({
+      success: true,
+      skin: proxySkin,
+      warnings: [],
+      messages: [],
+    }),
+  );
   const result = await uploadMineSkinFile({
     file,
     variant: "classic",
@@ -152,7 +160,7 @@ test("accepts immediate proxy results without forwarding the API key", async () 
     apiKey: "private-key",
     useCapeProxy: true,
   });
-  assert.deepEqual(result.skin, skin);
+  assert.deepEqual(result.skin, proxySkin);
   assert.equal(fetchMock.length, 1);
   const [url, options] = fetchMock[0];
   assert.equal(url, "https://axolotl.skinsrestorer.net/mineskin/skins");
@@ -160,6 +168,43 @@ test("accepts immediate proxy results without forwarding the API key", async () 
   assert.ok(options?.body instanceof FormData);
   assert.equal(options.body.get("capeUuid"), "cape-id");
   assert.equal(options.body.has("cape"), false);
+});
+
+test("rejects missing proxy results and errors without retrying the upload", async () => {
+  for (const body of [
+    { success: true, skin: null, warnings: [], messages: [] },
+    { success: true },
+    { success: true, skin: {} },
+    { success: true, skin: { url: "" } },
+    { success: false, errors: [{ message: "Rejected" }] },
+    { error: "Proxy unavailable" },
+  ]) {
+    const calls = mockFetch(async () => Response.json(body));
+    await assert.rejects(
+      uploadMineSkinFile({
+        file,
+        variant: "classic",
+        capeUuid: "cape-id",
+        useCapeProxy: true,
+      }),
+    );
+    assert.equal(calls.length, 1);
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("the official MineSkin route still requires full skin metadata", async () => {
+  const calls = mockFetch(async () =>
+    Response.json({
+      success: true,
+      skin: { url: "https://minesk.in/skin-id" },
+    }),
+  );
+  await assert.rejects(
+    uploadMineSkinFile({ file, variant: "classic" }),
+    /invalid response/,
+  );
+  assert.equal(calls.length, 1);
 });
 
 test("rejects failed or incomplete results instead of polling forever", async () => {
