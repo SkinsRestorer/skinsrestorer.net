@@ -1,0 +1,18 @@
+{
+  "title": "Решение проблем",
+  "pages": [
+    "no-skin",
+    "permissions",
+    "skin-resets",
+    "proxy-mode",
+    "firewall",
+    "uploads",
+    "launcher-issues",
+    "incompatibility-list",
+    "common-issues",
+    "debugging"
+  ],
+  "defaultOpen": false,
+  "icon": "LifeBuoy",
+  "pagesIndex": "index"
+}

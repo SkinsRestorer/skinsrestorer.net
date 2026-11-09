@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { test } from "node:test";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import { createDocsSearchClient } from "../src/lib/docs-search-client";
+import { isLocale } from "../src/lib/i18n";
 import { fromJSON } from "seroval";
 
 // Run against `bun run preview` with `bun run test:site` after building.
@@ -63,6 +64,49 @@ test(
       );
     }
 
+    for (const [locale, heading] of [
+      ["ru", "Загрузка скина"],
+      ["es", "Subir skin"],
+      ["pt-BR", "Enviar skin"],
+    ]) {
+      const response = await request(`/${locale}/upload?handoff=example`);
+      assert.equal(response.status, 200);
+      const html = await response.text();
+      assert.ok(html.includes(`<html lang="${locale}"`));
+      assert.ok(html.includes(heading));
+      assert.ok(
+        html.includes(
+          `rel="canonical" href="https://skinsrestorer.net/${locale}/upload"`,
+        ),
+      );
+      for (const language of ["en", "ru", "es", "pt-BR", "x-default"]) {
+        assert.ok(html.includes(`hrefLang="${language}"`));
+      }
+      assert.ok(!html.match(/rel="canonical"[^>]+handoff/));
+      const translated = await (
+        await request(`/${locale}/docs/installation`)
+      ).text();
+      assert.ok(
+        translated.includes(
+          `rel="canonical" href="https://skinsrestorer.net/${locale}/docs/installation"`,
+        ),
+      );
+      assert.ok(translated.includes('id="before-you-start"'));
+      const fallback = await (
+        await request(`/${locale}/docs/development`)
+      ).text();
+      assert.ok(
+        fallback.includes(
+          'rel="canonical" href="https://skinsrestorer.net/docs/development"',
+        ),
+      );
+      assert.ok(fallback.includes('lang="en"'));
+      assert.ok(!fallback.includes(`hrefLang="${locale}"`));
+      const markdown = await request(`/${locale}/docs/installation.mdx`);
+      assert.equal(markdown.status, 200);
+      assert.equal(markdown.headers.get("content-language"), locale);
+    }
+
     const docs = await (await request("/docs/installation")).text();
     assert.ok(docs.includes("Install SkinsRestorer - SR"));
     assert.ok(
@@ -99,7 +143,14 @@ test(
       /Sitemap: https:\/\/skinsrestorer.net\/sitemap.xml/,
     );
     const sitemap = await (await request("/sitemap.xml")).text();
-    assert.equal((sitemap.match(/<url>/g) ?? []).length, 74);
+    assert.equal((sitemap.match(/<url>/g) ?? []).length, 104);
+    assert.ok(sitemap.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"'));
+    assert.ok(sitemap.includes('hreflang="x-default"'));
+    assert.ok(
+      !sitemap.includes(
+        "<loc>https://skinsrestorer.net/ru/docs/development</loc>",
+      ),
+    );
     assert.ok(
       sitemap.includes(
         "<loc>https://skinsrestorer.net/docs/installation</loc>",
@@ -113,23 +164,48 @@ test(
     assert.ok(
       typeof searchIndex === "object" &&
         searchIndex !== null &&
-        "type" in searchIndex,
+        "type" in searchIndex &&
+        "data" in searchIndex &&
+        typeof searchIndex.data === "object" &&
+        searchIndex.data !== null,
     );
-    assert.equal(searchIndex.type, "advanced");
-    const client = oramaStaticClient({
-      from: new URL("/api/search", baseUrl).href,
-      search: { limit: 24 },
-    });
+    assert.equal(searchIndex.type, "i18n");
+    assert.deepEqual(Object.keys(searchIndex.data).sort(), [
+      "en",
+      "es",
+      "pt-BR",
+      "ru",
+    ]);
+    const client = createDocsSearchClient(
+      "en",
+      new URL("/api/search", baseUrl).href,
+    );
     const results = await client.search("skin");
     assert.ok(results.length > 0 && results.length <= 24);
     assert.ok(results.every((result) => result.url.startsWith("/docs")));
+    for (const [locale, query] of [
+      ["ru", "скин"],
+      ["es", "skin"],
+      ["pt-BR", "skin"],
+    ]) {
+      assert.ok(isLocale(locale));
+      const localizedClient = createDocsSearchClient(
+        locale,
+        new URL("/api/search", baseUrl).href,
+      );
+      const matches = await localizedClient.search(query);
+      assert.ok(matches.length > 0, `Search must find ${locale} pages`);
+      assert.ok(
+        matches.every((match) => match.url.startsWith(`/${locale}/docs`)),
+      );
+    }
     assert.equal(search.headers.get("x-content-type-options"), "nosniff");
     assert.equal(search.headers.get("x-frame-options"), "SAMEORIGIN");
 
     for (const slugs of [[], ["installation"]]) {
       const key = createHash("sha1")
         .update(
-          `docs-metadata__${JSON.stringify(slugs).replace(/[/\\?%*:|"<>]/g, "-")}`,
+          `docs-metadata__${JSON.stringify(["en", ...slugs]).replace(/[/\\?%*:|"<>]/g, "-")}`,
         )
         .digest("hex");
       const response = await request(`/__tsr/staticServerFnCache/${key}.json`);
@@ -173,6 +249,9 @@ test(
     }
 
     for (const path of [
+      "/de/upload",
+      "/ru/docs/not-a-page",
+      "/de/docs/installation.mdx",
       "/not-a-page",
       "/docs/not-a-page",
       "/docs/not-a-page.mdx",

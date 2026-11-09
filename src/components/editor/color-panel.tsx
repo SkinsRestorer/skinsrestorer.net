@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import type { Rgba } from "@/lib/skin-paint";
 import type { SkinLayer } from "@/lib/skin-regions";
+import { useT } from "@/lib/i18n-react";
 
 export function toHex(color: Rgba) {
   return `#${color
@@ -39,6 +40,7 @@ export function ColorPanel(props: {
   recent: readonly Rgba[];
   onChange: (color: Rgba) => void;
 }) {
+  const t = useT();
   const { color, layer, recent, onChange } = props;
   const pickerId = useId();
   const hexId = useId();
@@ -51,13 +53,13 @@ export function ColorPanel(props: {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Color</CardTitle>
+        <CardTitle>{t("Color")}</CardTitle>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <div className="flex items-end gap-3">
             <Field className="w-auto">
-              <FieldLabel htmlFor={pickerId}>Swatch</FieldLabel>
+              <FieldLabel htmlFor={pickerId}>{t("Swatch")}</FieldLabel>
               <input
                 id={pickerId}
                 type="color"
@@ -70,7 +72,7 @@ export function ColorPanel(props: {
               />
             </Field>
             <Field data-invalid={!hexValid || undefined}>
-              <FieldLabel htmlFor={hexId}>Hex code</FieldLabel>
+              <FieldLabel htmlFor={hexId}>{t("Hex code")}</FieldLabel>
               <Input
                 id={hexId}
                 value={hexText}
@@ -88,7 +90,7 @@ export function ColorPanel(props: {
           </div>
           <Field data-disabled={layer === "base" || undefined}>
             <div className="flex items-center justify-between gap-2">
-              <FieldLabel id={`${pickerId}-opacity`}>Opacity</FieldLabel>
+              <FieldLabel id={`${pickerId}-opacity`}>{t("Opacity")}</FieldLabel>
               <span className="text-sm tabular-nums text-muted-foreground">
                 {layer === "base" ? 100 : opacity}%
               </span>
@@ -112,13 +114,13 @@ export function ColorPanel(props: {
             />
             {layer === "base" && (
               <FieldDescription>
-                The base layer is always opaque.
+                {t("The base layer is always opaque.")}
               </FieldDescription>
             )}
           </Field>
           {recent.length > 0 && (
             <Field>
-              <FieldTitle>Recent colors</FieldTitle>
+              <FieldTitle>{t("Recent colors")}</FieldTitle>
               <ul className="flex flex-wrap gap-1.5">
                 {recent.map((swatch) => {
                   const hex = toHex(swatch);
@@ -127,7 +129,10 @@ export function ColorPanel(props: {
                     <li key={key}>
                       <RecentSwatch
                         swatch={swatch}
-                        label={`Use ${hex}${swatch[3] < 255 ? ` at ${Math.round((swatch[3] / 255) * 100)}% opacity` : ""}`}
+                        label={t("Use {color} at {opacity}% opacity", {
+                          color: hex,
+                          opacity: Math.round((swatch[3] / 255) * 100),
+                        })}
                         onSelect={() => onChange(swatch)}
                       />
                     </li>

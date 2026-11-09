@@ -1,4 +1,5 @@
-import { sitePages } from "../src/lib/site-pages";
+import { docFileInfo, localizePath, splitLocalePath } from "../src/lib/i18n";
+import { localizedSitePages } from "../src/lib/site-pages";
 import { Effect, Schema } from "effect";
 import {
   runTool,
@@ -74,11 +75,8 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
         stringify: docsStringify,
       });
       const relative = path.relative(root, file).replaceAll(path.sep, "/");
-      const route =
-        `/docs/${relative.replace(/(?:\/)?index\.mdx$|\.mdx$/g, "")}`.replace(
-          /\/$/,
-          "",
-        );
+      const info = docFileInfo(relative);
+      const route = localizePath(info.path, info.locale);
       documents.set(route, {
         file,
         tree,
@@ -90,7 +88,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     }
   }
 
-  const homeRoutes = new Set<string>(sitePages);
+  const homeRoutes = new Set<string>(localizedSitePages);
   const siteAliases = new Set([
     "/discord",
     "/github",
@@ -110,9 +108,11 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     if (!href) return;
     const url = new URL(href, `https://skinsrestorer.net${current}`);
     const route = decodeURI(url.pathname).replace(/\/$/, "") || "/";
+    const bare = splitLocalePath(route);
     const target = redirects.get(route) ?? route;
-    if (target.startsWith("/docs")) {
-      const page = documents.get(target);
+    const resolvedTarget = documents.has(target) ? target : bare.path;
+    if (bare.path === "/docs" || bare.path.startsWith("/docs/")) {
+      const page = documents.get(resolvedTarget);
       if (!page)
         errors.push(`${location}: missing documentation target ${href}`);
       else if (
@@ -208,7 +208,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
   }
 
   for (const file of documentFiles.filter((file) =>
-    file.endsWith("meta.json"),
+    /meta(?:\.(ru|es|pt-BR))?\.json$/.test(file),
   )) {
     const raw = yield* fs.readText(file);
     const metadata = yield* toolTry("parse navigation", () =>

@@ -1,0 +1,38 @@
+---
+title: "Skins substituídas pelo cliente ou launcher"
+description: "Diagnostique uma skin que aparece errada em apenas um cliente."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-11-09"
+version: "15.12.6"
+icon: "Monitor"
+---
+
+Um mod do cliente ou o sistema de skins do launcher pode substituir a skin enviada pelo servidor. O SkinsRestorer não consegue detectar qual launcher um jogador usa.
+
+## Compare os clientes [#compare-clients]
+
+1. Aplique uma skin conhecida com `/skin set xknat`.
+2. Peça a outro jogador para conferir sua aparência.
+3. Entre com um cliente Java Edition sem modificações.
+4. Compare os resultados.
+
+Se o cliente sem modificações mostrar a skin correta, o servidor a envia corretamente. Confira os mods e a configuração de skins do cliente afetado.
+
+## Desative a substituição [#remove-the-override]
+
+Desative as substituições de skins e capas no cliente. Se houver essa opção, escolha skins oficiais ou do servidor. Reinicie o cliente e entre novamente.
+
+Os controles dependem do launcher e da versão. Use as instruções atuais do launcher em vez de capturas de tela ou vídeos antigos.
+
+A personalização de skin do Minecraft apenas mostra ou oculta partes da camada externa. Ela não escolhe outra skin do servidor.
+
+## Sobre o aviso do launcher [#about-the-launcher-warning]
+
+O aviso do modo offline é uma orientação geral. Ele não identifica seu launcher. `/skin notification ignore-cracked-client` oculta esse aviso para seu jogador.
+
+Ocultar o aviso não corrige uma substituição feita pelo cliente.
+
+## Se a skin estiver errada em todos os clientes [#if-all-clients-look-wrong]
+
+Consulte [skin não aparece](/docs/troubleshooting/no-skin). Colete [diagnósticos](/docs/troubleshooting/debugging) se a aplicação no servidor falhar.

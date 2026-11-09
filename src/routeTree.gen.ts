@@ -9,49 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
-import { Route as DocsDotmdxRouteImport } from './routes/docs[.]mdx'
-import { Route as EditorRouteImport } from './routes/editor'
-import { Route as GeneratorRouteImport } from './routes/generator'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
-import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
-import { Route as UploadRouteImport } from './routes/upload'
+import { Route as Char123LangChar125RouteRouteImport } from './routes/{-$lang}/route'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as DiscordEmbedSplatRouteImport } from './routes/discord-embed/$'
 import { Route as DocsOgSplatRouteImport } from './routes/docs-og/$'
-import { Route as DocsSplatRouteImport } from './routes/docs/$'
-import { Route as DocsChar123Char125DotmdxRouteImport } from './routes/docs/{$}[.]mdx'
 import { Route as LlmsDotmdxSplatRouteImport } from './routes/llms[.]mdx/$'
+import { Route as Char123LangChar125IndexRouteImport } from './routes/{-$lang}/index'
+import { Route as Char123LangChar125DocsDotmdxRouteImport } from './routes/{-$lang}/docs[.]mdx'
+import { Route as Char123LangChar125EditorRouteImport } from './routes/{-$lang}/editor'
+import { Route as Char123LangChar125GeneratorRouteImport } from './routes/{-$lang}/generator'
+import { Route as Char123LangChar125PricingRouteImport } from './routes/{-$lang}/pricing'
+import { Route as Char123LangChar125UploadRouteImport } from './routes/{-$lang}/upload'
+import { Route as Char123LangChar125DocsSplatRouteImport } from './routes/{-$lang}/docs/$'
+import { Route as Char123LangChar125DocsChar123Char125DotmdxRouteImport } from './routes/{-$lang}/docs/{$}[.]mdx'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CookiePolicyRoute = CookiePolicyRouteImport.update({
   id: '/cookie-policy',
   path: '/cookie-policy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocsDotmdxRoute = DocsDotmdxRouteImport.update({
-  id: '/docs.mdx',
-  path: '/docs.mdx',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EditorRoute = EditorRouteImport.update({
-  id: '/editor',
-  path: '/editor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GeneratorRoute = GeneratorRouteImport.update({
-  id: '/generator',
-  path: '/generator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
@@ -62,11 +43,6 @@ const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
@@ -89,9 +65,9 @@ const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
   path: '/terms-of-service',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UploadRoute = UploadRouteImport.update({
-  id: '/upload',
-  path: '/upload',
+const Char123LangChar125RouteRoute = Char123LangChar125RouteRouteImport.update({
+  id: '/{-$lang}',
+  path: '/{-$lang}',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
@@ -109,210 +85,215 @@ const DocsOgSplatRoute = DocsOgSplatRouteImport.update({
   path: '/docs-og/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DocsSplatRoute = DocsSplatRouteImport.update({
-  id: '/docs/$',
-  path: '/docs/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocsChar123Char125DotmdxRoute =
-  DocsChar123Char125DotmdxRouteImport.update({
-    id: '/docs/{$}.mdx',
-    path: '/docs/{$}.mdx',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const LlmsDotmdxSplatRoute = LlmsDotmdxSplatRouteImport.update({
   id: '/llms.mdx/$',
   path: '/llms.mdx/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char123LangChar125IndexRoute = Char123LangChar125IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => Char123LangChar125RouteRoute,
+} as any)
+const Char123LangChar125DocsDotmdxRoute =
+  Char123LangChar125DocsDotmdxRouteImport.update({
+    id: '/docs.mdx',
+    path: '/docs.mdx',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125EditorRoute =
+  Char123LangChar125EditorRouteImport.update({
+    id: '/editor',
+    path: '/editor',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125GeneratorRoute =
+  Char123LangChar125GeneratorRouteImport.update({
+    id: '/generator',
+    path: '/generator',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125PricingRoute =
+  Char123LangChar125PricingRouteImport.update({
+    id: '/pricing',
+    path: '/pricing',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125UploadRoute =
+  Char123LangChar125UploadRouteImport.update({
+    id: '/upload',
+    path: '/upload',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125DocsSplatRoute =
+  Char123LangChar125DocsSplatRouteImport.update({
+    id: '/docs/$',
+    path: '/docs/$',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125DocsChar123Char125DotmdxRoute =
+  Char123LangChar125DocsChar123Char125DotmdxRouteImport.update({
+    id: '/docs/{$}.mdx',
+    path: '/docs/{$}.mdx',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/{-$lang}': typeof Char123LangChar125RouteRouteWithChildren
   '/cookie-policy': typeof CookiePolicyRoute
-  '/docs.mdx': typeof DocsDotmdxRoute
-  '/editor': typeof EditorRoute
-  '/generator': typeof GeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
-  '/pricing': typeof PricingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/upload': typeof UploadRoute
   '/api/search': typeof ApiSearchRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
-  '/docs/$': typeof DocsSplatRoute
-  '/docs/{$}.mdx': typeof DocsChar123Char125DotmdxRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
+  '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
+  '/{-$lang}/editor': typeof Char123LangChar125EditorRoute
+  '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
+  '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
+  '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
+  '/{-$lang}/': typeof Char123LangChar125IndexRoute
+  '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
+  '/{-$lang}/docs/{$}.mdx': typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/cookie-policy': typeof CookiePolicyRoute
-  '/docs.mdx': typeof DocsDotmdxRoute
-  '/editor': typeof EditorRoute
-  '/generator': typeof GeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
-  '/pricing': typeof PricingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/upload': typeof UploadRoute
   '/api/search': typeof ApiSearchRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
-  '/docs/$': typeof DocsSplatRoute
-  '/docs/{$}.mdx': typeof DocsChar123Char125DotmdxRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
+  '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
+  '/{-$lang}/editor': typeof Char123LangChar125EditorRoute
+  '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
+  '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
+  '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
+  '/{-$lang}': typeof Char123LangChar125IndexRoute
+  '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
+  '/{-$lang}/docs/{$}.mdx': typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/{-$lang}': typeof Char123LangChar125RouteRouteWithChildren
   '/cookie-policy': typeof CookiePolicyRoute
-  '/docs.mdx': typeof DocsDotmdxRoute
-  '/editor': typeof EditorRoute
-  '/generator': typeof GeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
-  '/pricing': typeof PricingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/upload': typeof UploadRoute
   '/api/search': typeof ApiSearchRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
-  '/docs/$': typeof DocsSplatRoute
-  '/docs/{$}.mdx': typeof DocsChar123Char125DotmdxRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
+  '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
+  '/{-$lang}/editor': typeof Char123LangChar125EditorRoute
+  '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
+  '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
+  '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
+  '/{-$lang}/': typeof Char123LangChar125IndexRoute
+  '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
+  '/{-$lang}/docs/{$}.mdx': typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
+    | '/{-$lang}'
     | '/cookie-policy'
-    | '/docs.mdx'
-    | '/editor'
-    | '/generator'
     | '/llms-full.txt'
     | '/llms.txt'
-    | '/pricing'
     | '/privacy-policy'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/upload'
     | '/api/search'
     | '/discord-embed/$'
     | '/docs-og/$'
-    | '/docs/$'
-    | '/docs/{$}.mdx'
     | '/llms.mdx/$'
+    | '/{-$lang}/docs.mdx'
+    | '/{-$lang}/editor'
+    | '/{-$lang}/generator'
+    | '/{-$lang}/pricing'
+    | '/{-$lang}/upload'
+    | '/{-$lang}/'
+    | '/{-$lang}/docs/$'
+    | '/{-$lang}/docs/{$}.mdx'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/cookie-policy'
-    | '/docs.mdx'
-    | '/editor'
-    | '/generator'
     | '/llms-full.txt'
     | '/llms.txt'
-    | '/pricing'
     | '/privacy-policy'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/upload'
     | '/api/search'
     | '/discord-embed/$'
     | '/docs-og/$'
-    | '/docs/$'
-    | '/docs/{$}.mdx'
     | '/llms.mdx/$'
+    | '/{-$lang}/docs.mdx'
+    | '/{-$lang}/editor'
+    | '/{-$lang}/generator'
+    | '/{-$lang}/pricing'
+    | '/{-$lang}/upload'
+    | '/{-$lang}'
+    | '/{-$lang}/docs/$'
+    | '/{-$lang}/docs/{$}.mdx'
   id:
     | '__root__'
-    | '/'
+    | '/{-$lang}'
     | '/cookie-policy'
-    | '/docs.mdx'
-    | '/editor'
-    | '/generator'
     | '/llms-full.txt'
     | '/llms.txt'
-    | '/pricing'
     | '/privacy-policy'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/upload'
     | '/api/search'
     | '/discord-embed/$'
     | '/docs-og/$'
-    | '/docs/$'
-    | '/docs/{$}.mdx'
     | '/llms.mdx/$'
+    | '/{-$lang}/docs.mdx'
+    | '/{-$lang}/editor'
+    | '/{-$lang}/generator'
+    | '/{-$lang}/pricing'
+    | '/{-$lang}/upload'
+    | '/{-$lang}/'
+    | '/{-$lang}/docs/$'
+    | '/{-$lang}/docs/{$}.mdx'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  Char123LangChar125RouteRoute: typeof Char123LangChar125RouteRouteWithChildren
   CookiePolicyRoute: typeof CookiePolicyRoute
-  DocsDotmdxRoute: typeof DocsDotmdxRoute
-  EditorRoute: typeof EditorRoute
-  GeneratorRoute: typeof GeneratorRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
-  PricingRoute: typeof PricingRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
-  UploadRoute: typeof UploadRoute
   ApiSearchRoute: typeof ApiSearchRoute
   DiscordEmbedSplatRoute: typeof DiscordEmbedSplatRoute
   DocsOgSplatRoute: typeof DocsOgSplatRoute
-  DocsSplatRoute: typeof DocsSplatRoute
-  DocsChar123Char125DotmdxRoute: typeof DocsChar123Char125DotmdxRoute
   LlmsDotmdxSplatRoute: typeof LlmsDotmdxSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/cookie-policy': {
       id: '/cookie-policy'
       path: '/cookie-policy'
       fullPath: '/cookie-policy'
       preLoaderRoute: typeof CookiePolicyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs.mdx': {
-      id: '/docs.mdx'
-      path: '/docs.mdx'
-      fullPath: '/docs.mdx'
-      preLoaderRoute: typeof DocsDotmdxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/editor': {
-      id: '/editor'
-      path: '/editor'
-      fullPath: '/editor'
-      preLoaderRoute: typeof EditorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/generator': {
-      id: '/generator'
-      path: '/generator'
-      fullPath: '/generator'
-      preLoaderRoute: typeof GeneratorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/llms-full.txt': {
@@ -327,13 +308,6 @@ declare module '@tanstack/react-router' {
       path: '/llms.txt'
       fullPath: '/llms.txt'
       preLoaderRoute: typeof LlmsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy-policy': {
@@ -364,11 +338,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsOfServiceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/upload': {
-      id: '/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof UploadRouteImport
+    '/{-$lang}': {
+      id: '/{-$lang}'
+      path: '/{-$lang}'
+      fullPath: '/{-$lang}'
+      preLoaderRoute: typeof Char123LangChar125RouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/search': {
@@ -392,20 +366,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsOgSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/docs/$': {
-      id: '/docs/$'
-      path: '/docs/$'
-      fullPath: '/docs/$'
-      preLoaderRoute: typeof DocsSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs/{$}.mdx': {
-      id: '/docs/{$}.mdx'
-      path: '/docs/{$}.mdx'
-      fullPath: '/docs/{$}.mdx'
-      preLoaderRoute: typeof DocsChar123Char125DotmdxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/llms.mdx/$': {
       id: '/llms.mdx/$'
       path: '/llms.mdx/$'
@@ -413,28 +373,106 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LlmsDotmdxSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/{-$lang}/': {
+      id: '/{-$lang}/'
+      path: '/'
+      fullPath: '/{-$lang}/'
+      preLoaderRoute: typeof Char123LangChar125IndexRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/docs.mdx': {
+      id: '/{-$lang}/docs.mdx'
+      path: '/docs.mdx'
+      fullPath: '/{-$lang}/docs.mdx'
+      preLoaderRoute: typeof Char123LangChar125DocsDotmdxRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/editor': {
+      id: '/{-$lang}/editor'
+      path: '/editor'
+      fullPath: '/{-$lang}/editor'
+      preLoaderRoute: typeof Char123LangChar125EditorRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/generator': {
+      id: '/{-$lang}/generator'
+      path: '/generator'
+      fullPath: '/{-$lang}/generator'
+      preLoaderRoute: typeof Char123LangChar125GeneratorRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/pricing': {
+      id: '/{-$lang}/pricing'
+      path: '/pricing'
+      fullPath: '/{-$lang}/pricing'
+      preLoaderRoute: typeof Char123LangChar125PricingRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/upload': {
+      id: '/{-$lang}/upload'
+      path: '/upload'
+      fullPath: '/{-$lang}/upload'
+      preLoaderRoute: typeof Char123LangChar125UploadRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/docs/$': {
+      id: '/{-$lang}/docs/$'
+      path: '/docs/$'
+      fullPath: '/{-$lang}/docs/$'
+      preLoaderRoute: typeof Char123LangChar125DocsSplatRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/docs/{$}.mdx': {
+      id: '/{-$lang}/docs/{$}.mdx'
+      path: '/docs/{$}.mdx'
+      fullPath: '/{-$lang}/docs/{$}.mdx'
+      preLoaderRoute: typeof Char123LangChar125DocsChar123Char125DotmdxRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
   }
 }
 
+interface Char123LangChar125RouteRouteChildren {
+  Char123LangChar125DocsDotmdxRoute: typeof Char123LangChar125DocsDotmdxRoute
+  Char123LangChar125EditorRoute: typeof Char123LangChar125EditorRoute
+  Char123LangChar125GeneratorRoute: typeof Char123LangChar125GeneratorRoute
+  Char123LangChar125PricingRoute: typeof Char123LangChar125PricingRoute
+  Char123LangChar125UploadRoute: typeof Char123LangChar125UploadRoute
+  Char123LangChar125IndexRoute: typeof Char123LangChar125IndexRoute
+  Char123LangChar125DocsSplatRoute: typeof Char123LangChar125DocsSplatRoute
+  Char123LangChar125DocsChar123Char125DotmdxRoute: typeof Char123LangChar125DocsChar123Char125DotmdxRoute
+}
+
+const Char123LangChar125RouteRouteChildren: Char123LangChar125RouteRouteChildren =
+  {
+    Char123LangChar125DocsDotmdxRoute: Char123LangChar125DocsDotmdxRoute,
+    Char123LangChar125EditorRoute: Char123LangChar125EditorRoute,
+    Char123LangChar125GeneratorRoute: Char123LangChar125GeneratorRoute,
+    Char123LangChar125PricingRoute: Char123LangChar125PricingRoute,
+    Char123LangChar125UploadRoute: Char123LangChar125UploadRoute,
+    Char123LangChar125IndexRoute: Char123LangChar125IndexRoute,
+    Char123LangChar125DocsSplatRoute: Char123LangChar125DocsSplatRoute,
+    Char123LangChar125DocsChar123Char125DotmdxRoute:
+      Char123LangChar125DocsChar123Char125DotmdxRoute,
+  }
+
+const Char123LangChar125RouteRouteWithChildren =
+  Char123LangChar125RouteRoute._addFileChildren(
+    Char123LangChar125RouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  Char123LangChar125RouteRoute: Char123LangChar125RouteRouteWithChildren,
   CookiePolicyRoute: CookiePolicyRoute,
-  DocsDotmdxRoute: DocsDotmdxRoute,
-  EditorRoute: EditorRoute,
-  GeneratorRoute: GeneratorRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
-  PricingRoute: PricingRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
-  UploadRoute: UploadRoute,
   ApiSearchRoute: ApiSearchRoute,
   DiscordEmbedSplatRoute: DiscordEmbedSplatRoute,
   DocsOgSplatRoute: DocsOgSplatRoute,
-  DocsSplatRoute: DocsSplatRoute,
-  DocsChar123Char125DotmdxRoute: DocsChar123Char125DotmdxRoute,
   LlmsDotmdxSplatRoute: LlmsDotmdxSplatRoute,
 }
 export const routeTree = rootRouteImport

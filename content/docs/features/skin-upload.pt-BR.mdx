@@ -1,0 +1,65 @@
+---
+title: "Enviar uma skin PNG"
+description: "Transforme um PNG em um comando /skin url e aplique no jogo."
+docType: "how-to"
+appliesTo: "Usuários do site e jogadores do Java Edition"
+reviewed: "2026-11-09"
+version: "15.12.6"
+icon: "Upload"
+---
+
+A [página de envio](/upload) gera um comando a partir de uma skin PNG. Ela não se conecta ao seu servidor Minecraft. Você precisa executar o comando no jogo.
+
+## Antes de começar [#before-you-start]
+
+Você precisa de uma skin PNG e da permissão `skinsrestorer.command.set.url`. O site aceita PNG de até 5 MB: skins quadradas, como 64×64, ou antigas, como 64×32. A prévia aceita versões ampliadas dessas formas.
+
+Escolha o [modelo correto](/docs/features/skin-design). O site confere as dimensões antes de permitir a geração. Se a prévia 3D não funcionar, você ainda pode gerar o comando.
+
+**Editar** abre o [editor](/docs/features/skin-editor) sobre a página e mantém as opções do formulário. **Usar em Enviar skin** no editor envia o PNG e seu modelo. Nada é enviado à rede até você selecionar **Gerar /skin url**.
+
+## Gerar e aplicar [#generate-and-apply]
+
+1. Abra [Enviar skin](/upload).
+2. Selecione **Escolher arquivos** ou escolha uma skin em **Suas skins**.
+3. Confira a prévia e escolha **Clássico** (braços de 4 px) ou **Fino** (3 px).
+4. Se quiser uma capa, escolha uma da lista.
+5. Para mudar o método, abra **Opções avançadas**. **Axolotl** é o padrão. A outra opção é **Oficial**.
+6. Selecione **Gerar /skin url**.
+7. Copie o comando e cole no chat do Minecraft.
+
+Mudar a skin, o modelo, a capa ou o método remove o resultado anterior. Gere outro comando para as novas opções.
+
+Mantenha as aspas da URL. O comando inclui o modelo escolhido. O resultado pode usar uma URL do MineSkin ou um valor `skinsrestorer-axolotl://`. Copie exatamente. Um valor Axolotl é usado no comando, não como link do navegador.
+
+```text title="Exemplo de sintaxe, não uma URL pronta para uso"
+/skin url "https://textures.minecraft.net/texture/TEXTURE_HASH" slim
+```
+
+Espere a mensagem de sucesso. Peça a outro jogador para conferir a skin e entre novamente para conferir a persistência.
+
+## Suas skins [#your-skins]
+
+O site salva as skins escolhidas neste navegador. Escolher uma skin da lista não a envia para nenhum servidor. Ao gerar, o site envia o arquivo exato que você selecionou.
+
+Se você arrastar vários PNGs, o site salva os válidos e seleciona o primeiro. Ele não gera comandos para os outros.
+
+A lista existe apenas neste dispositivo e navegador. Leia [Suas skins](/docs/features/skin-editor#your-skins) para renomear, baixar ou remover skins. Se o armazenamento estiver indisponível, você ainda pode usar a skin selecionada. A marca de verificação indica que ela foi salva. O disco riscado indica que não foi possível salvar. Passe o ponteiro sobre o ícone para ver o motivo.
+
+## Chave de API e capas [#api-key-and-capes]
+
+**Axolotl** oferece capas compatíveis sem sua própria chave. **Oficial** usa uma chave do MineSkin e confere a permissão capes. O método e a chave ficam em Opções avançadas. A lista de capas fica sempre visível.
+
+Axolotl com uma capa selecionada usa o proxy. Envios sem capa e o método oficial usam o MineSkin diretamente. A chave do site e `api.mineskinAPIKey` do servidor são independentes. Consulte [MineSkin](/docs/integrations/mineskin).
+
+A lista contém apenas capas existentes compatíveis. Ela não aceita imagens de capa arbitrárias nem transfere a propriedade delas para sua conta.
+
+## Se a geração falhar [#if-generation-fails]
+
+- Imagem inválida: exporte novamente um PNG a partir de um modelo padrão.
+- Fila ou limite: espere a fila terminar antes de tentar novamente.
+- Chave não autorizada: confira a chave e as permissões da conta.
+- Erros nos braços: escolha o modelo correto e gere novamente.
+- Comando negado: confira as [permissões e restrições de URL](/docs/configuration/restrict-skins).
+
+Para dar um nome reutilizável no servidor, consulte [skins personalizadas](/docs/features/custom-skins).

@@ -1,3 +1,4 @@
+import { splitLocalePath } from "../src/lib/i18n.ts";
 import { createHash } from "node:crypto";
 import { dirname, join, relative } from "node:path";
 import { Effect } from "effect";
@@ -13,7 +14,9 @@ export function docsFunctionId(options: {
   functionName: string;
 }) {
   if (
-    options.filename.replaceAll("\\", "/").endsWith("/routes/docs/$.tsx") &&
+    options.filename
+      .replaceAll("\\", "/")
+      .endsWith("/routes/{-$lang}/docs/$.tsx") &&
     options.functionName === "serverLoader_createServerFn_handler"
   ) {
     return docsMetadataFunctionId;
@@ -51,10 +54,8 @@ export function staticDocsMetadata(): Plugin {
                 );
                 const pages = files
                   .map((file) => relative(output, file).replaceAll("\\", "/"))
-                  .filter(
-                    (file) =>
-                      file === "docs.html" ||
-                      (file.startsWith("docs/") && file.endsWith(".html")),
+                  .filter((file) =>
+                    /^(?:(?:ru|es|pt-BR)\/)?docs(?:\/.*)?\.html$/.test(file),
                   )
                   .sort();
                 if (!pages.length)
@@ -63,7 +64,10 @@ export function staticDocsMetadata(): Plugin {
                   pages,
                   (page) =>
                     Effect.tryPromise(async () => {
-                      const path = page.slice(0, -".html".length);
+                      const { path: absolute, locale } = splitLocalePath(
+                        `/${page.slice(0, -".html".length)}`,
+                      );
+                      const path = absolute.slice(1);
                       const slugs =
                         path === "docs"
                           ? []
@@ -71,7 +75,8 @@ export function staticDocsMetadata(): Plugin {
                               .slice("docs/".length)
                               .split("/")
                               .map(decodeURIComponent);
-                      const payload = await toJSONAsync({ data: slugs });
+                      const data = [locale, ...slugs];
+                      const payload = await toJSONAsync({ data });
                       const url = new URL(
                         `/_serverFn/${docsMetadataFunctionId}`,
                         origin,
@@ -112,7 +117,7 @@ export function staticDocsMetadata(): Plugin {
                       }
                       // Match the cache key of the pinned staticFunctionMiddleware.
                       // Slugs are string arrays, so no object-key sorting is needed.
-                      const hash = JSON.stringify(slugs)
+                      const hash = JSON.stringify(data)
                         .replace(/[/\\?%*:|"<>]/g, "-")
                         .replace(/\s+/g, "_");
                       const key = createHash("sha1")

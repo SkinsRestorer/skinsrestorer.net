@@ -54,3 +54,13 @@ export const baseOptions: BaseLayoutProps = {
   githubUrl: "https://github.com/SkinsRestorer/SkinsRestorer",
   links: socialLinks,
 };
+
+export function getBaseOptions(
+  locale: import("./i18n").Locale,
+): BaseLayoutProps {
+  return {
+    ...baseOptions,
+    i18n: true,
+    nav: { ...baseOptions.nav, url: locale === "en" ? "/" : `/${locale}` },
+  };
+}

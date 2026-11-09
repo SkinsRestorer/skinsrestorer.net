@@ -1,3 +1,5 @@
+import { isLocale, localizePath } from "@/lib/i18n";
+import { translate } from "@/lib/messages";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/discord-embed/$")({
@@ -11,20 +13,26 @@ export const Route = createFileRoute("/discord-embed/$")({
           import("@/lib/discord-embed"),
           import("@/lib/source"),
         ]);
-        const page = source.getPage(params._splat?.split("/").filter(Boolean));
+        const slugs = params._splat?.split("/").filter(Boolean) ?? [];
+        const locale = isLocale(slugs[0]) ? slugs.shift()! : "en";
+        if (!isLocale(locale)) return new Response(null, { status: 404 });
+        const page = source.getPage(slugs, locale);
         if (!page) return new Response(null, { status: 404 });
         const component = createDiscordEmbed({
           title: page.data.title,
           description: `${page.data.description ?? ""}\nSkinsRestorer ${page.data.version} · ${page.data.appliesTo}\nReviewed ${page.data.reviewed}`,
           url: new URL(page.url, "https://skinsrestorer.net").href,
-          label: "Read guide",
+          label: translate(locale, "Read guide"),
           images: [
             new URL(getPageImage(page).url, "https://skinsrestorer.net").href,
           ],
           links: [
             {
-              label: "Installation",
-              url: "https://skinsrestorer.net/docs/installation",
+              label: translate(locale, "Installation guide"),
+              url: new URL(
+                localizePath("/docs/installation", locale),
+                "https://skinsrestorer.net",
+              ).href,
             },
           ],
         });

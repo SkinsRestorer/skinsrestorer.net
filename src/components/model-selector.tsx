@@ -2,6 +2,7 @@
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { SkinVariant } from "@/lib/skin";
+import { useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
 
 const models = [
@@ -63,6 +64,7 @@ export function ModelSelector(props: {
   className?: string;
   "aria-labelledby"?: string;
 }) {
+  const t = useT();
   return (
     <ToggleGroup
       aria-labelledby={props["aria-labelledby"]}
@@ -78,15 +80,18 @@ export function ModelSelector(props: {
         <ToggleGroupItem
           key={model.value}
           value={model.value}
-          aria-label={`${model.label}, ${model.arm} pixel arms`}
+          aria-label={t("{model}, {width} pixel arms", {
+            model: t(model.label),
+            width: model.arm,
+          })}
           className="h-auto min-h-16 justify-center"
         >
           <span className="flex items-center gap-3 py-2">
             <ModelIcon arm={model.arm} />
             <span className="flex flex-col items-start gap-0.5">
-              <span className="text-sm font-semibold">{model.label}</span>
+              <span className="text-sm font-semibold">{t(model.label)}</span>
               <span className="text-xs font-normal text-muted-foreground">
-                {model.detail}
+                {t(model.detail)}
               </span>
             </span>
           </span>

@@ -16,6 +16,7 @@ import { ModelSelector } from "@/components/model-selector";
 import type { SkinVariant } from "@/lib/skin";
 import { allPartsVisible, type PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
+import { useT } from "@/lib/i18n-react";
 
 export function LayersPanel(props: {
   layer: SkinLayer;
@@ -25,6 +26,7 @@ export function LayersPanel(props: {
   onVariantChange: (variant: SkinVariant) => void;
   onVisibilityChange: (visibility: PartVisibility) => void;
 }) {
+  const t = useT();
   const { layer, variant, visibility } = props;
   const toggle = (part: (typeof skinParts)[number], target: SkinLayer) =>
     props.onVisibilityChange({
@@ -38,12 +40,12 @@ export function LayersPanel(props: {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Model and layers</CardTitle>
+        <CardTitle>{t("Model and layers")}</CardTitle>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <Field>
-            <FieldTitle id="editor-model-label">Model</FieldTitle>
+            <FieldTitle id="editor-model-label">{t("Model")}</FieldTitle>
             <ModelSelector
               aria-labelledby="editor-model-label"
               value={variant}
@@ -51,7 +53,9 @@ export function LayersPanel(props: {
             />
           </Field>
           <Field>
-            <FieldTitle id="editor-layer-label">Active layer (L)</FieldTitle>
+            <FieldTitle id="editor-layer-label">
+              {t("Active layer (L)")}
+            </FieldTitle>
             <ToggleGroup
               aria-labelledby="editor-layer-label"
               variant="outline"
@@ -63,36 +67,36 @@ export function LayersPanel(props: {
               }}
             >
               <ToggleGroupItem value="base" className="flex-1">
-                Base
+                {t("Base")}
               </ToggleGroupItem>
               <ToggleGroupItem value="outer" className="flex-1">
-                Outer
+                {t("Outer")}
               </ToggleGroupItem>
             </ToggleGroup>
           </Field>
           <FieldSet>
             <div className="flex items-center justify-between gap-2">
-              <FieldLegend variant="label">Visible parts</FieldLegend>
+              <FieldLegend variant="label">{t("Visible parts")}</FieldLegend>
               <Button
                 variant="ghost"
                 size="sm"
                 disabled={allShown}
                 onClick={() => props.onVisibilityChange(allPartsVisible())}
               >
-                Show all
+                {t("Show all")}
               </Button>
             </div>
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-muted-foreground">
                   <th scope="col" className="pb-1 font-normal">
-                    Part
+                    {t("Part")}
                   </th>
                   <th scope="col" className="pb-1 font-normal">
-                    Base
+                    {t("Base")}
                   </th>
                   <th scope="col" className="pb-1 font-normal">
-                    Outer
+                    {t("Outer")}
                   </th>
                 </tr>
               </thead>
@@ -100,7 +104,7 @@ export function LayersPanel(props: {
                 {skinParts.map((part) => (
                   <tr key={part}>
                     <th scope="row" className="py-1 text-left font-medium">
-                      {skinPartLabels[part]}
+                      {t(skinPartLabels[part])}
                     </th>
                     {(["base", "outer"] as const).map((target) => (
                       <td key={target} className="py-1">
@@ -110,8 +114,10 @@ export function LayersPanel(props: {
                             onCheckedChange={() => toggle(part, target)}
                           />
                           <span className="sr-only">
-                            Show {skinPartLabels[part].toLowerCase()} {target}{" "}
-                            layer
+                            {t("Show {part}, {layer} layer", {
+                              part: t(skinPartLabels[part]),
+                              layer: t(target === "base" ? "Base" : "Outer"),
+                            })}
                           </span>
                         </FieldLabel>
                       </td>

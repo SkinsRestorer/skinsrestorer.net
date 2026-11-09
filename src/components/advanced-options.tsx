@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useT } from "@/lib/i18n-react";
 
 export type UploadMethod = "axolotl" | "mineskin";
 
@@ -23,6 +24,7 @@ export function AdvancedOptions(props: {
   /** Fields for the Official method, such as the API key. */
   officialFields: ReactNode;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <div className="border-t">
@@ -40,18 +42,18 @@ export function AdvancedOptions(props: {
               aria-hidden="true"
               className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-90 motion-reduce:transition-none"
             />
-            Advanced options
+            {t("Advanced options")}
           </span>
           <span className="text-xs font-normal text-muted-foreground">
             {props.method === "axolotl"
-              ? "Axolotl (default)"
-              : "Official MineSkin"}
+              ? t("Axolotl (default)")
+              : t("Official MineSkin")}
           </span>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="flex flex-col gap-4 pb-1">
             <div className="flex flex-col gap-2">
-              <Label>Upload method</Label>
+              <Label>{t("Upload method")}</Label>
               <Tabs
                 value={props.method}
                 onValueChange={(value) =>
@@ -59,23 +61,24 @@ export function AdvancedOptions(props: {
                 }
               >
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="axolotl">Axolotl</TabsTrigger>
-                  <TabsTrigger value="mineskin">Official</TabsTrigger>
+                  <TabsTrigger value="axolotl">{t("Axolotl")}</TabsTrigger>
+                  <TabsTrigger value="mineskin">{t("Official")}</TabsTrigger>
                 </TabsList>
                 <TabsContent
                   value="axolotl"
                   className="text-xs text-muted-foreground"
                 >
-                  Use SkinsRestorer Axolotl proxy to upload skins with cape
-                  support. This is a free service thanks to a partnership with
-                  MineSkin.
+                  {t(
+                    "Use SkinsRestorer Axolotl proxy to upload skins with cape support. This is a free service thanks to a partnership with MineSkin.",
+                  )}
                 </TabsContent>
                 <TabsContent
                   value="mineskin"
                   className="text-xs text-muted-foreground"
                 >
-                  Provide a MineSkin API key to upload skins directly with the
-                  official MineSkin API.
+                  {t(
+                    "Provide a MineSkin API key to upload skins directly with the official MineSkin API.",
+                  )}
                 </TabsContent>
               </Tabs>
             </div>

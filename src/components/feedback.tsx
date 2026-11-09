@@ -9,6 +9,7 @@ import { ThumbsDown, ThumbsUp } from "lucide-react";
 import posthog from "posthog-js";
 import { type SubmitEvent, useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n-react";
 
 const rateButtonVariants = cva(
   "inline-flex items-center gap-2 px-3 py-2 rounded-full font-medium border text-sm [&_svg]:size-4 disabled:cursor-not-allowed",
@@ -28,6 +29,7 @@ interface FeedbackData {
 }
 
 export function Feedback({ url, version }: { url: string; version: string }) {
+  const t = useT();
   const messageId = useId();
   const [previous, setPrevious] = useState<FeedbackData | null>(null);
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
@@ -78,7 +80,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
       className="border-y py-3"
     >
       <div className="flex flex-row items-center gap-2">
-        <p className="text-sm font-medium pe-2">Did this page help?</p>
+        <p className="text-sm font-medium pe-2">{t("Did this page help?")}</p>
         <button
           type="button"
           disabled={previous !== null}
@@ -92,7 +94,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
           }}
         >
           <ThumbsUp />
-          Yes
+          {t("Yes")}
         </button>
         <button
           type="button"
@@ -107,13 +109,13 @@ export function Feedback({ url, version }: { url: string; version: string }) {
           }}
         >
           <ThumbsDown />
-          No
+          {t("No")}
         </button>
       </div>
       <CollapsibleContent className="mt-3">
         {previous ? (
           <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-muted-foreground text-sm text-center rounded-xl">
-            <p>Thank you for your feedback!</p>
+            <p>{t("Thank you for your feedback!")}</p>
             <div className="flex flex-row items-center gap-2">
               <button
                 type="button"
@@ -133,14 +135,14 @@ export function Feedback({ url, version }: { url: string; version: string }) {
                   }
                 }}
               >
-                Submit Again
+                {t("Submit Again")}
               </button>
             </div>
           </div>
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
             <label htmlFor={messageId} className="text-sm">
-              What worked, or which step needs a correction?
+              {t("What worked, or which step needs a correction?")}
             </label>
             <textarea
               id={messageId}
@@ -150,7 +152,9 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none placeholder:text-fd-muted-foreground"
-              placeholder="Include the step, your setup, and the result. Keep credentials private."
+              placeholder={t(
+                "Include the step, your setup, and the result. Keep credentials private.",
+              )}
               onKeyDown={(e) => {
                 if (!e.shiftKey && e.key === "Enter") {
                   e.preventDefault();
@@ -162,7 +166,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               type="submit"
               className={cn(buttonVariants({ color: "outline" }), "w-fit px-3")}
             >
-              Submit
+              {t("Submit")}
             </button>
           </form>
         )}

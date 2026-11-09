@@ -29,6 +29,7 @@ import type { StoredSkin } from "@/lib/skin-library";
 import { SkinActionsMenu } from "./skin-actions-menu";
 import { SkinLibraryDialog } from "./skin-library-dialog";
 import { SkinThumbnail } from "./skin-thumbnail";
+import { useT } from "@/lib/i18n-react";
 
 const SkinEditorDialog = lazy(() =>
   import("@/components/editor/skin-editor-dialog").then((module) => ({
@@ -48,6 +49,7 @@ export function SkinPicker(props: {
   /** The page the editor returns to, for its description. */
   page: "Upload" | "Generator";
 }) {
+  const t = useT();
   const { store, state } = props.selection;
   const { state: library, actions } = useSkinLibrary();
   const [pickerKey, setPickerKey] = useState(0);
@@ -79,14 +81,14 @@ export function SkinPicker(props: {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label>Select skin .png file</Label>
+      <Label>{t("Select skin .png file")}</Label>
       <FileUpload
         key={pickerKey}
         accept=".png,image/png"
         multiple
         maxFiles={20}
         maxSize={MAX_SKIN_FILE_BYTES}
-        label="Select skin PNG files"
+        label={t("Select skin PNG files")}
         className="w-full"
         onAccept={(files) => {
           // A new picker each time, so the same file can be chosen again.
@@ -94,8 +96,13 @@ export function SkinPicker(props: {
           store.selectFiles(files);
         }}
         onFileReject={(file, message) => {
-          toast(message, {
-            description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+          toast(t(message), {
+            description: t('File "{name}" was rejected.', {
+              name:
+                file.name.length > 20
+                  ? `${file.name.slice(0, 20)}...`
+                  : file.name,
+            }),
           });
         }}
       >
@@ -104,15 +111,17 @@ export function SkinPicker(props: {
             <div className="flex items-center justify-center rounded-full border p-2.5">
               <Upload className="size-6 text-muted-foreground" />
             </div>
-            <p className="font-medium text-sm">Drag & drop skin file here</p>
+            <p className="font-medium text-sm">
+              {t("Drag & drop skin file here")}
+            </p>
             <p className="text-muted-foreground text-xs">
-              Or click to browse (PNG only, up to 5MB)
+              {t("Or click to browse (PNG only, up to 5MB)")}
             </p>
           </div>
           <FileUploadTrigger
             render={
               <Button variant="outline" size="sm" className="mt-2 w-fit">
-                Browse files
+                {t("Browse files")}
               </Button>
             }
           />
@@ -148,10 +157,10 @@ export function SkinPicker(props: {
         >
           <div className="flex items-center justify-between gap-2">
             <h3 id={headingId} className="text-sm font-medium">
-              Your skins
+              {t("Your skins")}
             </h3>
             <Button variant="ghost" size="sm" onClick={() => setShowAll(true)}>
-              Show all
+              {t("Show all")}
             </Button>
           </div>
           <ul className="grid grid-cols-4 gap-2">
@@ -162,7 +171,19 @@ export function SkinPicker(props: {
                   <button
                     type="button"
                     aria-pressed={selected}
-                    aria-label={`Use ${skin.name}, ${skin.current.variant} model${drafts.has(skin.id) ? ", has unsaved edits" : ""}`}
+                    aria-label={t(
+                      drafts.has(skin.id)
+                        ? t("Use {name}, {model} model, has unsaved edits")
+                        : t("Use {name}, {model} model"),
+                      {
+                        name: skin.name,
+                        model: t(
+                          skin.current.variant === "slim"
+                            ? t("Slim")
+                            : t("Classic"),
+                        ),
+                      },
+                    )}
                     onClick={() => choose(skin)}
                     className="relative flex w-full min-w-0 flex-col items-center gap-1 rounded-lg border bg-card px-1 pt-2 pb-1.5 text-xs outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:border-foreground aria-pressed:ring-1 aria-pressed:ring-foreground"
                   >
@@ -225,12 +246,13 @@ function SelectedSkinRow(props: {
   onUseLatest: () => void;
   onReverted: (skin: StoredSkin) => void;
 }) {
+  const t = useT();
   const { selection } = props;
   const editable = selectionEditable(selection);
   const size =
     selection.width && selection.height
       ? `${selection.width} × ${selection.height}`
-      : "PNG image";
+      : t("PNG image");
   return (
     <div className="ph-no-capture flex flex-wrap items-center gap-3 rounded-lg border bg-muted/20 p-2.5">
       <span className="flex size-10 items-center justify-center rounded-md bg-muted">
@@ -259,14 +281,14 @@ function SelectedSkinRow(props: {
         </span>
         <span className="text-xs text-muted-foreground">
           {selection.status === "invalid"
-            ? selection.error
-            : `${size}, ${props.variant === "slim" ? "Slim" : "Classic"}`}
+            ? t(selection.error ?? "")
+            : `${size}, ${props.variant === "slim" ? t("Slim") : t("Classic")}`}
         </span>
         {selection.keep.kind === "changed" && (
           <span className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-            Changed in another tab.
+            {t("Changed in another tab.")}
             <Button variant="link" size="sm" onClick={props.onUseLatest}>
-              Use the new version
+              {t("Use the new version")}
             </Button>
           </span>
         )}
@@ -277,11 +299,11 @@ function SelectedSkinRow(props: {
             variant="outline"
             size="sm"
             disabled={!editable}
-            title={editable ? undefined : "Only 64×64 and 64×32 skins"}
+            title={editable ? undefined : t("Only 64×64 and 64×32 skins")}
             onClick={props.onEdit}
           >
             <Pencil data-icon="inline-start" />
-            Edit
+            {t("Edit")}
           </Button>
         )}
         <SkinActionsMenu
@@ -294,7 +316,7 @@ function SelectedSkinRow(props: {
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Clear selected skin"
+          aria-label={t("Clear selected skin")}
           onClick={props.onClear}
         >
           <X />
@@ -306,16 +328,17 @@ function SelectedSkinRow(props: {
 
 /** Whether the selected skin is kept in this browser, as a quiet icon. */
 function KeepStatus(props: { selection: SelectedSkin }) {
+  const t = useT();
   const keep = props.selection.keep;
   const [state, label]: [SaveState, string] =
     keep.kind === "saving"
-      ? ["saving", "Saving to Your skins"]
+      ? ["saving", t("Saving to Your skins")]
       : keep.kind === "off"
-        ? ["unavailable", `Not saved. ${keep.message}`]
+        ? ["unavailable", t("Not saved. {error}", { error: t(keep.message) })]
         : keep.kind === "removed"
-          ? ["unavailable", "Removed from Your skins"]
+          ? ["unavailable", t("Removed from Your skins")]
           : keep.kind === "changed"
-            ? ["unsaved", "Changed in another tab"]
-            : ["saved", "Saved in Your skins"];
+            ? ["unsaved", t("Changed in another tab")]
+            : ["saved", t("Saved in Your skins")];
   return <SaveStatus state={state} label={label} />;
 }

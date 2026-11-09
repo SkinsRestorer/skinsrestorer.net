@@ -1,3 +1,4 @@
+import { isLocale } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/docs-og/$")({
@@ -11,7 +12,8 @@ export const Route = createFileRoute("/docs-og/$")({
         const segments = params._splat?.split("/") ?? [];
         if (segments.pop() !== "image.png")
           return new Response(null, { status: 404 });
-        const page = source.getPage(segments);
+        const locale = isLocale(segments[0]) ? segments.shift() : "en";
+        const page = source.getPage(segments, locale);
         if (!page) return new Response(null, { status: 404 });
         return generateDocsImage({
           title: page.data.title,

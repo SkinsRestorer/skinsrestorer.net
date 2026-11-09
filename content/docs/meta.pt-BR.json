@@ -1,0 +1,15 @@
+{
+  "title": "Documentação",
+  "pages": [
+    "index",
+    "installation",
+    "features",
+    "troubleshooting",
+    "configuration",
+    "integrations",
+    "development",
+    "reference",
+    "concepts"
+  ],
+  "defaultOpen": true
+}

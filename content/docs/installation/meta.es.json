@@ -1,0 +1,15 @@
+{
+  "title": "Primeros pasos",
+  "pages": [
+    "requirements",
+    "bukkit",
+    "velocity",
+    "bungeecord",
+    "fabric",
+    "neoforge",
+    "quick-start"
+  ],
+  "defaultOpen": false,
+  "icon": "Download",
+  "pagesIndex": "index"
+}

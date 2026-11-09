@@ -204,10 +204,15 @@ export function sameRegion(a: SkinRegion, b: SkinRegion) {
   return a.part === b.part && a.layer === b.layer && a.face === b.face;
 }
 
-export function describePixel(variant: SkinVariant, x: number, y: number) {
+export function describePixel(
+  variant: SkinVariant,
+  x: number,
+  y: number,
+  t: (text: string) => string = (text) => text,
+) {
   const region = regionAt(variant, x, y);
   const where = region
-    ? `${skinPartLabels[region.part]} ${skinFaceLabels[region.face]}, ${region.layer === "base" ? "base" : "outer"} layer`
-    : "Unused area";
+    ? `${t(skinPartLabels[region.part])} ${t(skinFaceLabels[region.face])}, ${t(region.layer === "base" ? "base layer" : "outer layer")}`
+    : t("Unused area");
   return `${where}, x ${x}, y ${y}`;
 }

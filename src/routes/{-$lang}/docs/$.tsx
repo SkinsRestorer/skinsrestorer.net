@@ -20,9 +20,18 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { baseOptions } from "@/lib/layout-options";
+import { getBaseOptions } from "@/lib/layout-options";
 import { getPageHead } from "@/lib/seo";
 import { getMDXComponents } from "@/mdx-components";
+
+import {
+  docFileInfo,
+  isLocale,
+  localizeHref,
+  localizePath,
+  type Locale,
+} from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n-react";
 
 type ResolvedLink = { url: string; title: string; description?: string };
 
@@ -31,15 +40,19 @@ const serverLoader = createServerFn({ method: "GET" })
     Schema.toStandardSchemaV1(Schema.mutable(Schema.Array(Schema.String))),
   )
   .middleware([staticFunctionMiddleware])
-  .handler(async ({ data: slugs }) => {
-    const { source, getPageImage } = await import("@/lib/source");
-    const page = source.getPage(slugs);
+  .handler(async ({ data: [language, ...slugs] }) => {
+    if (!isLocale(language)) throw notFound();
+    const locale = language;
+    const { source, getPageImage, getDocLanguages } =
+      await import("@/lib/source");
+    const page = source.getPage(slugs, locale);
     if (!page) throw notFound();
     const links: Record<string, ResolvedLink> = {};
     const { dirname } = await import("node:path");
     for (const reference of page.data.extractedReferences) {
       const found = source.getPageByHref(reference.href, {
         dir: dirname(page.path),
+        language: locale,
       });
       if (found) {
         links[reference.href] = {
@@ -51,11 +64,14 @@ const serverLoader = createServerFn({ method: "GET" })
     }
     return {
       path: page.path,
-      url: page.url,
+      url: localizePath(page.url, locale),
+      locale,
+      contentLocale: docFileInfo(page.path).locale,
+      alternatives: getDocLanguages(slugs),
       title: page.data.title,
       description: page.data.description,
       image: getPageImage(page).url,
-      pageTree: await source.serializePageTree(source.pageTree),
+      pageTree: await source.serializePageTree(source.getPageTree(locale)),
       links,
     };
   });
@@ -64,9 +80,12 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   path: string;
   url: string;
   links: Record<string, ResolvedLink>;
+  contentLocale: Locale;
 }>({
   id: "docs-page",
   component({ default: MDX, toc, frontmatter }, page) {
+    const t = useT();
+    const locale = useLocale();
     return (
       <DocsPage
         toc={toc}
@@ -75,15 +94,15 @@ const clientLoader = browserCollections.docs.createClientLoader<{
         tableOfContent={{ style: "clerk" }}
       >
         <div className="flex flex-col gap-2">
-          <DocsTitle>{frontmatter.title}</DocsTitle>
-          <DocsDescription className="mb-2.5">
+          <DocsTitle lang={page.contentLocale}>{frontmatter.title}</DocsTitle>
+          <DocsDescription lang={page.contentLocale} className="mb-2.5">
             {frontmatter.description}
           </DocsDescription>
           <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fd-muted-foreground">
             <span>SkinsRestorer {frontmatter.version}</span>
-            <span>{frontmatter.appliesTo}</span>
+            <span lang={page.contentLocale}>{frontmatter.appliesTo}</span>
             <span>
-              Reviewed{" "}
+              {t("Reviewed")}{" "}
               <time dateTime={frontmatter.reviewed}>
                 {frontmatter.reviewed}
               </time>
@@ -97,12 +116,20 @@ const clientLoader = browserCollections.docs.createClientLoader<{
             />
           </div>
         </div>
-        <DocsBody>
+        {page.contentLocale !== locale && (
+          <p className="text-sm text-fd-muted-foreground">
+            {t("This page is available in English.")}
+          </p>
+        )}
+        <DocsBody lang={page.contentLocale}>
           <MDX
             components={getMDXComponents({
               a: ({ href, ...props }) => {
                 const found = page.links[href ?? ""];
-                if (!found) return <Link href={href ?? ""} {...props} />;
+                if (!found)
+                  return (
+                    <Link href={localizeHref(href ?? "", locale)} {...props} />
+                  );
                 return (
                   <HoverCard>
                     <HoverCardTrigger
@@ -127,10 +154,13 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   },
 });
 
-export const Route = createFileRoute("/docs/$")({
+export const Route = createFileRoute("/{-$lang}/docs/$")({
   loader: async ({ params }) => {
     const page = await serverLoader({
-      data: params._splat?.split("/").filter(Boolean) ?? [],
+      data: [
+        params.lang ?? "en",
+        ...(params._splat?.split("/").filter(Boolean) ?? []),
+      ],
     });
     await clientLoader.preload(page.path);
     return page;
@@ -145,7 +175,7 @@ export const Route = createFileRoute("/docs/$")({
         {
           rel: "discord:component-embed",
           type: "application/json",
-          href: `https://skinsrestorer.net/discord-embed/${loaderData.url.replace(/^\/docs\/?/, "")}`,
+          href: `https://skinsrestorer.net/discord-embed/${loaderData.locale === "en" ? "" : `${loaderData.locale}/`}${loaderData.url.replace(/^\/(?:ru\/|es\/|pt-BR\/)?docs\/?/, "")}`,
         },
       ],
     };
@@ -155,9 +185,15 @@ export const Route = createFileRoute("/docs/$")({
 
 function DocsRoute() {
   const page = useFumadocsLoader(Route.useLoaderData());
+  const locale = useLocale();
   return (
-    <DocsLayout tree={page.pageTree} {...baseOptions}>
-      <DocsContent path={page.path} url={page.url} links={page.links} />
+    <DocsLayout tree={page.pageTree} {...getBaseOptions(locale)}>
+      <DocsContent
+        path={page.path}
+        url={page.url}
+        links={page.links}
+        contentLocale={page.contentLocale}
+      />
     </DocsLayout>
   );
 }
@@ -166,6 +202,7 @@ function DocsContent(props: {
   path: string;
   url: string;
   links: Record<string, ResolvedLink>;
+  contentLocale: Locale;
 }) {
   return clientLoader.useContent(props.path, props);
 }

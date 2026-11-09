@@ -30,6 +30,7 @@ import {
   startTool,
   type EditorSurfaceProps,
 } from "@/components/editor/editor-types";
+import { useT } from "@/lib/i18n-react";
 
 /** Copy straight RGBA pixels with rows flipped for a texture with flipY off. */
 export function copyFlipped(source: Uint8ClampedArray, target: Uint8Array) {
@@ -53,6 +54,7 @@ interface PaintTarget {
  * changes them (loadSkin would clear hat pixels on opaque skins).
  */
 export function ModelCanvas(props: EditorSurfaceProps) {
+  const t = useT();
   const { store, interaction, settings } = props;
   const propsRef = useAsRef(props);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -218,8 +220,10 @@ export function ModelCanvas(props: EditorSurfaceProps) {
 
   const coverMessage = () =>
     propsRef.current.settings.layer === "base"
-      ? "The outer layer covers that spot. Hide the outer layer of that part to paint the base below it."
-      : "Point at the outer layer of a visible part.";
+      ? t(
+          "The outer layer covers that spot. Hide the outer layer of that part to paint the base below it.",
+        )
+      : t("Point at the outer layer of a visible part.");
 
   const rotate = (angle: number) => {
     const viewer = viewerRef.current;
@@ -237,7 +241,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
         <Button
           variant="outline"
           size="icon-sm"
-          aria-label="Turn model left"
+          aria-label={t("Turn model left")}
           disabled={!!failure}
           onClick={() => rotate(-Math.PI / 4)}
         >
@@ -246,7 +250,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
         <Button
           variant="outline"
           size="icon-sm"
-          aria-label="Turn model right"
+          aria-label={t("Turn model right")}
           disabled={!!failure}
           onClick={() => rotate(Math.PI / 4)}
         >
@@ -255,7 +259,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
         <Button
           variant="outline"
           size="icon-sm"
-          aria-label="Zoom model out"
+          aria-label={t("Zoom model out")}
           disabled={!!failure}
           onClick={() => zoom(1 / 1.2)}
         >
@@ -264,7 +268,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
         <Button
           variant="outline"
           size="icon-sm"
-          aria-label="Zoom model in"
+          aria-label={t("Zoom model in")}
           disabled={!!failure}
           onClick={() => zoom(1.2)}
         >
@@ -282,7 +286,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
             viewer.resetCameraPose();
           }}
         >
-          Reset view
+          {t("Reset view")}
         </Button>
         <Toggle
           variant="outline"
@@ -291,7 +295,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
           disabled={!!failure}
           onPressedChange={setAnimate}
         >
-          Walk
+          {t("Walk")}
         </Toggle>
       </div>
       <div
@@ -301,7 +305,9 @@ export function ModelCanvas(props: EditorSurfaceProps) {
         {failure ? (
           <div className="flex h-full min-h-80 flex-col items-center justify-center gap-3 p-6 text-center">
             <Box className="text-muted-foreground" aria-hidden="true" />
-            <output className="text-sm text-muted-foreground">{failure}</output>
+            <output className="text-sm text-muted-foreground">
+              {t(failure)}
+            </output>
             <Button
               variant="outline"
               size="sm"
@@ -310,7 +316,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
                 setAttempt((n) => n + 1);
               }}
             >
-              Try again
+              {t("Try again")}
             </Button>
           </div>
         ) : null}
@@ -320,8 +326,10 @@ export function ModelCanvas(props: EditorSurfaceProps) {
           hidden={!!failure}
           aria-label={
             painting
-              ? "3D model. Drag to paint. Use a right drag, two fingers, or the turn buttons to rotate."
-              : "3D model. Drag to turn it."
+              ? t(
+                  "3D model. Drag to paint. Use a right drag, two fingers, or the turn buttons to rotate.",
+                )
+              : t("3D model. Drag to turn it.")
           }
           className={cn("block", painting ? "cursor-crosshair" : "cursor-grab")}
           onContextMenu={(event) => event.preventDefault()}
@@ -366,8 +374,8 @@ export function ModelCanvas(props: EditorSurfaceProps) {
       {!failure && (
         <p className="text-xs text-muted-foreground">
           {painting
-            ? "Right drag or two fingers to turn."
-            : "Drag to turn the model."}
+            ? t("Right drag or two fingers to turn.")
+            : t("Drag to turn the model.")}
         </p>
       )}
     </div>

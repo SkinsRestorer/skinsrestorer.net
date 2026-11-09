@@ -1,0 +1,38 @@
+---
+title: "Skins sustituidas por el cliente o lanzador"
+description: "Diagnostica una skin que se ve mal en un solo cliente."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-11-09"
+version: "15.12.6"
+icon: "Monitor"
+---
+
+Un mod del cliente o el sistema de skins del lanzador puede sustituir la skin enviada por el servidor. SkinsRestorer no puede detectar qué lanzador usa un jugador.
+
+## Compara los clientes [#compare-clients]
+
+1. Aplica una skin conocida con `/skin set xknat`.
+2. Pide a otro jugador que revise tu aspecto.
+3. Conéctate con un cliente de Java Edition sin modificaciones.
+4. Compara los resultados.
+
+Si el cliente sin modificaciones muestra la skin correcta, el servidor la envía bien. Revisa los mods y la configuración de skins del cliente afectado.
+
+## Desactiva la sustitución [#remove-the-override]
+
+Desactiva las sustituciones de skins y capas del cliente. Si existe la opción, elige las skins oficiales o del servidor. Reinicia el cliente y vuelve a conectarte.
+
+Los controles dependen del lanzador y de su versión. Consulta sus instrucciones actuales en lugar de capturas o vídeos antiguos.
+
+La personalización de skin de Minecraft solo muestra u oculta partes de la capa exterior. No selecciona una skin de servidor diferente.
+
+## Acerca del aviso del lanzador [#about-the-launcher-warning]
+
+El aviso de modo offline es un consejo general. No identifica tu lanzador. `/skin notification ignore-cracked-client` oculta ese aviso para tu jugador.
+
+Ocultar el aviso no corrige una sustitución del cliente.
+
+## Si la skin se ve mal en todos los clientes [#if-all-clients-look-wrong]
+
+Consulta [skin no visible](/docs/troubleshooting/no-skin). Recopila [diagnósticos](/docs/troubleshooting/debugging) si falla la aplicación en el servidor.

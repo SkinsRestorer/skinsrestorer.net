@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { documentOf, type SaveResult } from "@/lib/editor-session";
 import type { SkinVariant } from "@/lib/skin";
 import type { SkinDocument } from "@/lib/skin-document";
+import { useT } from "@/lib/i18n-react";
 
 export interface EditorDialogInitial {
   readonly file: File;
@@ -47,6 +48,7 @@ export function SkinEditorDialog(props: {
   onSaved: (result: Extract<SaveResult, { kind: "saved" }>) => void;
   onClose: () => void;
 }) {
+  const t = useT();
   const { initial, onClose } = props;
   const [document, setDocument] = useState<SkinDocument | null>(null);
   useEffect(() => {
@@ -59,8 +61,8 @@ export function SkinEditorDialog(props: {
         if (!active) return;
         toast.error(
           cause instanceof Error
-            ? cause.message
-            : "The skin could not be opened.",
+            ? t(cause.message)
+            : t("The skin could not be opened."),
         );
         onClose();
       },
@@ -68,7 +70,7 @@ export function SkinEditorDialog(props: {
     return () => {
       active = false;
     };
-  }, [initial, onClose]);
+  }, [initial, onClose, t]);
   if (!document) return null;
   return <EditorDialogBody {...props} document={document} />;
 }
@@ -76,6 +78,7 @@ export function SkinEditorDialog(props: {
 function EditorDialogBody(
   props: Parameters<typeof SkinEditorDialog>[0] & { document: SkinDocument },
 ) {
+  const t = useT();
   const { initial, onClose } = props;
   const { store, session } = useEditorSession(props.document, {
     skinId: initial.skinId,
@@ -136,13 +139,13 @@ function EditorDialogBody(
         <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
           <DialogTitle>
             <span className="ph-no-capture line-clamp-1 break-all">
-              Edit {initial.name}
+              {t("Edit {name}", { name: initial.name })}
             </span>
           </DialogTitle>
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Close editor"
+            aria-label={t("Close editor")}
             onClick={requestClose}
           >
             <X />
@@ -161,15 +164,15 @@ function EditorDialogBody(
       <AlertDialog open={asking} onOpenChange={setAsking}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Close the editor?</AlertDialogTitle>
+            <AlertDialogTitle>{t("Close the editor?")}</AlertDialogTitle>
             <AlertDialogDescription>
               {work.drafts.kind === "off"
-                ? "Drafts are off, so closing loses your changes."
-                : "Keep your changes as a draft, or discard them."}
+                ? t("Drafts are off, so closing loses your changes.")
+                : t("Keep your changes as a draft, or discard them.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep editing</AlertDialogCancel>
+            <AlertDialogCancel>{t("Keep editing")}</AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={() => {
@@ -177,7 +180,7 @@ function EditorDialogBody(
                 void session.discard().then(close);
               }}
             >
-              Discard changes
+              {t("Discard changes")}
             </Button>
             {work.drafts.kind !== "off" && (
               <Button
@@ -186,7 +189,7 @@ function EditorDialogBody(
                   void session.flush().then(close);
                 }}
               >
-                Keep draft and close
+                {t("Keep draft and close")}
               </Button>
             )}
           </AlertDialogFooter>

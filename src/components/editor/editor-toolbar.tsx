@@ -23,6 +23,7 @@ import {
   toolLabels,
   type EditorInteraction,
 } from "@/components/editor/editor-types";
+import { useT } from "@/lib/i18n-react";
 
 const toolIcons = {
   pencil: Brush,
@@ -44,10 +45,11 @@ export function EditorToolbar(props: {
   onUndo: () => void;
   onRedo: () => void;
 }) {
+  const t = useT();
   return (
     <div className="flex flex-wrap items-center gap-2">
       <ToggleGroup
-        aria-label="Tool"
+        aria-label={t("Tool")}
         variant="outline"
         spacing={0}
         value={[props.tool]}
@@ -57,10 +59,14 @@ export function EditorToolbar(props: {
       >
         {tools.map((tool) => {
           const Icon = toolIcons[tool];
-          const { label, key } = toolLabels[tool];
+          const { label: sourceLabel, key } = toolLabels[tool];
+          const label = t(sourceLabel);
           const hint =
             tool === "eraser" && props.layer === "base"
-              ? `${label} (${key}) works on the outer layer only. The base layer is always opaque.`
+              ? t(
+                  "{tool} ({key}) works on the outer layer only. The base layer is always opaque.",
+                  { tool: label, key },
+                )
               : `${label} (${key})`;
           return (
             <Tooltip key={tool}>
@@ -83,7 +89,7 @@ export function EditorToolbar(props: {
       </ToggleGroup>
       <Separator orientation="vertical" className="hidden h-6 sm:block" />
       <ToggleGroup
-        aria-label="Pointer action"
+        aria-label={t("Pointer action")}
         variant="outline"
         spacing={0}
         value={[props.interaction]}
@@ -96,19 +102,19 @@ export function EditorToolbar(props: {
             render={<ToggleGroupItem value="paint" aria-keyshortcuts="P" />}
           >
             <Brush />
-            Paint
+            {t("Paint")}
           </TooltipTrigger>
-          <TooltipContent>Pointers use the tool (P)</TooltipContent>
+          <TooltipContent>{t("Pointers use the tool (P)")}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger
             render={<ToggleGroupItem value="move" aria-keyshortcuts="M" />}
           >
             <Hand />
-            Move view
+            {t("Move view")}
           </TooltipTrigger>
           <TooltipContent>
-            Pointers scroll the texture and turn the model (M)
+            {t("Pointers scroll the texture and turn the model (M)")}
           </TooltipContent>
         </Tooltip>
       </ToggleGroup>
@@ -120,7 +126,7 @@ export function EditorToolbar(props: {
               <Button
                 variant="outline"
                 size="icon-sm"
-                aria-label="Undo"
+                aria-label={t("Undo")}
                 aria-keyshortcuts="Control+Z"
                 disabled={!props.canUndo}
                 onClick={props.onUndo}
@@ -129,7 +135,7 @@ export function EditorToolbar(props: {
           >
             <Undo2 />
           </TooltipTrigger>
-          <TooltipContent>Undo (Ctrl+Z)</TooltipContent>
+          <TooltipContent>{t("Undo (Ctrl+Z)")}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger
@@ -137,7 +143,7 @@ export function EditorToolbar(props: {
               <Button
                 variant="outline"
                 size="icon-sm"
-                aria-label="Redo"
+                aria-label={t("Redo")}
                 aria-keyshortcuts="Control+Shift+Z Control+Y"
                 disabled={!props.canRedo}
                 onClick={props.onRedo}
@@ -146,7 +152,7 @@ export function EditorToolbar(props: {
           >
             <Redo2 />
           </TooltipTrigger>
-          <TooltipContent>Redo (Ctrl+Shift+Z or Ctrl+Y)</TooltipContent>
+          <TooltipContent>{t("Redo (Ctrl+Shift+Z or Ctrl+Y)")}</TooltipContent>
         </Tooltip>
       </div>
     </div>

@@ -1,7 +1,12 @@
 import { docsFunctionId, staticDocsMetadata } from "./scripts/static-docs.ts";
 import { readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { createGetUrl, getSlugs } from "fumadocs-core/source";
+import {
+  docFileInfo,
+  locales,
+  localizePath,
+  splitLocalePath,
+} from "./src/lib/i18n.ts";
 import { execFileSync } from "node:child_process";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import posthog from "@posthog/rollup-plugin";
@@ -10,24 +15,21 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import mdx from "fumadocs-mdx/vite";
 import { defineConfig } from "vite";
-import { sitePages } from "./src/lib/site-pages.ts";
+import { localizedSitePages } from "./src/lib/site-pages.ts";
 import { securityHeaders } from "./src/lib/security-headers.ts";
 import * as MdxConfig from "./source.config.ts";
 
 function getDocsPrerenderPages() {
   const directory = resolve(MdxConfig.docs.dir);
-  return readdirSync(directory, { recursive: true, withFileTypes: true })
+  const docs = readdirSync(directory, { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && /\.mdx?$/.test(entry.name))
-    .map((entry) => ({
-      path: createGetUrl("/docs")(
-        getSlugs(
-          relative(directory, join(entry.parentPath, entry.name)).replaceAll(
-            "\\",
-            "/",
-          ),
-        ),
-      ),
-    }));
+    .map((entry) =>
+      docFileInfo(relative(directory, join(entry.parentPath, entry.name))),
+    );
+  const paths = new Set(docs.map((doc) => doc.path));
+  return [...paths].flatMap((path) =>
+    locales.map((locale) => ({ path: localizePath(path, locale) })),
+  );
 }
 
 export default defineConfig(({ command }) => ({
@@ -44,6 +46,7 @@ export default defineConfig(({ command }) => ({
       serverFns: { generateFunctionId: docsFunctionId },
       pages: [
         ...getDocsPrerenderPages(),
+        ...localizedSitePages.map((path) => ({ path })),
         {
           path: "/api/search",
           prerender: { enabled: true, outputPath: "/api/search" },
@@ -59,8 +62,9 @@ export default defineConfig(({ command }) => ({
         filter: ({ path }) =>
           path === "/api/search" ||
           (!/[?#]/.test(path) &&
-            ((sitePages as readonly string[]).includes(path) ||
-              ((path === "/docs" || path.startsWith("/docs/")) &&
+            (localizedSitePages.includes(path) ||
+              ((splitLocalePath(path).path === "/docs" ||
+                splitLocalePath(path).path.startsWith("/docs/")) &&
                 !path.includes(".")))),
       },
     }),

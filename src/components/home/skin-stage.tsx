@@ -10,6 +10,7 @@ import {
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import styles from "./minecraft.module.css";
+import { useT } from "@/lib/i18n-react";
 
 type DemoCommand = {
   command: string;
@@ -61,6 +62,7 @@ function SkinHead() {
 }
 
 export function SkinStage() {
+  const t = useT();
   const stageRef = useRef<HTMLDivElement>(null);
   const inView = useInView(stageRef, { margin: "80px" });
   const reduceMotion = useReducedMotion() ?? false;
@@ -153,8 +155,8 @@ export function SkinStage() {
               src="/skinsrestorer-character.png"
               alt={
                 cleared
-                  ? "Minecraft character without a selected skin"
-                  : "Minecraft character wearing the selected skin"
+                  ? t("Minecraft character without a selected skin")
+                  : t("Minecraft character wearing the selected skin")
               }
               width={640}
               height={760}
@@ -168,7 +170,10 @@ export function SkinStage() {
         <div
           className={`${styles.chat} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}
         >
-          <ol aria-label="Chat" className="flex flex-col items-start gap-0.5">
+          <ol
+            aria-label={t("Chat")}
+            className="flex flex-col items-start gap-0.5"
+          >
             <AnimatePresence initial={false}>
               {entries.map((entry, index) => (
                 <motion.li
@@ -187,10 +192,14 @@ export function SkinStage() {
                   className="max-w-full bg-black/50 px-1.5 py-0.5 text-white"
                 >
                   <span className={styles.yellow}>
-                    [<span className={styles.darkGreen}>SkinsRestorer</span>]
+                    [
+                    <span className={styles.darkGreen}>
+                      {t("SkinsRestorer")}
+                    </span>
+                    ]
                   </span>{" "}
                   <span className={entry.command.replyClassName}>
-                    {entry.command.reply}
+                    {t(entry.command.reply)}
                   </span>
                   {entry.command.showHead ? (
                     <>
@@ -203,7 +212,7 @@ export function SkinStage() {
             </AnimatePresence>
           </ol>
           <p
-            aria-label="Chat input"
+            aria-label={t("Chat input")}
             className="flex items-center bg-black/60 px-1.5 py-1 text-white"
           >
             <motion.span
@@ -231,7 +240,7 @@ export function SkinStage() {
       </div>
 
       <fieldset className="flex min-w-0 flex-wrap gap-2">
-        <legend className="sr-only">Commands to preview</legend>
+        <legend className="sr-only">{t("Commands to preview")}</legend>
         {demoCommands.map((item) => (
           <Button
             key={item.command}
@@ -250,7 +259,7 @@ export function SkinStage() {
         ))}
       </fieldset>
       <p aria-live="polite" className="min-h-10 text-sm text-muted-foreground">
-        {latest.command.description}
+        {t(latest.command.description)}
       </p>
     </div>
   );

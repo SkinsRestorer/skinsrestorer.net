@@ -65,3 +65,16 @@ inventory, writing conventions, release workflow, and validation commands.
 
 Read [the contribution guide](CONTRIBUTING.md) for development and review.
 Use [the support guide](SUPPORT.md) for questions and issue routing.
+
+## Translations
+
+English uses the existing URLs. Russian, Spanish, and Brazilian Portuguese use `/ru`, `/es`, and `/pt-BR` prefixes.
+The URL sets the language on the server and in the browser. The language control keeps the current page, query parameters, and section.
+Legal pages remain in English.
+
+Shared UI messages live in `src/lib/messages`. Use the English text as the message key and keep the same interpolation parameters in each catalog.
+Translate a documentation page beside its English file, for example `skin-upload.ru.mdx`. Keep command syntax, configuration keys, and section anchors unchanged.
+Fumadocs uses English when a translation is missing. The page marks English content with `lang="en"` and points its canonical URL to the English page.
+Only actual translations enter the sitemap and language alternatives. Each group includes the English URL as `x-default`.
+
+Run `bun run check`, `bun run typecheck`, and `bun run build` after adding translations. With the production preview running, run `bun run test:site`.

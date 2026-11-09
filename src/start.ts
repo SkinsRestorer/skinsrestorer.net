@@ -1,3 +1,4 @@
+import { splitLocalePath } from "@/lib/i18n";
 import { createMiddleware, createStart } from "@tanstack/react-start";
 import { getSiteRedirect } from "@/lib/site-redirects";
 import { securityHeaders } from "@/lib/security-headers";
@@ -16,6 +17,12 @@ const siteMiddleware = createMiddleware().server(async ({ request, next }) => {
   const result = await next();
   for (const [name, value] of Object.entries(securityHeaders)) {
     result.response.headers.set(name, value);
+  }
+  if (result.response.headers.get("Content-Type")?.includes("text/html")) {
+    result.response.headers.set(
+      "Content-Language",
+      splitLocalePath(url.pathname).locale,
+    );
   }
   return result;
 });

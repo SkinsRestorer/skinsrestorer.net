@@ -2,7 +2,12 @@ import { createFromSource } from "fumadocs-core/search/server";
 import { source } from "./source";
 
 const searchAPI = createFromSource(source, {
-  language: "english",
+  localeMap: {
+    en: { language: "english" },
+    ru: { language: "russian" },
+    es: { language: "spanish" },
+    "pt-BR": { language: "portuguese" },
+  },
   search: { groupBy: { properties: ["page_id"], maxResult: 3 } },
 });
 

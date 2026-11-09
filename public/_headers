@@ -9,3 +9,16 @@
 
 /_images/*
   Cache-Control: public, max-age=31536000, immutable
+
+/ru
+  Content-Language: ru
+/ru/*
+  Content-Language: ru
+/es
+  Content-Language: es
+/es/*
+  Content-Language: es
+/pt-BR
+  Content-Language: pt-BR
+/pt-BR/*
+  Content-Language: pt-BR

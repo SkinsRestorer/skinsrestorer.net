@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/hooks/use-cape-selection";
 import type { MineSkinCape } from "@/lib/mineskin";
+import { useT } from "@/lib/i18n-react";
 
 /** The MineSkin API key for the Official method. It stays in form state only. */
 export function MineSkinKeyFields(props: {
@@ -29,12 +30,13 @@ export function MineSkinKeyFields(props: {
   onApiKeyChange: (value: string) => void;
   onCheckCapeAccess: () => void;
 }) {
+  const t = useT();
   const mineskinApiKeyId = useId();
   const { apiKey, capeStatus } = props;
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <Label htmlFor={mineskinApiKeyId}>MineSkin API key</Label>
+        <Label htmlFor={mineskinApiKeyId}>{t("MineSkin API key")}</Label>
         <Popover>
           <PopoverTrigger
             render={
@@ -47,7 +49,7 @@ export function MineSkinKeyFields(props: {
             }
           >
             <InfoIcon className="h-4 w-4" aria-hidden />
-            <span className="sr-only">MineSkin API key info</span>
+            <span className="sr-only">{t("MineSkin API key info")}</span>
           </PopoverTrigger>
           <PopoverContent
             align="start"
@@ -55,24 +57,29 @@ export function MineSkinKeyFields(props: {
             className="w-72 flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
           >
             <p>
-              Need an API key? All MineSkin plans except Lite include cape
-              generation, higher limits, and exclusive features.
+              {t(
+                "Need an API key? All MineSkin plans except Lite include cape generation, higher limits, and exclusive features.",
+              )}
             </p>
             <p>
-              Visit the{" "}
+              {t("Visit the")}{" "}
               <a
                 href="https://mineskin.org/apikey"
                 className="font-medium text-foreground underline"
                 target="_blank"
                 rel="noreferrer"
               >
-                MineSkin API keys page
+                {t("MineSkin API keys page")}
               </a>{" "}
-              to get started and save 10% on your first three months (plans
-              except Lite) with the exclusive coupon code{" "}
-              <span className="font-mono font-semibold">SKINSRESTORER10</span>.
-              We don't receive a commission if you use this coupon—it's just a
-              community perk.
+              {t(
+                "to get started and save 10% on your first three months (plans except Lite) with the exclusive coupon code",
+              )}{" "}
+              <span className="font-mono font-semibold">
+                {t("SKINSRESTORER10")}
+              </span>
+              {t(
+                ". We don't receive a commission if you use this coupon—it's just a community perk.",
+              )}
             </p>
           </PopoverContent>
         </Popover>
@@ -80,7 +87,7 @@ export function MineSkinKeyFields(props: {
       <Input
         id={mineskinApiKeyId}
         type="password"
-        placeholder="Required for cape support"
+        placeholder={t("Required for cape support")}
         value={apiKey}
         onChange={(event) => {
           props.onApiKeyChange(event.target.value);
@@ -93,12 +100,12 @@ export function MineSkinKeyFields(props: {
         disabled={capeStatus === "loading"}
       >
         {capeStatus === "loading"
-          ? "Checking cape support..."
-          : "Check cape access"}
+          ? t("Checking cape support...")
+          : t("Check cape access")}
       </Button>
       {capeStatus === "denied" && (
         <p className="text-xs text-muted-foreground">
-          Cape support requires an API key with the capes grant.
+          {t("Cape support requires an API key with the capes grant.")}
         </p>
       )}
     </div>
@@ -115,6 +122,7 @@ export function CapeField(props: {
   /** The Official method needs a key with the capes grant. */
   needsApiKey: boolean;
 }) {
+  const t = useT();
   const capeSelectId = useId();
   const capeItems = [
     {
@@ -128,7 +136,7 @@ export function CapeField(props: {
           >
             <XIcon className="size-3" />
           </span>
-          <span>No cape</span>
+          <span>{t("No cape")}</span>
         </div>
       ),
     },
@@ -145,7 +153,7 @@ export function CapeField(props: {
   ];
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={capeSelectId}>Cape (optional)</Label>
+      <Label htmlFor={capeSelectId}>{t("Cape (optional)")}</Label>
       <Select
         items={capeItems}
         value={props.selectedCapeUuid}
@@ -154,7 +162,7 @@ export function CapeField(props: {
         }}
       >
         <SelectTrigger id={capeSelectId}>
-          <SelectValue placeholder="No cape" />
+          <SelectValue placeholder={t("No cape")} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -172,8 +180,9 @@ export function CapeField(props: {
       </Select>
       {props.needsApiKey && props.capeStatus !== "granted" && (
         <p className="text-xs text-muted-foreground">
-          Load cape support with a valid API key under Advanced options to
-          preview and apply capes.
+          {t(
+            "Load cape support with a valid API key under Advanced options to preview and apply capes.",
+          )}
         </p>
       )}
     </div>

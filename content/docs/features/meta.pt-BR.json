@@ -1,0 +1,15 @@
+{
+  "title": "Usar skins",
+  "pages": [
+    "change-skin",
+    "skin-upload",
+    "skin-editor",
+    "skin-menu",
+    "skin-edit",
+    "skin-design",
+    "capes"
+  ],
+  "defaultOpen": false,
+  "icon": "Palette",
+  "pagesIndex": "index"
+}

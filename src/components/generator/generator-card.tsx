@@ -48,8 +48,10 @@ import {
 } from "@/lib/skin-selection";
 import { parseTextureReference } from "@/lib/skin-texture";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
+import { useLocale, useT } from "@/lib/i18n-react";
 
 export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
+  const t = useT();
   const selection = useSkinSelection();
   const { store, state, file: selectedFile } = selection;
   const skinType = state.variant;
@@ -121,19 +123,19 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
       <div className="lg:col-span-1">
         <Card className="group hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle>Generate Custom Skin Command</CardTitle>
+            <CardTitle>{t("Generate Custom Skin Command")}</CardTitle>
             <CardDescription>
-              Upload a PNG to get a copyable{" "}
+              {t("Upload a PNG to get a copyable")}{" "}
               <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
                 /sr createcustom
               </code>{" "}
-              command for SkinsRestorer
+              {t("command for SkinsRestorer")}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <SkinPicker selection={selection} page="Generator" />
             <div className="flex flex-col gap-2">
-              <Label id={modelLabelId}>Skin type</Label>
+              <Label id={modelLabelId}>{t("Skin type")}</Label>
               <ModelSelector
                 aria-labelledby={modelLabelId}
                 value={skinType}
@@ -150,12 +152,12 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
             />
             <div className="flex flex-col gap-2">
               <Label htmlFor={customNameId}>
-                Desired custom skin name (optional)
+                {t("Desired custom skin name (optional)")}
               </Label>
               <Input
                 id={customNameId}
                 type="text"
-                placeholder="cool_skin_name"
+                placeholder={t("cool_skin_name")}
                 value={customName}
                 onChange={(e) => {
                   setCustomName(e.target.value);
@@ -177,13 +179,15 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
             <Button
               onClick={() => {
                 if (!input) {
-                  toast.warning("Please select a file to generate.");
+                  toast.warning(t("Please select a file to generate."));
                   return;
                 }
 
                 if (customName && !isValidSkinName(customName)) {
                   toast.warning(
-                    "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
+                    t(
+                      "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
+                    ),
                   );
                   return;
                 }
@@ -204,9 +208,12 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
                     useCapeProxy: shouldUseCapeProxy,
                   },
                   {
-                    loading: "Generating custom skin...",
-                    success: "Command ready to copy.",
-                    error: (e) => `Failed to generate custom skin: ${e}`,
+                    loading: t("Generating custom skin..."),
+                    success: t("Command ready to copy."),
+                    error: (e) =>
+                      t("Failed to generate custom skin: {error}", {
+                        error: t(String(e)),
+                      }),
                   },
                   (completedJob) => {
                     const skin = completedJob.skin;
@@ -225,11 +232,13 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
               disabled={loading}
               className="w-full"
             >
-              Generate /sr createcustom command
+              {t("Generate /sr createcustom command")}
             </Button>
             {shown && (
               <div className="flex flex-col gap-2">
-                <Label htmlFor={customSkinCommandId}>Copy this command</Label>
+                <Label htmlFor={customSkinCommandId}>
+                  {t("Copy this command")}
+                </Label>
                 <div className="flex gap-2 items-center">
                   <Input
                     id={customSkinCommandId}
@@ -243,18 +252,18 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
                     onClick={async () => {
                       try {
                         await navigator.clipboard.writeText(command);
-                        toast.success("Copied to clipboard");
+                        toast.success(t("Copied to clipboard"));
                       } catch (_e) {
-                        toast.error("Failed to copy");
+                        toast.error(t("Failed to copy"));
                       }
                     }}
                   >
-                    Copy
+                    {t("Copy")}
                   </Button>
                 </div>
                 {!shown.url.includes("skinsrestorer-axolotl") && (
                   <div className="text-xs text-muted-foreground break-all">
-                    MineSkin URL:{" "}
+                    {t("MineSkin URL:")}{" "}
                     <a
                       className="underline"
                       href={shown.url}
@@ -283,20 +292,24 @@ export const GenerateFileCard = ({ handoffId }: { handoffId?: string }) => {
 };
 
 export const ReverseFileCard = () => {
+  const locale = useLocale();
+  const t = useT();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [textureHash, setTextureHash] = useState<string | null>(null);
 
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
-        <CardTitle>Reverse Skin File</CardTitle>
+        <CardTitle>{t("Reverse Skin File")}</CardTitle>
         <CardDescription>
-          Upload a skin file to extract and view the original skin texture
+          {t(
+            "Upload a skin file to extract and view the original skin texture",
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <Label>Select skin file to reverse</Label>
+          <Label>{t("Select skin file to reverse")}</Label>
           <FileUpload
             accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
             maxFiles={1}
@@ -308,7 +321,12 @@ export const ReverseFileCard = () => {
             }}
             onFileReject={(file, message) => {
               toast(message, {
-                description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+                description: t('File "{name}" was rejected.', {
+                  name:
+                    file.name.length > 20
+                      ? `${file.name.slice(0, 20)}...`
+                      : file.name,
+                }),
               });
             }}
           >
@@ -318,16 +336,18 @@ export const ReverseFileCard = () => {
                   <Upload className="size-6 text-muted-foreground" />
                 </div>
                 <p className="font-medium text-sm">
-                  Drag & drop skin file here
+                  {t("Drag & drop skin file here")}
                 </p>
                 <p className="text-muted-foreground text-xs">
-                  Or click to browse (.playerskin, .urlskin, etc., up to 5MB)
+                  {t(
+                    "Or click to browse (.playerskin, .urlskin, etc., up to 5MB)",
+                  )}
                 </p>
               </div>
               <FileUploadTrigger
                 render={
                   <Button variant="outline" size="sm" className="mt-2 w-fit">
-                    Browse files
+                    {t("Browse files")}
                   </Button>
                 }
               />
@@ -352,7 +372,7 @@ export const ReverseFileCard = () => {
         <Button
           onClick={() => {
             if (!selectedFile) {
-              toast.warning("Please select a file to reverse.");
+              toast.warning(t("Please select a file to reverse."));
               return;
             }
 
@@ -363,9 +383,10 @@ export const ReverseFileCard = () => {
                   const textJson = JSON.parse(text);
                   rawValue = textJson.value;
                 } catch (_e) {
-                  toast.warning("Falling back to legacy skin format.", {
-                    description:
+                  toast.warning(t("Falling back to legacy skin format."), {
+                    description: t(
                       "Please update SkinsRestorer as soon as possible.",
+                    ),
                   });
 
                   rawValue = text.split("\n")[0];
@@ -379,29 +400,38 @@ export const ReverseFileCard = () => {
                   setTextureHash(trustedTextureHash(skinUrl));
                   window.open(skinUrl, "_blank", "noopener,noreferrer");
                 } else {
-                  toast.error("No skin URL found in file");
+                  toast.error(t("No skin URL found in file"));
                 }
               }),
               {
-                loading: "Reversing skin file...",
-                success: "Skin file reversed successfully.",
-                error: (e) => `Failed to reverse skin file: ${e}`,
+                loading: t("Reversing skin file..."),
+                success: t("Skin file reversed successfully."),
+                error: (e) =>
+                  t("Failed to reverse skin file: {error}", {
+                    error: t(String(e)),
+                  }),
               },
             );
           }}
           className="w-full"
         >
-          Reverse
+          {t("Reverse")}
         </Button>
         {textureHash && (
           <Button
             variant="outline"
             className="w-full"
             nativeButton={false}
-            render={<Link to="/editor" search={{ texture: textureHash }} />}
+            render={
+              <Link
+                to="/{-$lang}/editor"
+                params={{ lang: locale === "en" ? undefined : locale }}
+                search={{ texture: textureHash }}
+              />
+            }
           >
             <Pencil data-icon="inline-start" />
-            Edit this skin
+            {t("Edit this skin")}
           </Button>
         )}
       </CardContent>

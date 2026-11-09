@@ -1,3 +1,4 @@
+import { lazy } from "react";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import {
@@ -6,16 +7,32 @@ import {
   Outlet,
   Scripts,
   redirect,
+  Link,
+  useRouterState,
+  useNavigate,
 } from "@tanstack/react-router";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { ContentImage } from "@/components/content-image";
 import NotFound from "@/components/not-found";
 import { Toaster } from "@/components/ui/sonner";
-import { getPageHead } from "@/lib/seo";
+import {
+  locales,
+  localeNames,
+  localizeHref,
+  localizePath,
+  splitLocalePath,
+  isLocale,
+} from "@/lib/i18n";
+import { LocaleProvider, useLocale, useT } from "@/lib/i18n-react";
+import { fumadocsMessages } from "@/lib/messages/fumadocs";
 import { getSiteRedirect } from "@/lib/site-redirects";
 import "@/lib/analytics";
 import appCss from "../style.css?url";
+
+const LocalizedSearchDialog = lazy(
+  () => import("@/components/localized-search-dialog"),
+);
 
 export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
@@ -36,9 +53,7 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-title", content: "SkinsRestorer" },
       { name: "msapplication-TileColor", content: "#B2A711" },
       { property: "og:site_name", content: "SkinsRestorer" },
-      { property: "og:locale", content: "en_US" },
       { property: "og:type", content: "website" },
-      ...getPageHead("/").meta,
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -50,17 +65,15 @@ export const Route = createRootRoute({
   component: Outlet,
   shellComponent: RootDocument,
   notFoundComponent: NotFound,
-  errorComponent: () => (
-    <main className="mx-auto flex max-w-xl flex-col gap-4 px-4 py-12">
-      <h1 className="text-3xl font-bold">Something went wrong</h1>
-      <p>Please reload the page to try again.</p>
-    </main>
-  ),
+  errorComponent: ErrorPage,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const location = useRouterState({ select: (state) => state.location });
+  const navigate = useNavigate();
+  const locale = splitLocalePath(location.pathname).locale;
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <HeadContent />
         <script
@@ -73,16 +86,55 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         className="flex size-full min-h-svh flex-col font-sans antialiased"
         suppressHydrationWarning
       >
-        <RootProvider
-          components={{ Image: ContentImage }}
-          search={{ options: { type: "static" } }}
-        >
-          {children}
-          <Toaster richColors />
-          <CookieConsentBanner />
-        </RootProvider>
+        <LocaleProvider locale={locale}>
+          <RootProvider
+            components={{ Image: ContentImage, Link: LocaleLink }}
+            i18n={{
+              locale,
+              locales: locales.map((code) => ({
+                locale: code,
+                name: localeNames[code],
+              })),
+              translations: fumadocsMessages(locale),
+              onLocaleChange: (next) => {
+                if (isLocale(next))
+                  void navigate({ href: localizePath(location.href, next) });
+              },
+            }}
+            search={{ SearchDialog: LocalizedSearchDialog }}
+          >
+            {children}
+            <Toaster richColors />
+            <CookieConsentBanner />
+          </RootProvider>
+        </LocaleProvider>
         <Scripts />
       </body>
     </html>
+  );
+}
+
+function LocaleLink({
+  href = "",
+  prefetch = true,
+  ...props
+}: React.ComponentProps<"a"> & { prefetch?: boolean }) {
+  const locale = useLocale();
+  return (
+    <Link
+      to={localizeHref(href, locale)}
+      preload={prefetch ? "intent" : false}
+      {...props}
+    />
+  );
+}
+
+function ErrorPage() {
+  const t = useT();
+  return (
+    <main className="mx-auto flex max-w-xl flex-col gap-4 px-4 py-12">
+      <h1 className="text-3xl font-bold">{t("Something went wrong")}</h1>
+      <p>{t("Please reload the page to try again.")}</p>
+    </main>
   );
 }

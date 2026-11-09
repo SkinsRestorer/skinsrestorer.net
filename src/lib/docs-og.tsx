@@ -1,4 +1,9 @@
 import { ImageResponse } from "takumi-js/response";
+import cyrillicFont from "@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2?inline";
+
+const cyrillic = Uint8Array.from(atob(cyrillicFont.split(",")[1]), (char) =>
+  char.charCodeAt(0),
+);
 
 export function generateDocsImage({
   title,
@@ -12,6 +17,7 @@ export function generateDocsImage({
       style={{
         display: "flex",
         flexDirection: "column",
+        fontFamily: "Geist Cyrillic",
         width: "100%",
         height: "100%",
         padding: 64,
@@ -30,6 +36,7 @@ export function generateDocsImage({
     </div>,
     {
       width: 1200,
+      fonts: [{ name: "Geist Cyrillic", data: cyrillic }],
       height: 630,
       format: "png",
       headers: { "Cache-Control": "public, max-age=3600" },

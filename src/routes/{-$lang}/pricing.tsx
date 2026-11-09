@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HomeLayout } from "@/components/home-layout";
+import { isLocale } from "@/lib/i18n";
 import { getPageHead } from "@/lib/seo";
 import { SiBitcoin, SiKofi } from "@icons-pack/react-simple-icons";
 import { Check, Gift, Heart, Users } from "lucide-react";
@@ -13,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useT } from "@/lib/i18n-react";
 
 const freePlanFeatures = [
   "Full SkinsRestorer plugin",
@@ -31,16 +33,18 @@ const supporterPlanFeatures = [
 ];
 
 function PricingPage() {
+  const t = useT();
   return (
     <div className="px-4 pt-4 pb-6 w-full max-w-[1400px] mx-auto flex-1 md:pb-12">
       <section className="py-8 md:py-16">
         <div className="flex flex-col items-center text-center gap-4 mb-12 md:mb-16">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Simple, transparent pricing
+            {t("Simple, transparent pricing")}
           </h1>
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
-            SkinsRestorer is and always will be free. If you love the project,
-            consider becoming a supporter.
+            {t(
+              "SkinsRestorer is and always will be free. If you love the project, consider becoming a supporter.",
+            )}
           </p>
         </div>
 
@@ -52,10 +56,10 @@ function PricingPage() {
                 <div className="flex items-center justify-center size-10 rounded-lg bg-muted">
                   <Users className="size-5" />
                 </div>
-                <CardTitle className="text-xl">Free</CardTitle>
+                <CardTitle className="text-xl">{t("Free")}</CardTitle>
               </div>
               <CardDescription>
-                Everything you need to manage skins on your server.
+                {t("Everything you need to manage skins on your server.")}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
@@ -65,16 +69,21 @@ function PricingPage() {
               </div>
               <ul className="flex flex-col gap-3">
                 {freePlanFeatures.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm">
+                  <li
+                    key={t(feature)}
+                    className="flex items-center gap-3 text-sm"
+                  >
                     <Check className="size-4 shrink-0 text-primary" />
-                    {feature}
+                    {t(feature)}
                   </li>
                 ))}
               </ul>
             </CardContent>
             <CardFooter>
               <Button
-                render={<Link href="/docs/installation">Get Started</Link>}
+                render={
+                  <Link href="/docs/installation">{t("Get Started")}</Link>
+                }
                 nativeButton={false}
                 variant="outline"
                 className="w-full"
@@ -91,13 +100,15 @@ function PricingPage() {
                 <div className="flex items-center justify-center size-10 rounded-lg bg-primary/10">
                   <Heart className="size-5 text-primary" />
                 </div>
-                <CardTitle className="text-xl">Supporter</CardTitle>
+                <CardTitle className="text-xl">{t("Supporter")}</CardTitle>
                 <span className="ml-auto inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  Popular
+                  {t("Popular")}
                 </span>
               </div>
               <CardDescription>
-                Support the project and get priority help when you need it.
+                {t(
+                  "Support the project and get priority help when you need it.",
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
@@ -107,9 +118,12 @@ function PricingPage() {
               </div>
               <ul className="flex flex-col gap-3">
                 {supporterPlanFeatures.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm">
+                  <li
+                    key={t(feature)}
+                    className="flex items-center gap-3 text-sm"
+                  >
                     <Check className="size-4 shrink-0 text-primary" />
-                    {feature}
+                    {t(feature)}
                   </li>
                 ))}
               </ul>
@@ -119,7 +133,7 @@ function PricingPage() {
                 render={
                   <a href="http://ko-fi.com/skinsrestorer/tiers">
                     <SiKofi className="h-4 w-4" />
-                    Become a Supporter
+                    {t("Become a Supporter")}
                   </a>
                 }
                 nativeButton={false}
@@ -133,12 +147,13 @@ function PricingPage() {
         {/* Bottom note */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground max-w-[500px] mx-auto">
-            Supporter perks are delivered through our{" "}
+            {t("Supporter perks are delivered through our")}{" "}
             <a href="/discord" className="underline hover:text-foreground">
-              Discord server
+              {t("Discord server")}
             </a>
-            . After subscribing on Ko-fi, you&apos;ll receive your supporter
-            role and access to priority support channels.
+            {t(
+              ". After subscribing on Ko-fi, you'll receive your supporter role and access to priority support channels.",
+            )}
           </p>
         </div>
       </section>
@@ -150,15 +165,18 @@ function PricingPage() {
             <Gift className="size-6" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            One-time Donations
+            {t("One-time Donations")}
           </h2>
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
-            Want to support SkinsRestorer without a recurring commitment? You
-            can make a one-time donation via Ko-fi or cryptocurrency.
+            {t(
+              "Want to support SkinsRestorer without a recurring commitment? You can make a one-time donation via Ko-fi or cryptocurrency.",
+            )}
           </p>
           <p className="text-sm text-muted-foreground max-w-[500px]">
-            Only the Ko-fi <strong>membership</strong> grants supporter perks.
-            One-time payments via Ko-fi or NOWPayments do not grant any perks.
+            {t("Only the Ko-fi")} <strong>{t("membership")}</strong>{" "}
+            {t(
+              "grants supporter perks. One-time payments via Ko-fi or NOWPayments do not grant any perks.",
+            )}
           </p>
         </div>
 
@@ -168,11 +186,12 @@ function PricingPage() {
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
                 <SiKofi className="size-5" />
-                <CardTitle className="text-xl">Ko-fi</CardTitle>
+                <CardTitle className="text-xl">{t("Ko-fi")}</CardTitle>
               </div>
               <CardDescription>
-                Donate via PayPal or card — membership and one-time options
-                available
+                {t(
+                  "Donate via PayPal or card — membership and one-time options available",
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
@@ -180,7 +199,7 @@ function PricingPage() {
                 src="https://ko-fi.com/skinsrestorer/?hidefeed=true&widget=true&embed=true&preview=true"
                 className="w-full border-none"
                 height="712"
-                title="Ko-fi donation widget for SkinsRestorer"
+                title={t("Ko-fi donation widget for SkinsRestorer")}
               />
             </CardContent>
           </Card>
@@ -190,10 +209,10 @@ function PricingPage() {
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
                 <SiBitcoin className="size-5" />
-                <CardTitle className="text-xl">Crypto</CardTitle>
+                <CardTitle className="text-xl">{t("Crypto")}</CardTitle>
               </div>
               <CardDescription>
-                Donate with cryptocurrency via NOWPayments
+                {t("Donate with cryptocurrency via NOWPayments")}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex items-center justify-center">
@@ -202,7 +221,7 @@ function PricingPage() {
                 width="346"
                 height="623"
                 className="border-none overflow-y-hidden"
-                title="NOWPayments crypto donation widget"
+                title={t("NOWPayments crypto donation widget")}
               />
             </CardContent>
           </Card>
@@ -212,9 +231,10 @@ function PricingPage() {
   );
 }
 
-export const Route = createFileRoute("/pricing")({
-  head: () =>
+export const Route = createFileRoute("/{-$lang}/pricing")({
+  head: ({ params }) =>
     getPageHead("/pricing", {
+      locale: isLocale(params.lang) ? params.lang : "en",
       title: "Pricing",
       description:
         "SkinsRestorer is free and open source. Support development and get priority Discord support.",

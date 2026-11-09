@@ -33,8 +33,10 @@ import {
   sameGenerationInput,
   type GenerationInput,
 } from "@/lib/skin-selection";
+import { useT } from "@/lib/i18n-react";
 
 export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
+  const t = useT();
   const selection = useSkinSelection();
   const { store, state, file: selectedFile } = selection;
   const skinType = state.variant;
@@ -93,7 +95,7 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
 
   function uploadSkin() {
     if (!input) {
-      toast.warning("Please select a PNG skin file.");
+      toast.warning(t("Please select a PNG skin file."));
       return;
     }
 
@@ -110,9 +112,10 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
         useCapeProxy: useCapeProxy && selectedCapeUuid !== NO_CAPE_VALUE,
       },
       {
-        loading: "Uploading skin to MineSkin...",
-        success: "Skin uploaded successfully.",
-        error: (e) => `Failed to upload skin: ${e}`,
+        loading: t("Uploading skin to MineSkin..."),
+        success: t("Skin uploaded successfully."),
+        error: (e) =>
+          t("Failed to upload skin: {error}", { error: t(String(e)) }),
       },
       (completed) => {
         setResult({
@@ -133,20 +136,20 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
     <>
       <Card className="group hover:shadow-lg transition-shadow duration-200">
         <CardHeader>
-          <CardTitle>Upload Skin</CardTitle>
+          <CardTitle>{t("Upload Skin")}</CardTitle>
           <CardDescription>
-            Upload a PNG skin file and get a copyable{" "}
+            {t("Upload a PNG skin file and get a copyable")}{" "}
             <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
               /skin url
             </code>{" "}
-            command
+            {t("command")}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <SkinPicker selection={selection} page="Upload" />
 
           <div className="flex flex-col gap-2">
-            <Label id={modelLabelId}>Skin type</Label>
+            <Label id={modelLabelId}>{t("Skin type")}</Label>
             <ModelSelector
               aria-labelledby={modelLabelId}
               value={skinType}
@@ -177,12 +180,12 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
           />
 
           <Button onClick={uploadSkin} disabled={loading} className="w-full">
-            Generate /skin url
+            {t("Generate /skin url")}
           </Button>
 
           {resultUrl && (
             <div className="flex flex-col gap-2">
-              <Label htmlFor={skinCommandId}>Copy this command</Label>
+              <Label htmlFor={skinCommandId}>{t("Copy this command")}</Label>
               <div className="flex gap-2 items-center">
                 <Input
                   id={skinCommandId}
@@ -196,18 +199,18 @@ export const UploadCard = ({ handoffId }: { handoffId?: string }) => {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(command);
-                      toast.success("Copied to clipboard");
+                      toast.success(t("Copied to clipboard"));
                     } catch (_e) {
-                      toast.error("Failed to copy");
+                      toast.error(t("Failed to copy"));
                     }
                   }}
                 >
-                  Copy
+                  {t("Copy")}
                 </Button>
               </div>
               {!resultUrl.includes("skinsrestorer-axolotl") && (
                 <div className="text-xs text-muted-foreground break-all">
-                  MineSkin URL:{" "}
+                  {t("MineSkin URL:")}{" "}
                   <a
                     className="underline"
                     href={resultUrl}

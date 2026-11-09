@@ -10,8 +10,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n-react";
 
 export function CopyCommand({ command }: { command: string }) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -28,7 +30,7 @@ export function CopyCommand({ command }: { command: string }) {
       if (timeout.current) clearTimeout(timeout.current);
       timeout.current = setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Copy failed. Select the command and copy it manually.");
+      toast.error(t("Copy failed. Select the command and copy it manually."));
     }
   }
 
@@ -38,10 +40,12 @@ export function CopyCommand({ command }: { command: string }) {
       variant="ghost"
       size="icon-sm"
       onClick={copy}
-      aria-label={`Copy ${command}`}
+      aria-label={t("Copy {command}", { command })}
     >
       {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-      <output className="sr-only">{copied ? "Copied to clipboard" : ""}</output>
+      <output className="sr-only">
+        {copied ? t("Copied to clipboard") : ""}
+      </output>
     </Button>
   );
 }

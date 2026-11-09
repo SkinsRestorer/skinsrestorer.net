@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n-react";
 import { ArrowUpRight } from "lucide-react";
 import { Image } from "@/components/image";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ export function EnderDashSponsor({
   placement: "home" | "docs-footer";
   className?: string;
 }) {
+  const t = useT();
   const href = getEnderDashHref(placement);
 
   if (placement === "docs-footer") {
@@ -28,7 +30,7 @@ export function EnderDashSponsor({
           "flex flex-wrap items-center gap-3 border-t py-4 text-sm text-muted-foreground",
           className,
         )}
-        aria-label="Sponsor"
+        aria-label={t("Sponsor")}
       >
         <Image
           src="/assets/sponsors/enderdash-logo.png"
@@ -37,7 +39,7 @@ export function EnderDashSponsor({
           height={24}
         />
         <p>
-          Sponsored by{" "}
+          {t("Sponsored by")}{" "}
           <a
             href={href}
             target="_blank"
@@ -46,7 +48,7 @@ export function EnderDashSponsor({
           >
             EnderDash
           </a>
-          , a dashboard for Minecraft server administration.
+          {t(", a dashboard for Minecraft server administration.")}
         </p>
       </aside>
     );
@@ -58,7 +60,7 @@ export function EnderDashSponsor({
         "flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6",
         className,
       )}
-      aria-label="Sponsor"
+      aria-label={t("Sponsor")}
     >
       <Image
         src="/assets/sponsors/enderdash-logo.png"
@@ -68,9 +70,13 @@ export function EnderDashSponsor({
         className="shrink-0"
       />
       <div className="flex flex-1 flex-col gap-1">
-        <p className="text-xs text-muted-foreground">Sponsor: EnderDash</p>
+        <p className="text-xs text-muted-foreground">
+          {t("Sponsor: EnderDash")}
+        </p>
         <p className="text-sm text-muted-foreground">
-          Run server commands, read logs, and manage files in your browser.
+          {t(
+            "Run server commands, read logs, and manage files in your browser.",
+          )}
         </p>
       </div>
       <a

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
 import { startSkinPreview } from "@/lib/skin-preview";
+import { useT } from "@/lib/i18n-react";
 
 const animations = {
   walking: WalkingAnimation,
@@ -48,6 +49,7 @@ export function SkinCard(props: {
   capeUrl?: string;
   model: "default" | "slim";
 }) {
+  const t = useT();
   const [animationType, setAnimationType] = useState<AnimationType>("walking");
   const [animation, setAnimation] = useState<PlayerAnimation>(
     () => new WalkingAnimation(),
@@ -102,25 +104,25 @@ export function SkinCard(props: {
   }, [normalizedSkinUrl, normalizedCapeUrl]);
 
   const animationItems = [
-    { value: "walking" as const, label: <span>Walking</span> },
-    { value: "idle" as const, label: <span>Idle</span> },
-    { value: "running" as const, label: <span>Running</span> },
-    { value: "flying" as const, label: <span>Flying</span> },
-    { value: "wave" as const, label: <span>Wave</span> },
-    { value: "crouch" as const, label: <span>Crouch</span> },
-    { value: "hit" as const, label: <span>Hit</span> },
+    { value: "walking" as const, label: <span>{t("Walking")}</span> },
+    { value: "idle" as const, label: <span>{t("Idle")}</span> },
+    { value: "running" as const, label: <span>{t("Running")}</span> },
+    { value: "flying" as const, label: <span>{t("Flying")}</span> },
+    { value: "wave" as const, label: <span>{t("Wave")}</span> },
+    { value: "crouch" as const, label: <span>{t("Crouch")}</span> },
+    { value: "hit" as const, label: <span>{t("Hit")}</span> },
   ];
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
-        <CardTitle>Skin preview</CardTitle>
+        <CardTitle>{t("Skin preview")}</CardTitle>
         <CardDescription>
-          See a preview of your skin before uploading it.
+          {t("See a preview of your skin before uploading it.")}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 items-center">
         <div className="w-full max-w-xs flex flex-col gap-2">
-          <Label htmlFor={animationSelectId}>Animation</Label>
+          <Label htmlFor={animationSelectId}>{t("Animation")}</Label>
           <Select
             items={animationItems}
             value={animationType}
@@ -135,7 +137,7 @@ export function SkinCard(props: {
             }}
           >
             <SelectTrigger id={animationSelectId}>
-              <SelectValue placeholder="Choose an animation" />
+              <SelectValue placeholder={t("Choose an animation")} />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -153,12 +155,13 @@ export function SkinCard(props: {
           height={300}
           width={200}
           hidden={previewFailed}
-          aria-label="3D skin preview"
+          aria-label={t("3D skin preview")}
         />
         {previewFailed && (
           <output className="text-sm text-muted-foreground">
-            The 3D preview is unavailable. You can still upload or generate your
-            skin.
+            {t(
+              "The 3D preview is unavailable. You can still upload or generate your skin.",
+            )}
           </output>
         )}
       </CardContent>

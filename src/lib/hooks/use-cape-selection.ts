@@ -7,6 +7,7 @@ import {
   fetchMineSkinSupportedCapes,
   type MineSkinCape,
 } from "@/lib/mineskin";
+import { useNotificationT } from "@/lib/i18n-react";
 
 export const NO_CAPE_VALUE = "__no_cape__" as const;
 
@@ -17,6 +18,7 @@ interface UseCapeSelectionOptions {
 }
 
 export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
+  const t = useNotificationT();
   const { autoGrantCapeAccess = false } = options;
   const verification = useLatestTask();
   const availableCapes = useLatestTask();
@@ -45,11 +47,11 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to load available capes",
+            : t("Failed to load available capes"),
         ),
     );
     return () => availableCapes.cancel();
-  }, [availableCapes]);
+  }, [availableCapes, t]);
 
   useEffect(() => {
     verification.cancel();
@@ -79,7 +81,9 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
       !autoGrantCapeAccess &&
       (!normalizedApiKey || capeStatus !== "granted")
     ) {
-      toast.warning("Enter and verify your API key before selecting a cape.");
+      toast.warning(
+        t("Enter and verify your API key before selecting a cape."),
+      );
       return;
     }
 
@@ -93,7 +97,7 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
     }
 
     if (!normalizedApiKey) {
-      toast.warning("Enter your MineSkin API key to load capes.");
+      toast.warning(t("Enter your MineSkin API key to load capes."));
       return;
     }
 
@@ -107,22 +111,24 @@ export function useCapeSelection(options: UseCapeSelectionOptions = {}) {
         if (!hasCapeGrant) {
           setCapeStatus("denied");
           toast.error(
-            "Your API key does not have the capes grant. Please check your MineSkin plan.",
+            t(
+              "Your API key does not have the capes grant. Please check your MineSkin plan.",
+            ),
           );
           return;
         }
         setCapeStatus("granted");
         setSupportedCapes(capes);
         if (capes.length === 0)
-          toast.info("No supported capes are currently available.");
-        else toast.success("Cape support enabled for this API key.");
+          toast.info(t("No supported capes are currently available."));
+        else toast.success(t("Cape support enabled for this API key."));
       },
       (error) => {
         setCapeStatus("idle");
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to verify cape support",
+            : t("Failed to verify cape support"),
         );
       },
     );

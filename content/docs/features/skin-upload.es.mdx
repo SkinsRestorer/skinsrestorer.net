@@ -1,0 +1,65 @@
+---
+title: "Subir una skin PNG"
+description: "Convierte un PNG en un comando /skin url y aplícalo en el juego."
+docType: "how-to"
+appliesTo: "Usuarios del sitio y jugadores de Java Edition"
+reviewed: "2026-11-09"
+version: "15.12.6"
+icon: "Upload"
+---
+
+La [página de subida](/upload) genera un comando desde una skin PNG. No se conecta a tu servidor de Minecraft. Debes ejecutar el comando en el juego.
+
+## Antes de empezar [#before-you-start]
+
+Necesitas una skin PNG y el permiso `skinsrestorer.command.set.url`. El sitio acepta PNG de hasta 5 MB: skins cuadradas, como 64×64, o antiguas, como 64×32. La vista previa admite versiones ampliadas de estas formas.
+
+Elige el [modelo correcto](/docs/features/skin-design). El sitio comprueba las dimensiones antes de permitir la generación. Si la vista 3D no funciona, puedes generar el comando.
+
+**Editar** abre el [editor](/docs/features/skin-editor) sobre la página y conserva las opciones del formulario. **Usar en Subir skin** en el editor envía el PNG y su modelo. No se sube nada hasta pulsar **Generar /skin url**.
+
+## Generar y aplicar [#generate-and-apply]
+
+1. Abre [Subir skin](/upload).
+2. Pulsa **Elegir archivos** o elige una skin de **Tus skins**.
+3. Revisa la vista previa y elige **Clásica** (brazos de 4 px) o **Delgada** (3 px).
+4. Si quieres una capa, elige una de la lista.
+5. Para cambiar el método, abre **Opciones avanzadas**. **Axolotl** es el predeterminado. La otra opción es **Oficial**.
+6. Pulsa **Generar /skin url**.
+7. Copia el comando y pégalo en el chat de Minecraft.
+
+Cambiar la skin, el modelo, la capa o el método elimina el resultado anterior. Genera otro comando para las nuevas opciones.
+
+Conserva las comillas de la URL. El comando incluye el modelo elegido. El resultado puede usar una URL de MineSkin o un valor `skinsrestorer-axolotl://`. Cópialo exactamente. Un valor de Axolotl se usa en el comando, no como enlace del navegador.
+
+```text title="Ejemplo de sintaxis, no una URL lista para usar"
+/skin url "https://textures.minecraft.net/texture/TEXTURE_HASH" slim
+```
+
+Espera el mensaje de éxito. Pide a otro jugador que revise la skin y vuelve a conectarte para comprobar que se conserva.
+
+## Tus skins [#your-skins]
+
+El sitio guarda las skins elegidas en este navegador. Elegir una skin de la lista no la envía a ningún servidor. Al generar, se sube el archivo exacto que seleccionaste.
+
+Si arrastras varios PNG, se guardan los válidos y se selecciona el primero. No se generan comandos para los demás.
+
+La lista solo existe en este dispositivo y navegador. Lee [Tus skins](/docs/features/skin-editor#your-skins) para renombrar, descargar o eliminar skins. Si el almacenamiento no está disponible, puedes seguir usando la skin seleccionada. La marca de verificación indica que se guardó. El disco tachado indica que no se pudo guardar. Pasa el puntero por el icono para ver el motivo.
+
+## Clave de API y capas [#api-key-and-capes]
+
+**Axolotl** ofrece capas compatibles sin tu propia clave. **Oficial** usa una clave de MineSkin y comprueba el permiso capes. El método y la clave están en Opciones avanzadas. La lista de capas siempre está visible.
+
+Axolotl con una capa seleccionada usa el proxy. Las subidas sin capa y el método oficial usan MineSkin directamente. La clave del sitio y `api.mineskinAPIKey` del servidor son independientes. Consulta [MineSkin](/docs/integrations/mineskin).
+
+La lista solo contiene capas existentes compatibles. No admite imágenes de capa arbitrarias ni transfiere su propiedad a tu cuenta.
+
+## Si la generación falla [#if-generation-fails]
+
+- Imagen no válida: exporta otra vez un PNG desde una plantilla estándar.
+- Cola o límite: espera a que termine la cola antes de reintentar.
+- Clave no autorizada: revisa la clave y los permisos de la cuenta.
+- Errores en los brazos: elige el modelo correcto y genera de nuevo.
+- Comando denegado: revisa los [permisos y restricciones de URL](/docs/configuration/restrict-skins).
+
+Para asignar un nombre reutilizable en el servidor, consulta [skins personalizadas](/docs/features/custom-skins).

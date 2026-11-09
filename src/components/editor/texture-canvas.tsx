@@ -8,6 +8,7 @@ import {
   startTool,
   type EditorSurfaceProps,
 } from "@/components/editor/editor-types";
+import { useT } from "@/lib/i18n-react";
 
 interface TextureCanvasProps extends EditorSurfaceProps {
   /** Size of one skin pixel in CSS pixels. */
@@ -27,6 +28,7 @@ function themeColor(element: Element, name: string, fallback: string) {
  * keys move a pixel cursor and Space or Enter applies the tool.
  */
 export function TextureCanvas(props: TextureCanvasProps) {
+  const t = useT();
   const { store, settings, scale, showGrid, highlight, interaction } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useAsRef(props);
@@ -237,7 +239,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         tabIndex={0}
         role="application"
         aria-roledescription="skin texture"
-        aria-label="Skin texture, 64 by 64 pixels"
+        aria-label={t("Skin texture, 64 by 64 pixels")}
         aria-describedby={instructionsId}
         className={cn(
           "block max-w-none rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -248,7 +250,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         onFocus={() => {
           setFocused(true);
           setAnnouncement(
-            describePixel(store.getSnapshot().variant, cursor.x, cursor.y),
+            describePixel(store.getSnapshot().variant, cursor.x, cursor.y, t),
           );
         }}
         onBlur={() => setFocused(false)}
@@ -275,7 +277,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
             };
             setCursor(next);
             setAnnouncement(
-              describePixel(store.getSnapshot().variant, next.x, next.y),
+              describePixel(store.getSnapshot().variant, next.x, next.y, t),
             );
           } else if (event.key === " " || event.key === "Enter") {
             event.preventDefault();
@@ -320,14 +322,15 @@ export function TextureCanvas(props: TextureCanvasProps) {
         onLostPointerCapture={finishStroke}
       />
       <p id={instructionsId} className="sr-only">
-        Use the arrow keys to move the pixel cursor. Hold Shift to move four
-        pixels. Press Space or Enter to use the selected tool.
+        {t(
+          "Use the arrow keys to move the pixel cursor. Hold Shift to move four pixels. Press Space or Enter to use the selected tool.",
+        )}
       </p>
       <p className="min-h-4 text-xs text-muted-foreground" aria-hidden="true">
         {hover
-          ? describePixel(store.getSnapshot().variant, hover.x, hover.y)
+          ? describePixel(store.getSnapshot().variant, hover.x, hover.y, t)
           : focused
-            ? describePixel(store.getSnapshot().variant, cursor.x, cursor.y)
+            ? describePixel(store.getSnapshot().variant, cursor.x, cursor.y, t)
             : null}
       </p>
       <p className="sr-only" aria-live="polite">

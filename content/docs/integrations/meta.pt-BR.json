@@ -1,0 +1,13 @@
+{
+  "title": "Integrações",
+  "pages": [
+    "placeholderapi",
+    "discordsrv",
+    "discord-mc-chat",
+    "avatar-url",
+    "mineskin"
+  ],
+  "defaultOpen": false,
+  "icon": "Plug",
+  "pagesIndex": "index"
+}

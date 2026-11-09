@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalizedDialogContent as DialogContent } from "@/components/localized-dialog";
+
 import { useId, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { SaveStatus } from "@/components/save-status";
@@ -7,7 +9,6 @@ import { CustomTimeAgo } from "@/components/time-ago";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
@@ -22,6 +23,7 @@ import type {
 import type { StoredSkin } from "@/lib/skin-library";
 import { SkinActionsMenu } from "./skin-actions-menu";
 import { SkinThumbnail } from "./skin-thumbnail";
+import { useLocale, useT } from "@/lib/i18n-react";
 
 const placeholders = ["slot-a", "slot-b", "slot-c"] as const;
 
@@ -37,6 +39,8 @@ export function SkinLibraryDialog(props: {
   selectedId?: string;
   onSelect: (skin: StoredSkin) => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const searchId = useId();
   const [query, setQuery] = useState("");
   const { state } = props;
@@ -54,27 +58,30 @@ export function SkinLibraryDialog(props: {
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent className="flex max-h-[min(40rem,90dvh)] flex-col sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Your skins</DialogTitle>
+          <DialogTitle>{t("Your skins")}</DialogTitle>
           <DialogDescription>
-            Stored in this browser only.{" "}
+            {t("Stored in this browser only.")}{" "}
             <Link
-              to="/docs/$"
-              params={{ _splat: "features/skin-editor" }}
+              to="/{-$lang}/docs/$"
+              params={{
+                lang: locale === "en" ? undefined : locale,
+                _splat: "features/skin-editor",
+              }}
               hash="your-skins"
               className="underline underline-offset-4"
             >
-              About Your skins
+              {t("About Your skins")}
             </Link>
           </DialogDescription>
         </DialogHeader>
         <Field>
           <FieldLabel htmlFor={searchId} className="sr-only">
-            Search your skins
+            {t("Search your skins")}
           </FieldLabel>
           <Input
             id={searchId}
             type="search"
-            placeholder="Search by name"
+            placeholder={t("Search by name")}
             value={query}
             autoComplete="off"
             onChange={(event) => setQuery(event.target.value)}
@@ -91,11 +98,11 @@ export function SkinLibraryDialog(props: {
             </ul>
           )}
           {state.status === "unavailable" && (
-            <p className="text-sm text-muted-foreground">{state.message}</p>
+            <p className="text-sm text-muted-foreground">{t(state.message)}</p>
           )}
           {listing && skins.length === 0 && (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {needle ? "No skins match this name." : "No skins yet."}
+              {needle ? t("No skins match this name.") : t("No skins yet.")}
             </p>
           )}
           <ul className="flex flex-col gap-2">
@@ -123,14 +130,14 @@ export function SkinLibraryDialog(props: {
                       {skin.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {modelLabel(skin)}, {skin.current.width}×
-                      {skin.current.height}, changed{" "}
-                      <CustomTimeAgo date={skin.updatedAt} />
+                      {t(modelLabel(skin))}, {skin.current.width}×
+                      {skin.current.height}
+                      {t(", changed")} <CustomTimeAgo date={skin.updatedAt} />
                     </span>
                   </span>
                 </button>
                 {drafts.has(skin.id) && (
-                  <SaveStatus state="unsaved" label="Unsaved edits" />
+                  <SaveStatus state="unsaved" label={t("Unsaved edits")} />
                 )}
                 <SkinActionsMenu
                   skin={skin}
@@ -146,15 +153,15 @@ export function SkinLibraryDialog(props: {
               >
                 <span className="text-sm text-muted-foreground">
                   {record.store === "skins"
-                    ? "A damaged skin that cannot be read"
-                    : "A damaged editor draft that cannot be read"}
+                    ? t("A damaged skin that cannot be read")
+                    : t("A damaged editor draft that cannot be read")}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => void props.actions.removeDamaged(record)}
                 >
-                  Remove
+                  {t("Remove")}
                 </Button>
               </li>
             ))}

@@ -18,6 +18,7 @@ import { getLatestRelease } from "@/lib/release-server";
 import styles from "./minecraft.module.css";
 import { CopyCommand, HomeFaq } from "./home-interactions";
 import { SkinStage } from "./skin-stage";
+import { useT } from "@/lib/i18n-react";
 
 const githubLink = "https://github.com/SkinsRestorer/SkinsRestorer";
 const releasesLink = `${githubLink}/releases`;
@@ -30,6 +31,7 @@ const linkClassName =
   "inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline";
 
 function LatestRelease() {
+  const t = useT();
   const [data, setData] =
     useState<Awaited<ReturnType<typeof getLatestRelease>>>(null);
   useEffect(() => {
@@ -46,16 +48,17 @@ function LatestRelease() {
 
   return (
     <a href={data.html_url} className={linkClassName}>
-      Release {data.tag_name}
+      {t("Release")} {data.tag_name}
       <ArrowUpRight aria-hidden="true" className="size-3.5" />
     </a>
   );
 }
 
 function ReleaseHistoryLink() {
+  const t = useT();
   return (
     <a href={releasesLink} className={linkClassName}>
-      Release history
+      {t("Release history")}
       <ArrowUpRight aria-hidden="true" className="size-3.5" />
     </a>
   );
@@ -192,52 +195,65 @@ const team = [
   { username: "aljaxus", role: "System administrator" },
 ];
 
-const faqItems = [
-  {
-    question: "Is SkinsRestorer free?",
-    answer: (
-      <>
-        Yes. It is free and licensed under GPL-3.0, and the source code is on{" "}
-        <a href={githubLink}>GitHub</a>. Paid{" "}
-        <Link href="/pricing">supporter plans</Link> are optional. They come
-        with priority help on Discord.
-      </>
-    ),
-  },
-  {
-    question: "Does it work in online mode and offline mode?",
-    answer:
-      "Yes. On offline mode servers it brings back the skins of real accounts. In both modes, players can change their skin with commands.",
-  },
-  {
-    question: "Do players need to install a mod?",
-    answer:
-      "No. SkinsRestorer runs only on the server or proxy. The Fabric and NeoForge versions are server-side mods too.",
-  },
-  {
-    question: "How do I use a skin from a PNG file?",
-    answer: (
-      <>
-        <Link href="/upload">Upload the PNG</Link> to get a{" "}
-        <code>/skin url</code> command, then run it in game. Server staff can
-        use the <Link href="/generator">skin generator</Link> to save the skin
-        under a name that every player can use.
-      </>
-    ),
-  },
-  {
-    question: "Where do I get help or report a bug?",
-    answer: (
-      <>
-        Start with the{" "}
-        <Link href="/docs/troubleshooting">troubleshooting guides</Link>. If
-        that does not fix it, ask in <a href={discordLink}>Discord</a> and
-        include your server version and a recent log. Report bugs in the plugin
-        on <a href={`${githubLink}/issues`}>GitHub issues</a>.
-      </>
-    ),
-  },
-];
+function useFaqItems() {
+  const t = useT();
+  return [
+    {
+      question: t("Is SkinsRestorer free?"),
+      answer: (
+        <>
+          {t(
+            "Yes. It is free and licensed under GPL-3.0, and the source code is on",
+          )}{" "}
+          <a href={githubLink}>{t("GitHub")}</a>
+          {t(". Paid")} <Link href="/pricing">{t("supporter plans")}</Link>{" "}
+          {t("are optional. They come with priority help on Discord.")}
+        </>
+      ),
+    },
+    {
+      question: t("Does it work in online mode and offline mode?"),
+      answer: t(
+        "Yes. On offline mode servers it brings back the skins of real accounts. In both modes, players can change their skin with commands.",
+      ),
+    },
+    {
+      question: t("Do players need to install a mod?"),
+      answer: t(
+        "No. SkinsRestorer runs only on the server or proxy. The Fabric and NeoForge versions are server-side mods too.",
+      ),
+    },
+    {
+      question: t("How do I use a skin from a PNG file?"),
+      answer: (
+        <>
+          <Link href="/upload">{t("Upload the PNG")}</Link> {t("to get a")}{" "}
+          <code>/skin url</code>{" "}
+          {t("command, then run it in game. Server staff can use the")}{" "}
+          <Link href="/generator">{t("skin generator")}</Link>{" "}
+          {t("to save the skin under a name that every player can use.")}
+        </>
+      ),
+    },
+    {
+      question: t("Where do I get help or report a bug?"),
+      answer: (
+        <>
+          {t("Start with the")}{" "}
+          <Link href="/docs/troubleshooting">
+            {t("troubleshooting guides")}
+          </Link>
+          {t(". If that does not fix it, ask in")}{" "}
+          <a href={discordLink}>{t("Discord")}</a>{" "}
+          {t(
+            "and include your server version and a recent log. Report bugs in the plugin on",
+          )}{" "}
+          <a href={`${githubLink}/issues`}>{t("GitHub issues")}</a>.
+        </>
+      ),
+    },
+  ];
+}
 
 function SectionHeading({
   id,
@@ -267,6 +283,8 @@ function SectionHeading({
 }
 
 export default function IndexPage() {
+  const t = useT();
+  const faqItems = useFaqItems();
   return (
     <div
       className={cn(
@@ -281,25 +299,25 @@ export default function IndexPage() {
         <div className="flex flex-col items-start gap-6">
           <p className="flex items-center gap-2.5 text-sm font-medium">
             <Image src="/logo.png" alt="" width={28} height={28} priority />
-            SkinsRestorer
+            {t("SkinsRestorer")}
           </p>
           <h1
             id="home-title"
             className="font-(family-name:--font-geist-pixel-square) text-5xl leading-none tracking-tight text-balance sm:text-6xl xl:text-7xl"
           >
-            Player skins for your Minecraft server
+            {t("Player skins for your Minecraft server")}
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">
-            SkinsRestorer is a free plugin and server mod. It shows real skins
-            on offline mode servers, and players can change their skin with one
-            command.
+            {t(
+              "SkinsRestorer is a free plugin and server mod. It shows real skins on offline mode servers, and players can change their skin with one command.",
+            )}
           </p>
           <div className="flex flex-wrap gap-3">
             <Button
               render={
                 <a href={downloadLink}>
                   <Download aria-hidden="true" />
-                  Download on Modrinth
+                  {t("Download on Modrinth")}
                 </a>
               }
               nativeButton={false}
@@ -309,7 +327,7 @@ export default function IndexPage() {
               render={
                 <Link href="/docs/installation">
                   <BookOpen aria-hidden="true" />
-                  Installation guide
+                  {t("Installation guide")}
                 </Link>
               }
               nativeButton={false}
@@ -318,7 +336,7 @@ export default function IndexPage() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-            <span>Open source, GPL-3.0</span>
+            <span>{t("Open source, GPL-3.0")}</span>
             <LatestRelease />
           </div>
         </div>
@@ -333,29 +351,30 @@ export default function IndexPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
           <SectionHeading
             id="installation-title"
-            title="Install it on your server"
+            title={t("Install it on your server")}
             action={
               <Link
                 href="/docs/installation/requirements"
                 className={linkClassName}
               >
-                Minecraft and Java requirements
+                {t("Minecraft and Java requirements")}
                 <ArrowRight aria-hidden="true" className="size-3.5" />
               </Link>
             }
           >
-            Pick the software your server runs. Each guide covers where the file
-            goes and how to check that it works.
+            {t(
+              "Pick the software your server runs. Each guide covers where the file goes and how to check that it works.",
+            )}
           </SectionHeading>
 
           <div className="grid gap-px overflow-hidden rounded-lg border bg-border md:grid-cols-3">
             {platformGroups.map((group) => (
               <article
-                key={group.title}
+                key={t(group.title)}
                 className="flex flex-col gap-5 bg-background p-6"
               >
                 <ul
-                  aria-label={`${group.title} software`}
+                  aria-label={`${t(group.title)} software`}
                   className="flex flex-wrap gap-x-2 gap-y-3"
                 >
                   {group.software.map((software) => (
@@ -381,9 +400,9 @@ export default function IndexPage() {
                   ))}
                 </ul>
                 <div className="flex flex-1 flex-col gap-1.5">
-                  <h3 className="font-semibold">{group.title}</h3>
+                  <h3 className="font-semibold">{t(group.title)}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {group.detail}
+                    {t(group.detail)}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -393,7 +412,7 @@ export default function IndexPage() {
                       href={guide.href}
                       className={linkClassName}
                     >
-                      {guide.label}
+                      {t(guide.label)}
                       <ArrowRight aria-hidden="true" className="size-3.5" />
                     </Link>
                   ))}
@@ -404,16 +423,17 @@ export default function IndexPage() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-xl text-sm text-muted-foreground">
-              The plugin and the Fabric and NeoForge mods are separate
-              downloads. Modrinth and GitHub releases have every build.
+              {t(
+                "The plugin and the Fabric and NeoForge mods are separate downloads. Modrinth and GitHub releases have every build.",
+              )}
             </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <a href={downloadLink} className={linkClassName}>
-                Modrinth
+                {t("Modrinth")}
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
               <a href={releasesLink} className={linkClassName}>
-                GitHub releases
+                {t("GitHub releases")}
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
             </div>
@@ -427,19 +447,20 @@ export default function IndexPage() {
       >
         <SectionHeading
           id="commands-title"
-          title="Commands for players"
+          title={t("Commands for players")}
           action={
             <Link
               href="/docs/configuration/commands-permissions"
               className={linkClassName}
             >
-              All commands and permissions
+              {t("All commands and permissions")}
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </Link>
           }
         >
-          Players type these in chat. Server staff decide who can use each one
-          with permissions.
+          {t(
+            "Players type these in chat. Server staff decide who can use each one with permissions.",
+          )}
         </SectionHeading>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
@@ -456,7 +477,7 @@ export default function IndexPage() {
                   {item.command}
                 </Link>
                 <p className="col-start-1 row-start-2 text-sm text-muted-foreground sm:col-start-2 sm:row-start-1">
-                  {item.description}
+                  {t(item.description)}
                 </p>
                 <div className="col-start-2 row-span-2 row-start-1 sm:col-start-3 sm:row-span-1">
                   <CopyCommand command={item.example} />
@@ -477,13 +498,13 @@ export default function IndexPage() {
                   className="size-5 text-(--brand-ink)"
                 />
                 <div className="flex flex-1 flex-col gap-1.5">
-                  <h3 className="font-semibold">{tool.title}</h3>
+                  <h3 className="font-semibold">{t(tool.title)}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {tool.description}
+                    {t(tool.description)}
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 text-sm font-medium">
-                  {tool.action}
+                  {t(tool.action)}
                   <ArrowRight
                     aria-hidden="true"
                     className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
@@ -498,16 +519,17 @@ export default function IndexPage() {
       <section aria-labelledby="community-title" className="border-t">
         <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start lg:px-8">
           <div className="flex flex-col items-start gap-6">
-            <SectionHeading id="community-title" title="Built in the open">
-              Bug reports and pull requests go to GitHub. Questions about setup
-              or config get answered in Discord.
+            <SectionHeading id="community-title" title={t("Built in the open")}>
+              {t(
+                "Bug reports and pull requests go to GitHub. Questions about setup or config get answered in Discord.",
+              )}
             </SectionHeading>
             <div className="flex flex-wrap gap-3">
               <Button
                 render={
                   <a href={githubLink}>
                     <SiGithub aria-hidden="true" />
-                    GitHub
+                    {t("GitHub")}
                   </a>
                 }
                 nativeButton={false}
@@ -517,7 +539,7 @@ export default function IndexPage() {
                 render={
                   <a href={discordLink}>
                     <SiDiscord aria-hidden="true" />
-                    Discord
+                    {t("Discord")}
                   </a>
                 }
                 nativeButton={false}
@@ -526,13 +548,13 @@ export default function IndexPage() {
             </div>
             <Link href="/pricing" className={linkClassName}>
               <Heart aria-hidden="true" className="size-4" />
-              Become a supporter
+              {t("Become a supporter")}
             </Link>
           </div>
 
           <div className="flex flex-col gap-3">
             <h3 className="text-sm font-medium text-muted-foreground">
-              Maintainers
+              {t("Maintainers")}
             </h3>
             <ul className="divide-y rounded-lg border">
               {team.map((member) => (
@@ -553,7 +575,7 @@ export default function IndexPage() {
                         {member.username}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {member.role}
+                        {t(member.role)}
                       </span>
                     </span>
                     <ArrowUpRight
@@ -568,7 +590,7 @@ export default function IndexPage() {
               href={`${githubLink}/graphs/contributors`}
               className={linkClassName}
             >
-              Everyone who contributed
+              {t("Everyone who contributed")}
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </a>
           </div>
@@ -577,15 +599,15 @@ export default function IndexPage() {
 
       <section aria-labelledby="faq-title" className="border-t">
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:px-8">
-          <SectionHeading id="faq-title" title="Questions">
-            Short answers. The{" "}
+          <SectionHeading id="faq-title" title={t("Questions")}>
+            {t("Short answers. The")}{" "}
             <Link
               href="/docs"
               className="text-foreground underline underline-offset-4"
             >
-              documentation
+              {t("documentation")}
             </Link>{" "}
-            has the details.
+            {t("has the details.")}
           </SectionHeading>
           <HomeFaq items={faqItems} />
         </div>

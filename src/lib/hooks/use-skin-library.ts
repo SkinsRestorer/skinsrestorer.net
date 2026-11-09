@@ -17,6 +17,7 @@ import type {
   StoredSkin,
 } from "../skin-library";
 import { useLatestTask } from "./use-latest-task";
+import { useNotificationT } from "@/lib/i18n-react";
 
 export type LibraryState =
   | { readonly status: "loading" }
@@ -62,6 +63,7 @@ export function downloadSkin(png: Blob, name: string) {
  * or another tab; a superseded read never replaces a newer one.
  */
 export function useSkinLibrary() {
+  const t = useNotificationT();
   const [client, setClient] = useState<LibraryClient | undefined>();
   const [state, setState] = useState<LibraryState>({ status: "loading" });
   const [migrated, setMigrated] = useState<MigrationResult | undefined>();
@@ -94,7 +96,7 @@ export function useSkinLibrary() {
       if (event.type === "closed")
         setState({
           status: "unavailable",
-          message: "Another tab updated Your skins. Reload the page.",
+          message: t("Another tab updated Your skins. Reload the page."),
         });
       else reload();
     });
@@ -102,7 +104,7 @@ export function useSkinLibrary() {
       active = false;
       stop();
     };
-  }, [client, reload]);
+  }, [client, reload, t]);
 
   const act = useCallback(
     async <A>(
@@ -115,11 +117,11 @@ export function useSkinLibrary() {
         posthog.capture("skin_library_action", { action });
         return result;
       } catch (cause) {
-        toast.error(messageOf(cause));
+        toast.error(t(messageOf(cause)));
         return undefined;
       }
     },
-    [client],
+    [client, t],
   );
 
   const actions = {
@@ -131,9 +133,9 @@ export function useSkinLibrary() {
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed) => {
           if (!removed) return;
-          toast("Skin removed.", {
+          toast(t("Skin removed."), {
             action: {
-              label: "Undo",
+              label: t("Undo"),
               onClick: () =>
                 void act("restore", (c) =>
                   c.run(withLibrary((l) => l.restore(removed))),
@@ -146,9 +148,9 @@ export function useSkinLibrary() {
       act("revert", (c) => c.run(withLibrary((l) => l.revert(id)))).then(
         (reverted) => {
           if (!reverted) return;
-          toast("Skin reverted.", {
+          toast(t("Skin reverted."), {
             action: {
-              label: "Undo",
+              label: t("Undo"),
               onClick: () =>
                 void act("undo_revert", (c) =>
                   c.run(

@@ -38,3 +38,14 @@ test("current and unknown routes pass through without redirects", () => {
     assert.equal(getSiteRedirect(path), undefined);
   }
 });
+
+test("localized shortcuts and retired documentation retain their locale", () => {
+  assert.deepEqual(getSiteRedirect("/ru/docs/features/skin-url.mdx"), {
+    destination: "/ru/docs/features/skin-upload.mdx",
+    status: 308,
+  });
+  assert.deepEqual(getSiteRedirect("/pt-BR/install"), {
+    destination: "/pt-BR/docs/installation",
+    status: 307,
+  });
+});

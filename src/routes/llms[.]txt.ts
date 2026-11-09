@@ -7,7 +7,7 @@ export const Route = createFileRoute("/llms.txt")({
         const { source } = await import("@/lib/source");
         const scanned = ["# Docs"];
         const map = new Map<string, string[]>();
-        for (const page of source.getPages()) {
+        for (const page of source.getPages("en")) {
           const dir = page.slugs[0] ?? "Overview";
           const list = map.get(dir) ?? [];
           list.push(

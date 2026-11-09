@@ -26,7 +26,7 @@ ${processed}`;
 });
 
 export const getFullLLMTextEffect = Effect.fn("Docs.getFullText")(function* () {
-  const pages = yield* Effect.forEach(source.getPages(), getLLMTextEffect, {
+  const pages = yield* Effect.forEach(source.getPages("en"), getLLMTextEffect, {
     concurrency: 4,
   });
   return pages.join("\n\n");

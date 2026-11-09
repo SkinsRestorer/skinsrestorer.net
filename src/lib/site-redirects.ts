@@ -1,3 +1,4 @@
+import { splitLocalePath, localizeHref } from "./i18n";
 import { docsRedirects } from "./docs-redirects";
 
 const github =
@@ -31,16 +32,20 @@ const aliases: Record<string, string> = {
 };
 
 export function getSiteRedirect(pathname: string) {
-  const path = pathname.replace(/\/$/, "") || "/";
+  const { path, locale } = splitLocalePath(pathname);
   const markdown = path.endsWith(".mdx");
   const retired = docsRedirects.find(
     (item) => item.source === (markdown ? path.slice(0, -4) : path),
   );
   if (retired) {
     return {
-      destination: `${retired.destination}${markdown ? ".mdx" : ""}`,
+      destination: localizeHref(
+        `${retired.destination}${markdown ? ".mdx" : ""}`,
+        locale,
+      ),
       status: 308,
     };
   }
-  if (aliases[path]) return { destination: aliases[path], status: 307 };
+  if (aliases[path])
+    return { destination: localizeHref(aliases[path], locale), status: 307 };
 }

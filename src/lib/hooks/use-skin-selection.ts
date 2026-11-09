@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { useNotificationT } from "@/lib/i18n-react";
 import { toast } from "sonner";
 import { previewSkinFileEffect, runSkinEffect } from "../skin";
 import { browserLibrary } from "../skin-library-client";
@@ -12,6 +13,7 @@ import { SkinSelectionStore } from "../skin-selection";
  * selector shows the detected model, so only failures are announced.
  */
 export function useSkinSelection() {
+  const t = useNotificationT();
   const [store] = useState(
     () =>
       new SkinSelectionStore({
@@ -20,13 +22,19 @@ export function useSkinSelection() {
           runSkinEffect(previewSkinFileEffect(file, events), signal),
         events: {
           failed: (_token, message) =>
-            toast.error(`Failed to detect skin type: ${message}`),
+            toast.error(
+              t("Failed to detect skin type: {error}", { error: t(message) }),
+            ),
           imported: (kept, failed) =>
             toast.info(
-              `Added ${kept} skins. The first one is selected.`,
+              t("Added {count} skins. The first one is selected.", {
+                count: kept,
+              }),
               failed
                 ? {
-                    description: `${failed} ${failed === 1 ? "file was" : "files were"} not a skin PNG.`,
+                    description: t("{count} files were not skin PNGs.", {
+                      count: failed,
+                    }),
                   }
                 : undefined,
             ),

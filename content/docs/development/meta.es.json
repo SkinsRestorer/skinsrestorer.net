@@ -1,0 +1,7 @@
+{
+  "title": "Desarrolladores",
+  "pages": ["first-plugin", "api", "storage", "proxy-api"],
+  "defaultOpen": false,
+  "icon": "Code",
+  "pagesIndex": "index"
+}

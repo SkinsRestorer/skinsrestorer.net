@@ -14,8 +14,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useT } from "@/lib/i18n-react";
 
 const CookieConsentBanner = () => {
+  const t = useT();
   const [consentState, setConsentState] = useState<
     ReturnType<typeof posthog.get_explicit_consent_status> | ""
   >("");
@@ -42,24 +44,26 @@ const CookieConsentBanner = () => {
     <div className="fixed bottom-0 left-0 z-50 sm:bottom-4 sm:left-4">
       <Card className="m-3 shadow-lg sm:max-w-md">
         <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
-          <CardTitle className="text-lg">Website analytics</CardTitle>
+          <CardTitle className="text-lg">{t("Website analytics")}</CardTitle>
           <Cookie className="h-5 w-5" />
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <CardDescription>
-            We use analytics cookies to see which pages people visit and find
-            problems with the website.
+            {t(
+              "We use analytics cookies to see which pages people visit and find problems with the website.",
+            )}
           </CardDescription>
           <p className="text-xs text-muted-foreground">
-            Select <span className="font-medium">Allow analytics</span> to
-            enable these cookies. Read our{" "}
+            {t("Select")}{" "}
+            <span className="font-medium">{t("Allow analytics")}</span>{" "}
+            {t("to enable these cookies. Read our")}{" "}
             <Link
               href="/cookie-policy"
               className="underline underline-offset-2"
             >
-              Cookie Policy
+              {t("Cookie Policy")}
             </Link>{" "}
-            for details.
+            {t("for details.")}
           </p>
         </CardContent>
         <CardFooter className="flex gap-2 pt-2">
@@ -69,14 +73,14 @@ const CookieConsentBanner = () => {
             variant="secondary"
             className="flex-1"
           >
-            Decline
+            {t("Decline")}
           </Button>
           <Button
             type="button"
             onClick={handleAcceptCookies}
             className="flex-1"
           >
-            Allow analytics
+            {t("Allow analytics")}
           </Button>
         </CardFooter>
       </Card>

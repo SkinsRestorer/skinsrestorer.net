@@ -1,0 +1,17 @@
+{
+  "title": "Gestionar tu servidor",
+  "pages": [
+    "player-access",
+    "default-skins",
+    "[Tag][Named custom skins](/docs/features/custom-skins)",
+    "restrict-skins",
+    "skin-menu",
+    "locale-translations",
+    "database",
+    "auto-update",
+    "backups"
+  ],
+  "defaultOpen": false,
+  "icon": "Settings",
+  "pagesIndex": "index"
+}

@@ -92,6 +92,7 @@ import {
 } from "@/lib/skin-paint";
 import { SKIN_SIZE, type SkinLayer } from "@/lib/skin-regions";
 import { loadTextureEffect } from "@/lib/skin-texture";
+import { useLocale, useT } from "@/lib/i18n-react";
 
 function errorMessage(cause: unknown) {
   if (cause && typeof cause === "object" && "message" in cause)
@@ -150,8 +151,9 @@ type Confirm =
 
 /** The editor page. */
 export function SkinEditor({ texture }: { texture?: string }) {
+  const t = useT();
   const { store, session } = useEditorSession(createTemplate("classic"), {
-    name: "New skin",
+    name: t("New skin"),
   });
   return (
     <SkinEditorWorkspace
@@ -173,6 +175,7 @@ export function SkinEditorWorkspace(props: {
   /** Dialog mode: close the editor. */
   onClose?: () => void;
 }) {
+  const t = useT();
   const { store, session, mode, texture } = props;
   const navigate = useNavigate();
   const library = useSkinLibrary();
@@ -199,6 +202,7 @@ export function SkinEditorWorkspace(props: {
   const [fitScale, setFitScale] = useState(8);
   const [showGrid, setShowGrid] = useState(true);
   const [highlight, setHighlight] = useState<SkinIssueId | null>(null);
+  const locale = useLocale();
   const [status, setStatus] = useState("");
   const [textureLoading, setTextureLoading] = useState(false);
   const [textureError, setTextureError] = useState<string | null>(null);
@@ -243,7 +247,9 @@ export function SkinEditorWorkspace(props: {
     shouldBlockFn: ({ current, next }) =>
       next.pathname !== current.pathname &&
       !window.confirm(
-        "Leave without saving? Drafts are off, so your changes will be lost.",
+        t(
+          "Leave without saving? Drafts are off, so your changes will be lost.",
+        ),
       ),
     enableBeforeUnload: () => unsafeToLeave,
     disabled: !unsafeToLeave,
@@ -340,16 +346,16 @@ export function SkinEditorWorkspace(props: {
           return { imported, target };
         },
         ({ imported, target }) => opened(imported.document, target, "file"),
-        (cause) => toast.error(errorMessage(cause)),
+        (cause) => toast.error(t(errorMessage(cause))),
       );
     },
-    [opened, textureTask, library.client],
+    [opened, textureTask, library.client, t],
   );
 
   const openSaved = useCallback(
     (skin: StoredSkin) => {
       if (!isEditableContent(skin.current)) {
-        toast.error("The editor opens only 64×64 and 64×32 skins.");
+        toast.error(t("The editor opens only 64×64 and 64×32 skins."));
         return;
       }
       void textureTask.run(
@@ -360,10 +366,10 @@ export function SkinEditorWorkspace(props: {
             { skinId: skin.id, baseRevision: skin.revision, name: skin.name },
             "library",
           ),
-        (cause) => toast.error(errorMessage(cause)),
+        (cause) => toast.error(t(errorMessage(cause))),
       );
     },
-    [opened, textureTask],
+    [opened, textureTask, t],
   );
 
   const onPainted = useCallback(() => {
@@ -382,14 +388,14 @@ export function SkinEditorWorkspace(props: {
   const onPick = useCallback(
     (picked: Rgba) => {
       if (picked[3] === 0) {
-        showStatus("That pixel is clear.");
+        showStatus(t("That pixel is clear."));
         return;
       }
       setColor(picked);
       setTool("pencil");
-      showStatus(`Picked ${toHex(picked)}.`);
+      showStatus(t("Picked {color}.", { color: toHex(picked) }));
     },
-    [showStatus],
+    [showStatus, t],
   );
 
   const changeLayer = useCallback(
@@ -460,7 +466,11 @@ export function SkinEditorWorkspace(props: {
       setTimeout(() => URL.revokeObjectURL(url), 0);
       posthog.capture("editor_exported_png");
     } catch (cause) {
-      toast.error(`The PNG could not be made: ${errorMessage(cause)}`);
+      toast.error(
+        t("The PNG could not be made: {error}", {
+          error: t(errorMessage(cause)),
+        }),
+      );
     }
   };
 
@@ -473,9 +483,13 @@ export function SkinEditorWorkspace(props: {
         store.document(),
       );
       posthog.capture("editor_handoff", { target });
-      await navigate({ to: `/${target}`, search: { handoff } });
+      await navigate({
+        to: target === "upload" ? "/{-$lang}/upload" : "/{-$lang}/generator",
+        params: { lang: locale === "en" ? undefined : locale },
+        search: { handoff },
+      });
     } catch (cause) {
-      toast.error(errorMessage(cause));
+      toast.error(t(errorMessage(cause)));
     } finally {
       setHandingOff(false);
     }
@@ -489,7 +503,7 @@ export function SkinEditorWorkspace(props: {
         props.onClose?.();
         return;
       }
-      if (kind === "copy") toast.success("Saved as a copy.");
+      if (kind === "copy") toast.success(t("Saved as a copy."));
       return;
     }
     setConfirm(
@@ -517,17 +531,17 @@ export function SkinEditorWorkspace(props: {
     setZoom(Math.max(3, Math.min(24, scale + step)));
 
   const [saveState, saveLabel]: [SaveState, string] = work.busy
-    ? ["saving", "Saving"]
+    ? ["saving", t("Saving")]
     : work.dirty
       ? [
           "unsaved",
-          draftsOff ? "Unsaved changes" : "Unsaved changes, draft kept",
+          draftsOff ? t("Unsaved changes") : t("Unsaved changes, draft kept"),
         ]
       : work.target.skinId
-        ? ["saved", "Saved"]
+        ? ["saved", t("Saved")]
         : draftsOff
-          ? ["unavailable", "Cannot be kept in this browser"]
-          : ["unsaved", "Not saved yet"];
+          ? ["unavailable", t("Cannot be kept in this browser")]
+          : ["unsaved", t("Not saved yet")];
 
   const migratedStatus = library.migrated?.status;
 
@@ -539,7 +553,7 @@ export function SkinEditorWorkspace(props: {
           !legacyDraftHidden &&
           mode === "page" && (
             <Alert variant="destructive">
-              <AlertTitle>The old draft could not be read</AlertTitle>
+              <AlertTitle>{t("The old draft could not be read")}</AlertTitle>
               <AlertAction>
                 <Button
                   size="sm"
@@ -549,21 +563,23 @@ export function SkinEditorWorkspace(props: {
                     setLegacyDraftHidden(true);
                   }}
                 >
-                  Discard draft
+                  {t("Discard draft")}
                 </Button>
               </AlertAction>
             </Alert>
           )}
         {mounted && migratedStatus === "newer" && mode === "page" && (
           <Alert>
-            <AlertTitle>A newer draft is waiting</AlertTitle>
-            <AlertDescription>Reload the page to open it.</AlertDescription>
+            <AlertTitle>{t("A newer draft is waiting")}</AlertTitle>
+            <AlertDescription>
+              {t("Reload the page to open it.")}
+            </AlertDescription>
           </Alert>
         )}
         {work.recovery.length > 0 && (
           <div className="ph-no-capture">
             <Alert>
-              <AlertTitle>Continue unsaved changes?</AlertTitle>
+              <AlertTitle>{t("Continue unsaved changes?")}</AlertTitle>
               <AlertDescription>
                 <ul className="flex flex-col gap-2">
                   {work.recovery.map((draft) => (
@@ -572,7 +588,8 @@ export function SkinEditorWorkspace(props: {
                       className="flex flex-wrap items-center justify-between gap-2"
                     >
                       <span>
-                        {draft.name}, changed{" "}
+                        {draft.name}
+                        {t(", changed")}{" "}
                         <CustomTimeAgo date={draft.updatedAt} />
                       </span>
                       <span className="flex gap-2">
@@ -587,18 +604,18 @@ export function SkinEditorWorkspace(props: {
                                 }),
                               )
                               .catch((cause) =>
-                                toast.error(errorMessage(cause)),
+                                toast.error(t(errorMessage(cause))),
                               )
                           }
                         >
-                          Continue
+                          {t("Continue")}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => void session.discardDraft(draft.id)}
                         >
-                          Discard
+                          {t("Discard")}
                         </Button>
                       </span>
                     </li>
@@ -610,15 +627,15 @@ export function SkinEditorWorkspace(props: {
         )}
         {mounted && draftsOff && (
           <Alert>
-            <AlertTitle>Drafts are off</AlertTitle>
+            <AlertTitle>{t("Drafts are off")}</AlertTitle>
             <AlertDescription>
-              Download the PNG to keep your work.
+              {t("Download the PNG to keep your work.")}
             </AlertDescription>
           </Alert>
         )}
 
         <section
-          aria-label="Skin being edited"
+          aria-label={t("Skin being edited")}
           className="ph-no-capture flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-3"
         >
           <div className="flex min-w-0 items-center gap-2">
@@ -628,7 +645,7 @@ export function SkinEditorWorkspace(props: {
           <div className="flex flex-wrap gap-2">
             {(work.dirty || mode === "dialog") && (
               <Button variant="ghost" disabled={work.busy} onClick={discard}>
-                Discard
+                {t("Discard")}
               </Button>
             )}
             <Button
@@ -637,7 +654,7 @@ export function SkinEditorWorkspace(props: {
               onClick={() => void saveCopy()}
             >
               <Copy data-icon="inline-start" />
-              Save as copy
+              {t("Save as copy")}
             </Button>
             <Button
               disabled={
@@ -647,14 +664,14 @@ export function SkinEditorWorkspace(props: {
               onClick={() => void save()}
             >
               <Save data-icon="inline-start" />
-              Save changes
+              {t("Save changes")}
             </Button>
           </div>
         </section>
 
         <div className="ph-no-capture grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <section
-            aria-label="Workspace"
+            aria-label={t("Workspace")}
             className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-20"
           >
             <div className="sticky bottom-2 order-last flex flex-col gap-2 rounded-lg border bg-background p-2 shadow-sm lg:static lg:order-first lg:border-0 lg:p-0 lg:shadow-none">
@@ -673,11 +690,11 @@ export function SkinEditorWorkspace(props: {
                 className={status ? "text-sm text-muted-foreground" : "sr-only"}
                 aria-live="polite"
               >
-                {status}
+                {t(status)}
               </output>
             </div>
             <ToggleGroup
-              aria-label="View"
+              aria-label={t("View")}
               variant="outline"
               spacing={0}
               className="w-full lg:hidden"
@@ -687,10 +704,10 @@ export function SkinEditorWorkspace(props: {
               }}
             >
               <ToggleGroupItem value="texture" className="flex-1">
-                Texture
+                {t("Texture")}
               </ToggleGroupItem>
               <ToggleGroupItem value="model" className="flex-1">
-                3D model
+                {t("3D model")}
               </ToggleGroupItem>
             </ToggleGroup>
             <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -700,14 +717,14 @@ export function SkinEditorWorkspace(props: {
                 }
               >
                 <CardHeader>
-                  <CardTitle>Texture</CardTitle>
+                  <CardTitle>{t("Texture")}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
                   <div className="flex flex-wrap items-center gap-1">
                     <Button
                       variant="outline"
                       size="icon-sm"
-                      aria-label="Zoom texture out"
+                      aria-label={t("Zoom texture out")}
                       onClick={() => zoomBy(-2)}
                     >
                       <ZoomOut />
@@ -715,7 +732,7 @@ export function SkinEditorWorkspace(props: {
                     <Button
                       variant="outline"
                       size="icon-sm"
-                      aria-label="Zoom texture in"
+                      aria-label={t("Zoom texture in")}
                       onClick={() => zoomBy(2)}
                     >
                       <ZoomIn />
@@ -727,7 +744,7 @@ export function SkinEditorWorkspace(props: {
                       onClick={() => setZoom("fit")}
                     >
                       <Maximize data-icon="inline-start" />
-                      Fit
+                      {t("Fit")}
                     </Button>
                     <Toggle
                       variant="outline"
@@ -736,10 +753,11 @@ export function SkinEditorWorkspace(props: {
                       onPressedChange={setShowGrid}
                     >
                       <Grid3x3 />
-                      Pixel grid
+                      {t("Pixel grid")}
                     </Toggle>
                     <span className="ml-auto text-xs tabular-nums text-muted-foreground">
-                      {scale}× zoom
+                      {scale}
+                      {t("× zoom")}
                     </span>
                   </div>
                   <div
@@ -767,7 +785,7 @@ export function SkinEditorWorkspace(props: {
                 }
               >
                 <CardHeader>
-                  <CardTitle>3D model</CardTitle>
+                  <CardTitle>{t("3D model")}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col">
                   <ModelCanvas
@@ -784,7 +802,10 @@ export function SkinEditorWorkspace(props: {
             </div>
           </section>
 
-          <aside aria-label="Skin settings" className="flex flex-col gap-6">
+          <aside
+            aria-label={t("Skin settings")}
+            className="flex flex-col gap-6"
+          >
             <SkinIssueAlerts
               issues={issues}
               highlighted={highlight}
@@ -809,7 +830,7 @@ export function SkinEditorWorkspace(props: {
                 onTemplate={(variant) =>
                   opened(
                     createTemplate(variant),
-                    { name: "New skin" },
+                    { name: t("New skin") },
                     "template",
                   )
                 }
@@ -834,7 +855,7 @@ export function SkinEditorWorkspace(props: {
             />
             <Card>
               <CardHeader>
-                <CardTitle>Finish</CardTitle>
+                <CardTitle>{t("Finish")}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 <Button
@@ -842,7 +863,7 @@ export function SkinEditorWorkspace(props: {
                   onClick={() => void download()}
                 >
                   <Download data-icon="inline-start" />
-                  Download PNG
+                  {t("Download PNG")}
                 </Button>
                 {mode === "page" && (
                   <>
@@ -852,7 +873,7 @@ export function SkinEditorWorkspace(props: {
                       onClick={() => void handOff("upload")}
                     >
                       <Upload data-icon="inline-start" />
-                      Use in Upload
+                      {t("Use in Upload")}
                     </Button>
                     <Button
                       variant="outline"
@@ -860,7 +881,7 @@ export function SkinEditorWorkspace(props: {
                       onClick={() => void handOff("generator")}
                     >
                       <Wand2 data-icon="inline-start" />
-                      Use in Generator
+                      {t("Use in Generator")}
                     </Button>
                   </>
                 )}
@@ -921,23 +942,30 @@ function ConfirmBody(props: {
   onDiscard: () => void;
   onOpen: () => void;
 }) {
+  const t = useT();
   const { confirm } = props;
   const text = {
     changed: [
-      "This skin changed in another tab",
-      "Save yours as a copy, or replace the other version.",
+      t("This skin changed in another tab"),
+      t("Save yours as a copy, or replace the other version."),
     ],
-    removed: ["This skin was removed", "Save your work as a copy to keep it."],
+    removed: [
+      t("This skin was removed"),
+      t("Save your work as a copy to keep it."),
+    ],
     failed: [
-      "The skin could not be saved",
+      t("The skin could not be saved"),
       confirm.kind === "failed"
-        ? `${confirm.message} ${props.mode === "dialog" ? "You can still use it without saving." : "Download the PNG to keep your work."}`
+        ? `${t(confirm.message)} ${props.mode === "dialog" ? t("You can still use it without saving.") : t("Download the PNG to keep your work.")}`
         : "",
     ],
-    discard: ["Discard unsaved changes?", "The saved skin stays as it was."],
+    discard: [
+      t("Discard unsaved changes?"),
+      t("The saved skin stays as it was."),
+    ],
     replace: [
-      "Open another skin?",
-      "Drafts are off, so your unsaved changes will be lost.",
+      t("Open another skin?"),
+      t("Drafts are off, so your unsaved changes will be lost."),
     ],
   }[confirm.kind];
   return (
@@ -947,26 +975,26 @@ function ConfirmBody(props: {
         <AlertDialogDescription>{text[1]}</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
         {confirm.kind === "changed" && (
           <Button variant="outline" onClick={props.onReplace}>
-            Replace it
+            {t("Replace it")}
           </Button>
         )}
         {(confirm.kind === "changed" || confirm.kind === "removed") && (
-          <Button onClick={props.onCopy}>Save as copy</Button>
+          <Button onClick={props.onCopy}>{t("Save as copy")}</Button>
         )}
         {confirm.kind === "failed" && props.mode === "dialog" && (
-          <Button onClick={props.onUnkept}>Use without saving</Button>
+          <Button onClick={props.onUnkept}>{t("Use without saving")}</Button>
         )}
         {confirm.kind === "discard" && (
           <Button variant="destructive" onClick={props.onDiscard}>
-            Discard changes
+            {t("Discard changes")}
           </Button>
         )}
         {confirm.kind === "replace" && (
           <Button variant="destructive" onClick={props.onOpen}>
-            Open and lose changes
+            {t("Open and lose changes")}
           </Button>
         )}
       </AlertDialogFooter>

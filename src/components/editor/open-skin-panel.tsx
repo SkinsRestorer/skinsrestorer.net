@@ -23,6 +23,7 @@ import type { useSkinLibrary } from "@/lib/hooks/use-skin-library";
 import type { SkinVariant } from "@/lib/skin";
 import type { StoredSkin } from "@/lib/skin-library";
 import { MAX_SKIN_FILE_BYTES } from "@/lib/skin-document";
+import { useT } from "@/lib/i18n-react";
 
 export function OpenSkinPanel(props: {
   textureLoading: boolean;
@@ -34,6 +35,7 @@ export function OpenSkinPanel(props: {
   onTemplate: (variant: SkinVariant) => void;
   onTexture: (reference: string) => void;
 }) {
+  const t = useT();
   const textureId = useId();
   const [texture, setTexture] = useState("");
   // A new picker for each file, so the same file can be opened again.
@@ -45,7 +47,7 @@ export function OpenSkinPanel(props: {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Open a skin</CardTitle>
+        <CardTitle>{t("Open a skin")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <FileUpload
@@ -57,22 +59,22 @@ export function OpenSkinPanel(props: {
             setPickerKey((key) => key + 1);
             if (files[0]) props.onFile(files[0]);
           }}
-          onFileReject={(_file, message) => toast.error(message)}
-          label="Open a skin PNG"
+          onFileReject={(_file, message) => toast.error(t(message))}
+          label={t("Open a skin PNG")}
         >
           <FileUploadDropzone>
             <div className="flex flex-col items-center gap-1 text-center">
               <Upload className="text-muted-foreground" aria-hidden="true" />
-              <p className="text-sm font-medium">Drop a skin PNG here</p>
+              <p className="text-sm font-medium">{t("Drop a skin PNG here")}</p>
               <p className="text-xs text-muted-foreground">
-                64×64 or legacy 64×32, up to 5 MB
+                {t("64×64 or legacy 64×32, up to 5 MB")}
               </p>
             </div>
             <FileUploadTrigger
               render={
                 <Button variant="outline" size="sm">
                   <FileImage data-icon="inline-start" />
-                  Choose PNG
+                  {t("Choose PNG")}
                 </Button>
               }
             />
@@ -81,16 +83,16 @@ export function OpenSkinPanel(props: {
         {skins.length > 0 && (
           <section
             className="ph-no-capture flex flex-col gap-2"
-            aria-label="Your skins"
+            aria-label={t("Your skins")}
           >
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-medium">Your skins</p>
+              <p className="text-sm font-medium">{t("Your skins")}</p>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAll(true)}
               >
-                Show all
+                {t("Show all")}
               </Button>
             </div>
             <ul className="grid grid-cols-4 gap-2">
@@ -99,7 +101,7 @@ export function OpenSkinPanel(props: {
                   <button
                     type="button"
                     aria-pressed={skin.id === props.currentSkinId}
-                    aria-label={`Open ${skin.name}`}
+                    aria-label={t("Open {name}", { name: skin.name })}
                     onClick={() => props.onSaved(skin)}
                     className="flex w-full min-w-0 flex-col items-center gap-1 rounded-lg border bg-card px-1 pt-2 pb-1.5 text-xs outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:border-foreground"
                   >
@@ -127,10 +129,10 @@ export function OpenSkinPanel(props: {
         />
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" onClick={() => props.onTemplate("classic")}>
-            Classic template
+            {t("Classic template")}
           </Button>
           <Button variant="outline" onClick={() => props.onTemplate("slim")}>
-            Slim template
+            {t("Slim template")}
           </Button>
         </div>
         <form
@@ -141,7 +143,9 @@ export function OpenSkinPanel(props: {
           }}
         >
           <Field data-invalid={!!props.textureError || undefined}>
-            <FieldLabel htmlFor={textureId}>Texture URL or hash</FieldLabel>
+            <FieldLabel htmlFor={textureId}>
+              {t("Texture URL or hash")}
+            </FieldLabel>
             <div className="flex gap-2">
               <Input
                 id={textureId}
@@ -157,14 +161,14 @@ export function OpenSkinPanel(props: {
                 variant="secondary"
                 disabled={!texture.trim() || props.textureLoading}
               >
-                {props.textureLoading ? "Opening…" : "Open"}
+                {props.textureLoading ? t("Opening…") : t("Open")}
               </Button>
             </div>
             {props.textureError ? (
-              <FieldError>{props.textureError}</FieldError>
+              <FieldError>{t(props.textureError)}</FieldError>
             ) : (
               <FieldDescription>
-                From textures.minecraft.net only.
+                {t("From textures.minecraft.net only.")}
               </FieldDescription>
             )}
           </Field>

@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalizedDialogContent as DialogContent } from "@/components/localized-dialog";
+
 import {
   Copy,
   Download,
@@ -12,7 +14,6 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -33,6 +34,7 @@ import {
   type SkinLibraryActions,
 } from "@/lib/hooks/use-skin-library";
 import { MAX_SKIN_NAME_LENGTH, type StoredSkin } from "@/lib/skin-library";
+import { useT } from "@/lib/i18n-react";
 
 /**
  * Actions for one kept skin. Without `skin`, only Download works, on the
@@ -45,6 +47,7 @@ export function SkinActionsMenu(props: {
   actions: SkinLibraryActions;
   onReverted?: (skin: StoredSkin) => void;
 }) {
+  const t = useT();
   const [renaming, setRenaming] = useState(false);
   const { skin, actions } = props;
   return (
@@ -55,7 +58,7 @@ export function SkinActionsMenu(props: {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={`More actions for ${props.name}`}
+              aria-label={t("More actions for {name}", { name: props.name })}
             />
           }
         >
@@ -66,13 +69,13 @@ export function SkinActionsMenu(props: {
             {skin && (
               <DropdownMenuItem onClick={() => setRenaming(true)}>
                 <PencilLine />
-                Rename
+                {t("Rename")}
               </DropdownMenuItem>
             )}
             {skin && (
               <DropdownMenuItem onClick={() => void actions.duplicate(skin.id)}>
                 <Copy />
-                Duplicate
+                {t("Duplicate")}
               </DropdownMenuItem>
             )}
             {(skin || props.file) && (
@@ -82,7 +85,7 @@ export function SkinActionsMenu(props: {
                 }
               >
                 <Download />
-                Download PNG
+                {t("Download PNG")}
               </DropdownMenuItem>
             )}
             {skin && skinChanged(skin) && (
@@ -94,7 +97,7 @@ export function SkinActionsMenu(props: {
                 }
               >
                 <RotateCcw />
-                Revert to original
+                {t("Revert to original")}
               </DropdownMenuItem>
             )}
           </DropdownMenuGroup>
@@ -107,7 +110,7 @@ export function SkinActionsMenu(props: {
                   onClick={() => void actions.remove(skin.id)}
                 >
                   <Trash2 />
-                  Remove
+                  {t("Remove")}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </>
@@ -132,6 +135,7 @@ function RenameDialog(props: {
   onOpenChange: (open: boolean) => void;
   onRename: (name: string) => void;
 }) {
+  const t = useT();
   const id = useId();
   const [value, setValue] = useState(props.name);
   return (
@@ -152,10 +156,10 @@ function RenameDialog(props: {
           }}
         >
           <DialogHeader>
-            <DialogTitle>Rename skin</DialogTitle>
+            <DialogTitle>{t("Rename skin")}</DialogTitle>
           </DialogHeader>
           <Field>
-            <FieldLabel htmlFor={id}>Name</FieldLabel>
+            <FieldLabel htmlFor={id}>{t("Name")}</FieldLabel>
             <Input
               id={id}
               value={value}
@@ -171,10 +175,10 @@ function RenameDialog(props: {
               variant="outline"
               onClick={() => props.onOpenChange(false)}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button type="submit" disabled={!value.trim()}>
-              Rename
+              {t("Rename")}
             </Button>
           </DialogFooter>
         </form>
