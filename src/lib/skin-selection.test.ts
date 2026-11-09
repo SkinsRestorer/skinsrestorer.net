@@ -167,6 +167,38 @@ test("an editor or handoff model wins over detection", async () => {
   store.dispose();
 });
 
+test("gallery selection preserves its model and pixels without writing to the library", async () => {
+  let writes = 0;
+  const store = new SkinSelectionStore({
+    preview: autoPreview("classic"),
+    library: {
+      ...failing,
+      run: () => {
+        writes++;
+        return Promise.reject(new Error("Unexpected library write"));
+      },
+    },
+  });
+  const file = await skinFile(7);
+  store.select(file, {
+    origin: "gallery",
+    galleryId: "forest-ranger",
+    name: "Forest ranger",
+    variant: "slim",
+  });
+  await until(() => store.getSnapshot().selection?.status === "ready");
+  const state = store.getSnapshot();
+  assert.equal(state.variant, "slim");
+  assert.equal(state.selection?.galleryId, "forest-ranger");
+  assert.equal(state.selection?.skinId, undefined);
+  assert.equal(state.selection?.keep.kind, "catalog");
+  assert.deepEqual(await bytes(state.selection!.file), await bytes(file));
+  store.setVariant("classic");
+  store.refresh();
+  assert.equal(writes, 0);
+  store.dispose();
+});
+
 test("a late library write links only the selection that started it", async () => {
   const client = library();
   let release!: () => void;

@@ -72,6 +72,12 @@ test("Studio search keeps only known intents and references", () => {
     { intent: "createcustom", texture: "abc", handoff: "id" },
   );
   assert.deepEqual(studioSearch({ intent: "hack", texture: "", other: 1 }), {});
+  assert.deepEqual(
+    studioSearch({ skin: "boy-white-shirt", intent: "skin-url" }),
+    { skin: "boy-white-shirt", intent: "skin-url" },
+  );
+  for (const skin of ["../private", "", "a".repeat(101), 7])
+    assert.deepEqual(studioSearch({ skin }), {});
 });
 
 test("Upload and Generator URLs fix their purpose over a contradictory intent", () => {

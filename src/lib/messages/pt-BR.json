@@ -601,5 +601,18 @@
   "Size": "Tamanho",
   "{size} px": "{size} px",
   "Lighten": "Clarear",
-  "Darken": "Escurecer"
+  "Darken": "Escurecer",
+  "Gallery": "Galeria",
+  "Browse gallery": "Explorar galeria",
+  "Search gallery": "Buscar na galeria",
+  "Gallery skins": "Skins da galeria",
+  "Skin sources": "Origens de skins",
+  "Close skin browser": "Fechar seletor de skins",
+  "Copy gallery link": "Copiar link da galeria",
+  "Opening skin": "Abrindo skin",
+  "Preview unavailable": "Prévia indisponível",
+  "No skins found.": "Nenhuma skin encontrada.",
+  "The gallery could not be loaded. Try again.": "Não foi possível carregar a galeria. Tente de novo.",
+  "This gallery skin could not be opened. Try again.": "Não foi possível abrir esta skin. Tente de novo.",
+  "This skin is no longer in the gallery.": "Esta skin não está mais na galeria."
 }

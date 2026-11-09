@@ -6,6 +6,10 @@ import { Effect } from "effect";
 import {
   Check,
   Copy,
+  Download,
+  FolderPlus,
+  Images,
+  Link2,
   LoaderCircle,
   PanelLeft,
   Pencil,
@@ -40,6 +44,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LocalizedDialogContent } from "@/components/localized-dialog";
 import { runHttpEffect } from "@/lib/effect-http";
 import {
@@ -54,6 +59,7 @@ import {
 import { useEditorHandoff } from "@/lib/hooks/use-editor-handoff";
 import { useLatestTask } from "@/lib/hooks/use-latest-task";
 import { useSkinLibrary } from "@/lib/hooks/use-skin-library";
+import { useSkinGallery } from "@/lib/hooks/use-skin-gallery";
 import { useSkinSelection } from "@/lib/hooks/use-skin-selection";
 import { useStudioGeneration } from "@/lib/hooks/use-studio-generation";
 import { isValidSkinName } from "@/lib/skin";
@@ -68,6 +74,8 @@ import {
   type SelectedSkin,
 } from "@/lib/skin-selection";
 import { loadTextureEffect } from "@/lib/skin-texture";
+import { galleryPermalink, type GallerySkin } from "@/lib/skin-gallery";
+import { downloadSkin } from "@/lib/hooks/use-skin-library";
 import {
   fixedPurpose,
   readSkinFileTexture,
@@ -81,6 +89,7 @@ import { useLocale, useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
 import { SkinThumbnail } from "./skin-thumbnail";
 import { SkinView } from "./skin-view";
+import { StudioGallery } from "./studio-gallery";
 import { DraftRecovery, StudioEditor } from "./studio-editor";
 import {
   AddSkinMenu,
@@ -140,8 +149,8 @@ type Mode =
 /**
  * The Studio: the library on the left, the selected skin in 3D in the
  * center, and the options for its command on the right. Upload and
- * Generator render it with a fixed purpose. Nothing is sent to a service
- * until the user selects the generate button.
+ * Generator render it with a fixed purpose. Gallery and texture imports read
+ * public images; the selected skin uploads only through the generate button.
  */
 export function SkinStudio(props: {
   entry: StudioEntry;
@@ -159,10 +168,30 @@ export function SkinStudio(props: {
   const [drawer, setDrawer] = useState(false);
   const [textureDialog, setTextureDialog] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const initialGallery = useRef(
+    props.search.texture || props.search.handoff
+      ? undefined
+      : props.search.skin,
+  );
+  const [linkPending, setLinkPending] = useState(false);
+  const [source, setSource] = useState<"library" | "gallery">("library");
+  const [galleryQuery, setGalleryQuery] = useState("");
+  const [pendingGallery, setPendingGallery] = useState<string>();
+  const [galleryError, setGalleryError] = useState<string>();
+  const gallery = useSkinGallery(source === "gallery" || linkPending);
   const pngInput = useRef<HTMLInputElement>(null);
   const skinFileInput = useRef<HTMLInputElement>(null);
 
-  const fixed = fixedPurpose(props.entry, props.search.intent);
+  // Prerendered HTML has no query. Apply query choices after hydration so a
+  // shared URL starts with the same markup as the server's static page.
+  const [intent, setIntent] = useState<StudioPurpose>();
+  useEffect(() => setIntent(props.search.intent), [props.search.intent]);
+  useEffect(() => {
+    if (!initialGallery.current) return;
+    setSource("gallery");
+    setLinkPending(true);
+  }, []);
+  const fixed = fixedPurpose(props.entry, intent);
   const [chosen, setChosen] = useState<StudioPurpose>("skin-url");
   const purpose = fixed ?? chosen;
   const [method, setMethod] = useState<UploadMethod>("axolotl");
@@ -170,8 +199,16 @@ export function SkinStudio(props: {
   const [customName, setCustomName] = useState("");
   const capes = useCapeSelection({ autoGrantCapeAccess: method === "axolotl" });
 
-  useEditorHandoff(props.search.handoff, (file, variant) => {
+  const cancelImport = () => {
+    initialGallery.current = undefined;
+    setLinkPending(false);
+    setPendingGallery(undefined);
+    setGalleryError(undefined);
     importTask.cancel();
+  };
+
+  useEditorHandoff(props.search.handoff, (file, variant) => {
+    cancelImport();
     store.select(file, { origin: "handoff", variant });
   });
 
@@ -182,6 +219,7 @@ export function SkinStudio(props: {
 
   /** Download a trusted texture, keep it in the library, and select it. */
   const importTexture = (reference: string) => {
+    cancelImport();
     void importTask.run(
       async (signal) => {
         const result = await runHttpEffect(
@@ -259,7 +297,7 @@ export function SkinStudio(props: {
     upload: () => pngInput.current?.click(),
     create: () => {
       // A newer choice owns the workspace: drop pending imports and decodes.
-      importTask.cancel();
+      cancelImport();
       editor.session.start(createTemplate(state.variant), {
         name: t("New skin"),
       });
@@ -272,7 +310,7 @@ export function SkinStudio(props: {
   };
 
   const choose = (skin: StoredSkin) => {
-    importTask.cancel();
+    cancelImport();
     store.selectSkin(skin);
     setDrawer(false);
     posthog.capture("skin_library_action", { action: "select" });
@@ -287,16 +325,94 @@ export function SkinStudio(props: {
     if (rejected || fitting.length < pngs.length)
       toast.error(t("Choose PNG files up to 5 MB."));
     if (fitting.length) {
-      importTask.cancel();
+      cancelImport();
       setDrawer(false);
       store.selectFiles(fitting.slice(0, 20));
     }
   };
 
   const current = state.selection;
+  const openGallery = () => {
+    setSource("gallery");
+    if (window.matchMedia("(max-width: 639px)").matches) setDrawer(true);
+  };
+  const chooseGallery = (skin: GallerySkin) => {
+    cancelImport();
+    setPendingGallery(skin.id);
+    void importTask.run(
+      (signal) => runHttpEffect(loadTextureEffect(skin.textureUrl), signal),
+      (result) => {
+        setPendingGallery(undefined);
+        setMode({ kind: "view" });
+        setDrawer(false);
+        store.select(
+          new File(
+            [result.bytes as Uint8Array<ArrayBuffer>],
+            `${skin.id}.png`,
+            { type: "image/png" },
+          ),
+          {
+            origin: "gallery",
+            galleryId: skin.id,
+            name: skin.name,
+            variant: skin.variant,
+          },
+        );
+      },
+      () => {
+        setPendingGallery(undefined);
+        setGalleryError("This gallery skin could not be opened. Try again.");
+      },
+    );
+  };
+
+  useEffect(() => {
+    const id = initialGallery.current;
+    if (!id || gallery.state.status !== "ready") return;
+    initialGallery.current = undefined;
+    setLinkPending(false);
+    const skin = gallery.state.skins.find((skin) => skin.id === id);
+    if (skin) chooseGallery(skin);
+    else setGalleryError("This skin is no longer in the gallery.");
+    // Only apply the catalog link that opened the page; newer choices own selection.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [gallery.state]);
+
+  const keepGallery = () => {
+    if (!current || current.origin !== "gallery" || current.status !== "ready")
+      return;
+    const client = library.client;
+    if (!client) return;
+    const token = current.token;
+    const variant = state.variant;
+    cancelImport();
+    void importTask.run(
+      (signal) =>
+        client.run(
+          Effect.gen(function* () {
+            const content = yield* prepareSkinContent(current.file, variant);
+            return yield* withLibrary((l) =>
+              l.add(
+                { name: current.name, content, source: { kind: "file" } },
+                { dedupe: true },
+              ),
+            );
+          }),
+          signal,
+        ),
+      ({ skin }) => {
+        const latest = store.getSnapshot();
+        if (latest.selection?.token !== token || latest.variant !== variant)
+          return;
+        store.selectSkin(skin);
+      },
+      (cause) => toast.error(t(errorMessage(cause))),
+    );
+  };
   const editSelected = () => {
     if (!current || current.status !== "ready") return;
     const { token } = current;
+    cancelImport();
     void importTask.run(
       () => documentOf(current.file, state.variant),
       (document) => {
@@ -307,7 +423,7 @@ export function SkinStudio(props: {
           baseRevision: current.revision,
           name: current.name,
         });
-        setMode({ kind: "edit", isNew: false });
+        setMode({ kind: "edit", isNew: current.origin === "gallery" });
         posthog.capture("skin_edit_opened", { page: props.entry });
       },
       (cause) => toast.error(t(errorMessage(cause))),
@@ -322,6 +438,7 @@ export function SkinStudio(props: {
   };
 
   const saved = (result: Extract<SaveResult, { kind: "saved" }>) => {
+    setSource("library");
     if (result.skin) store.selectSkin(result.skin, "editor");
     else
       store.select(result.file, {
@@ -362,7 +479,7 @@ export function SkinStudio(props: {
   );
 
   const generate = () => {
-    if (!input || nameInvalid) return;
+    if (!input || nameInvalid || pendingGallery) return;
     const fromEditor =
       current?.origin === "handoff" || current?.origin === "editor";
     const cape =
@@ -389,17 +506,53 @@ export function SkinStudio(props: {
   const editing = mode.kind === "edit";
   const info = intro[props.entry];
   const libraryView = (layout: "rail" | "drawer", close?: React.ReactNode) => (
-    <StudioLibrary
-      library={library}
-      selectedId={current?.skinId}
-      commands={commands}
-      onSelect={choose}
-      onReverted={(skin) => {
-        if (skin.id === current?.skinId) store.selectSkin(skin);
-      }}
-      layout={layout}
-      closeButton={close}
-    />
+    <Tabs
+      className="group/tabs"
+      orientation={layout === "rail" ? "vertical" : "horizontal"}
+      value={source}
+      onValueChange={(value) => setSource(value as "library" | "gallery")}
+    >
+      {close && <div className="flex justify-end">{close}</div>}
+      <TabsList className="w-full" aria-label={t("Skin sources")}>
+        <TabsTrigger
+          className="h-auto w-full min-w-0 whitespace-normal"
+          value="library"
+        >
+          {t("Library")}
+        </TabsTrigger>
+        <TabsTrigger
+          className="h-auto w-full min-w-0 whitespace-normal"
+          value="gallery"
+        >
+          {t("Gallery")}
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="library">
+        <StudioLibrary
+          library={library}
+          selectedId={current?.skinId}
+          commands={commands}
+          onSelect={choose}
+          onReverted={(skin) => {
+            if (skin.id === current?.skinId) store.selectSkin(skin);
+          }}
+          layout={layout}
+          hideHeading
+        />
+      </TabsContent>
+      <TabsContent value="gallery">
+        <StudioGallery
+          state={gallery.state}
+          query={galleryQuery}
+          onQuery={setGalleryQuery}
+          onRetry={gallery.retry}
+          onSelect={chooseGallery}
+          selectedId={current?.galleryId}
+          pendingId={pendingGallery}
+          layout={layout}
+        />
+      </TabsContent>
+    </Tabs>
   );
 
   return (
@@ -432,7 +585,7 @@ export function SkinStudio(props: {
             onClick={() => setDrawer(true)}
           >
             <PanelLeft data-icon="inline-start" />
-            {t("Library")}
+            {t(source === "gallery" ? "Gallery" : "Library")}
           </Button>
           <span className="ml-auto">
             <AddSkinMenu commands={commands} disabled={editing} />
@@ -440,7 +593,7 @@ export function SkinStudio(props: {
         </div>
 
         <aside
-          aria-label={t("Library")}
+          aria-label={t("Skin sources")}
           inert={editing || undefined}
           className={cn(
             panel,
@@ -484,6 +637,34 @@ export function SkinStudio(props: {
               }}
             >
               <LegacyDraftAlerts migrated={library.migrated?.status} />
+              {(galleryError ||
+                (linkPending && gallery.state.status === "error")) && (
+                <Alert variant="destructive">
+                  <AlertDescription>
+                    {t(
+                      galleryError ??
+                        "The gallery could not be loaded. Try again.",
+                    )}
+                  </AlertDescription>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (gallery.state.status === "error") gallery.retry();
+                      else {
+                        openGallery();
+                        setGalleryError(undefined);
+                      }
+                    }}
+                  >
+                    {t(
+                      gallery.state.status === "error"
+                        ? "Try again"
+                        : "Browse gallery",
+                    )}
+                  </Button>
+                </Alert>
+              )}
               <DraftRecovery
                 session={editor.session}
                 onContinue={() =>
@@ -501,6 +682,14 @@ export function SkinStudio(props: {
                   capeUrl={capes.selectedCape?.url}
                   onEdit={editSelected}
                   onUseLatest={() => store.useLatest()}
+                  onKeep={
+                    current.origin === "gallery" ? keepGallery : undefined
+                  }
+                  galleryLink={
+                    current.galleryId
+                      ? galleryPermalink(current.galleryId, locale, fixed)
+                      : undefined
+                  }
                 />
               ) : (
                 <div className="grid h-[300px] place-items-center rounded-lg border border-dashed text-center sm:h-[360px]">
@@ -516,6 +705,10 @@ export function SkinStudio(props: {
                       <Button variant="outline" onClick={commands.create}>
                         <Pencil data-icon="inline-start" />
                         {t("Create skin")}
+                      </Button>
+                      <Button variant="outline" onClick={openGallery}>
+                        <Images data-icon="inline-start" />
+                        {t("Browse gallery")}
                       </Button>
                     </div>
                   </div>
@@ -624,7 +817,12 @@ export function SkinStudio(props: {
 
               <Button
                 className="w-full"
-                disabled={!input || nameInvalid || shown.status === "pending"}
+                disabled={
+                  !input ||
+                  !!pendingGallery ||
+                  nameInvalid ||
+                  shown.status === "pending"
+                }
                 title={current ? undefined : t("Select a skin first")}
                 onClick={generate}
               >
@@ -688,7 +886,7 @@ export function SkinStudio(props: {
           <DialogOverlay className="sm:hidden" />
           <DialogPrimitive.Popup className="fixed inset-y-0 left-0 z-50 w-[min(16rem,82vw)] overflow-y-auto border-r bg-card p-3 text-card-foreground outline-none duration-200 data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left sm:hidden">
             <DialogPrimitive.Title className="sr-only">
-              {t("Library")}
+              {t("Skin sources")}
             </DialogPrimitive.Title>
             {libraryView(
               "drawer",
@@ -697,7 +895,7 @@ export function SkinStudio(props: {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={t("Close library")}
+                    aria-label={t("Close skin browser")}
                   />
                 }
               >
@@ -771,17 +969,28 @@ function SelectedSkinView(props: {
   capeUrl?: string;
   onEdit: () => void;
   onUseLatest: () => void;
+  onKeep?: () => void;
+  galleryLink?: string;
 }) {
   const t = useT();
   const { selection } = props;
   const editable = selectionEditable(selection);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 1400);
+    return () => clearTimeout(timer);
+  }, [copied]);
   return (
     <>
       <div className="ph-no-capture flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1">
         <h2 className="min-w-0 truncate text-base font-semibold">
           {selection.name}
         </h2>
-        {selection.status !== "invalid" && <KeepStatus selection={selection} />}
+        {selection.status !== "invalid" &&
+          selection.keep.kind !== "catalog" && (
+            <KeepStatus selection={selection} />
+          )}
         {selection.keep.kind === "changed" && (
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             {t("Changed in another tab.")}
@@ -816,7 +1025,7 @@ function SelectedSkinView(props: {
           }
         />
       )}
-      <div className="flex justify-center">
+      <div className="flex flex-wrap justify-center gap-2">
         <Button
           variant="outline"
           disabled={!editable}
@@ -830,6 +1039,50 @@ function SelectedSkinView(props: {
           <Pencil data-icon="inline-start" />
           {t("Edit skin")}
         </Button>
+        {props.onKeep && (
+          <Button
+            size="icon"
+            variant="ghost"
+            disabled={selection.status !== "ready"}
+            aria-label={t("Save to library")}
+            title={t("Save to library")}
+            onClick={props.onKeep}
+          >
+            <FolderPlus />
+          </Button>
+        )}
+        {props.galleryLink && (
+          <>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label={t("Copy gallery link")}
+              title={t("Copy gallery link")}
+              onClick={() =>
+                void navigator.clipboard
+                  .writeText(
+                    new URL(props.galleryLink!, window.location.origin).href,
+                  )
+                  .then(
+                    () => setCopied(true),
+                    () => toast.error(t("Failed to copy")),
+                  )
+              }
+            >
+              {copied ? <Check /> : <Link2 />}
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              disabled={selection.status !== "ready"}
+              aria-label={t("Download PNG")}
+              title={t("Download PNG")}
+              onClick={() => downloadSkin(selection.file, selection.name)}
+            >
+              <Download />
+            </Button>
+          </>
+        )}
       </div>
     </>
   );

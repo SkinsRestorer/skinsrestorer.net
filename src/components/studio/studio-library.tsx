@@ -103,6 +103,7 @@ export function StudioLibrary(props: {
   layout: "rail" | "drawer";
   /** The close button of the phone drawer. */
   closeButton?: React.ReactNode;
+  hideHeading?: boolean;
 }) {
   const t = useT();
   const headingId = useId();
@@ -117,7 +118,13 @@ export function StudioLibrary(props: {
       className="flex min-h-0 flex-col gap-2.5"
     >
       <div className="flex flex-wrap items-center gap-1">
-        <h2 id={headingId} className="text-sm font-semibold">
+        <h2
+          id={headingId}
+          className={cn(
+            "text-sm font-semibold",
+            props.hideHeading && "sr-only",
+          )}
+        >
           {t("Library")}
         </h2>
         {state.status === "unavailable" ? (

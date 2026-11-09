@@ -13,11 +13,16 @@ import {
   type StoredSkin,
 } from "./skin-library";
 
-export type SelectionOrigin = "file" | "library" | "editor" | "handoff";
+export type SelectionOrigin =
+  | "file"
+  | "library"
+  | "editor"
+  | "handoff"
+  | "gallery";
 
 /** Whether the selected skin is also kept in this browser. */
 export type KeepState =
-  | { readonly kind: "saving" | "kept" | "removed" }
+  | { readonly kind: "saving" | "kept" | "removed" | "catalog" }
   | { readonly kind: "changed"; readonly latest: StoredSkin }
   | { readonly kind: "off"; readonly message: string };
 
@@ -31,6 +36,7 @@ export interface SelectedSkin {
   readonly file: File;
   readonly name: string;
   readonly origin: SelectionOrigin;
+  readonly galleryId?: string;
   readonly status: "checking" | "ready" | "invalid";
   readonly error?: string;
   readonly skinId?: string;
@@ -69,6 +75,7 @@ export interface SkinSelectionDeps {
 
 export interface SelectOptions {
   readonly origin: SelectionOrigin;
+  readonly galleryId?: string;
   /** A model chosen by the user, for example in the editor or the library. */
   readonly variant?: SkinVariant;
   readonly name?: string;
@@ -171,15 +178,19 @@ export class SkinSelectionStore {
         file,
         name: options.name ?? cleanSkinName(file.name),
         origin: options.origin,
+        galleryId: options.origin === "gallery" ? options.galleryId : undefined,
         status: "checking",
         skinId: options.link?.skinId,
         revision: options.link?.revision,
         hash: options.link?.hash,
-        keep: options.link
-          ? { kind: "kept" }
-          : library
-            ? { kind: "saving" }
-            : { kind: "off", message: "This browser cannot keep skins." },
+        keep:
+          options.origin === "gallery"
+            ? { kind: "catalog" }
+            : options.link
+              ? { kind: "kept" }
+              : library
+                ? { kind: "saving" }
+                : { kind: "off", message: "This browser cannot keep skins." },
       },
       previewUrl: null,
     });
@@ -220,7 +231,8 @@ export class SkinSelectionStore {
                 return;
               this.set({ variant });
               if (options.link) this.touch(options.link.skinId);
-              else void this.keepSelection(token, snapshot, variant);
+              else if (options.origin !== "gallery")
+                void this.keepSelection(token, snapshot, variant);
             },
             failed: fail,
           },

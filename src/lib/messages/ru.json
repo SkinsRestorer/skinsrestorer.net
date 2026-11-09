@@ -601,5 +601,18 @@
   "Size": "Размер",
   "{size} px": "{size} пикс.",
   "Lighten": "Светлее",
-  "Darken": "Темнее"
+  "Darken": "Темнее",
+  "Gallery": "Галерея",
+  "Browse gallery": "Открыть галерею",
+  "Search gallery": "Поиск в галерее",
+  "Gallery skins": "Скины галереи",
+  "Skin sources": "Источники скинов",
+  "Close skin browser": "Закрыть выбор скинов",
+  "Copy gallery link": "Скопировать ссылку на скин",
+  "Opening skin": "Загрузка скина",
+  "Preview unavailable": "Предпросмотр недоступен",
+  "No skins found.": "Скины не найдены.",
+  "The gallery could not be loaded. Try again.": "Не удалось загрузить галерею. Попробуйте ещё раз.",
+  "This gallery skin could not be opened. Try again.": "Не удалось открыть скин из галереи. Попробуйте ещё раз.",
+  "This skin is no longer in the gallery.": "Этого скина больше нет в галерее."
 }

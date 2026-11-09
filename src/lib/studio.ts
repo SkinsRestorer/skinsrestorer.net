@@ -1,5 +1,6 @@
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
+import { isGalleryId } from "./skin-gallery";
 
 /** What the generated command does on the server. */
 export type StudioPurpose = "skin-url" | "createcustom";
@@ -11,6 +12,7 @@ export interface StudioSearch {
   readonly intent?: StudioPurpose;
   readonly texture?: string;
   readonly handoff?: string;
+  readonly skin?: string;
 }
 
 /** Search parameters for the Studio routes. Other values are dropped. */
@@ -22,6 +24,7 @@ export function studioSearch(search: Record<string, unknown>): StudioSearch {
     const value = search[key];
     if (typeof value === "string" && value) result[key] = value;
   }
+  if (isGalleryId(search.skin)) result.skin = search.skin;
   return result;
 }
 

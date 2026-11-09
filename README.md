@@ -53,7 +53,7 @@ Local and pull-request builds skip uploads when the key is absent.
 
 ## Skin editor privacy
 
-The `/editor` page and the skin picker on Upload and Generator keep skin images in the browser. Kept skins and editor drafts live in the `skinsrestorer-skins` IndexedDB database (`src/lib/skin-library.ts`). The editor work surface, the skin lists, and skin names carry the `ph-no-capture` class, so PostHog autocapture and session replay skip them. Library events record only the action kind. `src/lib/analytics.ts` also removes `texture` and `handoff` values from event URLs.
+Studio, Upload, and Generator share a local skin library and editor. The retired `/editor` route redirects to Studio. Gallery browsing reads the official catalog from `cool-skins.skinsrestorer.net` and images from `textures.minecraft.net`; it does not save gallery entries until the user chooses to keep or edit a copy. Kept skins and editor drafts live in the `skinsrestorer-skins` IndexedDB database (`src/lib/skin-library.ts`). The editor work surface, the skin lists, and skin names carry the `ph-no-capture` class, so PostHog autocapture and session replay skip them. Library events record only the action kind. `src/lib/analytics.ts` also removes `texture` and `handoff` values from event URLs.
 Keep canvas recording off in the PostHog replay configuration. A project owner can turn it on without a code change, and the editor privacy text would then be wrong.
 
 ## Documentation
