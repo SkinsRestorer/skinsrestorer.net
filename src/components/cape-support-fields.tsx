@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, XIcon } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -117,7 +117,21 @@ export function CapeField(props: {
 }) {
   const capeSelectId = useId();
   const capeItems = [
-    { value: NO_CAPE_VALUE, label: <span>No cape</span>, disabled: false },
+    {
+      value: NO_CAPE_VALUE,
+      disabled: false,
+      label: (
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className="flex h-8 w-5 shrink-0 items-center justify-center rounded border border-dotted border-muted-foreground/60 text-muted-foreground"
+          >
+            <XIcon className="size-3" />
+          </span>
+          <span>No cape</span>
+        </div>
+      ),
+    },
     ...props.supportedCapes.map((cape) => ({
       value: cape.uuid,
       disabled: props.capeOptionsDisabled,
