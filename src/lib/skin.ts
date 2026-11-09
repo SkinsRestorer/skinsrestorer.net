@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  MessageError,
+  errorFields,
+  messageFields,
+  type LocalizedErrorFields,
+  type MessageKey,
+} from "./messages";
+
 import { Context, Data, Effect } from "effect";
 import { detectVariantFromPixels } from "./skin-document";
 
@@ -7,6 +15,8 @@ export type SkinVariant = "classic" | "slim";
 
 export class SkinImageError extends Data.TaggedError("SkinImageError")<{
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
   readonly cause?: unknown;
 }> {}
 
@@ -21,7 +31,7 @@ export class SkinImages extends Context.Service<
 export function validateSkinDimensions(width: number, height: number): void {
   if (width <= 0 || height <= 0 || (width !== height && width !== height * 2)) {
     throw new SkinImageError({
-      message: `This image is ${width}×${height}. Choose a square skin image, such as 64×64, or a legacy skin, such as 64×32.`,
+      ...messageFields("errors.imageDimensions", { width, height }),
     });
   }
 }
@@ -34,7 +44,7 @@ export function validateSkinDimensions(width: number, height: number): void {
 export function withSkinImageEffect<A>(
   imageUrl: string,
   use: (image: HTMLImageElement) => A,
-  failure = "Failed to load image",
+  failure: MessageKey = "common.failedLoadImage",
 ) {
   return Effect.gen(function* () {
     const images = yield* SkinImages;
@@ -42,7 +52,10 @@ export function withSkinImageEffect<A>(
       Effect.try({
         try: images.create,
         catch: (cause) =>
-          new SkinImageError({ message: "Failed to load image", cause }),
+          new SkinImageError({
+            ...messageFields("common.failedLoadImage"),
+            cause,
+          }),
       }),
       (image) =>
         Effect.callback<A, SkinImageError>((resume) => {
@@ -53,7 +66,7 @@ export function withSkinImageEffect<A>(
                 try: () => use(image),
                 catch: (cause) =>
                   new SkinImageError({
-                    message: cause instanceof Error ? cause.message : failure,
+                    ...errorFields(cause, failure),
                     cause,
                   }),
               }),
@@ -61,7 +74,9 @@ export function withSkinImageEffect<A>(
           image.onerror = () =>
             resume(
               Effect.fail(
-                new SkinImageError({ message: "Failed to load image" }),
+                new SkinImageError({
+                  ...messageFields("common.failedLoadImage"),
+                }),
               ),
             );
           // Cached images can finish synchronously when src is assigned.
@@ -70,7 +85,10 @@ export function withSkinImageEffect<A>(
           } catch (cause) {
             resume(
               Effect.fail(
-                new SkinImageError({ message: "Failed to load image", cause }),
+                new SkinImageError({
+                  ...messageFields("common.failedLoadImage"),
+                  cause,
+                }),
               ),
             );
           }
@@ -94,7 +112,7 @@ export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
         validateSkinDimensions(image.naturalWidth, image.naturalHeight);
         return images.variant(image);
       },
-      "Failed to detect skin type",
+      "errors.failedDetectSkinType",
     );
   },
 );
@@ -105,7 +123,7 @@ const browserImages: Context.Service.Shape<typeof SkinImages> = {
     if (image.naturalWidth === image.naturalHeight * 2) return "classic";
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Failed to get canvas context");
+    if (!ctx) throw new MessageError("errors.canvasUnavailable");
     canvas.width = 64;
     canvas.height = 64;
     ctx.drawImage(image, 0, 0, 64, 64);
@@ -130,7 +148,10 @@ export function previewSkinFileEffect(
     Effect.try({
       try: () => urls.create(file),
       catch: (cause) =>
-        new SkinImageError({ message: "Failed to load image", cause }),
+        new SkinImageError({
+          ...messageFields("common.failedLoadImage"),
+          cause,
+        }),
     }),
     (url) =>
       Effect.gen(function* () {

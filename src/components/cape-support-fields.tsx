@@ -39,7 +39,7 @@ export function MineSkinKeyField(props: {
   return (
     <Field data-invalid={props.invalid || undefined}>
       <div className="flex items-center gap-2">
-        <FieldLabel htmlFor={id}>{t("MineSkin API key")}</FieldLabel>
+        <FieldLabel htmlFor={id}>{t("capes.mineskinApiKey")}</FieldLabel>
         <Popover>
           <PopoverTrigger
             render={
@@ -52,37 +52,29 @@ export function MineSkinKeyField(props: {
             }
           >
             <InfoIcon className="h-4 w-4" aria-hidden />
-            <span className="sr-only">{t("MineSkin API key info")}</span>
+            <span className="sr-only">{t("capes.mineskinApiKeyInfo")}</span>
           </PopoverTrigger>
           <PopoverContent
             align="start"
             sideOffset={8}
             className="w-72 flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
           >
+            <p>{t("capes.needApiKeyAllMineskinPlansExcept")}</p>
             <p>
-              {t(
-                "Need an API key? All MineSkin plans except Lite include cape generation, higher limits, and exclusive features.",
-              )}
-            </p>
-            <p>
-              {t("Visit the")}{" "}
+              {t("capes.visit")}{" "}
               <a
                 href="https://mineskin.org/apikey"
                 className="font-medium text-foreground underline"
                 target="_blank"
                 rel="noreferrer"
               >
-                {t("MineSkin API keys page")}
+                {t("capes.mineskinApiKeysPage")}
               </a>{" "}
-              {t(
-                "to get started and save 10% on your first three months (plans except Lite) with the exclusive coupon code",
-              )}{" "}
+              {t("capes.getStartedSave10FirstThreeMonths")}{" "}
               <span className="font-mono font-semibold">
-                {t("SKINSRESTORER10")}
+                {"SKINSRESTORER10"}
               </span>
-              {t(
-                ". We don't receive a commission if you use this coupon—it's just a community perk.",
-              )}
+              {t("capes.weDonTReceiveCommissionIfYou")}
             </p>
           </PopoverContent>
         </Popover>
@@ -93,7 +85,7 @@ export function MineSkinKeyField(props: {
           type="password"
           autoComplete="off"
           spellCheck={false}
-          placeholder={t("Required for cape support")}
+          placeholder={t("capes.requiredCapeSupport")}
           aria-invalid={props.invalid || undefined}
           value={props.value}
           onChange={(event) => props.onChange(event.target.value)}
@@ -111,14 +103,14 @@ export function MineSkinKeyField(props: {
               <LoaderCircle data-icon="inline-start" className="animate-spin" />
             )}
             {status === "loading"
-              ? t("Checking cape support...")
-              : t("Check cape access")}
+              ? t("capes.checkingCapeSupport")
+              : t("capes.checkCapeAccess")}
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
       {status === "denied" && (
         <FieldDescription>
-          {t("Cape support requires an API key with the capes grant.")}
+          {t("capes.capeSupportRequiresApiKeyCapesGrant")}
         </FieldDescription>
       )}
     </Field>
@@ -143,7 +135,7 @@ export function CapePicker(props: {
     (cape) => cape.uuid === props.selectedCapeUuid,
   );
   const items = [
-    { value: NO_CAPE_VALUE, label: t("No cape"), texture: undefined },
+    { value: NO_CAPE_VALUE, label: t("common.noCape"), texture: undefined },
     ...props.supportedCapes.map((cape) => ({
       value: cape.uuid,
       label: cape.alias,
@@ -188,7 +180,7 @@ export function CapePicker(props: {
       </div>
       <p className="truncate text-xs text-muted-foreground" aria-live="polite">
         <span className="font-medium text-foreground">
-          {selected?.alias ?? t("No cape")}
+          {selected?.alias ?? t("common.noCape")}
         </span>
       </p>
       {props.keyHint}

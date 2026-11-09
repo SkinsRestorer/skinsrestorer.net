@@ -1,3 +1,8 @@
+import {
+  message,
+  type MessageDescriptor,
+  type MessageKey,
+} from "@/lib/messages";
 import type { SkinVariant } from "./skin";
 import type { PatchBuilder } from "./skin-history";
 import { regionAt, SKIN_SIZE, skinRegions } from "./skin-regions";
@@ -10,12 +15,12 @@ export type SkinIssueId =
 
 export interface SkinIssue {
   readonly id: SkinIssueId;
-  readonly title: string;
-  readonly detail: string;
+  readonly title: MessageKey;
+  readonly detail: MessageDescriptor;
   /** Pixels the issue covers, for the 2D highlight. */
   readonly pixels: readonly number[];
   /** A safe pixel repair. Model hints change only the selected model. */
-  readonly repair?: { readonly label: string };
+  readonly repair?: { readonly label: MessageKey };
   readonly switchVariant?: SkinVariant;
 }
 
@@ -67,32 +72,37 @@ export function checkSkin(
   if (transparentBase.length > 0)
     issues.push({
       id: "transparent-base",
-      title: "See-through base pixels",
-      detail: `${transparentBase.length} base ${transparentBase.length === 1 ? "pixel is" : "pixels are"} not opaque. The game shows them opaque.`,
+      title: "editor.seeThroughBasePixels",
+      detail: message("editor.countBasePixelsNotOpaqueGameShows", {
+        count: transparentBase.length,
+      }),
       pixels: transparentBase,
-      repair: { label: "Make opaque" },
+      repair: { label: "editor.makeOpaque" },
     });
   if (unused.length > 0)
     issues.push({
       id: "unused-pixels",
-      title: "Pixels in unused areas",
-      detail: `${unused.length} ${unused.length === 1 ? "pixel is" : "pixels are"} outside the ${variant} model. The game ignores them.`,
+      title: "editor.pixelsUnusedAreas",
+      detail: message("editor.countPixelsOutsideModelModelGameIgnores", {
+        count: unused.length,
+        model: variant,
+      }),
       pixels: unused,
-      repair: { label: "Clear unused areas" },
+      repair: { label: "editor.clearUnusedAreas" },
     });
   if (mayBeClassic)
     issues.push({
       id: "possible-classic",
-      title: "This may be a classic skin",
-      detail: "The wide arm columns have pixels. Check the preview.",
+      title: "editor.mayClassicSkin",
+      detail: message("editor.wideArmColumnsHavePixelsCheckPreview"),
       pixels: filledClassicColumns,
       switchVariant: "classic",
     });
   if (mayBeSlim)
     issues.push({
       id: "possible-slim",
-      title: "This may be a slim skin",
-      detail: "The fourth arm column is empty. Check the preview.",
+      title: "editor.maySlimSkin",
+      detail: message("editor.fourthArmColumnEmptyCheckPreview"),
       pixels: classicOnly,
       switchVariant: "slim",
     });

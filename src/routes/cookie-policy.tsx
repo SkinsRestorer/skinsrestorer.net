@@ -83,7 +83,7 @@ function CookiePolicyPage() {
 export const Route = createFileRoute("/cookie-policy")({
   head: () =>
     getPageHead("/cookie-policy", {
-      title: "Cookie Policy",
+      titleKey: "common.cookiePolicy",
       description: "Cookie Policy for skinsrestorer.net.",
     }),
   component: () => (

@@ -141,7 +141,7 @@ function PrivacyPolicyPage() {
 export const Route = createFileRoute("/privacy-policy")({
   head: () =>
     getPageHead("/privacy-policy", {
-      title: "Privacy Policy",
+      titleKey: "common.privacyPolicy",
       description: "Privacy Policy for skinsrestorer.net.",
     }),
   component: () => (

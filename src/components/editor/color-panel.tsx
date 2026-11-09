@@ -49,7 +49,7 @@ export function ColorControls(props: {
     <div className="flex flex-wrap items-center gap-2">
       <input
         type="color"
-        aria-label={t("Paint color")}
+        aria-label={t("editor.paintColor")}
         value={toHex(color)}
         onChange={(event) => {
           const rgb = parseHex(event.target.value);
@@ -58,7 +58,7 @@ export function ColorControls(props: {
         className="h-8 w-10 cursor-pointer rounded-md border bg-background p-0.5"
       />
       <Input
-        aria-label={t("Hex code")}
+        aria-label={t("editor.hexCode")}
         value={hexText}
         spellCheck={false}
         autoComplete="off"
@@ -74,7 +74,7 @@ export function ColorControls(props: {
       {layer === "outer" && (
         <div className="flex min-w-36 flex-1 items-center gap-2">
           <span id={opacityId} className="text-xs text-muted-foreground">
-            {t("Opacity")}
+            {t("editor.opacity")}
           </span>
           <Slider
             aria-labelledby={opacityId}
@@ -98,7 +98,10 @@ export function ColorControls(props: {
         </div>
       )}
       {recent.length > 0 && (
-        <ul aria-label={t("Recent colors")} className="flex flex-wrap gap-1">
+        <ul
+          aria-label={t("editor.recentColors")}
+          className="flex flex-wrap gap-1"
+        >
           {recent.map((swatch) => {
             const hex = toHex(swatch);
             const key = `${hex}-${swatch[3]}`;
@@ -106,7 +109,7 @@ export function ColorControls(props: {
               <li key={key}>
                 <RecentSwatch
                   swatch={swatch}
-                  label={t("Use {color} at {opacity}% opacity", {
+                  label={t("editor.useColorOpacityOpacity", {
                     color: hex,
                     opacity: Math.round((swatch[3] / 255) * 100),
                   })}

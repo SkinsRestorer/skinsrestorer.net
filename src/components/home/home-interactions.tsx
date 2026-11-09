@@ -30,7 +30,7 @@ export function CopyCommand({ command }: { command: string }) {
       if (timeout.current) clearTimeout(timeout.current);
       timeout.current = setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error(t("Copy failed. Select the command and copy it manually."));
+      toast.error(t("home.copyFailedSelectCommandCopyManually"));
     }
   }
 
@@ -40,11 +40,11 @@ export function CopyCommand({ command }: { command: string }) {
       variant="ghost"
       size="icon-sm"
       onClick={copy}
-      aria-label={t("Copy {command}", { command })}
+      aria-label={t("home.copyCommand", { command })}
     >
       {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
       <output className="sr-only">
-        {copied ? t("Copied to clipboard") : ""}
+        {copied ? t("common.copiedClipboard") : ""}
       </output>
     </Button>
   );

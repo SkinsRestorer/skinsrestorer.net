@@ -1,3 +1,4 @@
+import { MessageError } from "./messages";
 /**
  * A small PNG codec for skin-sized images.
  *
@@ -9,7 +10,7 @@
 
 const signature = [137, 80, 78, 71, 13, 10, 26, 10];
 
-export class PngError extends Error {
+export class PngError extends MessageError {
   override readonly name = "PngError";
 }
 
@@ -48,14 +49,13 @@ async function transform(
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > maxBytes)
-        throw new PngError("The PNG image data is larger than expected.");
+      if (size > maxBytes) throw new PngError("png.dataTooLarge");
       parts.push(value);
     }
   } catch (cause) {
     await reader.cancel().catch(() => undefined);
     if (cause instanceof PngError) throw cause;
-    throw new PngError("The PNG image data is damaged.");
+    throw new PngError("png.dataDamaged");
   } finally {
     await written;
   }
@@ -84,7 +84,7 @@ function scanlines(
   height: number,
 ) {
   if (pixels.length !== width * height * 4)
-    throw new PngError("The pixel buffer does not match the image size.");
+    throw new PngError("png.bufferSize");
   const stride = width * 4;
   const raw = new Uint8Array((stride + 1) * height);
   for (let y = 0; y < height; y++) {
@@ -217,8 +217,7 @@ function unfilter(
   for (let y = 0; y < height; y++) {
     const filter = data[offset];
     const row = offset + 1;
-    if (row + stride > data.length)
-      throw new PngError("The PNG image data is incomplete.");
+    if (row + stride > data.length) throw new PngError("png.dataIncomplete");
     for (let i = 0; i < stride; i++) {
       const left = i >= bpp ? data[row + i - bpp] : 0;
       const up = previous >= 0 ? data[previous + i] : 0;
@@ -240,7 +239,7 @@ function unfilter(
           value += paeth(left, up, upLeft);
           break;
         default:
-          throw new PngError("The PNG image uses an unknown row filter.");
+          throw new PngError("png.rowFilter");
       }
       data[row + i] = value & 0xff;
     }
@@ -258,7 +257,7 @@ export function readPngSize(bytes: Uint8Array) {
     signature.some((value, i) => bytes[i] !== value) ||
     String.fromCharCode(...bytes.subarray(12, 16)) !== "IHDR"
   )
-    throw new PngError("This file is not a PNG image.");
+    throw new PngError("png.notPng");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   return { width: view.getUint32(16), height: view.getUint32(20) };
 }
@@ -275,7 +274,7 @@ export async function decodePng(
     bytes.length < signature.length ||
     signature.some((value, i) => bytes[i] !== value)
   )
-    throw new PngError("This file is not a PNG image.");
+    throw new PngError("png.notPng");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let offset = signature.length;
   let width = 0;
@@ -292,13 +291,12 @@ export async function decodePng(
     const type = String.fromCharCode(...bytes.subarray(offset + 4, offset + 8));
     const start = offset + 8;
     const end = start + length;
-    if (end + 4 > bytes.length)
-      throw new PngError("The PNG file is incomplete.");
+    if (end + 4 > bytes.length) throw new PngError("png.fileIncomplete");
     if (view.getUint32(end) !== crc32(bytes, offset + 4, end))
-      throw new PngError("The PNG file is damaged.");
+      throw new PngError("png.fileDamaged");
     const body = bytes.subarray(start, end);
     if (type === "IHDR") {
-      if (length !== 13) throw new PngError("The PNG header is invalid.");
+      if (length !== 13) throw new PngError("png.headerInvalid");
       width = view.getUint32(start);
       height = view.getUint32(start + 4);
       depth = body[8];
@@ -311,7 +309,7 @@ export async function decodePng(
         body[11] !== 0 ||
         interlace > 1
       )
-        throw new PngError("The PNG header is invalid.");
+        throw new PngError("png.headerInvalid");
       accept(width, height);
     } else if (type === "PLTE") palette = body;
     else if (type === "tRNS") transparency = body;
@@ -323,9 +321,8 @@ export async function decodePng(
     offset = end + 4;
   }
   if (colorType < 0 || !ended || data.length === 0)
-    throw new PngError("The PNG file is incomplete.");
-  if (colorType === 3 && !palette)
-    throw new PngError("The PNG palette is missing.");
+    throw new PngError("png.fileIncomplete");
+  if (colorType === 3 && !palette) throw new PngError("png.paletteMissing");
 
   const bitsPerPixel = channels[colorType] * depth;
   const passes =
@@ -411,7 +408,7 @@ export async function decodePng(
         if (colorType === 3) {
           const index = sample(row, px);
           if (index * 3 + 2 >= palette!.length)
-            throw new PngError("The PNG palette is too short.");
+            throw new PngError("png.paletteTooShort");
           r = palette![index * 3];
           g = palette![index * 3 + 1];
           b = palette![index * 3 + 2];

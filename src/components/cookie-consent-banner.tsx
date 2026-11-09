@@ -44,26 +44,26 @@ const CookieConsentBanner = () => {
     <div className="fixed bottom-0 left-0 z-50 sm:bottom-4 sm:left-4">
       <Card className="m-3 shadow-lg sm:max-w-md">
         <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
-          <CardTitle className="text-lg">{t("Website analytics")}</CardTitle>
+          <CardTitle className="text-lg">
+            {t("consent.websiteAnalytics")}
+          </CardTitle>
           <Cookie className="h-5 w-5" />
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <CardDescription>
-            {t(
-              "We use analytics cookies to see which pages people visit and find problems with the website.",
-            )}
+            {t("consent.weUseAnalyticsCookiesSeeWhichPages")}
           </CardDescription>
           <p className="text-xs text-muted-foreground">
-            {t("Select")}{" "}
-            <span className="font-medium">{t("Allow analytics")}</span>{" "}
-            {t("to enable these cookies. Read our")}{" "}
+            {t("consent.select")}{" "}
+            <span className="font-medium">{t("common.allowAnalytics")}</span>{" "}
+            {t("consent.enableTheseCookiesReadOur")}{" "}
             <Link
               href="/cookie-policy"
               className="underline underline-offset-2"
             >
-              {t("Cookie Policy")}
+              {t("common.cookiePolicy")}
             </Link>{" "}
-            {t("for details.")}
+            {t("consent.details")}
           </p>
         </CardContent>
         <CardFooter className="flex gap-2 pt-2">
@@ -73,14 +73,14 @@ const CookieConsentBanner = () => {
             variant="secondary"
             className="flex-1"
           >
-            {t("Decline")}
+            {t("consent.decline")}
           </Button>
           <Button
             type="button"
             onClick={handleAcceptCookies}
             className="flex-1"
           >
-            {t("Allow analytics")}
+            {t("common.allowAnalytics")}
           </Button>
         </CardFooter>
       </Card>

@@ -72,7 +72,13 @@ English uses the existing URLs. Russian, Spanish, and Brazilian Portuguese use `
 The URL sets the language on the server and in the browser. The language control keeps the current page, query parameters, and section.
 Legal pages remain in English.
 
-Shared UI messages live in `src/lib/messages`. Use the English text as the message key and keep the same interpolation parameters in each catalog.
+Shared UI messages live in `src/lib/messages`. Use stable keys such as `studio.title`, with English text in `en.json`.
+Add each key to `ru.json`, `es.json`, and `pt-BR.json`. Keep the interpolation parameters the same in every catalog.
+Use `t("studio.title")` in components and `translate(locale, "studio.title")` outside React. Keep keys unchanged when wording changes.
+Use `message(key, values)` for stored status messages and `messageFields(key, values)` for application errors.
+Render external error details with `t.error(error)`. Render status descriptors with `t.message(value)`. Plain strings in these paths remain unchanged.
+Page metadata uses `titleKey` and `descriptionKey` for translated UI text. Documentation titles and descriptions stay in their content files.
+Run `bun run i18n:check` to find missing keys or interpolation parameters.
 Translate a documentation page beside its English file, for example `skin-upload.ru.mdx`. Keep command syntax, configuration keys, and section anchors unchanged.
 Fumadocs uses English when a translation is missing. The page marks English content with `lang="en"` and points its canonical URL to the English page.
 Only actual translations enter the sitemap and language alternatives. Each group includes the English URL as `x-default`.

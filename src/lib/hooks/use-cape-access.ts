@@ -35,8 +35,8 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
       (error) =>
         toast.error(
           error instanceof Error
-            ? error.message
-            : t("Failed to load available capes"),
+            ? t.error(error)
+            : t("capes.failedLoadAvailableCapes"),
         ),
     );
     return () => availableCapes.cancel();
@@ -51,7 +51,7 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
   /** Check the capes grant of this key, only when the user asks. */
   const verify = async (apiKey: string) => {
     if (!apiKey) {
-      toast.warning(t("Enter your MineSkin API key to load capes."));
+      toast.warning(t("capes.enterMineskinApiKeyLoadCapes"));
       return;
     }
     setKeyStatus("loading");
@@ -61,25 +61,21 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
       ({ hasCapeGrant, capes }) => {
         if (!hasCapeGrant) {
           setKeyStatus("denied");
-          toast.error(
-            t(
-              "Your API key does not have the capes grant. Please check your MineSkin plan.",
-            ),
-          );
+          toast.error(t("capes.apiKeyDoesNotHaveCapesGrant"));
           return;
         }
         setKeyStatus("granted");
         setSupportedCapes(capes);
         if (capes.length === 0)
-          toast.info(t("No supported capes are currently available."));
-        else toast.success(t("Cape support enabled for this API key."));
+          toast.info(t("capes.noSupportedCapesCurrentlyAvailable"));
+        else toast.success(t("capes.capeSupportEnabledApiKey"));
       },
       (error) => {
         setKeyStatus("idle");
         toast.error(
           error instanceof Error
-            ? error.message
-            : t("Failed to verify cape support"),
+            ? t.error(error)
+            : t("capes.failedVerifyCapeSupport"),
         );
       },
     );

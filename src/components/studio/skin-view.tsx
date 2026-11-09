@@ -123,7 +123,7 @@ export function SkinView(props: {
     <div
       ref={frameRef}
       role="img"
-      aria-roledescription={t("3D model")}
+      aria-roledescription={t("studio.3dModel")}
       aria-label={props.label}
       tabIndex={failed ? undefined : 0}
       onKeyDown={(event) => {
@@ -146,9 +146,7 @@ export function SkinView(props: {
             <Box className="text-muted-foreground" aria-hidden="true" />
           )}
           <p className="max-w-64 text-sm text-muted-foreground">
-            {t(
-              "The 3D preview is unavailable. You can still upload or generate your skin.",
-            )}
+            {t("studio.3dPreviewUnavailableYouCanStillUpload")}
           </p>
         </div>
       )}

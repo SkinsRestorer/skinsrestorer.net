@@ -23,7 +23,7 @@ export function LayerToggle(props: {
   const t = useT();
   return (
     <ToggleGroup
-      aria-label={t("Active layer")}
+      aria-label={t("editor.activeLayer")}
       variant="outline"
       size="sm"
       spacing={0}
@@ -37,14 +37,14 @@ export function LayerToggle(props: {
         className="pointer-coarse:h-9"
         aria-keyshortcuts={editorShortcuts.layer.join(" ")}
       >
-        {t("Base")}
+        {t("common.base")}
       </ToggleGroupItem>
       <ToggleGroupItem
         value="outer"
         className="pointer-coarse:h-9"
         aria-keyshortcuts={editorShortcuts.layer.join(" ")}
       >
-        {t("Outer")}
+        {t("common.outer")}
       </ToggleGroupItem>
     </ToggleGroup>
   );
@@ -80,10 +80,10 @@ export function VisibleParts(props: {
             aria-hidden="true"
             className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-90 motion-reduce:transition-none"
           />
-          {t("Visible parts")}
+          {t("editor.visibleParts")}
           {!allShown && (
             <span className="ml-auto text-xs font-normal text-muted-foreground">
-              {t("Some hidden")}
+              {t("editor.someHidden")}
             </span>
           )}
         </CollapsibleTrigger>
@@ -93,13 +93,13 @@ export function VisibleParts(props: {
               <thead>
                 <tr className="text-left text-xs text-muted-foreground">
                   <th scope="col" className="pb-1 font-normal">
-                    {t("Part")}
+                    {t("editor.part")}
                   </th>
                   <th scope="col" className="pb-1 font-normal">
-                    {t("Base")}
+                    {t("common.base")}
                   </th>
                   <th scope="col" className="pb-1 font-normal">
-                    {t("Outer")}
+                    {t("common.outer")}
                   </th>
                 </tr>
               </thead>
@@ -117,9 +117,13 @@ export function VisibleParts(props: {
                             onCheckedChange={() => toggle(part, target)}
                           />
                           <span className="sr-only">
-                            {t("Show {part}, {layer} layer", {
+                            {t("editor.showPartLayerLayer", {
                               part: t(skinPartLabels[part]),
-                              layer: t(target === "base" ? "Base" : "Outer"),
+                              layer: t(
+                                target === "base"
+                                  ? "common.base"
+                                  : "common.outer",
+                              ),
                             })}
                           </span>
                         </FieldLabel>
@@ -136,7 +140,7 @@ export function VisibleParts(props: {
               disabled={allShown}
               onClick={() => props.onVisibilityChange(allPartsVisible())}
             >
-              {t("Show all")}
+              {t("editor.showAll")}
             </Button>
           </div>
         </CollapsibleContent>

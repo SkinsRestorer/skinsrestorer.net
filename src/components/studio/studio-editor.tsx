@@ -1,5 +1,7 @@
 "use client";
 
+import type { Message } from "@/lib/messages";
+
 import { useHotkeys, type UseHotkeyDefinition } from "@tanstack/react-hotkeys";
 import { useBlocker } from "@tanstack/react-router";
 import { Download, Grid3x3, Maximize, ZoomIn, ZoomOut } from "lucide-react";
@@ -79,12 +81,6 @@ import { downloadSkin } from "@/lib/hooks/use-skin-library";
 import { useRecentColors } from "@/lib/hooks/use-recent-colors";
 import { cn } from "@/lib/utils";
 
-function errorMessage(cause: unknown) {
-  if (cause && typeof cause === "object" && "message" in cause)
-    return String(cause.message);
-  return "Something went wrong.";
-}
-
 /** An open menu, list, or dialog handles Escape before the editor does. */
 function popupOpen() {
   return !!document.querySelector(
@@ -94,7 +90,7 @@ function popupOpen() {
 
 type Confirm =
   | { readonly kind: "changed" | "removed" | "leave" }
-  | { readonly kind: "failed"; readonly message: string };
+  | { readonly kind: "failed"; readonly message: Message };
 
 /**
  * Edit mode of the Studio. It fills the center and options columns while the
@@ -140,7 +136,7 @@ export function StudioEditor(props: {
   const [fitScale, setFitScale] = useState(5);
   const [showGrid, setShowGrid] = useState(true);
   const [highlight, setHighlight] = useState<SkinIssueId | null>(null);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<Message>("");
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   const textureFrame = useRef<HTMLDivElement>(null);
   const modelId = useId();
@@ -170,7 +166,7 @@ export function StudioEditor(props: {
   const highlightedPixels = issues.find((i) => i.id === highlight)?.pixels;
 
   const statusTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const showStatus = useCallback((message: string) => {
+  const showStatus = useCallback((message: Message) => {
     setStatus(message);
     clearTimeout(statusTimer.current);
     statusTimer.current = setTimeout(() => setStatus(""), 6000);
@@ -232,12 +228,12 @@ export function StudioEditor(props: {
   const onPick = useCallback(
     (picked: Rgba) => {
       if (picked[3] === 0) {
-        showStatus(t("That pixel is clear."));
+        showStatus(t("studio.pixelClear"));
         return;
       }
       setColor(picked);
       setTool("pencil");
-      showStatus(t("Picked {color}.", { color: toHex(picked) }));
+      showStatus(t("studio.pickedColor", { color: toHex(picked) }));
     },
     [showStatus, t],
   );
@@ -325,8 +321,8 @@ export function StudioEditor(props: {
       posthog.capture("editor_exported_png");
     } catch (cause) {
       toast.error(
-        t("The PNG could not be made: {error}", {
-          error: t(errorMessage(cause)),
+        t("studio.pngCouldNotMadeError", {
+          error: t.error(cause),
         }),
       );
     }
@@ -361,14 +357,14 @@ export function StudioEditor(props: {
     store.convertVariant(target);
     showStatus(
       target === "slim"
-        ? t("Converted the arms to slim.")
-        : t("Converted the arms to classic."),
+        ? t("studio.convertedArmsSlim")
+        : t("studio.convertedArmsClassic"),
     );
   };
 
   const transformPart = (action: PartAction) => {
     if (!store.transformPart(settings, action))
-      showStatus(t("Nothing changed."));
+      showStatus(t("studio.nothingChanged"));
     else setStatus("");
   };
 
@@ -386,37 +382,39 @@ export function StudioEditor(props: {
   };
 
   const [saveState, saveLabel]: [SaveState, string] = work.busy
-    ? ["saving", t("Saving")]
+    ? ["saving", t("studio.saving")]
     : work.dirty
       ? [
           "unsaved",
-          draftsOff ? t("Unsaved changes") : t("Unsaved changes, draft kept"),
+          draftsOff
+            ? t("studio.unsavedChanges")
+            : t("studio.unsavedChangesDraftKept"),
         ]
       : work.target.skinId
-        ? ["saved", t("Saved")]
+        ? ["saved", t("studio.saved")]
         : draftsOff
-          ? ["unavailable", t("Cannot be kept in this browser")]
-          : ["unsaved", t("Not saved yet")];
+          ? ["unavailable", t("studio.cannotKeptBrowser")]
+          : ["unsaved", t("studio.notSavedYet")];
 
   return (
     <TooltipProvider>
       <section
-        aria-label={t("Skin being edited")}
+        aria-label={t("studio.skinBeingEdited")}
         className="ph-no-capture flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground sm:p-4"
       >
         <div className="flex min-h-8 items-center gap-2">
           <h2 className="truncate text-base font-semibold">
             {props.isNew
-              ? t("New skin")
-              : t("Editing {name}", { name: work.target.name })}
+              ? t("common.newSkin")
+              : t("studio.editingName", { name: work.target.name })}
           </h2>
           <SaveStatus state={saveState} label={saveLabel} />
           <Button
             variant="ghost"
             size="icon-sm"
             className="ml-auto"
-            aria-label={t("Download PNG")}
-            title={t("Download PNG")}
+            aria-label={t("common.downloadPng")}
+            title={t("common.downloadPng")}
             onClick={() => void download()}
           >
             <Download />
@@ -424,9 +422,9 @@ export function StudioEditor(props: {
         </div>
         {draftsOff && (
           <Alert>
-            <AlertTitle>{t("Drafts are off")}</AlertTitle>
+            <AlertTitle>{t("studio.draftsOff")}</AlertTitle>
             <AlertDescription>
-              {t("Download the PNG to keep your work.")}
+              {t("studio.downloadPngKeepWork")}
             </AlertDescription>
           </Alert>
         )}
@@ -447,7 +445,7 @@ export function StudioEditor(props: {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={t("Zoom texture out")}
+              aria-label={t("studio.zoomTextureOut")}
               onClick={() => zoomBy(-2)}
             >
               <ZoomOut />
@@ -455,7 +453,7 @@ export function StudioEditor(props: {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={t("Zoom texture in")}
+              aria-label={t("studio.zoomTexture")}
               onClick={() => zoomBy(2)}
             >
               <ZoomIn />
@@ -463,7 +461,7 @@ export function StudioEditor(props: {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={t("Fit")}
+              aria-label={t("studio.fit")}
               aria-pressed={zoom === "fit"}
               onClick={() => setZoom("fit")}
             >
@@ -471,7 +469,7 @@ export function StudioEditor(props: {
             </Button>
             <Toggle
               size="sm"
-              aria-label={t("Pixel grid")}
+              aria-label={t("studio.pixelGrid")}
               pressed={showGrid}
               onPressedChange={setShowGrid}
             >
@@ -496,7 +494,7 @@ export function StudioEditor(props: {
           className={status ? "text-xs text-muted-foreground" : "sr-only"}
           aria-live="polite"
         >
-          {t(status)}
+          {t.message(status)}
         </output>
         <div
           ref={textureFrame}
@@ -527,7 +525,7 @@ export function StudioEditor(props: {
       </section>
 
       <section
-        aria-label={t("Live preview")}
+        aria-label={t("studio.livePreview")}
         className="ph-no-capture flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground sm:p-4"
       >
         <ModelCanvas
@@ -541,7 +539,7 @@ export function StudioEditor(props: {
           frameClassName="min-h-56"
         />
         <Button disabled={work.busy} onClick={() => void save()}>
-          {props.isNew ? t("Save to library") : t("Save changes")}
+          {props.isNew ? t("common.saveLibrary") : t("studio.saveChanges")}
         </Button>
         <div className="flex flex-wrap gap-2">
           {!props.isNew && (
@@ -551,7 +549,7 @@ export function StudioEditor(props: {
               disabled={work.busy}
               onClick={() => void saveCopy()}
             >
-              {t("Save as copy")}
+              {t("common.saveCopy")}
             </Button>
           )}
           <Button
@@ -560,7 +558,7 @@ export function StudioEditor(props: {
             disabled={work.busy}
             onClick={requestExit}
           >
-            {t("Cancel")}
+            {t("common.cancel")}
           </Button>
         </div>
         <SkinIssueAlerts
@@ -578,7 +576,7 @@ export function StudioEditor(props: {
         />
         <div className="flex flex-col gap-1.5">
           <span id={modelId} className="text-sm font-medium">
-            {t("Model")}
+            {t("common.model")}
           </span>
           <ModelSelector
             aria-labelledby={modelId}
@@ -598,11 +596,11 @@ export function StudioEditor(props: {
               }
             >
               {snapshot.variant === "classic"
-                ? t("Convert arms to slim")
-                : t("Convert arms to classic")}
+                ? t("studio.convertArmsSlim")
+                : t("studio.convertArmsClassic")}
             </TooltipTrigger>
             <TooltipContent>
-              {t("Changes the arm pixels and the model. Undo restores them.")}
+              {t("studio.changesArmPixelsModelUndoRestoresThem")}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -673,24 +671,21 @@ function ConfirmBody(props: {
   const { confirm } = props;
   const text = {
     changed: [
-      t("This skin changed in another tab"),
-      t("Save yours as a copy, or replace the other version."),
+      t("studio.skinChangedAnotherTab"),
+      t("studio.saveYoursCopyReplaceOtherVersion"),
     ],
-    removed: [
-      t("This skin was removed"),
-      t("Save your work as a copy to keep it."),
-    ],
+    removed: [t("studio.skinWasRemoved"), t("studio.saveWorkCopyKeep")],
     failed: [
-      t("The skin could not be saved"),
+      t("studio.skinCouldNotSaved"),
       confirm.kind === "failed"
-        ? `${t(confirm.message)} ${t("You can still use it without saving.")}`
+        ? `${t.message(confirm.message)} ${t("studio.youCanStillUseWithoutSaving")}`
         : "",
     ],
     leave: [
-      t("Close the editor?"),
+      t("studio.closeEditor"),
       props.draftsOff
-        ? t("Drafts are off, so closing loses your changes.")
-        : t("Keep your changes as a draft, or discard them."),
+        ? t("studio.draftsOffSoClosingLosesChanges")
+        : t("studio.keepChangesDraftDiscardThem"),
     ],
   }[confirm.kind];
   return (
@@ -701,27 +696,31 @@ function ConfirmBody(props: {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>
-          {confirm.kind === "leave" ? t("Keep editing") : t("Cancel")}
+          {confirm.kind === "leave"
+            ? t("studio.keepEditing")
+            : t("common.cancel")}
         </AlertDialogCancel>
         {confirm.kind === "changed" && (
           <Button variant="outline" onClick={props.onReplace}>
-            {t("Replace it")}
+            {t("studio.replace")}
           </Button>
         )}
         {(confirm.kind === "changed" || confirm.kind === "removed") && (
-          <Button onClick={props.onCopy}>{t("Save as copy")}</Button>
+          <Button onClick={props.onCopy}>{t("common.saveCopy")}</Button>
         )}
         {confirm.kind === "failed" && (
-          <Button onClick={props.onUnkept}>{t("Use without saving")}</Button>
+          <Button onClick={props.onUnkept}>
+            {t("studio.useWithoutSaving")}
+          </Button>
         )}
         {confirm.kind === "leave" && (
           <Button variant="destructive" onClick={props.onDiscard}>
-            {t("Discard changes")}
+            {t("studio.discardChanges")}
           </Button>
         )}
         {confirm.kind === "leave" && !props.draftsOff && (
           <Button onClick={props.onKeepDraft}>
-            {t("Keep draft and close")}
+            {t("studio.keepDraftClose")}
           </Button>
         )}
       </AlertDialogFooter>
@@ -744,7 +743,7 @@ export function DraftRecovery(props: {
   return (
     <div className="ph-no-capture">
       <Alert>
-        <AlertTitle>{t("Continue unsaved changes?")}</AlertTitle>
+        <AlertTitle>{t("studio.continueUnsavedChanges")}</AlertTitle>
         <AlertDescription>
           <ItemGroup>
             {work.recovery.map((draft) => (
@@ -753,7 +752,8 @@ export function DraftRecovery(props: {
                   <ItemTitle className="min-w-0">
                     <span className="truncate">
                       {draft.name}
-                      {t(", changed")} <CustomTimeAgo date={draft.updatedAt} />
+                      {t("studio.changed")}{" "}
+                      <CustomTimeAgo date={draft.updatedAt} />
                     </span>
                   </ItemTitle>
                 </ItemContent>
@@ -767,17 +767,17 @@ export function DraftRecovery(props: {
                           posthog.capture("editor_opened", { source: "draft" });
                           props.onContinue();
                         })
-                        .catch((cause) => toast.error(t(errorMessage(cause))))
+                        .catch((cause) => toast.error(t.error(cause)))
                     }
                   >
-                    {t("Continue")}
+                    {t("studio.continue")}
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => void props.session.discardDraft(draft.id)}
                   >
-                    {t("Discard")}
+                    {t("studio.discard")}
                   </Button>
                 </ItemActions>
               </Item>

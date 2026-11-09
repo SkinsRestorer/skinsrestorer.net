@@ -80,7 +80,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
       className="border-y py-3"
     >
       <div className="flex flex-row items-center gap-2">
-        <p className="text-sm font-medium pe-2">{t("Did this page help?")}</p>
+        <p className="text-sm font-medium pe-2">{t("feedback.didPageHelp")}</p>
         <button
           type="button"
           disabled={previous !== null}
@@ -94,7 +94,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
           }}
         >
           <ThumbsUp />
-          {t("Yes")}
+          {t("feedback.yes")}
         </button>
         <button
           type="button"
@@ -109,13 +109,13 @@ export function Feedback({ url, version }: { url: string; version: string }) {
           }}
         >
           <ThumbsDown />
-          {t("No")}
+          {t("feedback.no")}
         </button>
       </div>
       <CollapsibleContent className="mt-3">
         {previous ? (
           <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-muted-foreground text-sm text-center rounded-xl">
-            <p>{t("Thank you for your feedback!")}</p>
+            <p>{t("feedback.thankYouFeedback")}</p>
             <div className="flex flex-row items-center gap-2">
               <button
                 type="button"
@@ -135,14 +135,14 @@ export function Feedback({ url, version }: { url: string; version: string }) {
                   }
                 }}
               >
-                {t("Submit Again")}
+                {t("feedback.submitAgain")}
               </button>
             </div>
           </div>
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
             <label htmlFor={messageId} className="text-sm">
-              {t("What worked, or which step needs a correction?")}
+              {t("feedback.whatWorkedWhichStepNeedsCorrection")}
             </label>
             <textarea
               id={messageId}
@@ -153,7 +153,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               onChange={(e) => setMessage(e.target.value)}
               className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none placeholder:text-fd-muted-foreground"
               placeholder={t(
-                "Include the step, your setup, and the result. Keep credentials private.",
+                "feedback.includeStepSetupResultKeepCredentialsPrivate",
               )}
               onKeyDown={(e) => {
                 if (!e.shiftKey && e.key === "Enter") {
@@ -166,7 +166,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               type="submit"
               className={cn(buttonVariants({ color: "outline" }), "w-fit px-3")}
             >
-              {t("Submit")}
+              {t("feedback.submit")}
             </button>
           </form>
         )}

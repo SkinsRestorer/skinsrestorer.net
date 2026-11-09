@@ -49,7 +49,7 @@ function LatestRelease() {
 
   return (
     <a href={data.html_url} className={linkClassName}>
-      {t("Release")} {data.tag_name}
+      {t("home.release")} {data.tag_name}
       <ArrowUpRight aria-hidden="true" className="size-3.5" />
     </a>
   );
@@ -59,7 +59,7 @@ function ReleaseHistoryLink() {
   const t = useT();
   return (
     <a href={releasesLink} className={linkClassName}>
-      {t("Release history")}
+      {t("home.releaseHistory")}
       <ArrowUpRight aria-hidden="true" className="size-3.5" />
     </a>
   );
@@ -67,8 +67,8 @@ function ReleaseHistoryLink() {
 
 const platformGroups = [
   {
-    title: "Plugin servers",
-    detail: "Put the plugin jar in the server’s plugins folder.",
+    title: "home.pluginServers",
+    detail: "home.putPluginJarServerSPluginsFolder",
     software: [
       {
         name: "Paper",
@@ -87,12 +87,12 @@ const platformGroups = [
       },
     ],
     guides: [
-      { label: "Paper and Spigot guide", href: "/docs/installation/bukkit" },
+      { label: "home.paperSpigotGuide", href: "/docs/installation/bukkit" },
     ],
   },
   {
-    title: "Proxy networks",
-    detail: "Install it on the proxy and on every backend server.",
+    title: "home.proxyNetworks",
+    detail: "home.installProxyEveryBackendServer",
     software: [
       {
         name: "Velocity",
@@ -106,13 +106,13 @@ const platformGroups = [
       },
     ],
     guides: [
-      { label: "Velocity guide", href: "/docs/installation/velocity" },
-      { label: "BungeeCord guide", href: "/docs/installation/bungeecord" },
+      { label: "home.velocityGuide", href: "/docs/installation/velocity" },
+      { label: "home.bungeecordGuide", href: "/docs/installation/bungeecord" },
     ],
   },
   {
-    title: "Modded servers",
-    detail: "Put the mod in the server’s mods folder. Players install nothing.",
+    title: "home.moddedServers",
+    detail: "home.putModServerSModsFolderPlayers",
     software: [
       {
         name: "Fabric",
@@ -126,138 +126,126 @@ const platformGroups = [
       },
     ],
     guides: [
-      { label: "Fabric guide", href: "/docs/installation/fabric" },
-      { label: "NeoForge guide", href: "/docs/installation/neoforge" },
+      { label: "home.fabricGuide", href: "/docs/installation/fabric" },
+      { label: "home.neoforgeGuide", href: "/docs/installation/neoforge" },
     ],
   },
-];
+] as const;
 
 const commands = [
   {
     command: "/skin set <name>",
     example: "/skin set xknat",
-    description: "Wear the skin of any Minecraft account.",
+    description: "home.wearSkinAnyMinecraftAccount",
     href: "/docs/features/change-skin",
   },
   {
     command: "/skin url <url>",
     example: '/skin url "https://skinsrestorer.net/skinsrestorer-skin.png"',
-    description: "Wear a skin from a PNG link.",
+    description: "home.wearSkinPngLink",
     href: "/docs/features/skin-upload",
   },
   {
     command: "/skins",
     example: "/skins",
-    description: "Pick a skin from the in-game menu.",
+    description: "home.pickSkinGameMenu",
     href: "/docs/features/skin-menu",
   },
   {
     command: "/skin undo",
     example: "/skin undo",
-    description: "Go back to your previous skin.",
+    description: "home.goBackPreviousSkin",
     href: "/docs/features/change-skin#undo-a-change",
   },
   {
     command: "/skin update",
     example: "/skin update",
-    description: "Fetch the latest version of an account skin.",
+    description: "home.fetchLatestVersionAccountSkin",
     href: "/docs/features/change-skin#refresh-a-copied-account-skin",
   },
   {
     command: "/skin clear",
     example: "/skin clear",
-    description: "Use your account skin or the server default.",
+    description: "home.useAccountSkinServerDefault",
     href: "/docs/features/change-skin#restore-your-account-skin",
   },
-];
+] as const;
 
 const skinTools = [
   {
-    title: "Skin Studio",
-    description:
-      "Keep skins in your browser, fix or paint them in 2D or 3D, and get a command for your server.",
+    title: "studio.title",
+    description: "home.keepSkinsBrowserFixPaintThem2d",
     href: "/studio",
-    action: "Open the Studio",
+    action: "home.openStudio",
     icon: Palette,
   },
   {
-    title: "Upload a PNG",
-    description:
-      "Upload a skin file and get a /skin url command that you can run in game.",
+    title: "home.uploadPng",
+    description: "home.uploadSkinFileGetSkinUrlCommand",
     href: "/upload",
-    action: "Open the uploader",
+    action: "home.openUploader",
     icon: Upload,
   },
   {
-    title: "Save a named skin",
-    description:
-      "For server staff. Turn a PNG into a command that saves it under a name, so players can run /skin set with that name.",
+    title: "home.saveNamedSkin",
+    description: "home.serverStaffTurnPngIntoCommandSaves",
     href: "/generator",
-    action: "Open the generator",
+    action: "home.openGenerator",
     icon: WandSparkles,
   },
-];
+] as const;
 
 const team = [
-  { username: "xknat", role: "Developer" },
-  { username: "AlexProgrammerDE", role: "Developer" },
-  { username: "aljaxus", role: "System administrator" },
-];
+  { username: "xknat", role: "common.developer" },
+  { username: "AlexProgrammerDE", role: "common.developer" },
+  { username: "aljaxus", role: "home.systemAdministrator" },
+] as const;
 
 function useFaqItems() {
   const t = useT();
   return [
     {
-      question: t("Is SkinsRestorer free?"),
+      question: t("home.skinsrestorerFree"),
       answer: (
         <>
-          {t(
-            "Yes. It is free and licensed under GPL-3.0, and the source code is on",
-          )}{" "}
-          <a href={githubLink}>{t("GitHub")}</a>
-          {t(". Paid")} <Link href="/pricing">{t("supporter plans")}</Link>{" "}
-          {t("are optional. They come with priority help on Discord.")}
+          {t("home.yesFreeLicensedUnderGpl30")}{" "}
+          <a href={githubLink}>{"GitHub"}</a>
+          {t("home.paid")}{" "}
+          <Link href="/pricing">{t("home.supporterPlans")}</Link>{" "}
+          {t("home.optionalTheyComePriorityHelpDiscord")}
         </>
       ),
     },
     {
-      question: t("Does it work in online mode and offline mode?"),
-      answer: t(
-        "Yes. On offline mode servers it brings back the skins of real accounts. In both modes, players can change their skin with commands.",
-      ),
+      question: t("home.doesWorkOnlineModeOfflineMode"),
+      answer: t("home.yesOfflineModeServersBringsBackSkins"),
     },
     {
-      question: t("Do players need to install a mod?"),
-      answer: t(
-        "No. SkinsRestorer runs only on the server or proxy. The Fabric and NeoForge versions are server-side mods too.",
-      ),
+      question: t("home.doPlayersNeedInstallMod"),
+      answer: t("home.noSkinsrestorerRunsOnlyServerProxyFabric"),
     },
     {
-      question: t("How do I use a skin from a PNG file?"),
+      question: t("home.howDoIUseSkinPngFile"),
       answer: (
         <>
-          <Link href="/upload">{t("Upload the PNG")}</Link> {t("to get a")}{" "}
-          <code>/skin url</code>{" "}
-          {t("command, then run it in game. Server staff can use the")}{" "}
-          <Link href="/generator">{t("skin generator")}</Link>{" "}
-          {t("to save the skin under a name that every player can use.")}
+          <Link href="/upload">{t("home.faqUploadPng")}</Link> {t("home.get")}{" "}
+          <code>/skin url</code> {t("home.commandThenRunGameServerStaffCan")}{" "}
+          <Link href="/generator">{t("home.skinGenerator")}</Link>{" "}
+          {t("home.saveSkinUnderNameEveryPlayerCan")}
         </>
       ),
     },
     {
-      question: t("Where do I get help or report a bug?"),
+      question: t("home.whereDoIGetHelpReportBug"),
       answer: (
         <>
-          {t("Start with the")}{" "}
+          {t("home.start")}{" "}
           <Link href="/docs/troubleshooting">
-            {t("troubleshooting guides")}
+            {t("home.troubleshootingGuides")}
           </Link>
-          {t(". If that does not fix it, ask in")}{" "}
-          <a href={discordLink}>{t("Discord")}</a>{" "}
-          {t(
-            "and include your server version and a recent log. Report bugs in the plugin on",
-          )}{" "}
-          <a href={`${githubLink}/issues`}>{t("GitHub issues")}</a>.
+          {t("home.ifDoesNotFixAsk")} <a href={discordLink}>{"Discord"}</a>{" "}
+          {t("home.includeServerVersionRecentLogReportBugs")}{" "}
+          <a href={`${githubLink}/issues`}>{t("home.githubIssues")}</a>.
         </>
       ),
     },
@@ -308,25 +296,23 @@ export default function IndexPage() {
         <div className="flex flex-col items-start gap-6">
           <p className="flex items-center gap-2.5 text-sm font-medium">
             <Image src="/logo.png" alt="" width={28} height={28} priority />
-            {t("SkinsRestorer")}
+            {"SkinsRestorer"}
           </p>
           <h1
             id="home-title"
             className="font-(family-name:--font-geist-pixel-square) text-5xl leading-none tracking-tight text-balance sm:text-6xl xl:text-7xl"
           >
-            {t("Player skins for your Minecraft server")}
+            {t("home.playerSkinsMinecraftServer")}
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">
-            {t(
-              "SkinsRestorer is a free plugin and server mod. It shows real skins on offline mode servers, and players can change their skin with one command.",
-            )}
+            {t("home.skinsrestorerFreePluginServerModShowsReal")}
           </p>
           <div className="flex flex-wrap gap-3">
             <Button
               render={
                 <a href={downloadLink}>
                   <Download aria-hidden="true" />
-                  {t("Download on Modrinth")}
+                  {t("home.downloadModrinth")}
                 </a>
               }
               nativeButton={false}
@@ -336,7 +322,7 @@ export default function IndexPage() {
               render={
                 <Link href="/docs/installation">
                   <BookOpen aria-hidden="true" />
-                  {t("Installation guide")}
+                  {t("common.installationGuide")}
                 </Link>
               }
               nativeButton={false}
@@ -345,7 +331,7 @@ export default function IndexPage() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-            <span>{t("Open source, GPL-3.0")}</span>
+            <span>{t("home.openSourceGpl30")}</span>
             <LatestRelease />
           </div>
         </div>
@@ -360,30 +346,30 @@ export default function IndexPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
           <SectionHeading
             id="installation-title"
-            title={t("Install it on your server")}
+            title={t("home.installServer")}
             action={
               <Link
                 href="/docs/installation/requirements"
                 className={linkClassName}
               >
-                {t("Minecraft and Java requirements")}
+                {t("home.minecraftJavaRequirements")}
                 <ArrowRight aria-hidden="true" className="size-3.5" />
               </Link>
             }
           >
-            {t(
-              "Pick the software your server runs. Each guide covers where the file goes and how to check that it works.",
-            )}
+            {t("home.pickSoftwareServerRunsEachGuideCovers")}
           </SectionHeading>
 
           <div className="grid gap-px overflow-hidden rounded-lg border bg-border md:grid-cols-3">
             {platformGroups.map((group) => (
               <article
-                key={t(group.title)}
+                key={group.title}
                 className="flex flex-col gap-5 bg-background p-6"
               >
                 <ul
-                  aria-label={`${t(group.title)} software`}
+                  aria-label={t("home.platformSoftware", {
+                    platform: t(group.title),
+                  })}
                   className="flex flex-wrap gap-x-2 gap-y-3"
                 >
                   {group.software.map((software) => (
@@ -432,17 +418,15 @@ export default function IndexPage() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-xl text-sm text-muted-foreground">
-              {t(
-                "The plugin and the Fabric and NeoForge mods are separate downloads. Modrinth and GitHub releases have every build.",
-              )}
+              {t("home.pluginFabricNeoforgeModsSeparateDownloadsModrinth")}
             </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <a href={downloadLink} className={linkClassName}>
-                {t("Modrinth")}
+                {"Modrinth"}
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
               <a href={releasesLink} className={linkClassName}>
-                {t("GitHub releases")}
+                {t("home.githubReleases")}
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
             </div>
@@ -456,20 +440,18 @@ export default function IndexPage() {
       >
         <SectionHeading
           id="commands-title"
-          title={t("Commands for players")}
+          title={t("home.commandsPlayers")}
           action={
             <Link
               href="/docs/configuration/commands-permissions"
               className={linkClassName}
             >
-              {t("All commands and permissions")}
+              {t("home.allCommandsPermissions")}
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </Link>
           }
         >
-          {t(
-            "Players type these in chat. Server staff decide who can use each one with permissions.",
-          )}
+          {t("home.playersTypeTheseChatServerStaffDecide")}
         </SectionHeading>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
@@ -528,17 +510,15 @@ export default function IndexPage() {
       <section aria-labelledby="community-title" className="border-t">
         <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start lg:px-8">
           <div className="flex flex-col items-start gap-6">
-            <SectionHeading id="community-title" title={t("Built in the open")}>
-              {t(
-                "Bug reports and pull requests go to GitHub. Questions about setup or config get answered in Discord.",
-              )}
+            <SectionHeading id="community-title" title={t("home.builtOpen")}>
+              {t("home.bugReportsPullRequestsGoGithubQuestions")}
             </SectionHeading>
             <div className="flex flex-wrap gap-3">
               <Button
                 render={
                   <a href={githubLink}>
                     <SiGithub aria-hidden="true" />
-                    {t("GitHub")}
+                    {"GitHub"}
                   </a>
                 }
                 nativeButton={false}
@@ -548,7 +528,7 @@ export default function IndexPage() {
                 render={
                   <a href={discordLink}>
                     <SiDiscord aria-hidden="true" />
-                    {t("Discord")}
+                    {"Discord"}
                   </a>
                 }
                 nativeButton={false}
@@ -557,13 +537,13 @@ export default function IndexPage() {
             </div>
             <Link href="/pricing" className={linkClassName}>
               <Heart aria-hidden="true" className="size-4" />
-              {t("Become a supporter")}
+              {t("home.becomeSupporter")}
             </Link>
           </div>
 
           <div className="flex flex-col gap-3">
             <h3 className="text-sm font-medium text-muted-foreground">
-              {t("Maintainers")}
+              {t("home.maintainers")}
             </h3>
             <ul className="divide-y rounded-lg border">
               {team.map((member) => (
@@ -599,7 +579,7 @@ export default function IndexPage() {
               href={`${githubLink}/graphs/contributors`}
               className={linkClassName}
             >
-              {t("Everyone who contributed")}
+              {t("home.everyoneWhoContributed")}
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </a>
           </div>
@@ -608,15 +588,15 @@ export default function IndexPage() {
 
       <section aria-labelledby="faq-title" className="border-t">
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:px-8">
-          <SectionHeading id="faq-title" title={t("Questions")}>
-            {t("Short answers. The")}{" "}
+          <SectionHeading id="faq-title" title={t("home.questions")}>
+            {t("home.shortAnswers")}{" "}
             <Link
               href="/docs"
               className="text-foreground underline underline-offset-4"
             >
-              {t("documentation")}
+              {t("home.documentation")}
             </Link>{" "}
-            {t("has the details.")}
+            {t("home.hasDetails")}
           </SectionHeading>
           <HomeFaq items={faqItems} />
         </div>

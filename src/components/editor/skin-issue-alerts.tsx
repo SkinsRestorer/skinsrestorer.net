@@ -19,7 +19,7 @@ export function SkinIssueAlerts(props: {
   const { issues, highlighted } = props;
   if (issues.length === 0) return null;
   return (
-    <ul aria-label={t("Skin problems")} className="flex flex-col gap-3">
+    <ul aria-label={t("editor.skinProblems")} className="flex flex-col gap-3">
       {issues.map((issue) => (
         <li key={issue.id}>
           <Alert>
@@ -27,24 +27,16 @@ export function SkinIssueAlerts(props: {
             <AlertTitle>{t(issue.title)}</AlertTitle>
             <AlertDescription className="min-w-0">
               <p>
-                {issue.id === "transparent-base"
-                  ? t(
-                      "{count} base pixels are not opaque. The game shows them opaque.",
-                      { count: issue.pixels.length },
-                    )
-                  : issue.id === "unused-pixels"
-                    ? t(
-                        "{count} pixels are outside the {model} model. The game ignores them.",
-                        {
-                          count: issue.pixels.length,
-                          model: t(
-                            issue.detail.includes("slim")
-                              ? t("Slim")
-                              : t("Classic"),
-                          ),
-                        },
-                      )
-                    : t(issue.detail)}
+                {issue.id === "unused-pixels"
+                  ? t(issue.detail.key, {
+                      ...issue.detail.values,
+                      model: t(
+                        issue.detail.values?.model === "slim"
+                          ? "model.slim"
+                          : "model.classic",
+                      ),
+                    })
+                  : t.message(issue.detail)}
               </p>
             </AlertDescription>
             <div className="col-span-full mt-2 flex min-w-0 flex-wrap gap-2">
@@ -65,7 +57,9 @@ export function SkinIssueAlerts(props: {
                   onClick={() => props.onVariant(issue.switchVariant!)}
                 >
                   {t(
-                    issue.switchVariant === "slim" ? "Use slim" : "Use classic",
+                    issue.switchVariant === "slim"
+                      ? "editor.useSlim"
+                      : "editor.useClassic",
                   )}
                 </Button>
               )}
@@ -78,7 +72,7 @@ export function SkinIssueAlerts(props: {
                   props.onHighlight(highlighted === issue.id ? null : issue.id)
                 }
               >
-                {t("Show pixels")}
+                {t("editor.showPixels")}
               </Button>
             </div>
           </Alert>

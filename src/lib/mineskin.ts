@@ -1,3 +1,4 @@
+import { messageFields, type LocalizedErrorFields } from "./messages";
 import { Data, Effect, Schema } from "effect";
 import { readHttpJson, runHttpEffect } from "./effect-http";
 import type { SkinVariant } from "./skin";
@@ -78,6 +79,8 @@ export type MineSkinCompletedResponse =
 export class MineSkinError extends Data.TaggedError("MineSkinError")<{
   readonly reason: "request" | "job" | "result";
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
 }> {}
 
 function createMineSkinHeaders(apiKey?: string): Record<string, string> {
@@ -97,6 +100,7 @@ function mineSkinRequest<
 >(url: string, init: RequestInit, schema: Schema.Decoder<A>) {
   return readHttpJson(url, init, schema).pipe(
     Effect.flatMap((response) => {
+      const detail = response.data.error ?? response.data.errors?.[0]?.message;
       if (
         response.data.error ||
         !response.ok ||
@@ -105,10 +109,9 @@ function mineSkinRequest<
         return Effect.fail(
           new MineSkinError({
             reason: "request",
-            message:
-              response.data.error ??
-              response.data.errors?.[0]?.message ??
-              "Job failed",
+            ...(detail !== undefined
+              ? { message: detail }
+              : messageFields("errors.jobFailed")),
           }),
         );
       return Effect.succeed(response.data);
@@ -152,7 +155,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
       if (!data.skin)
         return yield* new MineSkinError({
           reason: "result",
-          message: "Skin not found in completed job response",
+          ...messageFields("errors.resultMissing"),
         });
       return { ...data, skin: data.skin };
     }
@@ -165,13 +168,13 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
       if (data.job?.status === "failed")
         return yield* new MineSkinError({
           reason: "job",
-          message: "Job failed to complete",
+          ...messageFields("errors.jobIncomplete"),
         });
       if (data.skin) return { ...data, skin: data.skin };
       if (!data.job)
         return yield* new MineSkinError({
           reason: "job",
-          message: "Job not found in response",
+          ...messageFields("errors.jobMissing"),
         });
       if (data.job.status === "completed") {
         if (data.job.result) {
@@ -184,7 +187,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
         }
         return yield* new MineSkinError({
           reason: "result",
-          message: "Skin not found in completed job response",
+          ...messageFields("errors.resultMissing"),
         });
       }
       const jobUrl = `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;

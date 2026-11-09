@@ -1,5 +1,7 @@
 "use client";
 
+import { errorMessage, message, type Message } from "@/lib/messages";
+
 import posthog from "posthog-js";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -22,7 +24,7 @@ import { useNotificationT } from "@/lib/i18n-react";
 export type LibraryState =
   | { readonly status: "loading" }
   | { readonly status: "ready"; readonly listing: LibraryListing }
-  | { readonly status: "unavailable"; readonly message: string };
+  | { readonly status: "unavailable"; readonly message: Message };
 
 let migration: Promise<MigrationResult> | undefined;
 
@@ -33,12 +35,6 @@ function migrateOnce(client: LibraryClient) {
     browserStorage("localStorage"),
   ).catch((): MigrationResult => ({ status: "unavailable" }));
   return migration;
-}
-
-function messageOf(cause: unknown) {
-  return cause && typeof cause === "object" && "message" in cause
-    ? String(cause.message)
-    : "Something went wrong.";
 }
 
 export function skinChanged(skin: StoredSkin) {
@@ -80,7 +76,8 @@ export function useSkinLibrary() {
           signal,
         ),
       (listing) => setState({ status: "ready", listing }),
-      (cause) => setState({ status: "unavailable", message: messageOf(cause) }),
+      (cause) =>
+        setState({ status: "unavailable", message: errorMessage(cause) }),
     );
   }, [client, task]);
 
@@ -96,7 +93,7 @@ export function useSkinLibrary() {
       if (event.type === "closed")
         setState({
           status: "unavailable",
-          message: t("Another tab updated Your skins. Reload the page."),
+          message: message("library.anotherTabUpdatedSkinsReloadPage"),
         });
       else reload();
     });
@@ -117,7 +114,7 @@ export function useSkinLibrary() {
         posthog.capture("skin_library_action", { action });
         return result;
       } catch (cause) {
-        toast.error(t(messageOf(cause)));
+        toast.error(t.error(cause));
         return undefined;
       }
     },
@@ -133,9 +130,9 @@ export function useSkinLibrary() {
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed) => {
           if (!removed) return;
-          toast(t("Skin removed."), {
+          toast(t("library.skinRemoved"), {
             action: {
-              label: t("Undo"),
+              label: t("common.undo"),
               onClick: () =>
                 void act("restore", (c) =>
                   c.run(withLibrary((l) => l.restore(removed))),
@@ -148,9 +145,9 @@ export function useSkinLibrary() {
       act("revert", (c) => c.run(withLibrary((l) => l.revert(id)))).then(
         (reverted) => {
           if (!reverted) return;
-          toast(t("Skin reverted."), {
+          toast(t("library.skinReverted"), {
             action: {
-              label: t("Undo"),
+              label: t("common.undo"),
               onClick: () =>
                 void act("undo_revert", (c) =>
                   c.run(

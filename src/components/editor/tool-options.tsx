@@ -1,5 +1,7 @@
 "use client";
 
+import type { MessageKey } from "@/lib/messages";
+
 import { FlipHorizontal2, Moon, Sun } from "lucide-react";
 import { useId } from "react";
 import { Slider } from "@/components/ui/slider";
@@ -24,10 +26,13 @@ import {
 } from "@/lib/skin-paint";
 import { useT } from "@/lib/i18n-react";
 
-const shadeStrengths: ReadonlyArray<{ value: ShadeStrength; label: string }> = [
-  { value: "soft", label: "Soft" },
-  { value: "medium", label: "Medium" },
-  { value: "strong", label: "Strong" },
+const shadeStrengths: ReadonlyArray<{
+  value: ShadeStrength;
+  label: MessageKey;
+}> = [
+  { value: "soft", label: "editor.soft" },
+  { value: "medium", label: "editor.medium" },
+  { value: "strong", label: "editor.strong" },
 ];
 
 /**
@@ -57,10 +62,10 @@ export function ToolOptions(props: {
   );
   return (
     <fieldset className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
-      <legend className="sr-only">{t("Tool options")}</legend>
+      <legend className="sr-only">{t("editor.toolOptions")}</legend>
       {props.tool === "fill" && (
         <ToggleGroup
-          aria-label={t("Fill area")}
+          aria-label={t("editor.fillArea")}
           variant="outline"
           size="sm"
           spacing={0}
@@ -79,11 +84,11 @@ export function ToolOptions(props: {
                 />
               }
             >
-              {t("Face")}
+              {t("editor.face")}
             </TooltipTrigger>
             <TooltipContent>
               <ShortcutHint
-                label={t("Fill the connected color in one face")}
+                label={t("editor.fillConnectedColorOneFace")}
                 commands={["fill"]}
               />
             </TooltipContent>
@@ -98,13 +103,11 @@ export function ToolOptions(props: {
                 />
               }
             >
-              {t("Everywhere")}
+              {t("editor.everywhere")}
             </TooltipTrigger>
             <TooltipContent>
               <ShortcutHint
-                label={t(
-                  "Replace this color on all visible parts of the layer",
-                )}
+                label={t("editor.replaceColorAllVisiblePartsLayer")}
                 commands={["fill"]}
               />
             </TooltipContent>
@@ -118,7 +121,7 @@ export function ToolOptions(props: {
               <Toggle
                 variant="outline"
                 size="sm"
-                aria-label={t("Mirror")}
+                aria-label={t("editor.mirror")}
                 aria-keyshortcuts={editorShortcuts.mirror.join(" ")}
                 className="pointer-coarse:h-9 pointer-coarse:min-w-9"
                 pressed={props.mirror}
@@ -130,7 +133,7 @@ export function ToolOptions(props: {
           </TooltipTrigger>
           <TooltipContent>
             <ShortcutHint
-              label={t("Mirror left and right")}
+              label={t("editor.mirrorLeftRight")}
               commands={["mirror"]}
             />
           </TooltipContent>
@@ -139,7 +142,7 @@ export function ToolOptions(props: {
       {usesBrush(props.tool) && (
         <div className="flex items-center gap-2">
           <span id={sizeId} className="text-xs text-muted-foreground">
-            {t("Size")}
+            {t("editor.size")}
           </span>
           <div className="w-24">
             <Slider
@@ -158,13 +161,13 @@ export function ToolOptions(props: {
             />
           </div>
           <span className="min-w-8 whitespace-nowrap text-xs tabular-nums text-muted-foreground">
-            {t("{size} px", { size: props.size })}
+            {t("editor.sizePx", { size: props.size })}
           </span>
         </div>
       )}
       {props.tool === "shade" && (
         <ToggleGroup
-          aria-label={t("Shade")}
+          aria-label={t("common.shade")}
           variant="outline"
           size="sm"
           spacing={0}
@@ -179,7 +182,7 @@ export function ToolOptions(props: {
             aria-keyshortcuts={editorShortcuts.shade.join(" ")}
           >
             <Sun />
-            {t("Lighten")}
+            {t("editor.lighten")}
           </ToggleGroupItem>
           <ToggleGroupItem
             value="darken"
@@ -187,13 +190,13 @@ export function ToolOptions(props: {
             aria-keyshortcuts={editorShortcuts.shade.join(" ")}
           >
             <Moon />
-            {t("Darken")}
+            {t("editor.darken")}
           </ToggleGroupItem>
         </ToggleGroup>
       )}
       {props.tool === "shade" && (
         <ToggleGroup
-          aria-label={t("Shade strength")}
+          aria-label={t("editor.shadeStrength")}
           variant="outline"
           size="sm"
           spacing={0}

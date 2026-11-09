@@ -1,16 +1,17 @@
 import { locales, localizePath, splitLocalePath, type Locale } from "./i18n";
-import { translate } from "./messages";
+import { translate, type MessageKey } from "./messages";
 
 export const siteUrl = "https://skinsrestorer.net";
-export const siteTitle = "SkinsRestorer - Minecraft Skin Plugin";
-export const siteDescription =
-  "SkinsRestorer is a Minecraft plugin that allows the modification of in-game player skins.";
+export const siteTitleKey = "seo.siteTitle";
+export const siteDescriptionKey = "seo.siteDescription";
 
 export function getPageHead(
   path: string,
   options: {
     title?: string;
+    titleKey?: MessageKey;
     description?: string;
+    descriptionKey?: MessageKey;
     image?: string;
     locale?: Locale;
     alternatives?: readonly Locale[];
@@ -22,13 +23,15 @@ export function getPageHead(
   );
   const locale = options.locale ?? pathLocale;
   const contentLocale = options.contentLocale ?? locale;
-  const title = options.title
-    ? `${translate(contentLocale, options.title)} - SR`
-    : translate(contentLocale, siteTitle);
-  const description = translate(
-    contentLocale,
-    options.description ?? siteDescription,
-  );
+  const pageTitle = options.titleKey
+    ? translate(contentLocale, options.titleKey)
+    : options.title;
+  const title = pageTitle
+    ? `${pageTitle} - SR`
+    : translate(contentLocale, siteTitleKey);
+  const description = options.descriptionKey
+    ? translate(contentLocale, options.descriptionKey)
+    : (options.description ?? translate(contentLocale, siteDescriptionKey));
   const image = new URL(options.image ?? "/logo.png", siteUrl).href;
   const url = new URL(localizePath(bare, contentLocale), siteUrl).href;
   const alternatives =

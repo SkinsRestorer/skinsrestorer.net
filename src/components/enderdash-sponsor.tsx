@@ -30,7 +30,7 @@ export function EnderDashSponsor({
           "flex flex-wrap items-center gap-3 border-t py-4 text-sm text-muted-foreground",
           className,
         )}
-        aria-label={t("Sponsor")}
+        aria-label={t("common.sponsor")}
       >
         <Image
           src="/assets/sponsors/enderdash-logo.png"
@@ -39,7 +39,7 @@ export function EnderDashSponsor({
           height={24}
         />
         <p>
-          {t("Sponsored by")}{" "}
+          {t("common.sponsored")}{" "}
           <a
             href={href}
             target="_blank"
@@ -48,7 +48,7 @@ export function EnderDashSponsor({
           >
             EnderDash
           </a>
-          {t(", a dashboard for Minecraft server administration.")}
+          {t("common.dashboardMinecraftServerAdministration")}
         </p>
       </aside>
     );
@@ -60,7 +60,7 @@ export function EnderDashSponsor({
         "flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6",
         className,
       )}
-      aria-label={t("Sponsor")}
+      aria-label={t("common.sponsor")}
     >
       <Image
         src="/assets/sponsors/enderdash-logo.png"
@@ -71,12 +71,10 @@ export function EnderDashSponsor({
       />
       <div className="flex flex-1 flex-col gap-1">
         <p className="text-xs text-muted-foreground">
-          {t("Sponsor: EnderDash")}
+          {t("common.sponsorEnderdash")}
         </p>
         <p className="text-sm text-muted-foreground">
-          {t(
-            "Run server commands, read logs, and manage files in your browser.",
-          )}
+          {t("common.runServerCommandsReadLogsManageFiles")}
         </p>
       </div>
       <a

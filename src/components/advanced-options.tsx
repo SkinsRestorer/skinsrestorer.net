@@ -43,17 +43,19 @@ export function AdvancedOptions(props: {
               aria-hidden="true"
               className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-90 motion-reduce:transition-none"
             />
-            {t("Advanced options")}
+            {t("common.advancedOptions")}
           </span>
           <span className="text-xs font-normal text-muted-foreground">
-            {props.method === "axolotl" ? t("Axolotl") : t("Official")}
+            {props.method === "axolotl" ? "Axolotl" : t("common.official")}
           </span>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="pb-1">
             <FieldGroup>
               <FieldSet>
-                <FieldLegend variant="label">{t("Upload method")}</FieldLegend>
+                <FieldLegend variant="label">
+                  {t("common.uploadMethod")}
+                </FieldLegend>
                 <Tabs
                   value={props.method}
                   onValueChange={(value) =>
@@ -61,24 +63,22 @@ export function AdvancedOptions(props: {
                   }
                 >
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="axolotl">{t("Axolotl")}</TabsTrigger>
-                    <TabsTrigger value="mineskin">{t("Official")}</TabsTrigger>
+                    <TabsTrigger value="axolotl">{"Axolotl"}</TabsTrigger>
+                    <TabsTrigger value="mineskin">
+                      {t("common.official")}
+                    </TabsTrigger>
                   </TabsList>
                   <TabsContent
                     value="axolotl"
                     className="text-xs text-muted-foreground"
                   >
-                    {t(
-                      "Use SkinsRestorer Axolotl proxy to upload skins with cape support. This is a free service thanks to a partnership with MineSkin.",
-                    )}
+                    {t("common.useSkinsrestorerAxolotlProxyUploadSkinsCape")}
                   </TabsContent>
                   <TabsContent
                     value="mineskin"
                     className="text-xs text-muted-foreground"
                   >
-                    {t(
-                      "Provide a MineSkin API key to upload skins directly with the official MineSkin API.",
-                    )}
+                    {t("common.provideMineskinApiKeyUploadSkinsDirectly")}
                   </TabsContent>
                 </Tabs>
               </FieldSet>

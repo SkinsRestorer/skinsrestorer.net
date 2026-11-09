@@ -1,3 +1,8 @@
+import {
+  errorFields,
+  messageFields,
+  type LocalizedErrorFields,
+} from "./messages";
 import { Data, Effect } from "effect";
 import { readHttpBytes } from "./effect-http";
 import {
@@ -10,6 +15,8 @@ export const TEXTURE_HOST = "textures.minecraft.net";
 
 export class TextureImportError extends Data.TaggedError("TextureImportError")<{
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
   readonly cause?: unknown;
 }> {}
 
@@ -33,8 +40,7 @@ export function parseTextureReference(input: string): {
     url = new URL(value);
   } catch {
     throw new TextureImportError({
-      message:
-        "Enter a texture hash or a https://textures.minecraft.net/texture/… URL.",
+      ...messageFields("texture.enterTextureHashHttpsTexturesMinecraftNet"),
     });
   }
   if (
@@ -45,12 +51,12 @@ export function parseTextureReference(input: string): {
     url.password !== ""
   )
     throw new TextureImportError({
-      message: `Only ${TEXTURE_HOST} texture URLs can be opened. For other sites, download the PNG and open it as a file.`,
+      ...messageFields("common.onlyTexturesMinecraftNetTextureUrlsCan"),
     });
   const match = /^\/texture\/([0-9a-f]{32,64})$/i.exec(url.pathname);
   if (!match || url.search !== "" || url.hash !== "")
     throw new TextureImportError({
-      message: `This ${TEXTURE_HOST} URL does not point to a texture.`,
+      ...messageFields("common.texturesMinecraftNetUrlDoesNotPoint"),
     });
   const hash = match[1].toLowerCase();
   return { hash, url: `https://${TEXTURE_HOST}/texture/${hash}` };
@@ -65,7 +71,10 @@ export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
     catch: (cause) =>
       cause instanceof TextureImportError
         ? cause
-        : new TextureImportError({ message: "Invalid texture.", cause }),
+        : new TextureImportError({
+            ...messageFields("texture.invalidTexture"),
+            cause,
+          }),
   });
   const response = yield* readHttpBytes(
     url,
@@ -80,31 +89,33 @@ export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
     Effect.mapError(
       (cause) =>
         new TextureImportError({
-          message:
+          ...messageFields(
             cause.reason === "timeout"
-              ? "The texture download took too long. Try again."
+              ? "texture.textureDownloadTookTooLongTryAgain"
               : cause.reason === "response"
-                ? "The texture is larger than 5 MB."
-                : "The texture could not be downloaded. Check the hash and your connection.",
+                ? "texture.textureLargerThan5Mb"
+                : "texture.textureCouldNotDownloadedCheckHashConnection",
+          ),
           cause,
         }),
     ),
   );
   if (!response.ok)
     return yield* new TextureImportError({
-      message:
+      ...messageFields(
         response.status === 404
-          ? "No texture exists for this hash."
-          : `The texture server answered with status ${response.status}.`,
+          ? "texture.noTextureExistsHash"
+          : "errors.textureStatus",
+        { status: response.status },
+      ),
     });
   const imported = yield* Effect.tryPromise({
     try: () => importSkinPng(response.bytes),
     catch: (cause) =>
       new TextureImportError({
-        message:
-          cause instanceof SkinFileError
-            ? cause.message
-            : "The texture is not a valid skin PNG.",
+        ...(cause instanceof SkinFileError
+          ? errorFields(cause, "texture.textureNotValidSkinPng")
+          : messageFields("texture.textureNotValidSkinPng")),
         cause,
       }),
   });

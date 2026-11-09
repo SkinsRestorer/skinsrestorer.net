@@ -1,3 +1,4 @@
+import { errorMessage, type Message } from "@/lib/messages";
 import { LatestTask } from "./latest-task";
 import type {
   MineSkinCompletedResponse,
@@ -30,7 +31,7 @@ export type GenerationState =
   | {
       readonly status: "failed";
       readonly input: GenerationInput;
-      readonly message: string;
+      readonly message: Message;
     };
 
 export type Upload = (
@@ -114,10 +115,7 @@ export class StudioGeneration {
         this.set({
           status: "failed",
           input,
-          message:
-            cause && typeof cause === "object" && "message" in cause
-              ? String(cause.message)
-              : "Something went wrong.",
+          message: errorMessage(cause),
         }),
     );
   }

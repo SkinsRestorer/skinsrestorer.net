@@ -57,7 +57,11 @@ export function AddSkinMenu(props: {
       <DropdownMenuTrigger
         disabled={props.disabled}
         render={
-          <Button variant="ghost" size="icon-sm" aria-label={t("Add skin")} />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("library.addSkin")}
+          />
         }
       >
         <Plus />
@@ -66,22 +70,22 @@ export function AddSkinMenu(props: {
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={commands.upload}>
             <Upload />
-            {t("Upload PNG")}
+            {t("library.uploadPng")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={commands.create}>
             <Pencil />
-            {t("Create skin")}
+            {t("common.createSkin")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={commands.openSkinFile}>
             <FileArchive />
-            {t("Open .skin file")}
+            {t("library.openSkinFile")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={commands.openTexture}>
             <Link2 />
-            {t("Open texture URL")}
+            {t("common.openTextureUrl")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
@@ -125,18 +129,20 @@ export function StudioLibrary(props: {
             props.hideHeading && "sr-only",
           )}
         >
-          {t("Library")}
+          {t("common.library")}
         </h2>
         {state.status === "unavailable" ? (
           <SaveStatus
             state="unavailable"
-            label={t("Not saved. {error}", { error: t(state.message) })}
+            label={t("studio.notSavedError", {
+              error: t.message(state.message),
+            })}
           />
         ) : (
           <SaveStatus
             state="saved"
             className="text-muted-foreground"
-            label={t("Skins stay in this browser only.")}
+            label={t("library.skinsStayBrowserOnly")}
           />
         )}
         <span className="ml-auto flex items-center">
@@ -189,20 +195,22 @@ export function StudioLibrary(props: {
             className="col-span-full flex flex-col gap-1.5 rounded-lg border border-dashed p-2 text-xs text-muted-foreground"
           >
             {record.store === "skins"
-              ? t("A damaged skin that cannot be read")
-              : t("A damaged editor draft that cannot be read")}
+              ? t("library.damagedSkinCannotRead")
+              : t("library.damagedEditorDraftCannotRead")}
             <Button
               variant="outline"
               size="sm"
               onClick={() => void actions.removeDamaged(record)}
             >
-              {t("Remove")}
+              {t("common.remove")}
             </Button>
           </li>
         ))}
       </ul>
       {listing && listing.skins.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("No skins yet.")}</p>
+        <p className="text-xs text-muted-foreground">
+          {t("library.noSkinsYet")}
+        </p>
       )}
     </section>
   );
@@ -222,7 +230,9 @@ function LibraryItem(props: {
 }) {
   const t = useT();
   const { skin } = props;
-  const model = t(skin.current.variant === "slim" ? "Slim" : "Classic");
+  const model = t(
+    skin.current.variant === "slim" ? "model.slim" : "model.classic",
+  );
   return (
     <li className="group/item relative min-w-0">
       <button
@@ -230,8 +240,8 @@ function LibraryItem(props: {
         aria-current={props.selected || undefined}
         aria-label={t(
           props.draft
-            ? "{name}, {model} model, has unsaved edits"
-            : "{name}, {model} model",
+            ? "library.nameModelModelHasUnsavedEdits"
+            : "gallery.nameModelModel",
           { name: skin.name, model },
         )}
         onClick={props.onSelect}
@@ -286,7 +296,7 @@ function LibraryItem(props: {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={t("More actions for {name}", { name: skin.name })}
+                aria-label={t("library.moreActionsName", { name: skin.name })}
                 className="size-7"
               />
             }
@@ -297,22 +307,22 @@ function LibraryItem(props: {
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={props.onRename}>
                 <PencilLine />
-                {t("Rename")}
+                {t("library.rename")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={props.onDuplicate}>
                 <Copy />
-                {t("Duplicate")}
+                {t("library.duplicate")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => downloadSkin(skin.current.png, skin.name)}
               >
                 <Download />
-                {t("Download PNG")}
+                {t("common.downloadPng")}
               </DropdownMenuItem>
               {skinChanged(skin) && (
                 <DropdownMenuItem onClick={props.onRevert}>
                   <RotateCcw />
-                  {t("Revert to original")}
+                  {t("library.revertOriginal")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuGroup>
@@ -320,7 +330,7 @@ function LibraryItem(props: {
             <DropdownMenuGroup>
               <DropdownMenuItem variant="destructive" onClick={props.onRemove}>
                 <Trash2 />
-                {t("Remove")}
+                {t("common.remove")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
@@ -346,7 +356,7 @@ function RenameField(props: {
   return (
     <div className="mt-1.5">
       <Input
-        aria-label={t("Name")}
+        aria-label={t("library.name")}
         value={value}
         maxLength={MAX_SKIN_NAME_LENGTH}
         autoComplete="off"

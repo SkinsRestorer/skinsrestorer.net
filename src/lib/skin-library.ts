@@ -1,3 +1,11 @@
+import {
+  messageFields,
+  errorMessage,
+  message,
+  type Message,
+  type MessageKey,
+  type LocalizedErrorFields,
+} from "./messages";
 import { Context, Data, Effect, Layer, Schema } from "effect";
 import { PngError, readPngSize } from "./png";
 import { validateSkinDimensions, type SkinVariant } from "./skin";
@@ -27,39 +35,48 @@ export type LibraryFailure =
 export class SkinLibraryError extends Data.TaggedError("SkinLibraryError")<{
   readonly reason: LibraryFailure;
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
   readonly cause?: unknown;
 }> {}
 
 export class SkinNotFoundError extends Data.TaggedError("SkinNotFoundError")<{
   readonly id: string;
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
 }> {}
 
 /** Another tab saved this skin after the edit session started. */
 export class SkinChangedError extends Data.TaggedError("SkinChangedError")<{
   readonly skin: StoredSkin;
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
 }> {}
 
-const failureMessages: Record<LibraryFailure, string> = {
-  unavailable:
-    "This browser does not let the site keep skins, for example in a private window or with blocked site data.",
-  full: "Browser storage for this site is full.",
-  newer:
-    "A newer version of this site changed the skins kept in this browser. Reload the page.",
-  closed:
-    "Another tab updated the skins kept in this browser. Reload the page.",
-  invalid: "This file is not a skin PNG.",
-  damaged: "A kept skin could not be read.",
-  failed: "The browser could not save the skin.",
+const failureMessages: Record<LibraryFailure, MessageKey> = {
+  unavailable: "library.browserDoesNotLetSiteKeepSkins",
+  full: "library.browserStorageSiteFull",
+  newer: "library.newerVersionSiteChangedSkinsKeptBrowser",
+  closed: "library.anotherTabUpdatedSkinsKeptBrowserReload",
+  invalid: "library.fileNotSkinPng",
+  damaged: "library.keptSkinCouldNotRead",
+  failed: "library.browserCouldNotSaveSkin",
 };
 
 export function libraryError(
   reason: LibraryFailure,
   cause?: unknown,
-  message = failureMessages[reason],
+  detail: Message = message(failureMessages[reason]),
 ) {
-  return new SkinLibraryError({ reason, message, cause });
+  return new SkinLibraryError({
+    reason,
+    ...(typeof detail === "string"
+      ? { message: detail }
+      : messageFields(detail.key, detail.values)),
+    cause,
+  });
 }
 
 function storageError(cause: unknown) {
@@ -193,12 +210,12 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
     return yield* libraryError(
       "invalid",
       undefined,
-      "The file is larger than 5 MB.",
+      message("common.fileLargerThan5Mb"),
     );
   const bytes = yield* Effect.tryPromise({
     try: async () => new Uint8Array(await source.arrayBuffer()),
     catch: (cause) =>
-      libraryError("invalid", cause, "The file could not be read."),
+      libraryError("invalid", cause, message("library.fileCouldNotRead")),
   });
   const size = yield* Effect.try({
     try: () => {
@@ -211,8 +228,8 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
         "invalid",
         cause,
         cause instanceof Error && !(cause instanceof PngError)
-          ? cause.message
-          : failureMessages.invalid,
+          ? errorMessage(cause)
+          : message(failureMessages.invalid),
       ),
   });
   const hash = yield* Effect.promise(() => sha256(bytes));
@@ -225,7 +242,9 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
         libraryError(
           "invalid",
           cause,
-          cause instanceof Error ? cause.message : failureMessages.invalid,
+          cause instanceof Error
+            ? errorMessage(cause)
+            : message(failureMessages.invalid),
         ),
     });
     pixelKey = `pixels:${yield* Effect.promise(() => sha256(imported.document.pixels))}`;
@@ -486,7 +505,7 @@ function onResult<T>(request: IDBRequest<T>, use: (value: T) => void) {
 const notFound = (id: string) =>
   new SkinNotFoundError({
     id,
-    message: "This skin is no longer kept in this browser.",
+    ...messageFields("library.skinNoLongerKeptBrowser"),
   });
 
 export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
@@ -793,7 +812,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
               return fail(
                 new SkinChangedError({
                   skin,
-                  message: "This skin changed in another tab.",
+                  ...messageFields("library.skinChangedAnotherTab"),
                 }),
               );
             const at = now();

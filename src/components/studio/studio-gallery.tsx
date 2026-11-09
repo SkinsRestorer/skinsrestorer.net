@@ -41,7 +41,7 @@ export function StudioGallery(props: {
     <div className="ph-no-capture flex min-w-0 flex-col gap-2.5">
       <Field>
         <FieldLabel htmlFor={id} className="sr-only">
-          {t("Search gallery")}
+          {t("gallery.searchGallery")}
         </FieldLabel>
         <InputGroup>
           <InputGroupAddon>
@@ -50,7 +50,7 @@ export function StudioGallery(props: {
           <InputGroupInput
             id={id}
             type="search"
-            placeholder={t("Search")}
+            placeholder={t("gallery.search")}
             maxLength={MAX_GALLERY_QUERY}
             value={props.query}
             onChange={(event) => props.onQuery(event.target.value)}
@@ -60,16 +60,16 @@ export function StudioGallery(props: {
       {state.status === "error" ? (
         <Alert>
           <AlertDescription>
-            {t("The gallery could not be loaded. Try again.")}
+            {t("gallery.galleryCouldNotLoadedTryAgain")}
           </AlertDescription>
           <Button size="sm" variant="outline" onClick={props.onRetry}>
-            {t("Try again")}
+            {t("common.tryAgain")}
           </Button>
         </Alert>
       ) : (
         <>
           <ul
-            aria-label={t("Gallery skins")}
+            aria-label={t("gallery.gallerySkins")}
             aria-busy={state.status !== "ready" || undefined}
             className={cn(
               "grid gap-2.5",
@@ -89,9 +89,11 @@ export function StudioGallery(props: {
                 <button
                   type="button"
                   aria-current={props.selectedId === skin.id || undefined}
-                  aria-label={t("{name}, {model} model", {
+                  aria-label={t("gallery.nameModelModel", {
                     name: skin.name,
-                    model: t(skin.variant === "slim" ? "Slim" : "Classic"),
+                    model: t(
+                      skin.variant === "slim" ? "model.slim" : "model.classic",
+                    ),
                   })}
                   title={skin.name}
                   onClick={() => props.onSelect(skin)}
@@ -108,7 +110,7 @@ export function StudioGallery(props: {
                     <GalleryThumbnail skin={skin} />
                     {props.pendingId === skin.id && (
                       <LoaderCircle
-                        aria-label={t("Opening skin")}
+                        aria-label={t("gallery.openingSkin")}
                         className="absolute right-1 bottom-1 size-4 animate-spin"
                       />
                     )}
@@ -125,7 +127,7 @@ export function StudioGallery(props: {
               className="text-xs text-muted-foreground"
               aria-live="polite"
             >
-              {t("No skins found.")}
+              {t("gallery.noSkinsFound")}
             </output>
           )}
         </>
@@ -183,7 +185,7 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
       ) : failed ? (
         <ImageOff
           className="size-4 text-muted-foreground"
-          aria-label={t("Preview unavailable")}
+          aria-label={t("gallery.previewUnavailable")}
         />
       ) : (
         <Skeleton className="size-3/4" />

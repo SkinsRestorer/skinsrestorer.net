@@ -1,3 +1,4 @@
+import type { MessageKey } from "@/lib/messages";
 import { isValidSkinName } from "./skin";
 import type { StudioPurpose } from "./studio";
 
@@ -54,26 +55,26 @@ export function normalizeStudioOptions(
 }
 
 export type StudioOptionErrors = Partial<
-  Record<"customName" | "capeUuid", string>
+  Record<"customName" | "capeUuid", MessageKey>
 >;
 
 /**
- * Field and cross-field checks. The messages are English keys that the view
+ * Field and cross-field checks. The messages are stable keys that the view
  * translates. The custom name is optional and only checked for custom skins.
  */
 export function studioOptionErrors(
   options: StudioOptions,
   context: { readonly purpose: StudioPurpose; readonly capeStatus: CapeStatus },
 ): StudioOptionErrors {
-  const errors: { -readonly [K in keyof StudioOptionErrors]: string } = {};
+  const errors: { -readonly [K in keyof StudioOptionErrors]: MessageKey } = {};
   const { name } = normalizeStudioOptions(options, context.purpose);
   if (name && !isValidSkinName(name))
-    errors.customName = "Use lowercase letters, numbers, and underscores.";
+    errors.customName = "studio.useLowercaseLettersNumbersUnderscores";
   if (
     options.method === "mineskin" &&
     options.capeUuid !== NO_CAPE_VALUE &&
     context.capeStatus !== "granted"
   )
-    errors.capeUuid = "Enter and verify your API key before selecting a cape.";
+    errors.capeUuid = "studio.enterVerifyApiKeyBeforeSelectingCape";
   return errors;
 }

@@ -12,9 +12,8 @@ export const Route = createFileRoute("/{-$lang}/upload")({
   head: ({ params }) =>
     getPageHead("/upload", {
       locale: isLocale(params.lang) ? params.lang : "en",
-      title: "Skin Upload",
-      description:
-        "Upload a skin PNG and get a copyable /skin url command using MineSkin.",
+      titleKey: "upload.title",
+      description: "seo.uploadDescription",
     }),
   component: function Page() {
     const search = Route.useSearch();

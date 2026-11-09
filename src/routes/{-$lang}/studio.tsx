@@ -12,9 +12,8 @@ export const Route = createFileRoute("/{-$lang}/studio")({
   head: ({ params }) =>
     getPageHead("/studio", {
       locale: isLocale(params.lang) ? params.lang : "en",
-      title: "Skin Studio",
-      description:
-        "Edit Minecraft skins in your browser, keep them in a local library, and get /skin url or /sr createcustom commands.",
+      titleKey: "studio.title",
+      description: "seo.studioDescription",
     }),
   component: function Page() {
     const search = Route.useSearch();

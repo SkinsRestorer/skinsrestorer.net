@@ -7,7 +7,13 @@ import {
   type ReactNode,
 } from "react";
 import type { Locale } from "./i18n";
-import { translate } from "./messages";
+import {
+  createTranslator,
+  type Translator,
+  type MessageKey,
+  type MessageValues,
+  type Message,
+} from "./messages";
 
 const LocaleContext = createContext<Locale>("en");
 
@@ -27,19 +33,23 @@ export function useLocale() {
 
 export function useT() {
   const locale = useLocale();
-  return useMemo(
-    () => (message: string, values?: Record<string, string | number>) =>
-      translate(locale, message, values),
-    [locale],
-  );
+  return useMemo(() => createTranslator(locale), [locale]);
 }
 
 /** Async notifications use the latest locale without restarting reads or handoffs. */
 export function useNotificationT() {
   const current = useAsRef(useT());
-  return useCallback(
-    (message: string, values?: Record<string, string | number>) =>
-      current.current(message, values),
+  const translateKey = useCallback(
+    (key: MessageKey, values?: MessageValues) => current.current(key, values),
     [current],
+  );
+  return useMemo<Translator>(
+    () =>
+      Object.assign(translateKey, {
+        message: (value: Message) => current.current.message(value),
+        error: (cause: unknown, fallback?: MessageKey) =>
+          current.current.error(cause, fallback),
+      }),
+    [current, translateKey],
   );
 }

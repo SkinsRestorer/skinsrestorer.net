@@ -1,3 +1,4 @@
+import { MessageError } from "./messages";
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
 import { isGalleryId } from "./skin-gallery";
@@ -167,6 +168,6 @@ export function readSkinFileTexture(text: string): {
     value = text.split("\n")[0]?.trim();
   }
   const url = typeof value === "string" ? textureUrlFromValue(value) : null;
-  if (!url) throw new Error("No skin URL found in file");
+  if (!url) throw new MessageError("studio.noSkinUrlFoundFile");
   return { url, legacy };
 }

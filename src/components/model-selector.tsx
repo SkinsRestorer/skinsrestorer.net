@@ -6,8 +6,13 @@ import { useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
 
 const models = [
-  { value: "classic", label: "Classic", detail: "4 px arms", arm: 4 },
-  { value: "slim", label: "Slim", detail: "3 px arms", arm: 3 },
+  {
+    value: "classic",
+    label: "model.classic",
+    detail: "model.classicArms",
+    arm: 4,
+  },
+  { value: "slim", label: "model.slim", detail: "model.slimArms", arm: 3 },
 ] as const;
 
 /**
@@ -87,7 +92,7 @@ export function ModelSelector(props: {
         <ToggleGroupItem
           key={model.value}
           value={model.value}
-          aria-label={t("{model}, {width} pixel arms", {
+          aria-label={t("model.accessibleLabel", {
             model: t(model.label),
             width: model.arm,
           })}

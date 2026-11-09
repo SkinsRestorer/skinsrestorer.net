@@ -1,5 +1,7 @@
 "use client";
 
+import { message, type Message } from "@/lib/messages";
+
 import { Box, RotateCcw, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SkinViewer, WalkingAnimation } from "skinview3d";
@@ -110,7 +112,7 @@ export function ModelCanvas(
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewerRef = useRef<SkinViewer | null>(null);
-  const [failure, setFailure] = useState<string | null>(null);
+  const [failure, setFailure] = useState<Message | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [animate, setAnimate] = useState(false);
   /** A fill or pick that waits for the finger to lift, as a tap. */
@@ -191,7 +193,7 @@ export function ModelCanvas(
         enableControls: true,
       });
     } catch {
-      setFailure("The 3D model needs WebGL, which is off in this browser.");
+      setFailure(message("editor.webglUnavailable"));
       return;
     }
     viewerRef.current = viewer;
@@ -297,7 +299,7 @@ export function ModelCanvas(
 
     const lost = (event: Event) => {
       event.preventDefault();
-      setFailure("The 3D model stopped. The browser lost its graphics.");
+      setFailure(message("editor.graphicsLost"));
     };
     canvas.addEventListener("webglcontextlost", lost);
 
@@ -350,10 +352,8 @@ export function ModelCanvas(
 
   const coverMessage = () =>
     propsRef.current.settings.layer === "base"
-      ? t(
-          "The outer layer covers that spot. Hide the outer layer of that part to paint the base below it.",
-        )
-      : t("Point at the outer layer of a visible part.");
+      ? t("editor.outerLayerCoversSpotHideOuterLayer")
+      : t("editor.pointOuterLayerVisiblePart");
 
   const rotate = (angle: number) => {
     const viewer = viewerRef.current;
@@ -373,7 +373,7 @@ export function ModelCanvas(
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("Turn model left")}
+          aria-label={t("editor.turnModelLeft")}
           disabled={!!failure}
           onClick={() => rotate(-Math.PI / 4)}
         >
@@ -382,7 +382,7 @@ export function ModelCanvas(
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("Turn model right")}
+          aria-label={t("editor.turnModelRight")}
           disabled={!!failure}
           onClick={() => rotate(Math.PI / 4)}
         >
@@ -391,7 +391,7 @@ export function ModelCanvas(
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("Zoom model out")}
+          aria-label={t("editor.zoomModelOut")}
           disabled={!!failure}
           onClick={() => zoom(1 / 1.2)}
         >
@@ -400,7 +400,7 @@ export function ModelCanvas(
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("Zoom model in")}
+          aria-label={t("editor.zoomModelIn")}
           disabled={!!failure}
           onClick={() => zoom(1.2)}
         >
@@ -419,7 +419,7 @@ export function ModelCanvas(
             hover.current?.refresh();
           }}
         >
-          {t("Reset view")}
+          {t("editor.resetView")}
         </Button>
         <Toggle
           variant="outline"
@@ -428,7 +428,7 @@ export function ModelCanvas(
           disabled={!!failure}
           onPressedChange={setAnimate}
         >
-          {t("Walk")}
+          {t("editor.walk")}
         </Toggle>
       </div>
       <div
@@ -442,7 +442,7 @@ export function ModelCanvas(
           <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
             <Box className="text-muted-foreground" aria-hidden="true" />
             <output className="text-sm text-muted-foreground">
-              {t(failure)}
+              {t.message(failure)}
             </output>
             <Button
               variant="outline"
@@ -452,7 +452,7 @@ export function ModelCanvas(
                 setAttempt((n) => n + 1);
               }}
             >
-              {t("Try again")}
+              {t("common.tryAgain")}
             </Button>
           </div>
         ) : null}
@@ -462,10 +462,8 @@ export function ModelCanvas(
           hidden={!!failure}
           aria-label={
             painting
-              ? t(
-                  "3D model. Drag to paint. Use a right drag, two fingers, or the turn buttons to rotate.",
-                )
-              : t("3D model. Drag to turn it.")
+              ? t("editor.modelPaintInstructions")
+              : t("editor.modelMoveInstructions")
           }
           className={cn("block", painting ? "cursor-crosshair" : "cursor-grab")}
           onContextMenu={(event) => event.preventDefault()}
@@ -539,8 +537,8 @@ export function ModelCanvas(
       {!failure && (
         <p className="text-xs text-muted-foreground">
           {painting
-            ? t("Right drag or two fingers to turn.")
-            : t("Drag to turn the model.")}
+            ? t("editor.rightDragTwoFingersTurn")
+            : t("editor.dragTurnModel")}
         </p>
       )}
     </div>

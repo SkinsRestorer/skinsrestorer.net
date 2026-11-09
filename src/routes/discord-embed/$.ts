@@ -22,13 +22,13 @@ export const Route = createFileRoute("/discord-embed/$")({
           title: page.data.title,
           description: `${page.data.description ?? ""}\nSkinsRestorer ${page.data.version} · ${page.data.appliesTo}\nReviewed ${page.data.reviewed}`,
           url: new URL(page.url, "https://skinsrestorer.net").href,
-          label: translate(locale, "Read guide"),
+          label: translate(locale, "common.readGuide"),
           images: [
             new URL(getPageImage(page).url, "https://skinsrestorer.net").href,
           ],
           links: [
             {
-              label: translate(locale, "Installation guide"),
+              label: translate(locale, "common.installationGuide"),
               url: new URL(
                 localizePath("/docs/installation", locale),
                 "https://skinsrestorer.net",

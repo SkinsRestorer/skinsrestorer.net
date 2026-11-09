@@ -1,3 +1,4 @@
+import { messageFields, type LocalizedErrorFields } from "./messages";
 import { Data, Effect, Schema } from "effect";
 import { readHttpJson } from "./effect-http";
 import { localizePath, type Locale } from "./i18n";
@@ -16,6 +17,8 @@ export interface GallerySkin {
 
 export class GalleryError extends Data.TaggedError("GalleryError")<{
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
 }> {}
 
 const catalogSchema = Schema.Struct({
@@ -85,19 +88,19 @@ export const loadGalleryEffect = Effect.fn("Skin.loadGallery")(function* () {
     Effect.mapError(
       () =>
         new GalleryError({
-          message: "The gallery could not be loaded. Try again.",
+          ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
         }),
     ),
   );
   if (!response.ok)
     return yield* new GalleryError({
-      message: "The gallery could not be loaded. Try again.",
+      ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
     });
   return yield* Effect.try({
     try: () => parseGalleryCatalog(response.data),
     catch: () =>
       new GalleryError({
-        message: "The gallery could not be loaded. Try again.",
+        ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
       }),
   });
 });

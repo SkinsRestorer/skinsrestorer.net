@@ -12,9 +12,8 @@ export const Route = createFileRoute("/{-$lang}/generator")({
   head: ({ params }) =>
     getPageHead("/generator", {
       locale: isLocale(params.lang) ? params.lang : "en",
-      title: "Custom Skin Generator",
-      description:
-        "Generate copyable /sr createcustom commands or reverse existing skin files.",
+      titleKey: "generator.title",
+      description: "generator.description",
     }),
   component: function Page() {
     const search = Route.useSearch();

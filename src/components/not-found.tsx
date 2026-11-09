@@ -9,12 +9,12 @@ export default function RootComponent() {
       <meta name="robots" content="noindex" />
       <div className="flex flex-col m-auto gap-4">
         <h1 className="text-3xl font-bold text-center">
-          {t("404 - Page not found")}
+          {t("common.404PageNotFound")}
         </h1>
         <div className="mx-4">
           <img
             src="/nyan-cat.webp"
-            alt={t("Nyan Cat")}
+            alt={"Nyan Cat"}
             width={500}
             height={500}
             className="rounded-xl"
@@ -23,7 +23,7 @@ export default function RootComponent() {
         <Button
           render={
             <Link href="/" className="w-fit m-auto">
-              <span>{t("Go back")}</span>
+              <span>{t("common.goBack")}</span>
             </Link>
           }
           nativeButton={false}

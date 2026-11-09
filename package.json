@@ -16,7 +16,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "fix": "oxlint --fix && oxfmt",
-    "check": "bun run lint && bun run format:check && bun run docs:check",
+    "check": "bun run lint && bun run format:check && bun run i18n:check && bun run docs:check",
     "postinstall": "bun run generate:docs && bun run generate:routes",
     "docs:check": "bun scripts/check-docs.ts",
     "docs:java": "bun scripts/check-java-example.ts",
@@ -28,7 +28,8 @@
     "test:site": "SITE_TEST_URL=http://localhost:3000 bun test scripts/site.test.ts",
     "deploy": "bun run generate:images && cf deploy",
     "deploy:check": "cf deploy --dry-run --prebuilt --mode production",
-    "cf-typegen": "cf workers types"
+    "cf-typegen": "cf workers types",
+    "i18n:check": "bun scripts/check-translations.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

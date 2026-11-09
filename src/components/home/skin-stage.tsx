@@ -1,5 +1,7 @@
 "use client";
 
+import type { MessageKey } from "@/lib/messages";
+
 import { Dithering } from "@paper-design/shaders-react";
 import {
   AnimatePresence,
@@ -14,37 +16,36 @@ import { useT } from "@/lib/i18n-react";
 
 type DemoCommand = {
   command: string;
-  reply: string;
+  reply: MessageKey;
   replyClassName?: string;
   showHead: boolean;
   skin: "applied" | "cleared" | "unchanged";
-  description: string;
+  description: MessageKey;
 };
 
 // Replies match the default English locale of the plugin.
 const demoCommands: DemoCommand[] = [
   {
     command: "/skin set xknat",
-    reply: "Your skin changed.",
+    reply: "home.skinChanged",
     showHead: true,
     skin: "applied",
-    description: "Applies the skin of the Minecraft account xknat.",
+    description: "home.appliesSkinMinecraftAccountXknat",
   },
   {
     command: "/skins",
-    reply: "Opening the skins menu...",
+    reply: "home.openingSkinsMenu",
     replyClassName: styles.darkGreen,
     showHead: false,
     skin: "unchanged",
-    description: "Opens a menu of skins the server has saved.",
+    description: "home.opensMenuSkinsServerHasSaved",
   },
   {
     command: "/skin clear",
-    reply: "Your skin was cleared.",
+    reply: "home.skinWasCleared",
     showHead: false,
     skin: "cleared",
-    description:
-      "Removes your selection. The server then uses your account skin or its default skin.",
+    description: "home.removesSelectionServerThenUsesAccountSkin",
   },
 ];
 
@@ -155,8 +156,8 @@ export function SkinStage() {
               src="/skinsrestorer-character.png"
               alt={
                 cleared
-                  ? t("Minecraft character without a selected skin")
-                  : t("Minecraft character wearing the selected skin")
+                  ? t("home.minecraftCharacterWithoutSelectedSkin")
+                  : t("home.minecraftCharacterWearingSelectedSkin")
               }
               width={640}
               height={760}
@@ -171,7 +172,7 @@ export function SkinStage() {
           className={`${styles.chat} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}
         >
           <ol
-            aria-label={t("Chat")}
+            aria-label={t("home.chat")}
             className="flex flex-col items-start gap-0.5"
           >
             <AnimatePresence initial={false}>
@@ -192,10 +193,7 @@ export function SkinStage() {
                   className="max-w-full bg-black/50 px-1.5 py-0.5 text-white"
                 >
                   <span className={styles.yellow}>
-                    [
-                    <span className={styles.darkGreen}>
-                      {t("SkinsRestorer")}
-                    </span>
+                    [<span className={styles.darkGreen}>{"SkinsRestorer"}</span>
                     ]
                   </span>{" "}
                   <span className={entry.command.replyClassName}>
@@ -212,7 +210,7 @@ export function SkinStage() {
             </AnimatePresence>
           </ol>
           <p
-            aria-label={t("Chat input")}
+            aria-label={t("home.chatInput")}
             className="flex items-center bg-black/60 px-1.5 py-1 text-white"
           >
             <motion.span
@@ -240,7 +238,7 @@ export function SkinStage() {
       </div>
 
       <fieldset className="flex min-w-0 flex-wrap gap-2">
-        <legend className="sr-only">{t("Commands to preview")}</legend>
+        <legend className="sr-only">{t("home.commandsPreview")}</legend>
         {demoCommands.map((item) => (
           <Button
             key={item.command}

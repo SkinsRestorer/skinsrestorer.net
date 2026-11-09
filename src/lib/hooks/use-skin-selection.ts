@@ -23,16 +23,18 @@ export function useSkinSelection() {
         events: {
           failed: (_token, message) =>
             toast.error(
-              t("Failed to detect skin type: {error}", { error: t(message) }),
+              t("common.failedDetectSkinTypeError", {
+                error: t.message(message),
+              }),
             ),
           imported: (kept, failed) =>
             toast.info(
-              t("Added {count} skins. The first one is selected.", {
+              t("common.addedCountSkinsFirstOneSelected", {
                 count: kept,
               }),
               failed
                 ? {
-                    description: t("{count} files were not skin PNGs.", {
+                    description: t("common.countFilesWereNotSkinPngs", {
                       count: failed,
                     }),
                   }

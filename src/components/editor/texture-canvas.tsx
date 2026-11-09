@@ -288,7 +288,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         tabIndex={0}
         role="application"
         aria-roledescription="skin texture"
-        aria-label={t("Skin texture, 64 by 64 pixels")}
+        aria-label={t("editor.skinTexture6464Pixels")}
         aria-describedby={instructionsId}
         className={cn(
           "block max-w-none rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -416,9 +416,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         onLostPointerCapture={finishStroke}
       />
       <p id={instructionsId} className="sr-only">
-        {t(
-          "Use the arrow keys to move the pixel cursor. Hold Shift to move four pixels. Press Space or Enter to use the selected tool. Add Shift to draw a straight line from the last stroke.",
-        )}
+        {t("editor.useArrowKeysMovePixelCursorHold")}
       </p>
       <p className="min-h-4 text-xs text-muted-foreground" aria-hidden="true">
         {hover

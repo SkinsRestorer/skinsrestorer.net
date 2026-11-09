@@ -24,24 +24,22 @@ export function HomeLayout({ children }: { children: ReactNode }) {
       links={[
         {
           type: "main",
-          text: t("Documentation"),
+          text: t("nav.documentation"),
           url: localizeHref("/docs", locale),
-          description: t("Install, configure, and troubleshoot SkinsRestorer"),
+          description: t("common.installConfigureTroubleshootSkinsrestorer"),
         },
         {
           type: "main",
-          text: t("Studio"),
+          text: t("nav.studio"),
           url: localizeHref("/studio", locale),
           active: "nested-url",
-          description: t(
-            "Edit skins and get /skin url or /sr createcustom commands",
-          ),
+          description: t("common.editSkinsGetSkinUrlSrCreatecustom"),
         },
         {
           type: "main",
-          text: t("Support"),
+          text: t("nav.support"),
           url: localizeHref("/pricing", locale),
-          description: t("Optional supporter plans and donations"),
+          description: t("common.optionalSupporterPlansDonations"),
         },
         ...(baseOptions.links || []),
       ]}

@@ -102,7 +102,7 @@ const clientLoader = browserCollections.docs.createClientLoader<{
             <span>SkinsRestorer {frontmatter.version}</span>
             <span lang={page.contentLocale}>{frontmatter.appliesTo}</span>
             <span>
-              {t("Reviewed")}{" "}
+              {t("common.reviewed")}{" "}
               <time dateTime={frontmatter.reviewed}>
                 {frontmatter.reviewed}
               </time>
@@ -118,7 +118,7 @@ const clientLoader = browserCollections.docs.createClientLoader<{
         </div>
         {page.contentLocale !== locale && (
           <p className="text-sm text-fd-muted-foreground">
-            {t("This page is available in English.")}
+            {t("common.pageAvailableEnglish")}
           </p>
         )}
         <DocsBody lang={page.contentLocale}>

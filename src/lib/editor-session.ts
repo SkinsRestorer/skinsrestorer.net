@@ -1,3 +1,4 @@
+import { errorMessage, message, type Message } from "@/lib/messages";
 import { Debouncer } from "@tanstack/pacer";
 import { Effect } from "effect";
 import type { SkinVariant } from "./skin";
@@ -12,7 +13,6 @@ import {
   copyName,
   prepareSkinContent,
   SkinChangedError,
-  SkinLibraryError,
   SkinNotFoundError,
   type EditSession,
   type SkinContent,
@@ -29,7 +29,7 @@ export interface EditTarget {
 
 export type DraftStatus =
   | { readonly kind: "idle" | "saved" }
-  | { readonly kind: "off"; readonly message: string };
+  | { readonly kind: "off"; readonly message: Message };
 
 export interface EditorSessionState {
   readonly target: EditTarget;
@@ -52,7 +52,7 @@ export type SaveResult =
     }
   | { readonly kind: "changed"; readonly skin: StoredSkin }
   | { readonly kind: "removed" }
-  | { readonly kind: "failed"; readonly message: string };
+  | { readonly kind: "failed"; readonly message: Message };
 
 const SAVE_DELAY_MS = 500;
 
@@ -95,7 +95,7 @@ export class EditorSession {
       busy: false,
       drafts: library
         ? { kind: "idle" }
-        : { kind: "off", message: "This browser cannot keep drafts." },
+        : { kind: "off", message: message("library.draftsUnavailable") },
       recovery: [],
     };
     this.autosave = new Debouncer<() => void>(() => void this.flush(), {
@@ -191,7 +191,7 @@ export class EditorSession {
     } catch (cause) {
       this.unavailable = true;
       this.set({
-        drafts: { kind: "off", message: messageOf(cause) },
+        drafts: { kind: "off", message: errorMessage(cause) },
         recovery: [],
       });
       return [];
@@ -290,7 +290,7 @@ export class EditorSession {
           this.set({ drafts: { kind: "saved" } });
       } catch (cause) {
         if (this.state.sessionId === sessionId)
-          this.set({ drafts: { kind: "off", message: messageOf(cause) } });
+          this.set({ drafts: { kind: "off", message: errorMessage(cause) } });
       }
     });
   }
@@ -416,7 +416,7 @@ export class EditorSession {
       if (cause instanceof SkinChangedError)
         return { kind: "changed", skin: cause.skin };
       if (cause instanceof SkinNotFoundError) return { kind: "removed" };
-      return { kind: "failed", message: messageOf(cause) };
+      return { kind: "failed", message: errorMessage(cause) };
     } finally {
       this.set({ busy: false });
     }
@@ -434,11 +434,4 @@ export async function documentOf(
 ): Promise<SkinDocument> {
   const imported = await importSkinPng(new Uint8Array(await png.arrayBuffer()));
   return { pixels: imported.document.pixels, variant };
-}
-
-function messageOf(cause: unknown) {
-  if (cause instanceof SkinLibraryError) return cause.message;
-  if (cause && typeof cause === "object" && "message" in cause)
-    return String(cause.message);
-  return "Something went wrong.";
 }

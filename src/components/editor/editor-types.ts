@@ -1,3 +1,4 @@
+import { message, type Message, type MessageKey } from "@/lib/messages";
 import {
   paintableRegion,
   type PaintSettings,
@@ -19,19 +20,23 @@ export interface EditorSurfaceProps {
   /** Called after a tool changes pixels with the color it used. */
   readonly onPainted: () => void;
   /** Short status text, for example why a click did nothing. */
-  readonly onStatus: (message: string) => void;
+  readonly onStatus: (message: Message) => void;
 }
 
-export const toolLabels: Record<PaintTool, string> = {
-  pencil: "Pencil",
-  eraser: "Eraser",
-  shade: "Shade",
-  fill: "Fill",
-  eyedropper: "Pick color",
+export const toolLabels: Record<PaintTool, MessageKey> = {
+  pencil: "editor.pencil",
+  eraser: "editor.eraser",
+  shade: "common.shade",
+  fill: "editor.fill",
+  eyedropper: "editor.pickColor",
 };
 
 export function blockedMessage(settings: PaintSettings) {
-  return `That pixel is not on a visible part of the ${settings.layer} layer.`;
+  return message(
+    settings.layer === "base"
+      ? "common.pixelNotVisiblePartBaseLayer"
+      : "common.pixelNotVisiblePartOuterLayer",
+  );
 }
 
 /** Tools that use the brush size. */
@@ -68,9 +73,7 @@ export function startTool(
     return "done";
   }
   if (tool === "eraser" && settings.layer === "base") {
-    props.onStatus(
-      "Java Edition always shows the base layer as opaque, so it cannot be erased. Paint over it instead.",
-    );
+    props.onStatus(message("editor.javaEditionAlwaysShowsBaseLayerOpaque"));
     return "blocked";
   }
   if (options.line && store.lineTo(tool, settings, x, y)) {

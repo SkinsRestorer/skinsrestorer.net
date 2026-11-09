@@ -1,5 +1,7 @@
 "use client";
 
+import type { MessageKey } from "@/lib/messages";
+
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,11 +18,11 @@ import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
 import { partCopies, type PartAction } from "@/lib/skin-transform";
 import { useT } from "@/lib/i18n-react";
 
-const copyLabels: Record<string, string> = {
-  "rightArm leftArm": "Right arm to left arm",
-  "leftArm rightArm": "Left arm to right arm",
-  "rightLeg leftLeg": "Right leg to left leg",
-  "leftLeg rightLeg": "Left leg to right leg",
+const copyLabels: Record<string, MessageKey> = {
+  "rightArm leftArm": "editor.rightArmLeftArm",
+  "leftArm rightArm": "editor.leftArmRightArm",
+  "rightLeg leftLeg": "editor.rightLegLeftLeg",
+  "leftLeg rightLeg": "editor.leftLegRightLeg",
 };
 
 /**
@@ -45,14 +47,16 @@ export function PartActions(props: {
           />
         }
       >
-        {t("Flip or copy a part")}
+        {t("editor.flipCopyPart")}
         <ChevronDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel>
-            {t("Flip left to right, {layer}", {
-              layer: t(layer === "base" ? "base layer" : "outer layer"),
+            {t("editor.flipLeftRightLayer", {
+              layer: t(
+                layer === "base" ? "common.baseLayer" : "common.outerLayer",
+              ),
             })}
           </DropdownMenuLabel>
           {skinParts.map((part) => (
@@ -68,8 +72,10 @@ export function PartActions(props: {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuLabel>
-            {t("Copy without mirroring, {layer}", {
-              layer: t(layer === "base" ? "base layer" : "outer layer"),
+            {t("editor.copyWithoutMirroringLayer", {
+              layer: t(
+                layer === "base" ? "common.baseLayer" : "common.outerLayer",
+              ),
             })}
           </DropdownMenuLabel>
           {partCopies.map(({ from, to }) => (

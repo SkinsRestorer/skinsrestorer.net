@@ -22,7 +22,7 @@ test("the custom name is optional and checked only for custom skins", () => {
   );
   assert.deepEqual(
     studioOptionErrors(options({ customName: "Lobby skin" }), context),
-    { customName: "Use lowercase letters, numbers, and underscores." },
+    { customName: "studio.useLowercaseLettersNumbersUnderscores" },
   );
   // /skin url ignores the name, so it cannot block the form.
   assert.deepEqual(
@@ -39,7 +39,7 @@ test("a cape with the Official method needs a checked key", () => {
   for (const capeStatus of ["idle", "loading", "denied"] as const)
     assert.deepEqual(
       studioOptionErrors(chosen, { purpose: "skin-url", capeStatus }),
-      { capeUuid: "Enter and verify your API key before selecting a cape." },
+      { capeUuid: "studio.enterVerifyApiKeyBeforeSelectingCape" },
     );
   assert.deepEqual(
     studioOptionErrors(chosen, { purpose: "skin-url", capeStatus: "granted" }),

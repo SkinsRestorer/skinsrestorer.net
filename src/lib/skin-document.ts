@@ -1,3 +1,4 @@
+import { MessageError } from "./messages";
 import type { SkinVariant } from "./skin";
 import { decodePng, encodePng, PngError } from "./png";
 import { findRegion, SKIN_SIZE, skinRegions } from "./skin-regions";
@@ -11,7 +12,7 @@ export interface SkinDocument {
 export const SKIN_BYTES = SKIN_SIZE * SKIN_SIZE * 4;
 export const MAX_SKIN_FILE_BYTES = 5 * 1024 * 1024;
 
-export class SkinFileError extends Error {
+export class SkinFileError extends MessageError {
   override readonly name = "SkinFileError";
 }
 
@@ -31,7 +32,7 @@ export function pixelOffset(x: number, y: number) {
  */
 export function convertLegacySkin(legacy: Uint8ClampedArray) {
   if (legacy.length !== SKIN_SIZE * 32 * 4)
-    throw new SkinFileError("A legacy skin must be 64×32 pixels.");
+    throw new SkinFileError("errors.legacyDimensions");
   const pixels = emptyPixels();
   pixels.set(legacy);
   const copyMirrored = (
@@ -86,23 +87,21 @@ export interface ImportedSkin {
 
 export function validateEditorSkinSize(width: number, height: number) {
   if (width === SKIN_SIZE && (height === SKIN_SIZE || height === 32)) return;
-  throw new SkinFileError(
-    `This image is ${width}×${height}. The editor opens Java Edition skins that are 64×64 or legacy 64×32. Resize HD skins in an image editor first.`,
-  );
+  throw new SkinFileError("errors.editorDimensions", { width, height });
 }
 
 /** Decode a PNG file into an editor document without changing any pixel. */
 export async function importSkinPng(bytes: Uint8Array): Promise<ImportedSkin> {
   if (bytes.byteLength > MAX_SKIN_FILE_BYTES)
-    throw new SkinFileError("The file is larger than 5 MB.");
+    throw new SkinFileError("common.fileLargerThan5Mb");
   let decoded;
   try {
     decoded = await decodePng(bytes, validateEditorSkinSize);
   } catch (cause) {
     if (cause instanceof SkinFileError) throw cause;
-    throw new SkinFileError(
-      cause instanceof PngError ? cause.message : "The PNG could not be read.",
-    );
+    if (cause instanceof PngError)
+      throw new SkinFileError(cause.messageKey, cause.messageValues);
+    throw new SkinFileError("errors.pngCouldNotRead");
   }
   const legacy = decoded.height === 32;
   const pixels = legacy ? convertLegacySkin(decoded.pixels) : decoded.pixels;

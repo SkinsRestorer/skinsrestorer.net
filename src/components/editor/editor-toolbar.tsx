@@ -61,7 +61,7 @@ export function EditorToolbar(props: {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <ToggleGroup
-        aria-label={t("Tool")}
+        aria-label={t("editor.tool")}
         variant="outline"
         size="sm"
         spacing={0}
@@ -75,10 +75,7 @@ export function EditorToolbar(props: {
           const label = t(toolLabels[tool]);
           const hint =
             tool === "eraser" && props.layer === "base"
-              ? t(
-                  "{tool} works on the outer layer only. The base layer is always opaque.",
-                  { tool: label },
-                )
+              ? t("editor.toolWorksOuterLayerOnlyBaseLayer", { tool: label })
               : label;
           return (
             <Tooltip key={tool}>
@@ -103,7 +100,7 @@ export function EditorToolbar(props: {
       </ToggleGroup>
       <Separator orientation="vertical" className="hidden h-5 sm:block" />
       <ToggleGroup
-        aria-label={t("Pointer action")}
+        aria-label={t("editor.pointerAction")}
         variant="outline"
         size="sm"
         spacing={0}
@@ -118,7 +115,7 @@ export function EditorToolbar(props: {
               <ToggleGroupItem
                 value="paint"
                 className={coarse}
-                aria-label={t("Paint")}
+                aria-label={t("editor.paint")}
                 aria-keyshortcuts={editorShortcuts.paint.join(" ")}
               />
             }
@@ -127,7 +124,7 @@ export function EditorToolbar(props: {
           </TooltipTrigger>
           <TooltipContent>
             <ShortcutHint
-              label={t("Pointers use the tool")}
+              label={t("editor.pointersUseTool")}
               commands={["paint"]}
             />
           </TooltipContent>
@@ -138,7 +135,7 @@ export function EditorToolbar(props: {
               <ToggleGroupItem
                 value="move"
                 className={coarse}
-                aria-label={t("Move view")}
+                aria-label={t("editor.moveView")}
                 aria-keyshortcuts={editorShortcuts.move.join(" ")}
               />
             }
@@ -147,7 +144,7 @@ export function EditorToolbar(props: {
           </TooltipTrigger>
           <TooltipContent>
             <ShortcutHint
-              label={t("Pointers scroll the texture and turn the model")}
+              label={t("editor.pointersScrollTextureTurnModel")}
               commands={["move"]}
             />
           </TooltipContent>
@@ -161,7 +158,7 @@ export function EditorToolbar(props: {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={t("Undo")}
+                aria-label={t("common.undo")}
                 aria-keyshortcuts={undoKeys}
                 disabled={!props.canUndo}
                 onClick={props.onUndo}
@@ -171,7 +168,7 @@ export function EditorToolbar(props: {
             <Undo2 />
           </TooltipTrigger>
           <TooltipContent>
-            <ShortcutHint label={t("Undo")} commands={["undo"]} />
+            <ShortcutHint label={t("common.undo")} commands={["undo"]} />
           </TooltipContent>
         </Tooltip>
         <Tooltip>
@@ -180,7 +177,7 @@ export function EditorToolbar(props: {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={t("Redo")}
+                aria-label={t("common.redo")}
                 aria-keyshortcuts={redoKeys}
                 disabled={!props.canRedo}
                 onClick={props.onRedo}
@@ -190,7 +187,7 @@ export function EditorToolbar(props: {
             <Redo2 />
           </TooltipTrigger>
           <TooltipContent>
-            <ShortcutHint label={t("Redo")} commands={["redo"]} />
+            <ShortcutHint label={t("common.redo")} commands={["redo"]} />
           </TooltipContent>
         </Tooltip>
       </div>

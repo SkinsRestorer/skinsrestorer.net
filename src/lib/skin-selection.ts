@@ -1,3 +1,4 @@
+import { errorMessage, message, type Message } from "@/lib/messages";
 import { Effect } from "effect";
 import { LatestTask } from "./latest-task";
 import { readPngSize } from "./png";
@@ -24,7 +25,7 @@ export type SelectionOrigin =
 export type KeepState =
   | { readonly kind: "saving" | "kept" | "removed" | "catalog" }
   | { readonly kind: "changed"; readonly latest: StoredSkin }
-  | { readonly kind: "off"; readonly message: string };
+  | { readonly kind: "off"; readonly message: Message };
 
 /**
  * The form's skin. `file` is an in-memory copy made when the skin was chosen.
@@ -38,7 +39,7 @@ export interface SelectedSkin {
   readonly origin: SelectionOrigin;
   readonly galleryId?: string;
   readonly status: "checking" | "ready" | "invalid";
-  readonly error?: string;
+  readonly error?: Message;
   readonly skinId?: string;
   readonly revision?: number;
   readonly hash?: string;
@@ -68,7 +69,7 @@ export interface SkinSelectionDeps {
   ) => Promise<void>;
   readonly library?: LibraryClient;
   readonly events?: {
-    readonly failed?: (token: number, message: string) => void;
+    readonly failed?: (token: number, message: Message) => void;
     readonly imported?: (kept: number, failed: number) => void;
   };
 }
@@ -190,12 +191,15 @@ export class SkinSelectionStore {
               ? { kind: "kept" }
               : library
                 ? { kind: "saving" }
-                : { kind: "off", message: "This browser cannot keep skins." },
+                : {
+                    kind: "off",
+                    message: message("common.browserCannotKeepSkins"),
+                  },
       },
       previewUrl: null,
     });
     const fail = (cause: unknown) => {
-      const message = errorMessage(cause, "Failed to load image");
+      const message = errorMessage(cause, "common.failedLoadImage");
       this.update(token, { status: "invalid", error: message });
       this.deps.events?.failed?.(token, message);
     };
@@ -382,7 +386,7 @@ export class SkinSelectionStore {
         this.syncVariant(token, skin.id, this.state.variant);
     } catch (cause) {
       this.update(token, {
-        keep: { kind: "off", message: errorMessage(cause, "Not kept.") },
+        keep: { kind: "off", message: errorMessage(cause, "common.notKept") },
       });
     }
   }
@@ -412,12 +416,6 @@ function pngSize(bytes: Uint8Array) {
   } catch {
     return {};
   }
-}
-
-function errorMessage(cause: unknown, fallback: string) {
-  if (cause && typeof cause === "object" && "message" in cause)
-    return String(cause.message);
-  return fallback;
 }
 
 /** Everything a generation result depends on. */

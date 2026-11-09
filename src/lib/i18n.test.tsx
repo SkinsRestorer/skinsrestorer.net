@@ -12,7 +12,14 @@ import {
   splitLocalePath,
 } from "./i18n";
 import { LocaleProvider } from "./i18n-react";
-import { catalogs, translate } from "./messages";
+import {
+  catalogs,
+  translate,
+  createTranslator,
+  MessageError,
+  isMessageKey,
+  type MessageKey,
+} from "./messages";
 import { getPageHead } from "./seo";
 
 const noop = () => {};
@@ -71,7 +78,7 @@ test("every tool translation is self-canonical with reciprocal hreflang and an E
   for (const locale of locales) {
     const head = getPageHead("/studio?texture=private#workspace", {
       locale,
-      title: "Skin Studio",
+      titleKey: "studio.title",
     });
     const canonical = head.links.filter((link) => link.rel === "canonical");
     assert.deepEqual(canonical, [
@@ -106,7 +113,7 @@ test("every tool translation is self-canonical with reciprocal hreflang and an E
       head.meta.some(
         (tag) =>
           "title" in tag &&
-          tag.title === `${translate(locale, "Skin Studio")} - SR`,
+          tag.title === `${translate(locale, "studio.title")} - SR`,
       ),
     );
     assert.ok(
@@ -145,22 +152,26 @@ test("untranslated docs use the English canonical and never claim a missing tran
 });
 
 test("translation catalogs keep every message and interpolation parameter in each locale", () => {
-  const keys = Object.keys(catalogs.ru).sort();
+  const keys = Object.keys(catalogs.en).sort();
   for (const catalog of Object.values(catalogs)) {
     assert.deepEqual(Object.keys(catalog).sort(), keys);
     for (const [message, value] of Object.entries(catalog)) {
       assert.ok(value.trim(), message);
       const placeholders = (text: string) =>
         [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
-      assert.deepEqual(placeholders(value), placeholders(message), message);
+      assert.deepEqual(
+        placeholders(value),
+        placeholders(catalogs.en[message as MessageKey]),
+        message,
+      );
     }
   }
   assert.equal(
-    translate("es", "Edit {name}", { name: "{private skin}" }),
+    translate("es", "common.editName", { name: "{private skin}" }),
     "Editar {private skin}",
   );
   assert.equal(
-    translate("ru", "Unrecognized service error"),
+    createTranslator("ru").error(new Error("Unrecognized service error")),
     "Unrecognized service error",
   );
 });
@@ -195,4 +206,138 @@ test("a clean localized editor renders no issue alert or empty space", () => {
     </LocaleProvider>,
   );
   assert.equal(html, "");
+});
+
+test("the translator uses stable keys and never interprets external text as keys", () => {
+  const t = createTranslator("es");
+  assert.equal(t("common.cancel"), "Cancelar");
+  assert.equal(t.message("common.cancel"), "common.cancel");
+  assert.equal(t.error(new Error("common.cancel")), "common.cancel");
+  assert.equal(isMessageKey("Cancel"), false);
+  assert.equal(isMessageKey("common.cancel"), true);
+  assert.throws(() => {
+    // @ts-expect-error English text is not a translation key.
+    t("Cancel");
+  }, /Unknown translation key/);
+  const cause = new MessageError("errors.imageDimensions", {
+    width: 20,
+    height: 10,
+  });
+  assert.ok(cause.message.startsWith("This image is 20×10."));
+  assert.ok(t.error(cause).startsWith("Esta imagen mide 20×10."));
+  assert.equal(
+    t("common.editName", { name: "common.cancel {name}" }),
+    "Editar common.cancel {name}",
+  );
+});
+
+test("raw documentation metadata never resolves as a UI key", () => {
+  const head = getPageHead("/docs/example", {
+    locale: "es",
+    title: "common.cancel",
+    description: "studio.title",
+  });
+  assert.ok(
+    head.meta.some(
+      (tag) => "title" in tag && tag.title === "common.cancel - SR",
+    ),
+  );
+  assert.ok(
+    head.meta.some(
+      (tag) =>
+        "name" in tag &&
+        tag.name === "description" &&
+        tag.content === "studio.title",
+    ),
+  );
+});
+
+test("failure messages keep their keys through Effect and async generation state", async () => {
+  const { Effect } = await import("effect");
+  const { HttpError, runHttpEffect } = await import("./effect-http");
+  const { messageFields } = await import("./messages");
+  const { StudioGeneration } = await import("./studio-generation");
+  const failure = new HttpError({
+    reason: "response",
+    ...messageFields("errors.serviceReturnedInvalidResponse"),
+  });
+  await assert.rejects(runHttpEffect(Effect.fail(failure)), (cause) => {
+    assert.equal(
+      createTranslator("es").error(cause),
+      catalogs.es["errors.serviceReturnedInvalidResponse"],
+    );
+    return true;
+  });
+  const generation = new StudioGeneration(() => Promise.reject(failure));
+  const file = new File(["png"], "common.cancel.png");
+  await generation.generate(
+    {
+      file,
+      variant: "slim",
+      method: "axolotl",
+      purpose: "skin-url",
+      name: "",
+      capeUuid: "",
+    },
+    { file, variant: "slim" },
+  );
+  const state = generation.getSnapshot();
+  assert.equal(state.status, "failed");
+  if (state.status === "failed")
+    assert.equal(
+      createTranslator("pt-BR").message(state.message),
+      catalogs["pt-BR"]["errors.serviceReturnedInvalidResponse"],
+    );
+});
+
+test("skin issue details interpolate counts and localize the selected model", async () => {
+  const { checkSkin } = await import("./skin-check");
+  const { createTemplate, pixelOffset } = await import("./skin-document");
+  const { pixels, variant } = createTemplate("classic");
+  pixels[pixelOffset(0, 0) + 3] = 255;
+  const html = renderToStaticMarkup(
+    <LocaleProvider locale="es">
+      <SkinIssueAlerts
+        issues={checkSkin(pixels, variant)}
+        highlighted={null}
+        onHighlight={noop}
+        onRepair={noop}
+        onVariant={noop}
+      />
+    </LocaleProvider>,
+  );
+  assert.ok(html.includes("Clásica"));
+  assert.ok(!html.includes("editor."));
+});
+
+test("blocked painting returns a localizable status without leaking a key", async () => {
+  const { startTool } = await import("@/components/editor/editor-types");
+  const { SkinEditorStore } = await import("./skin-editor-store");
+  const { allPartsVisible, defaultBrush } = await import("./skin-paint");
+  let status: import("./messages").Message = "";
+  const result = startTool(
+    {
+      store: new SkinEditorStore(),
+      tool: "eraser",
+      settings: {
+        ...defaultBrush,
+        layer: "base",
+        color: [0, 0, 0, 255],
+        visibility: allPartsVisible(),
+      },
+      interaction: "paint",
+      onPick: noop,
+      onPainted: noop,
+      onStatus: (value) => {
+        status = value;
+      },
+    },
+    8,
+    8,
+  );
+  assert.equal(result, "blocked");
+  assert.equal(
+    createTranslator("es").message(status),
+    catalogs.es["editor.javaEditionAlwaysShowsBaseLayerOpaque"],
+  );
 });

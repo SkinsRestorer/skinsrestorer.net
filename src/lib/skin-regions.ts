@@ -1,3 +1,5 @@
+import { createTranslator } from "./messages";
+import type { MessageKey } from "@/lib/messages";
 import type { SkinVariant } from "./skin";
 
 export const SKIN_SIZE = 64;
@@ -31,22 +33,22 @@ export const skinParts: readonly SkinPart[] = [
   "leftLeg",
 ];
 
-export const skinPartLabels: Record<SkinPart, string> = {
-  head: "Head",
-  body: "Body",
-  rightArm: "Right arm",
-  leftArm: "Left arm",
-  rightLeg: "Right leg",
-  leftLeg: "Left leg",
+export const skinPartLabels: Record<SkinPart, MessageKey> = {
+  head: "editor.head",
+  body: "editor.body",
+  rightArm: "editor.rightArm",
+  leftArm: "editor.leftArm",
+  rightLeg: "editor.rightLeg",
+  leftLeg: "editor.leftLeg",
 };
 
-export const skinFaceLabels: Record<SkinFace, string> = {
-  top: "top",
-  bottom: "bottom",
-  right: "right side",
-  front: "front",
-  left: "left side",
-  back: "back",
+export const skinFaceLabels: Record<SkinFace, MessageKey> = {
+  top: "editor.face.top",
+  bottom: "editor.face.bottom",
+  right: "editor.face.right",
+  front: "editor.face.front",
+  left: "editor.face.left",
+  back: "editor.face.back",
 };
 
 /** Texture origin of each box in the Java Edition 64×64 layout. */
@@ -302,11 +304,11 @@ export function describePixel(
   variant: SkinVariant,
   x: number,
   y: number,
-  t: (text: string) => string = (text) => text,
+  t: (key: MessageKey) => string = createTranslator("en"),
 ) {
   const region = regionAt(variant, x, y);
   const where = region
-    ? `${t(skinPartLabels[region.part])} ${t(skinFaceLabels[region.face])}, ${t(region.layer === "base" ? "base layer" : "outer layer")}`
-    : t("Unused area");
+    ? `${t(skinPartLabels[region.part])} ${t(skinFaceLabels[region.face])}, ${t(region.layer === "base" ? "common.baseLayer" : "common.outerLayer")}`
+    : t("editor.unusedArea");
   return `${where}, x ${x}, y ${y}`;
 }

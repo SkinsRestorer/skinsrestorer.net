@@ -1,3 +1,4 @@
+import { messageFields, type LocalizedErrorFields } from "./messages";
 import { Context, Data, Effect, Layer, Schema } from "effect";
 
 /** The portable fetch call signature, without runtime-specific static helpers. */
@@ -13,6 +14,8 @@ export class HttpClient extends Context.Service<
 export class HttpError extends Data.TaggedError("HttpError")<{
   readonly reason: "transport" | "response" | "timeout";
   readonly message: string;
+  readonly messageKey?: LocalizedErrorFields["messageKey"];
+  readonly messageValues?: LocalizedErrorFields["messageValues"];
   readonly cause?: unknown;
 }> {}
 
@@ -47,7 +50,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
           catch: (cause) =>
             new HttpError({
               reason: "transport",
-              message: "The service could not be reached.",
+              ...messageFields("errors.serviceCouldNotReached"),
               cause,
             }),
         });
@@ -61,7 +64,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
               catch: (cause) =>
                 new HttpError({
                   reason: "transport",
-                  message: "The service response could not be read.",
+                  ...messageFields("errors.serviceResponseCouldNotRead"),
                   cause,
                 }),
             });
@@ -70,7 +73,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
             if (size > (options.maxBytes ?? 2 * 1024 * 1024))
               return yield* new HttpError({
                 reason: "response",
-                message: "The service response exceeds the size limit.",
+                ...messageFields("errors.serviceResponseExceedsSizeLimit"),
               });
             parts.push(part.value);
           }
@@ -92,7 +95,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
             Effect.fail(
               new HttpError({
                 reason: "timeout",
-                message: "The service request timed out.",
+                ...messageFields("errors.serviceRequestTimedOut"),
               }),
             ),
         }),
@@ -146,7 +149,7 @@ export function readHttpJson<A>(
       catch: (cause) =>
         new HttpError({
           reason: "response",
-          message: "The service returned invalid JSON.",
+          ...messageFields("errors.serviceReturnedInvalidJson"),
           cause,
         }),
     });
@@ -155,7 +158,7 @@ export function readHttpJson<A>(
         (cause) =>
           new HttpError({
             reason: "response",
-            message: "The service returned an invalid response.",
+            ...messageFields("errors.serviceReturnedInvalidResponse"),
             cause,
           }),
       ),

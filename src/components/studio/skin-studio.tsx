@@ -1,5 +1,7 @@
 "use client";
 
+import { isMessageKey, type MessageKey } from "@/lib/messages";
+
 import { useForm, useStore } from "@tanstack/react-form";
 import {
   Link,
@@ -127,23 +129,21 @@ import {
 
 const intro: Record<
   StudioEntry,
-  { title: string; description: string; guide: string }
+  { title: MessageKey; description: MessageKey; guide: string }
 > = {
   studio: {
-    title: "Skin Studio",
-    description:
-      "Keep skins in this browser, edit them in 2D or 3D, and get a SkinsRestorer command.",
+    title: "studio.title",
+    description: "studio.description",
     guide: "features/skin-editor",
   },
   upload: {
-    title: "Skin Upload",
-    description: "Upload a PNG skin and get a copyable /skin url",
+    title: "upload.title",
+    description: "upload.description",
     guide: "features/skin-upload",
   },
   generator: {
-    title: "Custom Skin Generator",
-    description:
-      "Generate copyable /sr createcustom commands or reverse existing skin files.",
+    title: "generator.title",
+    description: "generator.description",
     guide: "features/custom-skins",
   },
 };
@@ -153,12 +153,6 @@ const panel =
 
 /** Typed gallery search reaches the URL after this pause. */
 const QUERY_WRITE_MS = 400;
-
-function errorMessage(cause: unknown) {
-  return cause && typeof cause === "object" && "message" in cause
-    ? String(cause.message)
-    : "Something went wrong.";
-}
 
 /** One pixel store and library session for the whole Studio visit. */
 function useEditorSession() {
@@ -217,7 +211,7 @@ export function SkinStudio(props: {
   /** A gallery skin from the URL that waits for the catalog. */
   const [wantedGallery, setWantedGallery] = useState<string>();
   const [pendingGallery, setPendingGallery] = useState<string>();
-  const [galleryError, setGalleryError] = useState<string>();
+  const [galleryError, setGalleryError] = useState<MessageKey>();
   const source = skinSource(search);
   const gallery = useSkinGallery(
     source === "gallery" || wantedGallery !== undefined,
@@ -359,7 +353,9 @@ export function SkinStudio(props: {
   const closeEditor = () => {
     setMode({ kind: "view" });
     // A new session id, so kept drafts show as recoverable work.
-    editor.session.start(createTemplate("classic"), { name: t("New skin") });
+    editor.session.start(createTemplate("classic"), {
+      name: t("common.newSkin"),
+    });
     void editor.session.loadRecovery();
   };
 
@@ -464,7 +460,7 @@ export function SkinStudio(props: {
           });
         posthog.capture("editor_opened", { source: "texture_url" });
       },
-      (cause) => toast.error(t(errorMessage(cause))),
+      (cause) => toast.error(t.error(cause)),
     );
   };
 
@@ -493,7 +489,7 @@ export function SkinStudio(props: {
       },
       () => {
         setPendingGallery(undefined);
-        setGalleryError("This gallery skin could not be opened. Try again.");
+        setGalleryError("studio.gallerySkinCouldNotOpenedTryAgain");
       },
     );
   };
@@ -511,7 +507,7 @@ export function SkinStudio(props: {
     else {
       cancelImport();
       urlImport.current = true;
-      setGalleryError("This skin is no longer in the gallery.");
+      setGalleryError("studio.skinNoLongerGallery");
     }
   };
 
@@ -523,11 +519,7 @@ export function SkinStudio(props: {
       () => readHandoff(browserStorage("sessionStorage"), id),
       (handoff) => {
         if (!handoff) {
-          toast.error(
-            notify(
-              "The skin from the editor is no longer available. Open the editor and choose the handoff again.",
-            ),
-          );
+          toast.error(notify("studio.skinEditorNoLongerAvailableOpenEditor"));
           return;
         }
         store.select(handoff.file, {
@@ -537,7 +529,7 @@ export function SkinStudio(props: {
         // The handoff is used once; other URL state stays.
         void updateSearch(({ handoff: _used, ...rest }) => rest);
       },
-      () => toast.error(notify("The skin from the editor could not be read.")),
+      () => toast.error(notify("studio.skinEditorCouldNotRead")),
     );
   };
 
@@ -572,15 +564,15 @@ export function SkinStudio(props: {
     try {
       const { url, legacy } = readSkinFileTexture(await file.text());
       if (legacy)
-        toast.warning(t("Falling back to legacy skin format."), {
-          description: t("Please update SkinsRestorer as soon as possible."),
+        toast.warning(t("studio.fallingBackLegacySkinFormat"), {
+          description: t("studio.pleaseUpdateSkinsrestorerSoonPossible"),
         });
       dropSkinReference();
       importTexture(url);
     } catch (cause) {
       toast.error(
-        t("Failed to reverse skin file: {error}", {
-          error: t(errorMessage(cause)),
+        t("studio.failedReverseSkinFileError", {
+          error: t.error(cause),
         }),
       );
     }
@@ -592,7 +584,7 @@ export function SkinStudio(props: {
       // A newer choice owns the workspace: drop pending imports and decodes.
       cancelImport();
       editor.session.start(createTemplate(state.variant), {
-        name: t("New skin"),
+        name: t("common.newSkin"),
       });
       openEditor(true);
       posthog.capture("editor_opened", { source: "template" });
@@ -616,7 +608,7 @@ export function SkinStudio(props: {
     const rejected = files.length - pngs.length;
     const fitting = pngs.filter((file) => file.size <= MAX_SKIN_FILE_BYTES);
     if (rejected || fitting.length < pngs.length)
-      toast.error(t("Choose PNG files up to 5 MB."));
+      toast.error(t("studio.choosePngFilesUp5Mb"));
     if (fitting.length) {
       cancelImport();
       setDrawer(false);
@@ -669,7 +661,7 @@ export function SkinStudio(props: {
         store.selectSkin(skin);
         dropSkinReference();
       },
-      (cause) => toast.error(t(errorMessage(cause))),
+      (cause) => toast.error(t.error(cause)),
     );
   };
   const editSelected = () => {
@@ -689,7 +681,7 @@ export function SkinStudio(props: {
         openEditor(current.origin === "gallery");
         posthog.capture("skin_edit_opened", { page: props.entry });
       },
-      (cause) => toast.error(t(errorMessage(cause))),
+      (cause) => toast.error(t.error(cause)),
     );
   };
 
@@ -814,9 +806,7 @@ export function SkinStudio(props: {
       options.method === "mineskin" &&
       !capes.keyGranted
     ) {
-      toast.warning(
-        t("Enter and verify your API key before selecting a cape."),
-      );
+      toast.warning(t("studio.enterVerifyApiKeyBeforeSelectingCape"));
       return;
     }
     form.setFieldValue("capeUuid", value);
@@ -833,18 +823,18 @@ export function SkinStudio(props: {
       onValueChange={(value) => changeSource(value as SkinSource)}
     >
       {close && <div className="flex justify-end">{close}</div>}
-      <TabsList className="w-full" aria-label={t("Skin sources")}>
+      <TabsList className="w-full" aria-label={t("common.skinSources")}>
         <TabsTrigger
           className="h-auto w-full min-w-0 whitespace-normal"
           value="library"
         >
-          {t("Library")}
+          {t("common.library")}
         </TabsTrigger>
         <TabsTrigger
           className="h-auto w-full min-w-0 whitespace-normal"
           value="gallery"
         >
-          {t("Gallery")}
+          {t("common.gallery")}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="library">
@@ -891,7 +881,7 @@ export function SkinStudio(props: {
             }}
             className="text-foreground underline underline-offset-4"
           >
-            {t("Read the guide")}
+            {t("studio.readGuide")}
           </Link>
         </p>
       </header>
@@ -905,7 +895,7 @@ export function SkinStudio(props: {
             onClick={() => setDrawer(true)}
           >
             <PanelLeft data-icon="inline-start" />
-            {t(source === "gallery" ? "Gallery" : "Library")}
+            {t(source === "gallery" ? "common.gallery" : "common.library")}
           </Button>
           <span className="ml-auto">
             <AddSkinMenu commands={commands} disabled={editing} />
@@ -913,7 +903,7 @@ export function SkinStudio(props: {
         </div>
 
         <aside
-          aria-label={t("Skin sources")}
+          aria-label={t("common.skinSources")}
           inert={editing || undefined}
           className={cn(
             panel,
@@ -935,7 +925,7 @@ export function SkinStudio(props: {
         ) : (
           <>
             <section
-              aria-label={t("Skin")}
+              aria-label={t("common.skin")}
               className={cn(
                 panel,
                 "flex flex-col gap-3",
@@ -961,10 +951,7 @@ export function SkinStudio(props: {
                 (wantedGallery && gallery.state.status === "error")) && (
                 <Alert variant="destructive">
                   <AlertDescription>
-                    {t(
-                      galleryError ??
-                        "The gallery could not be loaded. Try again.",
-                    )}
+                    {t(galleryError ?? "gallery.galleryCouldNotLoadedTryAgain")}
                   </AlertDescription>
                   <Button
                     size="sm"
@@ -979,8 +966,8 @@ export function SkinStudio(props: {
                   >
                     {t(
                       gallery.state.status === "error"
-                        ? "Try again"
-                        : "Browse gallery",
+                        ? "common.tryAgain"
+                        : "common.browseGallery",
                     )}
                   </Button>
                 </Alert>
@@ -1018,22 +1005,22 @@ export function SkinStudio(props: {
                     <EmptyHeader>
                       <EmptyTitle>
                         <h2 className="text-base font-semibold">
-                          {t("No skin selected")}
+                          {t("studio.noSkinSelected")}
                         </h2>
                       </EmptyTitle>
                     </EmptyHeader>
                     <div className="flex flex-wrap justify-center gap-2">
                       <Button onClick={commands.upload}>
                         <Upload data-icon="inline-start" />
-                        {t("Upload skin")}
+                        {t("studio.uploadSkin")}
                       </Button>
                       <Button variant="outline" onClick={commands.create}>
                         <Pencil data-icon="inline-start" />
-                        {t("Create skin")}
+                        {t("common.createSkin")}
                       </Button>
                       <Button variant="outline" onClick={openGallery}>
                         <Images data-icon="inline-start" />
-                        {t("Browse gallery")}
+                        {t("common.browseGallery")}
                       </Button>
                     </div>
                   </Empty>
@@ -1042,7 +1029,7 @@ export function SkinStudio(props: {
             </section>
 
             <section
-              aria-label={t("Options")}
+              aria-label={t("studio.options")}
               className={cn(panel, "flex flex-col gap-4")}
             >
               <form
@@ -1058,14 +1045,14 @@ export function SkinStudio(props: {
                   {fixed ? (
                     <h2 className="text-base font-semibold">
                       {fixed === "createcustom"
-                        ? t("Create a custom skin")
-                        : t("Use on a server")}
+                        ? t("studio.createCustomSkin")
+                        : t("common.useServer")}
                     </h2>
                   ) : (
                     <form.Field name="purpose">
                       {(field) => (
                         <ToggleGroup
-                          aria-label={t("Purpose")}
+                          aria-label={t("studio.purpose")}
                           variant="outline"
                           spacing={0}
                           className="grid w-full grid-cols-2"
@@ -1076,13 +1063,13 @@ export function SkinStudio(props: {
                           }}
                         >
                           <ToggleGroupItem value="skin-url" className="w-full">
-                            {t("Use on a server")}
+                            {t("common.useServer")}
                           </ToggleGroupItem>
                           <ToggleGroupItem
                             value="createcustom"
                             className="w-full"
                           >
-                            {t("Custom skin")}
+                            {t("studio.customSkin")}
                           </ToggleGroupItem>
                         </ToggleGroup>
                       )}
@@ -1093,7 +1080,7 @@ export function SkinStudio(props: {
                     <form.Field name="customName">
                       {(field) => (
                         <TextField
-                          label={t("Skin name (optional)")}
+                          label={t("studio.skinNameOptional")}
                           value={field.state.value}
                           placeholder={
                             (current && suggestSkinName(current.name)) ||
@@ -1111,7 +1098,7 @@ export function SkinStudio(props: {
                     </form.Field>
                   )}
 
-                  <ChoiceSet label={t("Model")}>
+                  <ChoiceSet label={t("common.model")}>
                     {(labelId) => (
                       <ModelSelector
                         aria-labelledby={labelId}
@@ -1125,7 +1112,7 @@ export function SkinStudio(props: {
                   <form.Field name="capeUuid">
                     {(field) => (
                       <ChoiceSet
-                        label={t("Cape")}
+                        label={t("studio.cape")}
                         errors={submitted ? field.state.meta.errors : []}
                       >
                         {(labelId) => (
@@ -1139,16 +1126,14 @@ export function SkinStudio(props: {
                               options.method === "mineskin" &&
                               capes.status !== "granted" && (
                                 <p className="text-xs text-muted-foreground">
-                                  {t(
-                                    "Load cape support with a valid API key under Advanced options to preview and apply capes.",
-                                  )}{" "}
+                                  {t("studio.loadCapeSupportValidApiKeyUnder")}{" "}
                                   {!advancedOpen && (
                                     <Button
                                       variant="link"
                                       size="sm"
                                       onClick={() => setAdvancedOpen(true)}
                                     >
-                                      {t("Open advanced options")}
+                                      {t("studio.openAdvancedOptions")}
                                     </Button>
                                   )}
                                 </p>
@@ -1217,7 +1202,7 @@ export function SkinStudio(props: {
                     submitting ||
                     shown.status === "pending"
                   }
-                  title={current ? undefined : t("Select a skin first")}
+                  title={current ? undefined : t("studio.selectSkinFirst")}
                 >
                   {shown.status === "pending" && (
                     <LoaderCircle
@@ -1226,10 +1211,10 @@ export function SkinStudio(props: {
                     />
                   )}
                   {shown.status === "pending"
-                    ? t("Generating…")
+                    ? t("studio.generating")
                     : purpose === "createcustom"
-                      ? t("Generate /sr createcustom")
-                      : t("Generate /skin url")}
+                      ? t("studio.generateSrCreatecustom")
+                      : t("studio.generateSkinUrl")}
                 </Button>
               </form>
 
@@ -1237,8 +1222,8 @@ export function SkinStudio(props: {
                 <Alert variant="destructive">
                   <TriangleAlert aria-hidden="true" />
                   <AlertDescription>
-                    {t("Failed to upload skin: {error}", {
-                      error: t(shown.message),
+                    {t("studio.failedUploadSkinError", {
+                      error: t.message(shown.message),
                     })}
                   </AlertDescription>
                 </Alert>
@@ -1255,7 +1240,7 @@ export function SkinStudio(props: {
         accept=".png,image/png"
         multiple
         hidden
-        aria-label={t("Select skin PNG files")}
+        aria-label={t("studio.selectSkinPngFiles")}
         onChange={(event) => {
           selectFiles([...(event.target.files ?? [])]);
           event.target.value = "";
@@ -1266,12 +1251,12 @@ export function SkinStudio(props: {
         type="file"
         accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
         hidden
-        aria-label={t("Select skin file to reverse")}
+        aria-label={t("studio.selectSkinFileReverse")}
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = "";
           if (file && file.size <= MAX_SKIN_FILE_BYTES) void openSkinFile(file);
-          else if (file) toast.error(t("Choose a file up to 5 MB."));
+          else if (file) toast.error(t("studio.chooseFileUp5Mb"));
         }}
       />
 
@@ -1281,7 +1266,7 @@ export function SkinStudio(props: {
           showCloseButton={false}
           className="w-[min(16rem,82vw)] overflow-y-auto"
         >
-          <SheetTitle className="sr-only">{t("Skin sources")}</SheetTitle>
+          <SheetTitle className="sr-only">{t("common.skinSources")}</SheetTitle>
           <div className="p-3">
             {libraryView(
               "drawer",
@@ -1290,7 +1275,7 @@ export function SkinStudio(props: {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={t("Close skin browser")}
+                    aria-label={t("studio.closeSkinBrowser")}
                   />
                 }
               >
@@ -1361,13 +1346,13 @@ function TextField(props: {
   );
 }
 
-/** Validation messages are English keys; show them in the page language. */
+/** Validation messages use stable keys; show them in the page language. */
 function LocalizedFieldError(props: { errors?: readonly unknown[] }) {
   const t = useT();
   return (
     <FieldError
       errors={props.errors
-        ?.filter((error): error is string => typeof error === "string")
+        ?.filter(isMessageKey)
         .map((message) => ({ message: t(message) }))}
     />
   );
@@ -1404,9 +1389,9 @@ function SelectedSkinView(props: {
           )}
         {selection.keep.kind === "changed" && (
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            {t("Changed in another tab.")}
+            {t("studio.changedSkinNotice")}
             <Button variant="link" size="sm" onClick={props.onUseLatest}>
-              {t("Use the new version")}
+              {t("studio.useNewVersion")}
             </Button>
           </span>
         )}
@@ -1414,15 +1399,17 @@ function SelectedSkinView(props: {
       {selection.status === "invalid" ? (
         <Alert variant="destructive">
           <TriangleAlert aria-hidden="true" />
-          <AlertTitle>{t("This file cannot be used")}</AlertTitle>
-          <AlertDescription>{t(selection.error ?? "")}</AlertDescription>
+          <AlertTitle>{t("studio.fileCannotUsed")}</AlertTitle>
+          <AlertDescription>
+            {t.message(selection.error ?? "")}
+          </AlertDescription>
         </Alert>
       ) : (
         <SkinView
           skinUrl={props.previewUrl}
           capeUrl={props.capeUrl}
           variant={props.variant}
-          label={t("{name}, 3D view. Drag or use the arrow keys to turn it.", {
+          label={t("studio.name3dViewDragUseArrowKeys", {
             name: selection.name,
           })}
           fallback={
@@ -1442,21 +1429,21 @@ function SelectedSkinView(props: {
           disabled={!editable}
           title={
             selection.status === "ready" && !editable
-              ? t("Only 64×64 and 64×32 skins")
+              ? t("studio.only64646432Skins")
               : undefined
           }
           onClick={props.onEdit}
         >
           <Pencil data-icon="inline-start" />
-          {t("Edit skin")}
+          {t("studio.editSkin")}
         </Button>
         {props.onKeep && (
           <Button
             size="icon"
             variant="ghost"
             disabled={selection.status !== "ready"}
-            aria-label={t("Save to library")}
-            title={t("Save to library")}
+            aria-label={t("common.saveLibrary")}
+            title={t("common.saveLibrary")}
             onClick={props.onKeep}
           >
             <FolderPlus />
@@ -1467,8 +1454,8 @@ function SelectedSkinView(props: {
             <Button
               size="icon"
               variant="ghost"
-              aria-label={t("Copy gallery link")}
-              title={t("Copy gallery link")}
+              aria-label={t("common.copyGalleryLink")}
+              title={t("common.copyGalleryLink")}
               onClick={() =>
                 void navigator.clipboard
                   .writeText(
@@ -1476,7 +1463,7 @@ function SelectedSkinView(props: {
                   )
                   .then(
                     () => setCopied(true),
-                    () => toast.error(t("Failed to copy")),
+                    () => toast.error(t("common.failedCopy")),
                   )
               }
             >
@@ -1486,8 +1473,8 @@ function SelectedSkinView(props: {
               size="icon"
               variant="ghost"
               disabled={selection.status !== "ready"}
-              aria-label={t("Download PNG")}
-              title={t("Download PNG")}
+              aria-label={t("common.downloadPng")}
+              title={t("common.downloadPng")}
               onClick={() => downloadSkin(selection.file, selection.name)}
             >
               <Download />
@@ -1505,14 +1492,17 @@ function KeepStatus(props: { selection: SelectedSkin }) {
   const keep = props.selection.keep;
   const [state, label]: [SaveState, string] =
     keep.kind === "saving"
-      ? ["saving", t("Saving to the library")]
+      ? ["saving", t("studio.savingLibrary")]
       : keep.kind === "off"
-        ? ["unavailable", t("Not saved. {error}", { error: t(keep.message) })]
+        ? [
+            "unavailable",
+            t("studio.notSavedError", { error: t.message(keep.message) }),
+          ]
         : keep.kind === "removed"
-          ? ["unavailable", t("Removed from the library")]
+          ? ["unavailable", t("studio.removedLibrary")]
           : keep.kind === "changed"
-            ? ["unsaved", t("Changed in another tab")]
-            : ["saved", t("Saved in the library")];
+            ? ["unsaved", t("studio.changedAnotherTab")]
+            : ["saved", t("studio.savedLibrary")];
   return <SaveStatus state={state} label={label} />;
 }
 
@@ -1521,9 +1511,9 @@ function Result(props: { result: GenerationResult }) {
   const { result } = props;
   return (
     <div className="flex flex-col gap-3 border-t pt-3.5" aria-live="polite">
-      <CopyField label={t("Command")} value={result.command} />
+      <CopyField label={t("studio.command")} value={result.command} />
       <CopyField
-        label={t("Skin URL")}
+        label={t("studio.skinUrl")}
         value={result.textureUrl ?? result.url}
         oneLine
       />
@@ -1560,20 +1550,20 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
           variant="ghost"
           size="icon-sm"
           className="absolute top-0.5 right-0.5"
-          aria-label={t("Copy {item}", { item: props.label })}
+          aria-label={t("studio.copyItem", { item: props.label })}
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(props.value);
               setCopied(true);
             } catch {
-              toast.error(t("Failed to copy"));
+              toast.error(t("common.failedCopy"));
             }
           }}
         >
           {copied ? <Check /> : <Copy />}
         </Button>
         <output className="sr-only">
-          {copied ? t("Copied to clipboard") : ""}
+          {copied ? t("common.copiedClipboard") : ""}
         </output>
       </div>
     </div>
@@ -1586,14 +1576,14 @@ function LegacyDraftAlerts(props: { migrated?: string }) {
   if (props.migrated === "newer")
     return (
       <Alert>
-        <AlertTitle>{t("A newer draft is waiting")}</AlertTitle>
-        <AlertDescription>{t("Reload the page to open it.")}</AlertDescription>
+        <AlertTitle>{t("studio.newerDraftWaiting")}</AlertTitle>
+        <AlertDescription>{t("studio.reloadPageOpen")}</AlertDescription>
       </Alert>
     );
   if (props.migrated !== "corrupt" || hidden) return null;
   return (
     <Alert variant="destructive">
-      <AlertTitle>{t("The old draft could not be read")}</AlertTitle>
+      <AlertTitle>{t("studio.oldDraftCouldNotRead")}</AlertTitle>
       <AlertDescription>
         <Button
           size="sm"
@@ -1604,7 +1594,7 @@ function LegacyDraftAlerts(props: { migrated?: string }) {
             setHidden(true);
           }}
         >
-          {t("Discard draft")}
+          {t("studio.discardDraft")}
         </Button>
       </AlertDescription>
     </Alert>
@@ -1634,21 +1624,23 @@ function TextureDialog(props: {
           }}
         >
           <DialogHeader>
-            <DialogTitle>{t("Open texture URL")}</DialogTitle>
+            <DialogTitle>{t("common.openTextureUrl")}</DialogTitle>
             <DialogDescription>
-              {t("From textures.minecraft.net only.")}
+              {t("studio.texturesMinecraftNetOnly")}
             </DialogDescription>
           </DialogHeader>
           <form.Field
             name="reference"
             validators={{
               onSubmit: ({ value }) =>
-                value.trim() ? undefined : "Texture URL or hash",
+                value.trim() ? undefined : "common.textureUrlHash",
             }}
           >
             {(field) => (
               <Field>
-                <FieldLabel htmlFor={id}>{t("Texture URL or hash")}</FieldLabel>
+                <FieldLabel htmlFor={id}>
+                  {t("common.textureUrlHash")}
+                </FieldLabel>
                 <InputGroup>
                   <InputGroupAddon>
                     <Link2 aria-hidden="true" />
@@ -1672,7 +1664,7 @@ function TextureDialog(props: {
             >
               {(filled) => (
                 <Button type="submit" disabled={!filled}>
-                  {t("Open")}
+                  {t("studio.open")}
                 </Button>
               )}
             </form.Subscribe>
