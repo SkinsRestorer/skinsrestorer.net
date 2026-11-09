@@ -40,13 +40,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -56,8 +50,9 @@ import type { EditorInteraction } from "@/components/editor/editor-types";
 import { LayersPanel } from "@/components/editor/layers-panel";
 import { ModelCanvas } from "@/components/editor/model-canvas";
 import { OpenSkinPanel } from "@/components/editor/open-skin-panel";
-import { SkinCheckPanel } from "@/components/editor/skin-check-panel";
+import { SkinIssueAlerts } from "@/components/editor/skin-issue-alerts";
 import { TextureCanvas } from "@/components/editor/texture-canvas";
+import { SaveStatus, type SaveState } from "@/components/save-status";
 import { CustomTimeAgo } from "@/components/time-ago";
 import {
   documentOf,
@@ -203,7 +198,6 @@ export function SkinEditorWorkspace(props: {
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [fitScale, setFitScale] = useState(8);
   const [showGrid, setShowGrid] = useState(true);
-  const [legacy, setLegacy] = useState(false);
   const [highlight, setHighlight] = useState<SkinIssueId | null>(null);
   const [status, setStatus] = useState("");
   const [textureLoading, setTextureLoading] = useState(false);
@@ -249,7 +243,7 @@ export function SkinEditorWorkspace(props: {
     shouldBlockFn: ({ current, next }) =>
       next.pathname !== current.pathname &&
       !window.confirm(
-        "Leave without saving? Drafts are off in this browser, so your changes will be lost.",
+        "Leave without saving? Drafts are off, so your changes will be lost.",
       ),
     enableBeforeUnload: () => unsafeToLeave,
     disabled: !unsafeToLeave,
@@ -270,7 +264,6 @@ export function SkinEditorWorkspace(props: {
       document: SkinDocument,
       target: EditTarget,
       source: "file" | "template" | "texture_url" | "draft" | "library",
-      wasLegacy = false,
     ) => {
       textureTask.cancel();
       setTextureLoading(false);
@@ -278,7 +271,6 @@ export function SkinEditorWorkspace(props: {
       const open = () => {
         void session.flush();
         session.start(document, target);
-        setLegacy(wasLegacy);
         setHighlight(null);
         posthog.capture("editor_opened", { source });
       };
@@ -315,8 +307,7 @@ export function SkinEditorWorkspace(props: {
         },
         ({ result, target }) => {
           setTextureLoading(false);
-          opened(result.document, target, "texture_url", result.legacy);
-          toast.success("Opened the texture from textures.minecraft.net.");
+          opened(result.document, target, "texture_url");
         },
         (cause) => {
           setTextureLoading(false);
@@ -348,14 +339,7 @@ export function SkinEditorWorkspace(props: {
           );
           return { imported, target };
         },
-        ({ imported, target }) => {
-          opened(imported.document, target, "file", imported.legacy);
-          toast.success(
-            imported.legacy
-              ? "Opened the skin and converted it from 64×32 to 64×64."
-              : "Opened the skin.",
-          );
-        },
+        ({ imported, target }) => opened(imported.document, target, "file"),
         (cause) => toast.error(errorMessage(cause)),
       );
     },
@@ -365,9 +349,7 @@ export function SkinEditorWorkspace(props: {
   const openSaved = useCallback(
     (skin: StoredSkin) => {
       if (!isEditableContent(skin.current)) {
-        toast.error(
-          "The editor opens 64×64 and legacy 64×32 skins. This skin can still be used on Upload and Generator.",
-        );
+        toast.error("The editor opens only 64×64 and 64×32 skins.");
         return;
       }
       void textureTask.run(
@@ -377,7 +359,6 @@ export function SkinEditorWorkspace(props: {
             document,
             { skinId: skin.id, baseRevision: skin.revision, name: skin.name },
             "library",
-            skin.current.height === 32,
           ),
         (cause) => toast.error(errorMessage(cause)),
       );
@@ -401,12 +382,12 @@ export function SkinEditorWorkspace(props: {
   const onPick = useCallback(
     (picked: Rgba) => {
       if (picked[3] === 0) {
-        showStatus("That pixel is fully clear. Pick a visible pixel.");
+        showStatus("That pixel is clear.");
         return;
       }
       setColor(picked);
       setTool("pencil");
-      showStatus(`Picked ${toHex(picked)}. Switched to the pencil.`);
+      showStatus(`Picked ${toHex(picked)}.`);
     },
     [showStatus],
   );
@@ -508,13 +489,7 @@ export function SkinEditorWorkspace(props: {
         props.onClose?.();
         return;
       }
-      toast.success(
-        kind === "copy"
-          ? "Saved as a copy. The original skin did not change."
-          : result.skin
-            ? "Changes saved in this browser."
-            : "Changes saved for this page. This browser cannot keep skins.",
-      );
+      if (kind === "copy") toast.success("Saved as a copy.");
       return;
     }
     setConfirm(
@@ -541,42 +516,30 @@ export function SkinEditorWorkspace(props: {
   const zoomBy = (step: number) =>
     setZoom(Math.max(3, Math.min(24, scale + step)));
 
-  const sessionStatus = work.busy
-    ? "Saving…"
+  const [saveState, saveLabel]: [SaveState, string] = work.busy
+    ? ["saving", "Saving"]
     : work.dirty
-      ? draftsOff
-        ? "Unsaved changes. Drafts are off in this browser, so save or download the PNG to keep your work."
-        : "Unsaved changes. A draft is kept in this browser until you save or discard."
+      ? [
+          "unsaved",
+          draftsOff ? "Unsaved changes" : "Unsaved changes, draft kept",
+        ]
       : work.target.skinId
-        ? "No unsaved changes. Kept in this browser."
+        ? ["saved", "Saved"]
         : draftsOff
-          ? "Not kept in this browser."
-          : "Not in Your skins yet. Save to keep it.";
+          ? ["unavailable", "Cannot be kept in this browser"]
+          : ["unsaved", "Not saved yet"];
 
   const migratedStatus = library.migrated?.status;
 
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-6">
-        {mounted && migratedStatus === "migrated" && mode === "page" && (
-          <Alert>
-            <AlertTitle>Your earlier draft is in Your skins</AlertTitle>
-            <AlertDescription>
-              The editor now keeps skins in a list in this browser. Your last
-              draft is there as a skin named Recovered draft.
-            </AlertDescription>
-          </Alert>
-        )}
         {mounted &&
           migratedStatus === "corrupt" &&
           !legacyDraftHidden &&
           mode === "page" && (
             <Alert variant="destructive">
-              <AlertTitle>The saved draft could not be read</AlertTitle>
-              <AlertDescription>
-                The old draft from this browser is damaged. It is kept until you
-                remove it.
-              </AlertDescription>
+              <AlertTitle>The old draft could not be read</AlertTitle>
               <AlertAction>
                 <Button
                   size="sm"
@@ -594,10 +557,7 @@ export function SkinEditorWorkspace(props: {
         {mounted && migratedStatus === "newer" && mode === "page" && (
           <Alert>
             <AlertTitle>A newer draft is waiting</AlertTitle>
-            <AlertDescription>
-              A newer version of the editor saved a draft in this browser.
-              Reload the page to open it. This page does not replace it.
-            </AlertDescription>
+            <AlertDescription>Reload the page to open it.</AlertDescription>
           </Alert>
         )}
         {work.recovery.length > 0 && (
@@ -652,8 +612,7 @@ export function SkinEditorWorkspace(props: {
           <Alert>
             <AlertTitle>Drafts are off</AlertTitle>
             <AlertDescription>
-              {work.drafts.kind === "off" && work.drafts.message} Everything
-              else works. Download the PNG to keep your work.
+              Download the PNG to keep your work.
             </AlertDescription>
           </Alert>
         )}
@@ -662,14 +621,9 @@ export function SkinEditorWorkspace(props: {
           aria-label="Skin being edited"
           className="ph-no-capture flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-3"
         >
-          <div className="flex min-w-0 flex-col gap-0.5">
+          <div className="flex min-w-0 items-center gap-2">
             <p className="truncate font-medium">{work.target.name}</p>
-            <output
-              aria-live="polite"
-              className="text-xs text-muted-foreground"
-            >
-              {mounted ? sessionStatus : ""}
-            </output>
+            {mounted && <SaveStatus state={saveState} label={saveLabel} />}
           </div>
           <div className="flex flex-wrap gap-2">
             {(work.dirty || mode === "dialog") && (
@@ -716,7 +670,7 @@ export function SkinEditorWorkspace(props: {
                 onRedo={() => store.redo()}
               />
               <output
-                className="min-h-5 text-sm text-muted-foreground"
+                className={status ? "text-sm text-muted-foreground" : "sr-only"}
                 aria-live="polite"
               >
                 {status}
@@ -747,10 +701,6 @@ export function SkinEditorWorkspace(props: {
               >
                 <CardHeader>
                   <CardTitle>Texture</CardTitle>
-                  <CardDescription>
-                    Outlines mark each face of the {layer} layer. Faded areas
-                    are not changed by tools.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
                   <div className="flex flex-wrap items-center gap-1">
@@ -818,9 +768,6 @@ export function SkinEditorWorkspace(props: {
               >
                 <CardHeader>
                   <CardTitle>3D model</CardTitle>
-                  <CardDescription>
-                    Paint on the model or turn it to check your work.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col">
                   <ModelCanvas
@@ -831,7 +778,6 @@ export function SkinEditorWorkspace(props: {
                     onPick={onPick}
                     onPainted={onPainted}
                     onStatus={showStatus}
-                    onUnavailable={showStatus}
                   />
                 </CardContent>
               </Card>
@@ -839,6 +785,19 @@ export function SkinEditorWorkspace(props: {
           </section>
 
           <aside aria-label="Skin settings" className="flex flex-col gap-6">
+            <SkinIssueAlerts
+              issues={issues}
+              highlighted={highlight}
+              onHighlight={setHighlight}
+              onRepair={(id) => {
+                store.apply((pixels, builder) =>
+                  repairSkin(id, pixels, store.getSnapshot().variant, builder),
+                );
+                setHighlight(null);
+                posthog.capture("editor_check_fix_applied", { issue: id });
+              }}
+              onVariant={(variant) => store.setVariant(variant)}
+            />
             {mode === "page" && (
               <OpenSkinPanel
                 textureLoading={textureLoading}
@@ -873,28 +832,9 @@ export function SkinEditorWorkspace(props: {
               }
               onVisibilityChange={setVisibility}
             />
-            <SkinCheckPanel
-              issues={issues}
-              legacy={legacy}
-              highlighted={highlight}
-              onHighlight={setHighlight}
-              onRepair={(id) => {
-                store.apply((pixels, builder) =>
-                  repairSkin(id, pixels, store.getSnapshot().variant, builder),
-                );
-                setHighlight(null);
-                posthog.capture("editor_check_fix_applied", { issue: id });
-              }}
-              onVariant={(variant) => store.setVariant(variant)}
-            />
             <Card>
               <CardHeader>
                 <CardTitle>Finish</CardTitle>
-                <CardDescription>
-                  {mode === "page"
-                    ? "Download the skin, or send it to a SkinsRestorer tool to get a command."
-                    : "Download the skin as it looks now."}
-                </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 <Button
@@ -922,11 +862,6 @@ export function SkinEditorWorkspace(props: {
                       <Wand2 data-icon="inline-start" />
                       Use in Generator
                     </Button>
-                    <p className="text-xs text-muted-foreground">
-                      Upload and Generator open with this skin and its{" "}
-                      {snapshot.variant} model selected. They send nothing until
-                      you press their button.
-                    </p>
                   </>
                 )}
               </CardContent>
@@ -990,25 +925,19 @@ function ConfirmBody(props: {
   const text = {
     changed: [
       "This skin changed in another tab",
-      "Save your work as a copy to keep both versions, or replace the other version with yours.",
+      "Save yours as a copy, or replace the other version.",
     ],
-    removed: [
-      "This skin was removed from this browser",
-      "Save your work as a copy to keep it.",
-    ],
+    removed: ["This skin was removed", "Save your work as a copy to keep it."],
     failed: [
-      "The skin could not be kept",
+      "The skin could not be saved",
       confirm.kind === "failed"
-        ? `${confirm.message} ${props.mode === "dialog" ? "You can still use the edited skin in the form without keeping it." : "Download the PNG to keep your work."}`
+        ? `${confirm.message} ${props.mode === "dialog" ? "You can still use it without saving." : "Download the PNG to keep your work."}`
         : "",
     ],
-    discard: [
-      "Discard unsaved changes?",
-      "The skin stays as it was saved. Your changes and their draft are deleted.",
-    ],
+    discard: ["Discard unsaved changes?", "The saved skin stays as it was."],
     replace: [
       "Open another skin?",
-      "Drafts are off in this browser, so your unsaved changes will be lost.",
+      "Drafts are off, so your unsaved changes will be lost.",
     ],
   }[confirm.kind];
   return (
@@ -1028,7 +957,7 @@ function ConfirmBody(props: {
           <Button onClick={props.onCopy}>Save as copy</Button>
         )}
         {confirm.kind === "failed" && props.mode === "dialog" && (
-          <Button onClick={props.onUnkept}>Use without keeping</Button>
+          <Button onClick={props.onUnkept}>Use without saving</Button>
         )}
         {confirm.kind === "discard" && (
           <Button variant="destructive" onClick={props.onDiscard}>

@@ -4,13 +4,7 @@ import { FileImage, Upload } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -52,10 +46,6 @@ export function OpenSkinPanel(props: {
     <Card>
       <CardHeader>
         <CardTitle>Open a skin</CardTitle>
-        <CardDescription>
-          Opening another skin keeps unsaved changes to the current one as a
-          draft in this browser.
-        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <FileUpload
@@ -125,9 +115,6 @@ export function OpenSkinPanel(props: {
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-muted-foreground">
-              Kept in this browser only.
-            </p>
           </section>
         )}
         <SkinLibraryDialog
@@ -177,8 +164,7 @@ export function OpenSkinPanel(props: {
               <FieldError>{props.textureError}</FieldError>
             ) : (
               <FieldDescription>
-                Your browser downloads the image from textures.minecraft.net.
-                For other sites, download the PNG and open it as a file.
+                From textures.minecraft.net only.
               </FieldDescription>
             )}
           </Field>

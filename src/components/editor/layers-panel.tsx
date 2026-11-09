@@ -1,16 +1,9 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldLegend,
@@ -46,9 +39,6 @@ export function LayersPanel(props: {
     <Card>
       <CardHeader>
         <CardTitle>Model and layers</CardTitle>
-        <CardDescription>
-          Tools only change the active layer on visible parts.
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
@@ -59,9 +49,6 @@ export function LayersPanel(props: {
               value={variant}
               onValueChange={props.onVariantChange}
             />
-            <FieldDescription>
-              Changing the model does not move pixels. You can undo it.
-            </FieldDescription>
           </Field>
           <Field>
             <FieldTitle id="editor-layer-label">Active layer (L)</FieldTitle>

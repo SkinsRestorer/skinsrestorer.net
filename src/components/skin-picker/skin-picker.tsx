@@ -12,7 +12,7 @@ import posthog from "posthog-js";
 import { lazy, Suspense, useCallback, useId, useState } from "react";
 import type { EditorDialogInitial } from "@/components/editor/skin-editor-dialog";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { SaveStatus, type SaveState } from "@/components/save-status";
 import { Button } from "@/components/ui/button";
 import {
   FileUpload,
@@ -147,18 +147,9 @@ export function SkinPicker(props: {
           className="ph-no-capture mt-2 flex flex-col gap-2"
         >
           <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-col">
-              <h3
-                id={headingId}
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                Your skins
-                <Badge variant="secondary">{listing.skins.length}</Badge>
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Kept in this browser only.
-              </p>
-            </div>
+            <h3 id={headingId} className="text-sm font-medium">
+              Your skins
+            </h3>
             <Button variant="ghost" size="sm" onClick={() => setShowAll(true)}>
               Show all
             </Button>
@@ -215,7 +206,6 @@ export function SkinPicker(props: {
         <Suspense fallback={null}>
           <SkinEditorDialog
             initial={editing}
-            page={props.page}
             onSaved={edited}
             onClose={closeEditor}
           />
@@ -261,14 +251,24 @@ function SelectedSkinRow(props: {
         )}
       </span>
       <div className="flex min-w-40 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-medium">{selection.name}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate text-sm font-medium">{selection.name}</span>
+          {selection.status !== "invalid" && (
+            <KeepStatus selection={selection} />
+          )}
+        </span>
         <span className="text-xs text-muted-foreground">
           {selection.status === "invalid"
             ? selection.error
             : `${size}, ${props.variant === "slim" ? "Slim" : "Classic"}`}
         </span>
-        {selection.status !== "invalid" && (
-          <KeepLine selection={selection} onUseLatest={props.onUseLatest} />
+        {selection.keep.kind === "changed" && (
+          <span className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+            Changed in another tab.
+            <Button variant="link" size="sm" onClick={props.onUseLatest}>
+              Use the new version
+            </Button>
+          </span>
         )}
       </div>
       <div className="ml-auto flex shrink-0 items-center gap-1">
@@ -277,11 +277,7 @@ function SelectedSkinRow(props: {
             variant="outline"
             size="sm"
             disabled={!editable}
-            title={
-              editable
-                ? undefined
-                : "The editor opens 64×64 and legacy 64×32 skins."
-            }
+            title={editable ? undefined : "Only 64×64 and 64×32 skins"}
             onClick={props.onEdit}
           >
             <Pencil data-icon="inline-start" />
@@ -308,31 +304,18 @@ function SelectedSkinRow(props: {
   );
 }
 
-function KeepLine(props: { selection: SelectedSkin; onUseLatest: () => void }) {
+/** Whether the selected skin is kept in this browser, as a quiet icon. */
+function KeepStatus(props: { selection: SelectedSkin }) {
   const keep = props.selection.keep;
-  return (
-    <output
-      aria-live="polite"
-      className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"
-    >
-      {keep.kind === "kept" && (
-        <span className="flex items-center gap-1">
-          <Check className="size-3 text-chart-2" aria-hidden="true" />
-          Kept in this browser
-        </span>
-      )}
-      {keep.kind === "saving" && "Keeping a copy in this browser…"}
-      {keep.kind === "off" && `Not kept in this browser. ${keep.message}`}
-      {keep.kind === "removed" &&
-        "Removed from this browser. You can still use it here."}
-      {keep.kind === "changed" && (
-        <>
-          <span>This skin changed in another tab.</span>
-          <Button variant="link" size="sm" onClick={props.onUseLatest}>
-            Use the new version
-          </Button>
-        </>
-      )}
-    </output>
-  );
+  const [state, label]: [SaveState, string] =
+    keep.kind === "saving"
+      ? ["saving", "Saving to Your skins"]
+      : keep.kind === "off"
+        ? ["unavailable", `Not saved. ${keep.message}`]
+        : keep.kind === "removed"
+          ? ["unavailable", "Removed from Your skins"]
+          : keep.kind === "changed"
+            ? ["unsaved", "Changed in another tab"]
+            : ["saved", "Saved in Your skins"];
+  return <SaveStatus state={state} label={label} />;
 }

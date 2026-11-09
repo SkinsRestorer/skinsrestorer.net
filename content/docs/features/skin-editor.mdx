@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Brush"
 ---
 
-The [skin editor](/editor) opens a Java Edition skin in your browser. You can fix problems, paint in 2D or on the 3D model, and download the result. The editor does not connect to your Minecraft server. The editor is in beta.
+The [skin editor](/editor) opens a Java Edition skin in your browser. You can fix problems, paint in 2D or on the 3D model, and download the result. The editor does not connect to your Minecraft server. For details, read [Privacy](#privacy).
 
 ## Open a skin
 
@@ -19,7 +19,7 @@ The editor opens one of these sources:
 - The classic or slim template. The templates are plain figures made by the editor.
 - A texture hash or a `https://textures.minecraft.net/texture/…` URL.
 
-The editor converts a 64×32 skin to the 64×64 layout. The left arm and left leg get mirrored copies of the right arm and right leg, as in the game. The editor does not open HD skins. Resize an HD skin to 64×64 in an image editor first.
+The editor converts a 64×32 skin to the 64×64 layout without a message. The left arm and left leg get mirrored copies of the right arm and right leg, as in the game. The editor does not open HD skins. Resize an HD skin to 64×64 in an image editor first.
 
 The editor accepts texture links only from `textures.minecraft.net`. For a skin from another site, download the PNG and open it as a file. The editor does not look up player names.
 
@@ -65,19 +65,28 @@ To paint with the keyboard, move the focus to the texture with `Tab`. The arrow 
 
 ## Skin check
 
-The skin check lists problems that change how the skin looks in Java Edition. The check does not change pixels. A fix runs only when you select its button, and you can undo it.
+The editor checks for problems that change how the skin looks in Java Edition. If it finds a problem, it shows an alert above the settings. If the skin has no problems, the editor shows nothing.
+
+The check does not change pixels. A fix runs only when you select its button, and you can undo it. Select **Show pixels** to mark the affected pixels on the texture.
 
 | Problem | Fix |
 | --- | --- |
 | See-through base pixels | **Make opaque** keeps each color and sets it to opaque, which is how the game shows it. |
 | Pixels in unused areas | **Clear unused areas** removes pixels that the game does not show. |
-| The skin may be classic or slim | The editor suggests the other model. This is a guess, so look at the preview before you change the model. The editor does not erase arm pixels for this problem. |
+| The skin may be classic or slim | **Use classic** or **Use slim** changes the model. This is a guess, so look at the preview first. With the slim model, the game ignores the wide arm column. With the classic model, an empty fourth column can show as a dark stripe. The editor does not erase arm pixels for this problem. |
 
 An opaque outer layer is not a problem. Some skins use it on purpose.
 
 ## Save your work
 
-The bar above the texture shows the name of the skin and whether it has unsaved changes.
+The bar above the texture shows the name of the skin and a status icon. Point at the icon to see its state:
+
+| Icon | State |
+| --- | --- |
+| Check mark | Saved in **Your skins**. |
+| Dot | Unsaved changes, or a new skin that is not saved yet. |
+| Spinner | Saving. |
+| Crossed-out disk | The browser cannot keep this skin. |
 
 - **Save changes** writes your changes to the skin in **Your skins**. The skin keeps its original file, so you can revert to it later.
 - **Save as copy** adds a new skin with your changes. The skin that you opened does not change.
@@ -103,7 +112,8 @@ Upload, Generator, and the editor share one list of skins in this browser. A ski
 
 - The list stays only in this browser on this device. It does not sync to other devices or accounts.
 - If you clear the site data, or if the browser removes old site data, the list is deleted. Use **Download PNG** to keep a copy of a skin.
-- Select **Show all** to search the list. Each skin has a menu with **Rename**, **Duplicate**, **Download PNG**, **Revert to original**, and **Remove from this browser**.
+- Select **Show all** to search the list. Each skin has a menu with **Rename**, **Duplicate**, **Download PNG**, **Revert to original**, and **Remove**.
+- A dot next to a skin in the list means that it has unsaved edits in a draft.
 - After you remove a skin, select **Undo** in the message to get it back.
 
 ## Finish
@@ -132,4 +142,4 @@ If you open a texture URL, your browser downloads the image from `textures.minec
 
 ## If the 3D model does not show
 
-The 3D model needs WebGL. If your browser turns off WebGL or loses the graphics context, the editor shows a message. The texture editor, the skin check, and the download still work. Select **Try the 3D model again** to start the model again.
+The 3D model needs WebGL. If your browser turns off WebGL or loses the graphics context, the editor shows a message. The texture editor, the skin check, and the download still work. Select **Try again** to start the model again.

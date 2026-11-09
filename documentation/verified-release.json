@@ -916,12 +916,12 @@
   "websiteSources": {
     "src/lib/mineskin.ts": "4ad7a14f13ac68e62b57b3acb83b222bf367442129b7f18588fce81f8971cb0d",
     "src/lib/hooks/use-cape-selection.ts": "aafeefecc445679663e1232bb7b360b51d8f18da73650fbfd119d070a69794c5",
-    "src/lib/hooks/use-skin-selection.ts": "00f08a91a42a307dae604471d65bf8fedafe6366eb789dfac5bae1a1a65edea0",
-    "src/lib/skin-selection.ts": "259cf547f39d497d86539fbeb61b163fd9127aed0804c8da2ee459332120144b",
+    "src/lib/hooks/use-skin-selection.ts": "d1718910f5d7b4f74199e81133878166625cb53464fc4f01f5fe255bdd973cb4",
+    "src/lib/skin-selection.ts": "d85001653fe5527970001238e25b9c2ac97aaff6d74fcf3ce4cca5cf14072144",
     "src/lib/skin-library.ts": "2c5d8350d24a5bdcac418700e01707a63521e8e7e087641e992db31ac2358af5",
     "src/lib/skin-library-client.ts": "9e1f32136d0727292dbae8b516b45b76b832f782abb08fb06f9b7d2df55d6264",
     "src/lib/editor-session.ts": "812956a94f81c616f7c6d2ad8ad08c91337eb1c3c4202d14b92c20d04bc99f13",
-    "src/components/skin-picker/skin-picker.tsx": "53a8c08b9a0b2854950d8fb22c5131b2e50d4fc935d4c8def17726e3b532d648",
+    "src/components/skin-picker/skin-picker.tsx": "c98703ef130f6e58d8aa73191f5c74811f344f0581e60794d818dc2b22ba858b",
     "src/components/advanced-options.tsx": "d3641f7cc36d2cd7e864e62600ad757cb944deee848af703ef022a81b1828c1d",
     "src/components/upload/upload-card.tsx": "3185641777ae1961a9c08a80c49a8b9dc3198dbc98976d8c5358cb83fd71eda8",
     "src/components/generator/generator-card.tsx": "eb585440b9b86f4af2c58abcb1fe11c583a83c4fd7e2381b36fccd79159b57a1",
@@ -930,8 +930,8 @@
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
     "src/lib/hooks/use-skin-upload.ts": "0a6bbbf07207de5d571b8dfac6ec9ea18b6801cc789504bdd94747c56334b8dd",
     "src/lib/skin.ts": "395140f0d185fdd9a315b9e87a8cb62109a2c6d7dff4ddccf0be0c73b07a9712",
-    "src/components/editor/skin-editor.tsx": "b5ab7eeb7a1514997ededb106b66ff2d3a0055cc72a06834011ce0749a3a0527",
-    "src/lib/skin-check.ts": "f34cbb19472822ce49a709efbcd7bddeb3571ce34e02f3e90a348ba2466896f8",
+    "src/components/editor/skin-editor.tsx": "7c65b979e83de5c30becde187d493ffe756dc9b930dfe63bafb9297a84d4a03a",
+    "src/lib/skin-check.ts": "20ff02d068a96106a3510eb111387dcb0b784087badd8dc0edf56e4808f9a0dd",
     "src/lib/skin-draft.ts": "9543fa1fdbc56927c74c2b877797fec8db97c916bbae5aa953f8d2e1cdfa021b",
     "src/lib/hooks/use-editor-handoff.ts": "8850f18a6dbc5ab96d9e222ed1e7ba6b2aa9a609da894098989d1cb51f9581fe"
   }

@@ -7,14 +7,12 @@ import {
   PencilLine,
   RotateCcw,
   Trash2,
-  X,
 } from "lucide-react";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -37,17 +35,14 @@ import {
 import { MAX_SKIN_NAME_LENGTH, type StoredSkin } from "@/lib/skin-library";
 
 /**
- * Actions for one kept skin. Without `skin`, only the actions that work on
- * the form's own copy are shown.
+ * Actions for one kept skin. Without `skin`, only Download works, on the
+ * form's own copy.
  */
 export function SkinActionsMenu(props: {
   skin?: StoredSkin;
   file?: File;
   name: string;
   actions: SkinLibraryActions;
-  onUse?: () => void;
-  onClear?: () => void;
-  onRemoved?: () => void;
   onReverted?: (skin: StoredSkin) => void;
 }) {
   const [renaming, setRenaming] = useState(false);
@@ -68,11 +63,6 @@ export function SkinActionsMenu(props: {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuGroup>
-            {props.onUse && (
-              <DropdownMenuItem onClick={props.onUse}>
-                Use this skin
-              </DropdownMenuItem>
-            )}
             {skin && (
               <DropdownMenuItem onClick={() => setRenaming(true)}>
                 <PencilLine />
@@ -108,26 +98,20 @@ export function SkinActionsMenu(props: {
               </DropdownMenuItem>
             )}
           </DropdownMenuGroup>
-          {(skin || props.onClear) && <DropdownMenuSeparator />}
-          <DropdownMenuGroup>
-            {props.onClear && (
-              <DropdownMenuItem onClick={props.onClear}>
-                <X />
-                Clear selection
-              </DropdownMenuItem>
-            )}
-            {skin && (
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() =>
-                  void actions.remove(skin.id).then(() => props.onRemoved?.())
-                }
-              >
-                <Trash2 />
-                Remove from this browser
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuGroup>
+          {skin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => void actions.remove(skin.id)}
+                >
+                  <Trash2 />
+                  Remove
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       {skin && (
@@ -169,9 +153,6 @@ function RenameDialog(props: {
         >
           <DialogHeader>
             <DialogTitle>Rename skin</DialogTitle>
-            <DialogDescription>
-              The name is kept in this browser only.
-            </DialogDescription>
           </DialogHeader>
           <Field>
             <FieldLabel htmlFor={id}>Name</FieldLabel>

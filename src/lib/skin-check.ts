@@ -68,7 +68,7 @@ export function checkSkin(
     issues.push({
       id: "transparent-base",
       title: "See-through base pixels",
-      detail: `${transparentBase.length} base layer ${transparentBase.length === 1 ? "pixel is" : "pixels are"} not fully opaque. Java Edition shows the base layer as opaque, so these pixels can look different in game. The repair keeps each color and sets it to opaque, which is how the game shows it.`,
+      detail: `${transparentBase.length} base ${transparentBase.length === 1 ? "pixel is" : "pixels are"} not opaque. The game shows them opaque.`,
       pixels: transparentBase,
       repair: { label: "Make opaque" },
     });
@@ -76,7 +76,7 @@ export function checkSkin(
     issues.push({
       id: "unused-pixels",
       title: "Pixels in unused areas",
-      detail: `${unused.length} ${unused.length === 1 ? "pixel is" : "pixels are"} outside every body part${variant === "slim" ? " for the slim model" : ""}. The game does not show them. The repair clears them.`,
+      detail: `${unused.length} ${unused.length === 1 ? "pixel is" : "pixels are"} outside the ${variant} model. The game ignores them.`,
       pixels: unused,
       repair: { label: "Clear unused areas" },
     });
@@ -84,8 +84,7 @@ export function checkSkin(
     issues.push({
       id: "possible-classic",
       title: "This may be a classic skin",
-      detail:
-        "The wide arm columns have pixels, which classic skins use. If the arms look cut off, choose the classic model. If you keep the slim model, the game ignores these pixels. This is a guess, so check the preview.",
+      detail: "The wide arm columns have pixels. Check the preview.",
       pixels: filledClassicColumns,
       switchVariant: "classic",
     });
@@ -93,8 +92,7 @@ export function checkSkin(
     issues.push({
       id: "possible-slim",
       title: "This may be a slim skin",
-      detail:
-        "The fourth arm column is empty, which slim skins leave empty. If the arms show gaps, choose the slim model. If you keep the classic model, the game can show these pixels as a dark stripe. This is a guess, so check the preview.",
+      detail: "The fourth arm column is empty. Check the preview.",
       pixels: classicOnly,
       switchVariant: "slim",
     });

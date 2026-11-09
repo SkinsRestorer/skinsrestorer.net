@@ -1,8 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { SaveStatus } from "@/components/save-status";
 import { CustomTimeAgo } from "@/components/time-ago";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -55,8 +56,15 @@ export function SkinLibraryDialog(props: {
         <DialogHeader>
           <DialogTitle>Your skins</DialogTitle>
           <DialogDescription>
-            Kept in this browser only. Clearing site data removes them, and they
-            do not sync to other devices. Download a PNG to keep a copy.
+            Stored in this browser only.{" "}
+            <Link
+              to="/docs/$"
+              params={{ _splat: "features/skin-editor" }}
+              hash="your-skins"
+              className="underline underline-offset-4"
+            >
+              About Your skins
+            </Link>
           </DialogDescription>
         </DialogHeader>
         <Field>
@@ -87,9 +95,7 @@ export function SkinLibraryDialog(props: {
           )}
           {listing && skins.length === 0 && (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {needle
-                ? "No skins match this name."
-                : "No skins yet. Drop a PNG to keep your first skin here."}
+              {needle ? "No skins match this name." : "No skins yet."}
             </p>
           )}
           <ul className="flex flex-col gap-2">
@@ -124,13 +130,12 @@ export function SkinLibraryDialog(props: {
                   </span>
                 </button>
                 {drafts.has(skin.id) && (
-                  <Badge variant="secondary">Unsaved edits</Badge>
+                  <SaveStatus state="unsaved" label="Unsaved edits" />
                 )}
                 <SkinActionsMenu
                   skin={skin}
                   name={skin.name}
                   actions={props.actions}
-                  onUse={() => select(skin)}
                 />
               </li>
             ))}

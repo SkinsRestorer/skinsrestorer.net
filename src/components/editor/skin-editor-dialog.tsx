@@ -22,14 +22,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { documentOf, type SaveResult } from "@/lib/editor-session";
 import type { SkinVariant } from "@/lib/skin";
 import type { SkinDocument } from "@/lib/skin-document";
@@ -50,7 +44,6 @@ const HISTORY_MARK = "skinsrestorerEditor";
  */
 export function SkinEditorDialog(props: {
   initial: EditorDialogInitial;
-  page: "Upload" | "Generator";
   onSaved: (result: Extract<SaveResult, { kind: "saved" }>) => void;
   onClose: () => void;
 }) {
@@ -140,19 +133,12 @@ function EditorDialogBody(
       }}
     >
       <DialogContent showCloseButton={false} size="fullscreen">
-        <header className="flex items-start justify-between gap-3 border-b px-4 py-3">
-          <div className="flex min-w-0 flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <DialogTitle>
-                <span className="ph-no-capture">Edit {initial.name}</span>
-              </DialogTitle>
-              <Badge variant="secondary">Beta</Badge>
-            </div>
-            <DialogDescription>
-              Return to {props.page} with your options kept. The skin is saved
-              only when you choose Save changes or Save as copy.
-            </DialogDescription>
-          </div>
+        <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
+          <DialogTitle>
+            <span className="ph-no-capture line-clamp-1 break-all">
+              Edit {initial.name}
+            </span>
+          </DialogTitle>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -178,8 +164,8 @@ function EditorDialogBody(
             <AlertDialogTitle>Close the editor?</AlertDialogTitle>
             <AlertDialogDescription>
               {work.drafts.kind === "off"
-                ? "Your changes are not saved to the skin, and drafts are off in this browser. Closing loses them."
-                : "Your changes are not saved to the skin yet. Keep them as a draft to continue later, or discard them."}
+                ? "Drafts are off, so closing loses your changes."
+                : "Keep your changes as a draft, or discard them."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

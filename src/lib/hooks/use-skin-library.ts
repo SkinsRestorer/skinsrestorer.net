@@ -94,8 +94,7 @@ export function useSkinLibrary() {
       if (event.type === "closed")
         setState({
           status: "unavailable",
-          message:
-            "Another tab updated the skins kept in this browser. Reload the page.",
+          message: "Another tab updated Your skins. Reload the page.",
         });
       else reload();
     });
@@ -127,17 +126,12 @@ export function useSkinLibrary() {
     rename: (id: string, name: string) =>
       act("rename", (c) => c.run(withLibrary((l) => l.rename(id, name)))),
     duplicate: (id: string) =>
-      act("duplicate", (c) => c.run(withLibrary((l) => l.duplicate(id)))).then(
-        (copy) => {
-          if (copy) toast.success("Copy kept in this browser.");
-          return copy;
-        },
-      ),
+      act("duplicate", (c) => c.run(withLibrary((l) => l.duplicate(id)))),
     remove: (id: string) =>
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed) => {
           if (!removed) return;
-          toast("Skin removed from this browser.", {
+          toast("Skin removed.", {
             action: {
               label: "Undo",
               onClick: () =>
@@ -152,7 +146,7 @@ export function useSkinLibrary() {
       act("revert", (c) => c.run(withLibrary((l) => l.revert(id)))).then(
         (reverted) => {
           if (!reverted) return;
-          toast("Skin reverted to the original.", {
+          toast("Skin reverted.", {
             action: {
               label: "Undo",
               onClick: () =>

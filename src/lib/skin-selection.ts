@@ -62,12 +62,6 @@ export interface SkinSelectionDeps {
   ) => Promise<void>;
   readonly library?: LibraryClient;
   readonly events?: {
-    readonly checking?: (token: number) => void;
-    readonly detected?: (
-      token: number,
-      variant: SkinVariant,
-      origin: SelectionOrigin,
-    ) => void;
     readonly failed?: (token: number, message: string) => void;
     readonly imported?: (kept: number, failed: number) => void;
   };
@@ -189,7 +183,6 @@ export class SkinSelectionStore {
       },
       previewUrl: null,
     });
-    this.deps.events?.checking?.(token);
     const fail = (cause: unknown) => {
       const message = errorMessage(cause, "Failed to load image");
       this.update(token, { status: "invalid", error: message });
@@ -226,7 +219,6 @@ export class SkinSelectionStore {
               )
                 return;
               this.set({ variant });
-              this.deps.events?.detected?.(token, variant, options.origin);
               if (options.link) this.touch(options.link.skinId);
               else void this.keepSelection(token, snapshot, variant);
             },

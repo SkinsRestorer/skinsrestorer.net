@@ -52,11 +52,7 @@ interface PaintTarget {
  * The texture reads the document pixels directly, so the preview never
  * changes them (loadSkin would clear hat pixels on opaque skins).
  */
-export function ModelCanvas(
-  props: EditorSurfaceProps & {
-    readonly onUnavailable: (reason: string) => void;
-  },
-) {
+export function ModelCanvas(props: EditorSurfaceProps) {
   const { store, interaction, settings } = props;
   const propsRef = useAsRef(props);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -80,10 +76,7 @@ export function ModelCanvas(
         enableControls: true,
       });
     } catch {
-      const reason =
-        "The 3D model needs WebGL, which this browser has turned off. You can still edit the texture and download the PNG.";
-      setFailure(reason);
-      propsRef.current.onUnavailable(reason);
+      setFailure("The 3D model needs WebGL, which is off in this browser.");
       return;
     }
     viewerRef.current = viewer;
@@ -128,10 +121,7 @@ export function ModelCanvas(
 
     const lost = (event: Event) => {
       event.preventDefault();
-      const reason =
-        "The 3D model stopped because the browser lost its graphics context. You can still edit the texture and download the PNG.";
-      setFailure(reason);
-      propsRef.current.onUnavailable(reason);
+      setFailure("The 3D model stopped. The browser lost its graphics.");
     };
     canvas.addEventListener("webglcontextlost", lost);
 
@@ -320,7 +310,7 @@ export function ModelCanvas(
                 setAttempt((n) => n + 1);
               }}
             >
-              Try the 3D model again
+              Try again
             </Button>
           </div>
         ) : null}
@@ -373,13 +363,13 @@ export function ModelCanvas(
           onPointerCancel={() => store.cancelStroke()}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
-        {failure
-          ? "The texture editor and export keep working."
-          : painting
-            ? "Drag on the model to paint. Strokes stay on the face where they start. Right drag or two fingers turn the model."
-            : "Drag to turn the model. Switch to Paint to draw on it."}
-      </p>
+      {!failure && (
+        <p className="text-xs text-muted-foreground">
+          {painting
+            ? "Right drag or two fingers to turn."
+            : "Drag to turn the model."}
+        </p>
+      )}
     </div>
   );
 }

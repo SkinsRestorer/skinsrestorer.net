@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -58,9 +52,6 @@ export function ColorPanel(props: {
     <Card>
       <CardHeader>
         <CardTitle>Color</CardTitle>
-        <CardDescription>
-          Press I or choose Pick color to take a color from the skin.
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
@@ -119,11 +110,11 @@ export function ColorPanel(props: {
                 ]);
               }}
             />
-            <FieldDescription>
-              {layer === "base"
-                ? "The base layer is always opaque in Java Edition. Switch to the outer layer for see-through pixels."
-                : "The outer layer can be partly see-through."}
-            </FieldDescription>
+            {layer === "base" && (
+              <FieldDescription>
+                The base layer is always opaque.
+              </FieldDescription>
+            )}
           </Field>
           {recent.length > 0 && (
             <Field>

@@ -323,12 +323,12 @@ export function TextureCanvas(props: TextureCanvasProps) {
         Use the arrow keys to move the pixel cursor. Hold Shift to move four
         pixels. Press Space or Enter to use the selected tool.
       </p>
-      <p className="text-xs text-muted-foreground" aria-hidden="true">
+      <p className="min-h-4 text-xs text-muted-foreground" aria-hidden="true">
         {hover
           ? describePixel(store.getSnapshot().variant, hover.x, hover.y)
           : focused
             ? describePixel(store.getSnapshot().variant, cursor.x, cursor.y)
-            : "Point at a pixel to see where it is on the model."}
+            : null}
       </p>
       <p className="sr-only" aria-live="polite">
         {announcement}
