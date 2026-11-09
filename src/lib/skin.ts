@@ -26,8 +26,17 @@ export function validateSkinDimensions(width: number, height: number): void {
   }
 }
 
-export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
-  function* (imageUrl: string) {
+/**
+ * Load an image and pass it to `use` while it is still owned here. `use` runs
+ * synchronously after the load and never after interruption. Handlers are
+ * removed before the source is released, so a caller can revoke its URL.
+ */
+export function withSkinImageEffect<A>(
+  imageUrl: string,
+  use: (image: HTMLImageElement) => A,
+  failure = "Failed to load image",
+) {
+  return Effect.gen(function* () {
     const images = yield* SkinImages;
     return yield* Effect.acquireUseRelease(
       Effect.try({
@@ -36,24 +45,15 @@ export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
           new SkinImageError({ message: "Failed to load image", cause }),
       }),
       (image) =>
-        Effect.callback<SkinVariant, SkinImageError>((resume) => {
+        Effect.callback<A, SkinImageError>((resume) => {
           image.crossOrigin = "Anonymous";
           image.onload = () =>
             resume(
               Effect.try({
-                try: () => {
-                  validateSkinDimensions(
-                    image.naturalWidth,
-                    image.naturalHeight,
-                  );
-                  return images.variant(image);
-                },
+                try: () => use(image),
                 catch: (cause) =>
                   new SkinImageError({
-                    message:
-                      cause instanceof Error
-                        ? cause.message
-                        : "Failed to detect skin type",
+                    message: cause instanceof Error ? cause.message : failure,
                     cause,
                   }),
               }),
@@ -81,6 +81,20 @@ export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
           image.onerror = null;
           image.removeAttribute("src");
         }),
+    );
+  });
+}
+
+export const detectSkinVariantEffect = Effect.fn("Skin.detectVariant")(
+  function* (imageUrl: string) {
+    const images = yield* SkinImages;
+    return yield* withSkinImageEffect(
+      imageUrl,
+      (image) => {
+        validateSkinDimensions(image.naturalWidth, image.naturalHeight);
+        return images.variant(image);
+      },
+      "Failed to detect skin type",
     );
   },
 );

@@ -13,6 +13,17 @@ test("retired documentation and Markdown URLs move permanently to the replacemen
   });
 });
 
+test("the retired editor page moves permanently to the Studio in its locale", () => {
+  assert.deepEqual(getSiteRedirect("/editor"), {
+    destination: "/studio",
+    status: 308,
+  });
+  assert.deepEqual(getSiteRedirect("/pt-BR/editor/"), {
+    destination: "/pt-BR/studio",
+    status: 308,
+  });
+});
+
 test("legacy shortcuts resolve with temporary redirects, including trailing slashes", () => {
   for (const [path, destination] of [
     ["/skinurl", "/upload"],
@@ -34,7 +45,15 @@ test("legacy shortcuts resolve with temporary redirects, including trailing slas
 });
 
 test("current and unknown routes pass through without redirects", () => {
-  for (const path of ["/", "/docs", "/docs/features/skin-upload", "/unknown"]) {
+  for (const path of [
+    "/",
+    "/studio",
+    "/upload",
+    "/generator",
+    "/docs",
+    "/docs/features/skin-upload",
+    "/unknown",
+  ]) {
     assert.equal(getSiteRedirect(path), undefined);
   }
 });

@@ -1,6 +1,6 @@
 ---
-title: "Edit a skin on the website"
-description: "Fix and paint a skin PNG in the browser, then download it or get a SkinsRestorer command."
+title: "Use the Skin Studio"
+description: "Keep skins in your browser, fix and paint them in 2D or 3D, and get a SkinsRestorer command."
 docType: "how-to"
 appliesTo: "Website users and Java server players"
 reviewed: "2026-11-09"
@@ -8,47 +8,55 @@ version: "15.12.6"
 icon: "Brush"
 ---
 
-The [skin editor](/editor) opens a Java Edition skin in your browser. You can fix problems, paint in 2D or on the 3D model, and download the result. The editor does not connect to your Minecraft server. For details, read [Privacy](#privacy).
+The [Skin Studio](/studio) works with Java Edition skins in your browser. It has three parts:
 
-## Open a skin
+- **Library** on the left: the skins that this browser keeps.
+- The selected skin in the center, as a 3D model that you can turn.
+- Options on the right: the model, the cape, and the command to generate.
 
-The editor opens one of these sources:
+On a phone, the library opens from the **Library** button, and the options are below the model.
 
-- A skin from **Your skins**, the list of skins that this browser keeps.
-- A PNG file, 64×64 or legacy 64×32, up to 5 MB.
-- The classic or slim template. The templates are plain figures made by the editor.
-- A texture hash or a `https://textures.minecraft.net/texture/…` URL.
+[Upload](/upload) and the [generator](/generator) open the same Studio. Upload always makes a `/skin url` command. The generator always makes a `/sr createcustom` command. On the Studio page, choose **Use on a server** or **Custom skin**. The Studio does not connect to your Minecraft server. For details, read [Privacy](#privacy).
 
-The editor converts a 64×32 skin to the 64×64 layout without a message. The left arm and left leg get mirrored copies of the right arm and right leg, as in the game. The editor does not open HD skins. Resize an HD skin to 64×64 in an image editor first.
+## Add a skin
 
-The editor accepts texture links only from `textures.minecraft.net`. For a skin from another site, download the PNG and open it as a file. The editor does not look up player names.
+Select **+** in the library, then choose one of these:
 
-If you reversed a `.skin` file on the [generator page](/generator), select **Edit this skin** to open its texture in the editor.
+- **Upload PNG**: a skin PNG up to 5 MB. You can also drop PNG files on the center of the page.
+- **Create skin**: a plain classic or slim figure that you paint and save.
+- **Open .skin file**: a SkinsRestorer storage file, such as `.customskin`. The Studio reads the texture URL in the file and opens that texture.
+- **Open texture URL**: a texture hash or a `https://textures.minecraft.net/texture/…` URL.
 
-When you open a PNG file or a texture, the editor adds it to **Your skins**. If the same skin with the same model is already in the list, the editor uses that skin. Read [Your skins](#your-skins) for more.
+The Studio adds each new skin to the library and selects it. If the same skin with the same model is already in the library, the Studio uses that skin. A selected skin shows at once, and nothing is uploaded.
 
-## Paint
+The Studio accepts texture links only from `textures.minecraft.net`. For a skin from another site, download the PNG and upload it. The Studio does not look up player names.
 
-1. Choose **Classic** or **Slim** under **Model**. The model changes how the game reads the arms. It does not move pixels.
-2. Choose the **Base** or **Outer** layer. Tools change only the active layer.
-3. Choose a tool: **Pencil**, **Eraser**, **Fill face**, or **Pick color**.
+## Get a command
+
+Select a skin, check the model and the cape, then select the generate button. The [upload guide](/docs/features/skin-upload) and [custom skins](/docs/features/custom-skins) explain each command.
+
+## Edit a skin
+
+Select **Edit skin** below the model. The center shows the texture and the right side shows a live 3D model. The editor opens 64×64 and legacy 64×32 skins. It converts a 64×32 skin to the 64×64 layout without a message. To edit an HD skin, resize it to 64×64 in an image editor first.
+
+1. Choose the **Base** or **Outer** layer. Tools change only the active layer.
+2. Choose a tool: **Pencil**, **Eraser**, **Fill face**, or **Pick color**.
+3. Choose a color below the texture.
 4. Paint on the texture or on the 3D model.
 
-The base layer is always opaque in Java Edition. For this reason, the pencil paints opaque pixels on the base layer and the eraser works only on the outer layer. The outer layer can have see-through pixels.
+The base layer is always opaque in Java Edition. For this reason, the pencil paints opaque pixels on the base layer and the eraser works only on the outer layer. The outer layer can have see-through pixels, so it also has an opacity slider.
 
 **Fill face** fills the connected area of one color, and stops at the edge of the face. On the 3D model, a stroke stays on the face where it started.
 
 Use **Visible parts** to hide a part or a layer. Tools do not change hidden parts. To paint the base layer under an outer-layer pixel, hide the outer layer of that part.
 
-Each stroke, fill, or fix is one undo step. Changing the model is also an undo step. When you open another skin, the undo history starts again.
+Each stroke, fill, or fix is one undo step. Changing the model is also an undo step.
 
-## Move the view
+### Move the view
 
-Select **Move view** to scroll the texture and turn the model with one finger or the mouse. Select **Paint** to use the tool again. In paint mode, a right drag or two fingers turn the model.
+Select the hand button to scroll the texture and turn the model with one finger or the mouse. Select the brush button to use the tool again. In paint mode, a right drag or two fingers turn the model.
 
-Use the zoom buttons to zoom the texture and the model. Pinch zoom of the page does not work on the paint surfaces, but works on the rest of the page.
-
-## Keyboard
+### Keyboard
 
 | Key | Action |
 | --- | --- |
@@ -60,12 +68,13 @@ Use the zoom buttons to zoom the texture and the model. Pinch zoom of the page d
 | `P` / `M` | Paint or move view |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Shift+Z` or `Ctrl+Y` | Redo |
+| `Esc` | Cancel editing |
 
 To paint with the keyboard, move the focus to the texture with `Tab`. The arrow keys move a pixel cursor, and `Shift` with an arrow key moves four pixels. `Space` or `Enter` uses the tool. A screen reader reads the part, face, layer, and position of the cursor. The shortcuts do nothing while a text field has the focus.
 
 ## Skin check
 
-The editor checks for problems that change how the skin looks in Java Edition. If it finds a problem, it shows an alert above the settings. If the skin has no problems, the editor shows nothing.
+While you edit, the Studio checks for problems that change how the skin looks in Java Edition. It shows an alert only when it finds a problem.
 
 The check does not change pixels. A fix runs only when you select its button, and you can undo it. Select **Show pixels** to mark the affected pixels on the texture.
 
@@ -79,67 +88,60 @@ An opaque outer layer is not a problem. Some skins use it on purpose.
 
 ## Save your work
 
-The bar above the texture shows the name of the skin and a status icon. Point at the icon to see its state:
+- **Save changes** writes your changes to the skin in the library. The skin keeps its original file, so you can revert to it later.
+- **Save as copy** adds a new skin with your changes and selects it. The skin that you opened does not change.
+- **Cancel** returns to the skin that was selected before.
+
+For a new skin from **Create skin**, **Save to library** adds it to the library.
+
+The model, cape, upload method, API key, and skin name stay as you set them while you edit, save, or cancel.
+
+An icon next to the name shows the save state. Point at the icon to see it:
 
 | Icon | State |
 | --- | --- |
-| Check mark | Saved in **Your skins**. |
+| Check mark | Saved in the library. |
 | Dot | Unsaved changes, or a new skin that is not saved yet. |
 | Spinner | Saving. |
 | Crossed-out disk | The browser cannot keep this skin. |
 
-- **Save changes** writes your changes to the skin in **Your skins**. The skin keeps its original file, so you can revert to it later.
-- **Save as copy** adds a new skin with your changes. The skin that you opened does not change.
-- **Discard** deletes your unsaved changes. The skin stays as you last saved it.
-
-If you work on a new skin from a template, **Save changes** adds it to **Your skins**.
-
 If you edit the same skin in two tabs and save in one tab first, the other tab does not overwrite it. It asks you to save your work as a copy or to replace the other version. If another tab removed the skin, you can save your work as a copy.
+
+If you select **Cancel**, press `Esc`, or use the browser Back button with unsaved changes, the Studio asks first. You can keep editing, discard the changes, or keep them as a draft.
 
 ## Drafts
 
-While you paint, the editor keeps a draft of your unsaved changes in this browser. The draft does not change the saved skin. Each open editor has its own draft, so two tabs do not overwrite each other.
+While you paint, the Studio keeps a draft of your unsaved changes in this browser. The draft does not change the saved skin. Each open editor has its own draft, so two tabs do not overwrite each other.
 
-If you close the tab or open another skin before you save, the draft stays. The next time you open the editor, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it. The editor does not keep the undo history.
+If you close the tab before you save, the draft stays. The next time you open the Studio, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it. The Studio does not keep the undo history.
 
-Earlier versions of the editor kept one draft in another place in the browser. The editor moves that draft to **Your skins** once, as a skin named "Recovered draft". If the old draft is damaged, the editor keeps it and shows a message with a **Discard draft** button.
+Earlier versions of the editor kept one draft in another place in the browser. The Studio moves that draft to the library once, as a skin named "Recovered draft". If the old draft is damaged, the Studio keeps it and shows a message with a **Discard draft** button.
 
-If your browser blocks site storage or the storage is full, the editor still works, but it does not keep skins or drafts. Download the PNG to keep your work. In this case, the browser asks before you leave the page with unsaved changes.
+If your browser blocks site storage or the storage is full, the Studio still works, but it does not keep skins or drafts. Use the download button above the texture to keep your work. In this case, the browser asks before you leave the page with unsaved changes.
 
-## Your skins
+## The library [#your-skins]
 
-Upload, Generator, and the editor share one list of skins in this browser. A skin in the list keeps its original file and its current version, the model for each, and its name.
+The Studio, Upload, and the generator share one library in this browser. A skin in the library keeps its original file and its current version, the model for each, and its name.
 
-- The list stays only in this browser on this device. It does not sync to other devices or accounts.
-- If you clear the site data, or if the browser removes old site data, the list is deleted. Use **Download PNG** to keep a copy of a skin.
-- Select **Show all** to search the list. Each skin has a menu with **Rename**, **Duplicate**, **Download PNG**, **Revert to original**, and **Remove**.
-- A dot next to a skin in the list means that it has unsaved edits in a draft.
+- The library stays only in this browser on this device. It does not sync to other devices or accounts.
+- If you clear the site data, or if the browser removes old site data, the library is deleted. Use **Download PNG** to keep a copy of a skin.
+- Select a skin once to use it. Each skin has a menu with **Rename**, **Duplicate**, **Download PNG**, **Revert to original**, and **Remove**.
+- A dot on a skin means that it has unsaved edits in a draft.
 - After you remove a skin, select **Undo** in the message to get it back.
+- The check mark next to **Library** means that the browser keeps your skins. A crossed-out disk means that it cannot. Point at the icon to see the reason.
 
-## Finish
+## Edit from Upload or Generator [#edit-from-upload-or-generator]
 
-- **Download PNG** saves a 64×64 PNG. The file keeps the exact color and opacity of every pixel.
-- **Use in Upload** opens [Upload](/upload) with the skin and its model selected. Follow [the upload guide](/docs/features/skin-upload) from the step where you choose the skin type.
-- **Use in Generator** opens the [generator](/generator) in the same way. Read [custom skins](/docs/features/custom-skins) for the `/sr createcustom` command.
+[Upload](/upload) and the [generator](/generator) have the same **Edit skin** button and the same editor. When you save, the edited skin is selected, and the page keeps its other choices. The page sends nothing until you select its generate button.
 
-The Upload and Generator pages send nothing until you select their generate button. If you reload these pages, they still have the skin from the editor in the same tab.
-
-## Edit from Upload or Generator
-
-On [Upload](/upload) and the [generator](/generator), select **Edit** next to the selected skin to open the editor over the page. The page keeps the model, cape, method, API key, and custom name that you chose.
-
-- **Save changes** returns to the page with the edited skin selected.
-- **Save as copy** returns with the new copy selected. The skin that you edited does not change.
-- **Discard** returns without changes.
-
-If you close the editor with **Esc**, the close button, or the browser Back button, and you have unsaved changes, the editor asks first. You can keep editing, discard the changes, or keep them as a draft.
+Old links to the editor page open the Studio. A link with a texture hash opens that texture in the Studio.
 
 ## Privacy
 
-Editing, **Your skins**, drafts, and PNG downloads happen in your browser. The editor does not send your skin image to SkinsRestorer or to any other server. Adding, renaming, or removing a skin in **Your skins** does not send it either.
+Editing, the library, drafts, and PNG downloads happen in your browser. The Studio does not send your skin image to SkinsRestorer or to any other server until you select a generate button. Adding, renaming, or removing a skin in the library does not send it either.
 
-If you open a texture URL, your browser downloads the image from `textures.minecraft.net`. If you use **Use in Upload** or **Use in Generator**, that page sends the PNG to MineSkin, directly or through the SkinsRestorer Axolotl proxy. This happens only when you select its generate button. Read [MineSkin integration](/docs/integrations/mineskin) for more.
+If you open a texture URL or a `.skin` file, your browser downloads the texture from `textures.minecraft.net`. The generate button sends the selected PNG to MineSkin, directly or through the SkinsRestorer Axolotl proxy. Read [MineSkin integration](/docs/integrations/mineskin) for more.
 
 ## If the 3D model does not show
 
-The 3D model needs WebGL. If your browser turns off WebGL or loses the graphics context, the editor shows a message. The texture editor, the skin check, and the download still work. Select **Try again** to start the model again.
+The 3D model needs WebGL. If your browser turns off WebGL or loses the graphics context, the Studio shows a message instead. Editing the texture, the skin check, generating, and the download still work. In the editor, select **Try again** to start the model again.

@@ -43,7 +43,14 @@ export function localizeHref(href: string, locale: Locale): string {
   if (!href.startsWith("/") || href.startsWith("//")) return href;
   const path = splitLocalePath(href.split(/[?#]/)[0]).path;
   return path === "/" ||
-    ["/upload", "/generator", "/editor", "/pricing", "/docs"].includes(path) ||
+    [
+      "/studio",
+      "/upload",
+      "/generator",
+      "/editor",
+      "/pricing",
+      "/docs",
+    ].includes(path) ||
     path.startsWith("/docs/")
     ? localizePath(href, locale)
     : href;

@@ -17,17 +17,17 @@ You need console access or `skinsrestorer.admincommand.createcustom`. On a netwo
 ## Create from a PNG
 
 1. Open [Generator](/generator).
-2. Choose your skin PNG, or select a skin under **Your skins**.
-3. Choose **Classic** or **Slim**.
-4. Select a supported cape if you need one.
-5. Enter a short skin name, such as `lobby`.
+2. Select **Upload skin** and choose your PNG, or select a skin in the **Library**.
+3. Choose **Classic** or **Slim** under **Model**.
+4. Select a supported cape under **Cape** if you need one.
+5. Optional: enter a short name under **Skin name**, such as `lobby`. Without a name, the command uses the name that MineSkin gives the skin.
 6. Optional: open **Advanced options** to choose the generation method.
-7. Select **Generate /sr createcustom command**.
-8. Run the generated command in the server or proxy console.
+7. Select **Generate /sr createcustom**.
+8. Copy the command and run it in the server or proxy console.
 
 The generator returns a command. It does not download a storage file or install the skin on your server.
 
-To change the skin first, select **Edit** next to the selected skin. Read [Edit from Upload or Generator](/docs/features/skin-editor#edit-from-upload-or-generator).
+The generator is the [Skin Studio](/docs/features/skin-editor) with the `/sr createcustom` command selected. To change the skin first, select **Edit skin**. Read [Edit from Upload or Generator](/docs/features/skin-editor#edit-from-upload-or-generator).
 
 ## Create from a player name or URL
 
@@ -55,6 +55,6 @@ To change the menu label, run `/sr setcustomname lobby Lobby skin`. The command 
 
 ## Existing skin files
 
-The generator's reverse conversion can read supported existing skin storage files. Use it to recover the texture for editing. Do not hand-edit a texture value or signature.
+The generator can read supported existing skin storage files. Select **+** in the **Library**, then **Open .skin file**. The texture of the file opens as a new skin, so you can edit it or generate a command again. Do not hand-edit a texture value or signature.
 
 Read [storage and backups](/docs/configuration/backups) before you remove stored data.

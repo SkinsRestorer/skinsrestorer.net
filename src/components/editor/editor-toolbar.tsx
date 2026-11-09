@@ -34,6 +34,7 @@ const toolIcons = {
 
 const tools: readonly PaintTool[] = ["pencil", "eraser", "fill", "eyedropper"];
 
+/** Icon-only paint tools, pointer action, and undo/redo. */
 export function EditorToolbar(props: {
   tool: PaintTool;
   layer: SkinLayer;
@@ -47,10 +48,11 @@ export function EditorToolbar(props: {
 }) {
   const t = useT();
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1.5">
       <ToggleGroup
         aria-label={t("Tool")}
         variant="outline"
+        size="sm"
         spacing={0}
         value={[props.tool]}
         onValueChange={(value) => {
@@ -80,17 +82,17 @@ export function EditorToolbar(props: {
                 }
               >
                 <Icon />
-                <span className="hidden sm:inline">{label}</span>
               </TooltipTrigger>
               <TooltipContent>{hint}</TooltipContent>
             </Tooltip>
           );
         })}
       </ToggleGroup>
-      <Separator orientation="vertical" className="hidden h-6 sm:block" />
+      <Separator orientation="vertical" className="hidden h-5 sm:block" />
       <ToggleGroup
         aria-label={t("Pointer action")}
         variant="outline"
+        size="sm"
         spacing={0}
         value={[props.interaction]}
         onValueChange={(value) => {
@@ -99,32 +101,42 @@ export function EditorToolbar(props: {
       >
         <Tooltip>
           <TooltipTrigger
-            render={<ToggleGroupItem value="paint" aria-keyshortcuts="P" />}
+            render={
+              <ToggleGroupItem
+                value="paint"
+                aria-label={t("Paint")}
+                aria-keyshortcuts="P"
+              />
+            }
           >
             <Brush />
-            {t("Paint")}
           </TooltipTrigger>
           <TooltipContent>{t("Pointers use the tool (P)")}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger
-            render={<ToggleGroupItem value="move" aria-keyshortcuts="M" />}
+            render={
+              <ToggleGroupItem
+                value="move"
+                aria-label={t("Move view")}
+                aria-keyshortcuts="M"
+              />
+            }
           >
             <Hand />
-            {t("Move view")}
           </TooltipTrigger>
           <TooltipContent>
             {t("Pointers scroll the texture and turn the model (M)")}
           </TooltipContent>
         </Tooltip>
       </ToggleGroup>
-      <Separator orientation="vertical" className="hidden h-6 sm:block" />
+      <Separator orientation="vertical" className="hidden h-5 sm:block" />
       <div className="flex gap-1">
         <Tooltip>
           <TooltipTrigger
             render={
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon-sm"
                 aria-label={t("Undo")}
                 aria-keyshortcuts="Control+Z"
@@ -141,7 +153,7 @@ export function EditorToolbar(props: {
           <TooltipTrigger
             render={
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon-sm"
                 aria-label={t("Redo")}
                 aria-keyshortcuts="Control+Shift+Z Control+Y"

@@ -36,6 +36,26 @@ function frontParts(variant: SkinVariant, legacy: boolean): Part[] {
   ];
 }
 
+/** Head, chest, and upper arms of both layers, on a 16×16 square. */
+function bustParts(variant: SkinVariant, legacy: boolean): Part[] {
+  const arm = variant === "slim" ? 3 : 4;
+  const left = 4 - arm;
+  const base: Part[] = [
+    [8, 8, 8, 8, 4, 0],
+    [20, 20, 8, 8, 4, 8],
+    [44, 20, arm, 8, left, 8],
+    legacy ? [44, 20, arm, 8, 12, 8] : [36, 52, arm, 8, 12, 8],
+    [40, 8, 8, 8, 4, 0],
+  ];
+  if (legacy) return base;
+  return [
+    ...base,
+    [20, 36, 8, 8, 4, 8],
+    [44, 36, arm, 8, left, 8],
+    [52, 52, arm, 8, 12, 8],
+  ];
+}
+
 const headParts: Part[] = [
   [8, 8, 8, 8, 0, 0],
   [40, 8, 8, 8, 0, 0],
@@ -48,7 +68,7 @@ const headParts: Part[] = [
 export function SkinThumbnail(props: {
   png: Blob;
   variant: SkinVariant;
-  view?: "body" | "head";
+  view?: "body" | "bust" | "head";
   className?: string;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -69,7 +89,11 @@ export function SkinThumbnail(props: {
         context.imageSmoothingEnabled = false;
         context.clearRect(0, 0, target.width, target.height);
         const parts =
-          view === "head" ? headParts : frontParts(props.variant, legacy);
+          view === "head"
+            ? headParts
+            : view === "bust"
+              ? bustParts(props.variant, legacy)
+              : frontParts(props.variant, legacy);
         for (const [sx, sy, w, h, dx, dy] of parts)
           context.drawImage(
             image,
@@ -94,7 +118,7 @@ export function SkinThumbnail(props: {
     <canvas
       ref={canvas}
       width={view === "head" ? 8 : 16}
-      height={view === "head" ? 8 : 32}
+      height={view === "head" ? 8 : view === "bust" ? 16 : 32}
       aria-hidden="true"
       className={cn("shrink-0 [image-rendering:pixelated]", props.className)}
     />

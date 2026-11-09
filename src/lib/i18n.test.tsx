@@ -69,15 +69,15 @@ test("Fumadocs filenames map locale suffixes and index files to stable slugs", (
 
 test("every tool translation is self-canonical with reciprocal hreflang and an English x-default", () => {
   for (const locale of locales) {
-    const head = getPageHead("/editor?texture=private#workspace", {
+    const head = getPageHead("/studio?texture=private#workspace", {
       locale,
-      title: "Skin Editor",
+      title: "Skin Studio",
     });
     const canonical = head.links.filter((link) => link.rel === "canonical");
     assert.deepEqual(canonical, [
       {
         rel: "canonical",
-        href: `https://skinsrestorer.net${localizePath("/editor", locale)}`,
+        href: `https://skinsrestorer.net${localizePath("/studio", locale)}`,
       },
     ]);
     assert.equal(
@@ -89,7 +89,7 @@ test("every tool translation is self-canonical with reciprocal hreflang and an E
         (link) =>
           "hrefLang" in link &&
           link.hrefLang === "x-default" &&
-          link.href === "https://skinsrestorer.net/editor",
+          link.href === "https://skinsrestorer.net/studio",
       ),
     );
     for (const other of locales)
@@ -99,14 +99,14 @@ test("every tool translation is self-canonical with reciprocal hreflang and an E
             "hrefLang" in link &&
             link.hrefLang === other &&
             link.href ===
-              `https://skinsrestorer.net${localizePath("/editor", other)}`,
+              `https://skinsrestorer.net${localizePath("/studio", other)}`,
         ),
       );
     assert.ok(
       head.meta.some(
         (tag) =>
           "title" in tag &&
-          tag.title === `${translate(locale, "Skin Editor")} - SR`,
+          tag.title === `${translate(locale, "Skin Studio")} - SR`,
       ),
     );
     assert.ok(

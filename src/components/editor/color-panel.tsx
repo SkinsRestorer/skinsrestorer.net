@@ -1,14 +1,6 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldTitle,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import type { Rgba } from "@/lib/skin-paint";
@@ -34,7 +26,11 @@ export function parseHex(value: string): [number, number, number] | undefined {
   ];
 }
 
-export function ColorPanel(props: {
+/**
+ * The paint color in one compact row: a swatch picker, a hex field, opacity
+ * for the outer layer, and recent colors.
+ */
+export function ColorControls(props: {
   color: Rgba;
   layer: SkinLayer;
   recent: readonly Rgba[];
@@ -42,8 +38,7 @@ export function ColorPanel(props: {
 }) {
   const t = useT();
   const { color, layer, recent, onChange } = props;
-  const pickerId = useId();
-  const hexId = useId();
+  const opacityId = useId();
   // Text being typed; the field shows the current color otherwise.
   const [hexDraft, setHexDraft] = useState<string | null>(null);
   const hexText = hexDraft ?? toHex(color);
@@ -51,99 +46,78 @@ export function ColorPanel(props: {
   const opacity = Math.round((color[3] / 255) * 100);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("Color")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <FieldGroup>
-          <div className="flex items-end gap-3">
-            <Field className="w-auto">
-              <FieldLabel htmlFor={pickerId}>{t("Swatch")}</FieldLabel>
-              <input
-                id={pickerId}
-                type="color"
-                value={toHex(color)}
-                onChange={(event) => {
-                  const rgb = parseHex(event.target.value);
-                  if (rgb) onChange([...rgb, color[3]]);
-                }}
-                className="h-9 w-14 cursor-pointer rounded-md border bg-background p-1"
-              />
-            </Field>
-            <Field data-invalid={!hexValid || undefined}>
-              <FieldLabel htmlFor={hexId}>{t("Hex code")}</FieldLabel>
-              <Input
-                id={hexId}
-                value={hexText}
-                spellCheck={false}
-                autoComplete="off"
-                aria-invalid={!hexValid || undefined}
-                onChange={(event) => {
-                  setHexDraft(event.target.value);
-                  const rgb = parseHex(event.target.value);
-                  if (rgb) onChange([...rgb, color[3]]);
-                }}
-                onBlur={() => setHexDraft(null)}
-              />
-            </Field>
-          </div>
-          <Field data-disabled={layer === "base" || undefined}>
-            <div className="flex items-center justify-between gap-2">
-              <FieldLabel id={`${pickerId}-opacity`}>{t("Opacity")}</FieldLabel>
-              <span className="text-sm tabular-nums text-muted-foreground">
-                {layer === "base" ? 100 : opacity}%
-              </span>
-            </div>
-            <Slider
-              aria-labelledby={`${pickerId}-opacity`}
-              min={0}
-              max={100}
-              step={1}
-              value={[layer === "base" ? 100 : opacity]}
-              disabled={layer === "base"}
-              onValueChange={(value) => {
-                const next = Array.isArray(value) ? value[0] : value;
-                onChange([
-                  color[0],
-                  color[1],
-                  color[2],
-                  Math.round((next / 100) * 255),
-                ]);
-              }}
-            />
-            {layer === "base" && (
-              <FieldDescription>
-                {t("The base layer is always opaque.")}
-              </FieldDescription>
-            )}
-          </Field>
-          {recent.length > 0 && (
-            <Field>
-              <FieldTitle>{t("Recent colors")}</FieldTitle>
-              <ul className="flex flex-wrap gap-1.5">
-                {recent.map((swatch) => {
-                  const hex = toHex(swatch);
-                  const key = `${hex}-${swatch[3]}`;
-                  return (
-                    <li key={key}>
-                      <RecentSwatch
-                        swatch={swatch}
-                        label={t("Use {color} at {opacity}% opacity", {
-                          color: hex,
-                          opacity: Math.round((swatch[3] / 255) * 100),
-                        })}
-                        onSelect={() => onChange(swatch)}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            </Field>
-          )}
-        </FieldGroup>
-      </CardContent>
-    </Card>
+    <div className="flex flex-wrap items-center gap-2">
+      <input
+        type="color"
+        aria-label={t("Paint color")}
+        value={toHex(color)}
+        onChange={(event) => {
+          const rgb = parseHex(event.target.value);
+          if (rgb) onChange([...rgb, color[3]]);
+        }}
+        className="h-8 w-10 cursor-pointer rounded-md border bg-background p-0.5"
+      />
+      <Input
+        aria-label={t("Hex code")}
+        value={hexText}
+        spellCheck={false}
+        autoComplete="off"
+        aria-invalid={!hexValid || undefined}
+        onChange={(event) => {
+          setHexDraft(event.target.value);
+          const rgb = parseHex(event.target.value);
+          if (rgb) onChange([...rgb, color[3]]);
+        }}
+        onBlur={() => setHexDraft(null)}
+        className="h-8 w-24"
+      />
+      {layer === "outer" && (
+        <div className="flex min-w-36 flex-1 items-center gap-2">
+          <span id={opacityId} className="text-xs text-muted-foreground">
+            {t("Opacity")}
+          </span>
+          <Slider
+            aria-labelledby={opacityId}
+            min={0}
+            max={100}
+            step={1}
+            value={[opacity]}
+            onValueChange={(value) => {
+              const next = Array.isArray(value) ? value[0] : value;
+              onChange([
+                color[0],
+                color[1],
+                color[2],
+                Math.round((next / 100) * 255),
+              ]);
+            }}
+          />
+          <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">
+            {opacity}%
+          </span>
+        </div>
+      )}
+      {recent.length > 0 && (
+        <ul aria-label={t("Recent colors")} className="flex flex-wrap gap-1">
+          {recent.map((swatch) => {
+            const hex = toHex(swatch);
+            const key = `${hex}-${swatch[3]}`;
+            return (
+              <li key={key}>
+                <RecentSwatch
+                  swatch={swatch}
+                  label={t("Use {color} at {opacity}% opacity", {
+                    color: hex,
+                    opacity: Math.round((swatch[3] / 255) * 100),
+                  })}
+                  onSelect={() => onChange(swatch)}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -168,7 +142,7 @@ function RecentSwatch(props: {
       aria-label={props.label}
       title={props.label}
       onClick={props.onSelect}
-      className="block size-7 overflow-hidden rounded-md border outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="block size-6 overflow-hidden rounded-md border outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       <canvas ref={setCanvas} width={2} height={2} className="size-full" />
     </button>

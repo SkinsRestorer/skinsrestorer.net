@@ -5,6 +5,7 @@ import {
   BookOpen,
   Download,
   Heart,
+  Palette,
   Upload,
   WandSparkles,
 } from "lucide-react";
@@ -171,6 +172,14 @@ const commands = [
 ];
 
 const skinTools = [
+  {
+    title: "Skin Studio",
+    description:
+      "Keep skins in your browser, fix or paint them in 2D or 3D, and get a command for your server.",
+    href: "/studio",
+    action: "Open the Studio",
+    icon: Palette,
+  },
   {
     title: "Upload a PNG",
     description:
@@ -486,7 +495,7 @@ export default function IndexPage() {
             ))}
           </ul>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
             {skinTools.map((tool) => (
               <Link
                 key={tool.href}

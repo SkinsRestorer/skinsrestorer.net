@@ -410,6 +410,8 @@ function errorMessage(cause: unknown, fallback: string) {
 
 /** Everything a generation result depends on. */
 export interface GenerationInput {
+  /** `/skin url` or `/sr createcustom`. */
+  readonly purpose: string;
   readonly file: File;
   readonly variant: SkinVariant;
   readonly method: string;
@@ -423,6 +425,7 @@ export interface GenerationInput {
  */
 export function sameGenerationInput(a: GenerationInput, b: GenerationInput) {
   return (
+    a.purpose === b.purpose &&
     a.file === b.file &&
     a.variant === b.variant &&
     a.method === b.method &&

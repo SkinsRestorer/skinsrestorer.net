@@ -1,5 +1,5 @@
 import { Data, Effect, Schema } from "effect";
-import { readHttpJson, readHttpText, runHttpEffect } from "./effect-http";
+import { readHttpJson, runHttpEffect } from "./effect-http";
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
 
@@ -210,13 +210,6 @@ export const fetchCapeSupportEffect = Effect.fn("MineSkin.capeSupport")(
     };
   },
 );
-export const fetchMineSkinStatusEffect = readHttpText(
-  `${MINESKIN_API_BASE_URL}/delay`,
-  {
-    headers: createMineSkinHeaders(),
-  },
-).pipe(Effect.map((response) => response.ok));
-
 // React event handlers and external callers consume Promises at this boundary.
 export const uploadMineSkinFile = (
   options: MineSkinUploadOptions,

@@ -30,23 +30,12 @@ export function HomeLayout({ children }: { children: ReactNode }) {
         },
         {
           type: "main",
-          text: t("Skin generator"),
-          url: localizeHref("/generator", locale),
+          text: t("Studio"),
+          url: localizeHref("/studio", locale),
+          active: "nested-url",
           description: t(
-            "Generate a command to save a named skin on your server",
+            "Edit skins and get /skin url or /sr createcustom commands",
           ),
-        },
-        {
-          type: "main",
-          text: t("Skin editor"),
-          url: localizeHref("/editor", locale),
-          description: t("Fix and paint a skin in 2D or 3D in your browser"),
-        },
-        {
-          type: "main",
-          text: t("Upload a skin"),
-          url: localizeHref("/upload", locale),
-          description: t("Get a /skin url command from a skin PNG"),
         },
         {
           type: "main",

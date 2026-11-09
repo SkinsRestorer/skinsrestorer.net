@@ -25,7 +25,7 @@ export function SkinIssueAlerts(props: {
           <Alert>
             <TriangleAlert aria-hidden="true" />
             <AlertTitle>{t(issue.title)}</AlertTitle>
-            <AlertDescription>
+            <AlertDescription className="min-w-0">
               <p>
                 {issue.id === "transparent-base"
                   ? t(
@@ -46,39 +46,41 @@ export function SkinIssueAlerts(props: {
                       )
                     : t(issue.detail)}
               </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {issue.repair && (
-                  <Button size="sm" onClick={() => props.onRepair(issue.id)}>
-                    {t(issue.repair.label)}
-                  </Button>
-                )}
-                {issue.switchVariant && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => props.onVariant(issue.switchVariant!)}
-                  >
-                    {t(
-                      issue.switchVariant === "slim"
-                        ? "Use slim"
-                        : "Use classic",
-                    )}
-                  </Button>
-                )}
+            </AlertDescription>
+            <div className="col-span-full mt-2 flex min-w-0 flex-wrap gap-2">
+              {issue.repair && (
                 <Button
                   size="sm"
-                  variant="ghost"
-                  aria-pressed={highlighted === issue.id}
-                  onClick={() =>
-                    props.onHighlight(
-                      highlighted === issue.id ? null : issue.id,
-                    )
-                  }
+                  className="h-auto min-h-8 max-w-full whitespace-normal"
+                  onClick={() => props.onRepair(issue.id)}
                 >
-                  {t("Show pixels")}
+                  {t(issue.repair.label)}
                 </Button>
-              </div>
-            </AlertDescription>
+              )}
+              {issue.switchVariant && (
+                <Button
+                  size="sm"
+                  className="h-auto min-h-8 max-w-full whitespace-normal"
+                  variant="outline"
+                  onClick={() => props.onVariant(issue.switchVariant!)}
+                >
+                  {t(
+                    issue.switchVariant === "slim" ? "Use slim" : "Use classic",
+                  )}
+                </Button>
+              )}
+              <Button
+                size="sm"
+                className="h-auto min-h-8 max-w-full whitespace-normal"
+                variant="ghost"
+                aria-pressed={highlighted === issue.id}
+                onClick={() =>
+                  props.onHighlight(highlighted === issue.id ? null : issue.id)
+                }
+              >
+                {t("Show pixels")}
+              </Button>
+            </div>
           </Alert>
         </li>
       ))}

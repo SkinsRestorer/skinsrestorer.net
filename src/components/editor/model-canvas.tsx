@@ -53,7 +53,9 @@ interface PaintTarget {
  * The texture reads the document pixels directly, so the preview never
  * changes them (loadSkin would clear hat pixels on opaque skins).
  */
-export function ModelCanvas(props: EditorSurfaceProps) {
+export function ModelCanvas(
+  props: EditorSurfaceProps & { readonly frameClassName?: string },
+) {
   const t = useT();
   const { store, interaction, settings } = props;
   const propsRef = useAsRef(props);
@@ -239,7 +241,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
     <div className="flex h-full flex-col gap-2">
       <div className="flex flex-wrap items-center gap-1">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon-sm"
           aria-label={t("Turn model left")}
           disabled={!!failure}
@@ -248,7 +250,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
           <RotateCcw />
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon-sm"
           aria-label={t("Turn model right")}
           disabled={!!failure}
@@ -257,7 +259,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
           <RotateCw />
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon-sm"
           aria-label={t("Zoom model out")}
           disabled={!!failure}
@@ -266,7 +268,7 @@ export function ModelCanvas(props: EditorSurfaceProps) {
           <ZoomOut />
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon-sm"
           aria-label={t("Zoom model in")}
           disabled={!!failure}
@@ -300,10 +302,13 @@ export function ModelCanvas(props: EditorSurfaceProps) {
       </div>
       <div
         ref={frameRef}
-        className="relative min-h-80 flex-1 overflow-hidden rounded-md border bg-muted/40"
+        className={cn(
+          "relative min-h-80 flex-1 overflow-hidden rounded-lg bg-muted",
+          props.frameClassName,
+        )}
       >
         {failure ? (
-          <div className="flex h-full min-h-80 flex-col items-center justify-center gap-3 p-6 text-center">
+          <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
             <Box className="text-muted-foreground" aria-hidden="true" />
             <output className="text-sm text-muted-foreground">
               {t(failure)}

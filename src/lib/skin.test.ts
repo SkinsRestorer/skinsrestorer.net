@@ -6,6 +6,7 @@ import {
   previewSkinFileEffect,
   SkinImages,
   validateSkinDimensions,
+  withSkinImageEffect,
 } from "./skin";
 
 function imageFixture(cached = false) {
@@ -202,4 +203,38 @@ test("successful detection keeps the preview URL until its owner is cancelled", 
     }).pipe(Effect.provideService(SkinImages, service)),
   );
   assert.equal(revoked, true);
+});
+
+test("a superseded image load never reaches its user", async () => {
+  const { image, service } = imageFixture();
+  const used: unknown[] = [];
+  const controller = new AbortController();
+  const pending = Effect.runPromiseExit(
+    withSkinImageEffect("blob:old", (loaded) => used.push(loaded)).pipe(
+      Effect.provideService(SkinImages, service),
+    ),
+    { signal: controller.signal },
+  );
+  await Promise.resolve();
+  const onload = image.onload;
+  controller.abort();
+  await pending;
+  // A late load event from the browser finds no owner.
+  onload?.();
+  assert.deepEqual(used, []);
+  assert.equal(image.onload, null);
+  assert.equal(image.src, "");
+});
+
+test("a loaded image is used while it is still attached", async () => {
+  const { image, service } = imageFixture(true);
+  const seen = await Effect.runPromise(
+    withSkinImageEffect(
+      "https://textures.minecraft.net/texture/a",
+      (loaded) => (loaded as unknown as typeof image).src,
+    ).pipe(Effect.provideService(SkinImages, service)),
+  );
+  assert.equal(seen, "https://textures.minecraft.net/texture/a");
+  assert.equal(image.crossOrigin, "Anonymous");
+  assert.equal(image.src, "");
 });

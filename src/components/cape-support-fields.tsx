@@ -6,19 +6,12 @@ import {
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
 import { InfoIcon, XIcon } from "lucide-react";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/hooks/use-cape-selection";
 import type { MineSkinCape } from "@/lib/mineskin";
 import { useT } from "@/lib/i18n-react";
@@ -112,79 +105,73 @@ export function MineSkinKeyFields(props: {
   );
 }
 
-/** The cape choice. It stays visible outside the advanced options. */
-export function CapeField(props: {
-  capeStatus: CapeStatus;
+/**
+ * The cape choice, always visible as a grid. "No cape" is a dotted outline.
+ * Capes stay disabled while the chosen method cannot apply them.
+ */
+export function CapePicker(props: {
   capeOptionsDisabled: boolean;
   supportedCapes: MineSkinCape[];
   selectedCapeUuid: string;
   onCapeChange: (value: string) => void;
-  /** The Official method needs a key with the capes grant. */
-  needsApiKey: boolean;
+  /** Official needs a key with the capes grant; offer to open the key field. */
+  keyHint?: ReactNode;
+  labelledBy?: string;
 }) {
   const t = useT();
-  const capeSelectId = useId();
-  const capeItems = [
-    {
-      value: NO_CAPE_VALUE,
-      disabled: false,
-      label: (
-        <div className="flex items-center gap-2">
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-5 shrink-0 items-center justify-center rounded border border-dotted border-muted-foreground/60 text-muted-foreground"
-          >
-            <XIcon className="size-3" />
-          </span>
-          <span>{t("No cape")}</span>
-        </div>
-      ),
-    },
+  const selected = props.supportedCapes.find(
+    (cape) => cape.uuid === props.selectedCapeUuid,
+  );
+  const items = [
+    { value: NO_CAPE_VALUE, label: t("No cape"), texture: undefined },
     ...props.supportedCapes.map((cape) => ({
       value: cape.uuid,
-      disabled: props.capeOptionsDisabled,
-      label: (
-        <div className="flex items-center gap-2">
-          <CapePreview texture={cape.url} />
-          <span>{cape.alias}</span>
-        </div>
-      ),
+      label: cape.alias,
+      texture: cape.url,
     })),
   ];
   return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={capeSelectId}>{t("Cape (optional)")}</Label>
-      <Select
-        items={capeItems}
-        value={props.selectedCapeUuid}
-        onValueChange={(value) => {
-          if (value !== null) props.onCapeChange(value);
-        }}
-      >
-        <SelectTrigger id={capeSelectId}>
-          <SelectValue placeholder={t("No cape")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {capeItems.map((item) => (
-              <SelectItem
-                key={item.value}
-                value={item.value}
-                disabled={item.disabled}
-              >
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      {props.needsApiKey && props.capeStatus !== "granted" && (
-        <p className="text-xs text-muted-foreground">
-          {t(
-            "Load cape support with a valid API key under Advanced options to preview and apply capes.",
-          )}
-        </p>
-      )}
+    <div className="flex flex-col gap-1.5">
+      <div className="max-h-36 overflow-y-auto p-0.5">
+        <ToggleGroup
+          aria-labelledby={props.labelledBy}
+          variant="outline"
+          spacing={1.5}
+          className="grid w-full grid-cols-4"
+          value={[props.selectedCapeUuid]}
+          onValueChange={(value) => {
+            if (value[0]) props.onCapeChange(value[0]);
+          }}
+        >
+          {items.map((item) => (
+            <ToggleGroupItem
+              key={item.value}
+              value={item.value}
+              aria-label={item.label}
+              title={item.label}
+              disabled={item.texture !== undefined && props.capeOptionsDisabled}
+              className="h-14 w-full min-w-0"
+            >
+              {item.texture ? (
+                <CapePreview texture={item.texture} />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="flex h-10 w-[1.5625rem] items-center justify-center rounded-xs border border-dashed border-muted-foreground text-muted-foreground"
+                >
+                  <XIcon className="size-3.5" />
+                </span>
+              )}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </div>
+      <p className="truncate text-xs text-muted-foreground" aria-live="polite">
+        <span className="font-medium text-foreground">
+          {selected?.alias ?? t("No cape")}
+        </span>
+      </p>
+      {props.keyHint}
     </div>
   );
 }
@@ -232,7 +219,8 @@ function CapePreview({ texture }: { texture: string }) {
       ref={canvasRef}
       width={10}
       height={16}
-      className="h-8 w-5 shrink-0 rounded border border-border bg-muted [image-rendering:pixelated]"
+      aria-hidden="true"
+      className="h-10 w-[1.5625rem] shrink-0 [image-rendering:pixelated]"
     />
   );
 }

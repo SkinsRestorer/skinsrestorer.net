@@ -3,9 +3,9 @@ import { locales, localizePath } from "./i18n.ts";
 
 export const sitePages = [
   "/",
+  "/studio",
   "/upload",
   "/generator",
-  "/editor",
   "/pricing",
   "/privacy-policy",
   "/terms-of-service",
@@ -17,7 +17,7 @@ export const localizedSitePages = [
   ...locales
     .filter((locale) => locale !== "en")
     .flatMap((locale) =>
-      ["/", "/upload", "/generator", "/editor", "/pricing"].map((path) =>
+      ["/", "/studio", "/upload", "/generator", "/pricing"].map((path) =>
         localizePath(path, locale),
       ),
     ),

@@ -33,7 +33,7 @@ export function getPageHead(
   const url = new URL(localizePath(bare, contentLocale), siteUrl).href;
   const alternatives =
     options.alternatives ??
-    (["/", "/upload", "/generator", "/editor", "/pricing"].includes(bare)
+    (["/", "/studio", "/upload", "/generator", "/pricing"].includes(bare)
       ? locales
       : ["en"]);
   return {

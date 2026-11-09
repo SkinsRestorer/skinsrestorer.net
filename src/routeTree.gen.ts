@@ -23,9 +23,9 @@ import { Route as DocsOgSplatRouteImport } from './routes/docs-og/$'
 import { Route as LlmsDotmdxSplatRouteImport } from './routes/llms[.]mdx/$'
 import { Route as Char123LangChar125IndexRouteImport } from './routes/{-$lang}/index'
 import { Route as Char123LangChar125DocsDotmdxRouteImport } from './routes/{-$lang}/docs[.]mdx'
-import { Route as Char123LangChar125EditorRouteImport } from './routes/{-$lang}/editor'
 import { Route as Char123LangChar125GeneratorRouteImport } from './routes/{-$lang}/generator'
 import { Route as Char123LangChar125PricingRouteImport } from './routes/{-$lang}/pricing'
+import { Route as Char123LangChar125StudioRouteImport } from './routes/{-$lang}/studio'
 import { Route as Char123LangChar125UploadRouteImport } from './routes/{-$lang}/upload'
 import { Route as Char123LangChar125DocsSplatRouteImport } from './routes/{-$lang}/docs/$'
 import { Route as Char123LangChar125DocsChar123Char125DotmdxRouteImport } from './routes/{-$lang}/docs/{$}[.]mdx'
@@ -101,12 +101,6 @@ const Char123LangChar125DocsDotmdxRoute =
     path: '/docs.mdx',
     getParentRoute: () => Char123LangChar125RouteRoute,
   } as any)
-const Char123LangChar125EditorRoute =
-  Char123LangChar125EditorRouteImport.update({
-    id: '/editor',
-    path: '/editor',
-    getParentRoute: () => Char123LangChar125RouteRoute,
-  } as any)
 const Char123LangChar125GeneratorRoute =
   Char123LangChar125GeneratorRouteImport.update({
     id: '/generator',
@@ -117,6 +111,12 @@ const Char123LangChar125PricingRoute =
   Char123LangChar125PricingRouteImport.update({
     id: '/pricing',
     path: '/pricing',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
+const Char123LangChar125StudioRoute =
+  Char123LangChar125StudioRouteImport.update({
+    id: '/studio',
+    path: '/studio',
     getParentRoute: () => Char123LangChar125RouteRoute,
   } as any)
 const Char123LangChar125UploadRoute =
@@ -152,9 +152,9 @@ export interface FileRoutesByFullPath {
   '/docs-og/$': typeof DocsOgSplatRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
   '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
-  '/{-$lang}/editor': typeof Char123LangChar125EditorRoute
   '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
   '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
+  '/{-$lang}/studio': typeof Char123LangChar125StudioRoute
   '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
   '/{-$lang}/': typeof Char123LangChar125IndexRoute
   '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
@@ -173,9 +173,9 @@ export interface FileRoutesByTo {
   '/docs-og/$': typeof DocsOgSplatRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
   '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
-  '/{-$lang}/editor': typeof Char123LangChar125EditorRoute
   '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
   '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
+  '/{-$lang}/studio': typeof Char123LangChar125StudioRoute
   '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
   '/{-$lang}': typeof Char123LangChar125IndexRoute
   '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
@@ -196,9 +196,9 @@ export interface FileRoutesById {
   '/docs-og/$': typeof DocsOgSplatRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
   '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
-  '/{-$lang}/editor': typeof Char123LangChar125EditorRoute
   '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
   '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
+  '/{-$lang}/studio': typeof Char123LangChar125StudioRoute
   '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
   '/{-$lang}/': typeof Char123LangChar125IndexRoute
   '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
@@ -220,9 +220,9 @@ export interface FileRouteTypes {
     | '/docs-og/$'
     | '/llms.mdx/$'
     | '/{-$lang}/docs.mdx'
-    | '/{-$lang}/editor'
     | '/{-$lang}/generator'
     | '/{-$lang}/pricing'
+    | '/{-$lang}/studio'
     | '/{-$lang}/upload'
     | '/{-$lang}/'
     | '/{-$lang}/docs/$'
@@ -241,9 +241,9 @@ export interface FileRouteTypes {
     | '/docs-og/$'
     | '/llms.mdx/$'
     | '/{-$lang}/docs.mdx'
-    | '/{-$lang}/editor'
     | '/{-$lang}/generator'
     | '/{-$lang}/pricing'
+    | '/{-$lang}/studio'
     | '/{-$lang}/upload'
     | '/{-$lang}'
     | '/{-$lang}/docs/$'
@@ -263,9 +263,9 @@ export interface FileRouteTypes {
     | '/docs-og/$'
     | '/llms.mdx/$'
     | '/{-$lang}/docs.mdx'
-    | '/{-$lang}/editor'
     | '/{-$lang}/generator'
     | '/{-$lang}/pricing'
+    | '/{-$lang}/studio'
     | '/{-$lang}/upload'
     | '/{-$lang}/'
     | '/{-$lang}/docs/$'
@@ -387,13 +387,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LangChar125DocsDotmdxRouteImport
       parentRoute: typeof Char123LangChar125RouteRoute
     }
-    '/{-$lang}/editor': {
-      id: '/{-$lang}/editor'
-      path: '/editor'
-      fullPath: '/{-$lang}/editor'
-      preLoaderRoute: typeof Char123LangChar125EditorRouteImport
-      parentRoute: typeof Char123LangChar125RouteRoute
-    }
     '/{-$lang}/generator': {
       id: '/{-$lang}/generator'
       path: '/generator'
@@ -406,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/{-$lang}/pricing'
       preLoaderRoute: typeof Char123LangChar125PricingRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/studio': {
+      id: '/{-$lang}/studio'
+      path: '/studio'
+      fullPath: '/{-$lang}/studio'
+      preLoaderRoute: typeof Char123LangChar125StudioRouteImport
       parentRoute: typeof Char123LangChar125RouteRoute
     }
     '/{-$lang}/upload': {
@@ -434,9 +434,9 @@ declare module '@tanstack/react-router' {
 
 interface Char123LangChar125RouteRouteChildren {
   Char123LangChar125DocsDotmdxRoute: typeof Char123LangChar125DocsDotmdxRoute
-  Char123LangChar125EditorRoute: typeof Char123LangChar125EditorRoute
   Char123LangChar125GeneratorRoute: typeof Char123LangChar125GeneratorRoute
   Char123LangChar125PricingRoute: typeof Char123LangChar125PricingRoute
+  Char123LangChar125StudioRoute: typeof Char123LangChar125StudioRoute
   Char123LangChar125UploadRoute: typeof Char123LangChar125UploadRoute
   Char123LangChar125IndexRoute: typeof Char123LangChar125IndexRoute
   Char123LangChar125DocsSplatRoute: typeof Char123LangChar125DocsSplatRoute
@@ -446,9 +446,9 @@ interface Char123LangChar125RouteRouteChildren {
 const Char123LangChar125RouteRouteChildren: Char123LangChar125RouteRouteChildren =
   {
     Char123LangChar125DocsDotmdxRoute: Char123LangChar125DocsDotmdxRoute,
-    Char123LangChar125EditorRoute: Char123LangChar125EditorRoute,
     Char123LangChar125GeneratorRoute: Char123LangChar125GeneratorRoute,
     Char123LangChar125PricingRoute: Char123LangChar125PricingRoute,
+    Char123LangChar125StudioRoute: Char123LangChar125StudioRoute,
     Char123LangChar125UploadRoute: Char123LangChar125UploadRoute,
     Char123LangChar125IndexRoute: Char123LangChar125IndexRoute,
     Char123LangChar125DocsSplatRoute: Char123LangChar125DocsSplatRoute,

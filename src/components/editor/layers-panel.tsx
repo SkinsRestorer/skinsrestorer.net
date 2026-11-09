@@ -1,33 +1,53 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-  FieldTitle,
-} from "@/components/ui/field";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { FieldLabel } from "@/components/ui/field";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
-import { ModelSelector } from "@/components/model-selector";
-import type { SkinVariant } from "@/lib/skin";
 import { allPartsVisible, type PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
 import { useT } from "@/lib/i18n-react";
 
-export function LayersPanel(props: {
+/** The active layer. Tools change only this layer (L switches). */
+export function LayerToggle(props: {
   layer: SkinLayer;
-  variant: SkinVariant;
-  visibility: PartVisibility;
   onLayerChange: (layer: SkinLayer) => void;
-  onVariantChange: (variant: SkinVariant) => void;
+}) {
+  const t = useT();
+  return (
+    <ToggleGroup
+      aria-label={t("Active layer (L)")}
+      variant="outline"
+      size="sm"
+      spacing={0}
+      value={[props.layer]}
+      onValueChange={(value) => {
+        if (value[0]) props.onLayerChange(value[0] as SkinLayer);
+      }}
+    >
+      <ToggleGroupItem value="base" aria-keyshortcuts="L">
+        {t("Base")}
+      </ToggleGroupItem>
+      <ToggleGroupItem value="outer" aria-keyshortcuts="L">
+        {t("Outer")}
+      </ToggleGroupItem>
+    </ToggleGroup>
+  );
+}
+
+/** Hide parts or layers. Tools do not change hidden parts. Closed by default. */
+export function VisibleParts(props: {
+  visibility: PartVisibility;
   onVisibilityChange: (visibility: PartVisibility) => void;
 }) {
   const t = useT();
-  const { layer, variant, visibility } = props;
+  const { visibility } = props;
   const toggle = (part: (typeof skinParts)[number], target: SkinLayer) =>
     props.onVisibilityChange({
       ...visibility,
@@ -36,59 +56,33 @@ export function LayersPanel(props: {
   const allShown = skinParts.every(
     (part) => visibility[part].base && visibility[part].outer,
   );
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("Model and layers")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <FieldGroup>
-          <Field>
-            <FieldTitle id="editor-model-label">{t("Model")}</FieldTitle>
-            <ModelSelector
-              aria-labelledby="editor-model-label"
-              value={variant}
-              onValueChange={props.onVariantChange}
+    <div className="border-t">
+      <Collapsible>
+        <CollapsibleTrigger
+          render={
+            <button
+              type="button"
+              className="group flex w-full items-center gap-1.5 rounded-md py-2.5 text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             />
-          </Field>
-          <Field>
-            <FieldTitle id="editor-layer-label">
-              {t("Active layer (L)")}
-            </FieldTitle>
-            <ToggleGroup
-              aria-labelledby="editor-layer-label"
-              variant="outline"
-              spacing={0}
-              className="w-full"
-              value={[layer]}
-              onValueChange={(value) => {
-                if (value[0]) props.onLayerChange(value[0] as SkinLayer);
-              }}
-            >
-              <ToggleGroupItem value="base" className="flex-1">
-                {t("Base")}
-              </ToggleGroupItem>
-              <ToggleGroupItem value="outer" className="flex-1">
-                {t("Outer")}
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </Field>
-          <FieldSet>
-            <div className="flex items-center justify-between gap-2">
-              <FieldLegend variant="label">{t("Visible parts")}</FieldLegend>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={allShown}
-                onClick={() => props.onVisibilityChange(allPartsVisible())}
-              >
-                {t("Show all")}
-              </Button>
-            </div>
+          }
+        >
+          <ChevronRight
+            aria-hidden="true"
+            className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-90 motion-reduce:transition-none"
+          />
+          {t("Visible parts")}
+          {!allShown && (
+            <span className="ml-auto text-xs font-normal text-muted-foreground">
+              {t("Some hidden")}
+            </span>
+          )}
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="flex flex-col gap-1 pb-1">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-muted-foreground">
+                <tr className="text-left text-xs text-muted-foreground">
                   <th scope="col" className="pb-1 font-normal">
                     {t("Part")}
                   </th>
@@ -103,7 +97,7 @@ export function LayersPanel(props: {
               <tbody>
                 {skinParts.map((part) => (
                   <tr key={part}>
-                    <th scope="row" className="py-1 text-left font-medium">
+                    <th scope="row" className="py-1 text-left font-normal">
                       {t(skinPartLabels[part])}
                     </th>
                     {(["base", "outer"] as const).map((target) => (
@@ -126,9 +120,18 @@ export function LayersPanel(props: {
                 ))}
               </tbody>
             </table>
-          </FieldSet>
-        </FieldGroup>
-      </CardContent>
-    </Card>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-start"
+              disabled={allShown}
+              onClick={() => props.onVisibilityChange(allPartsVisible())}
+            >
+              {t("Show all")}
+            </Button>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 }

@@ -31,8 +31,13 @@ const aliases: Record<string, string> = {
     "/docs/troubleshooting/firewall",
 };
 
+/** Retired pages that moved permanently. The query string is kept. */
+const moved: Record<string, string> = { "/editor": "/studio" };
+
 export function getSiteRedirect(pathname: string) {
   const { path, locale } = splitLocalePath(pathname);
+  if (moved[path])
+    return { destination: localizeHref(moved[path], locale), status: 308 };
   const markdown = path.endsWith(".mdx");
   const retired = docsRedirects.find(
     (item) => item.source === (markdown ? path.slice(0, -4) : path),

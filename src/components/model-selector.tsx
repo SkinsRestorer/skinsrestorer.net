@@ -14,13 +14,13 @@ const models = [
  * A pixel drawing of a Minecraft upper body, drawn on the skin's own grid:
  * an 8×8 head, an 8 px wide body, and arms 4 or 3 px wide.
  */
-function ModelIcon({ arm }: { arm: 3 | 4 }) {
+function ModelIcon({ arm, className }: { arm: 3 | 4; className?: string }) {
   const left = 6 - arm;
   return (
     <svg
       viewBox="0 0 20 21"
       aria-hidden="true"
-      className="size-11 shrink-0 [shape-rendering:crispEdges]"
+      className={cn("size-11 shrink-0 [shape-rendering:crispEdges]", className)}
     >
       <rect
         className="fill-muted-foreground"
@@ -57,19 +57,26 @@ function ModelIcon({ arm }: { arm: 3 | 4 }) {
   );
 }
 
-/** Pick Classic or Slim. Both pages and the editor use this control. */
+/**
+ * Pick Classic or Slim. The stacked layout puts the icon above the name for
+ * narrow panels; the accessible name always says the arm width.
+ */
 export function ModelSelector(props: {
   value: SkinVariant;
   onValueChange: (value: SkinVariant) => void;
   className?: string;
+  layout?: "row" | "stacked";
+  disabled?: boolean;
   "aria-labelledby"?: string;
 }) {
+  const stacked = props.layout === "stacked";
   const t = useT();
   return (
     <ToggleGroup
       aria-labelledby={props["aria-labelledby"]}
       variant="outline"
-      spacing={0}
+      spacing={stacked ? 2 : 0}
+      disabled={props.disabled}
       className={cn("grid w-full grid-cols-2", props.className)}
       value={[props.value]}
       onValueChange={(value) => {
@@ -84,17 +91,27 @@ export function ModelSelector(props: {
             model: t(model.label),
             width: model.arm,
           })}
-          className="h-auto min-h-16 justify-center"
+          className={cn(
+            "h-auto justify-center",
+            stacked ? "min-h-0 w-full" : "min-h-16",
+          )}
         >
-          <span className="flex items-center gap-3 py-2">
-            <ModelIcon arm={model.arm} />
-            <span className="flex flex-col items-start gap-0.5">
-              <span className="text-sm font-semibold">{t(model.label)}</span>
-              <span className="text-xs font-normal text-muted-foreground">
-                {t(model.detail)}
+          {stacked ? (
+            <span className="flex flex-col items-center gap-1 pt-2 pb-1.5">
+              <ModelIcon arm={model.arm} className="h-10 w-10" />
+              <span className="text-xs font-medium">{t(model.label)}</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-3 py-2">
+              <ModelIcon arm={model.arm} />
+              <span className="flex flex-col items-start gap-0.5">
+                <span className="text-sm font-semibold">{t(model.label)}</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {t(model.detail)}
+                </span>
               </span>
             </span>
-          </span>
+          )}
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

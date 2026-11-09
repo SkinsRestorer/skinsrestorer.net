@@ -20,9 +20,9 @@ test(
 
     for (const [path, heading] of [
       ["/", "Player skins for your Minecraft server"],
+      ["/studio", "Skin Studio"],
       ["/generator", "Custom Skin Generator"],
       ["/upload", "Skin Upload"],
-      ["/editor", "Skin editor"],
       ["/pricing", "Simple, transparent pricing"],
       ["/privacy-policy", "Privacy Policy"],
       ["/terms-of-service", "Terms of Service"],
@@ -237,6 +237,8 @@ test(
 
     for (const [path, status, destination] of [
       ["/install?from=test", 307, "/docs/installation?from=test"],
+      ["/editor?texture=abc", 308, "/studio?texture=abc"],
+      ["/ru/editor", 308, "/ru/studio"],
       ["/docs/features/skin-url", 308, "/docs/features/skin-upload"],
       ["/docs/features/skin-url.mdx", 308, "/docs/features/skin-upload.mdx"],
     ] as const) {

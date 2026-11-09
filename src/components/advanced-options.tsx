@@ -14,18 +14,23 @@ import { useT } from "@/lib/i18n-react";
 export type UploadMethod = "axolotl" | "mineskin";
 
 /**
- * The upload method and the optional MineSkin key, closed by default. It
- * stays mounted, so it keeps its open state while the user edits the skin
- * or changes other options.
+ * The upload method and the optional MineSkin key, closed by default. The
+ * Studio keeps it mounted, so it keeps its open state while the user edits
+ * the skin or changes other options.
  */
 export function AdvancedOptions(props: {
   method: UploadMethod;
   onMethodChange: (method: UploadMethod) => void;
   /** Fields for the Official method, such as the API key. */
   officialFields: ReactNode;
+  /** Controlled open state, for example to show the key field on request. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const t = useT();
-  const [open, setOpen] = useState(false);
+  const [ownOpen, setOwnOpen] = useState(false);
+  const open = props.open ?? ownOpen;
+  const setOpen = props.onOpenChange ?? setOwnOpen;
   return (
     <div className="border-t">
       <Collapsible open={open} onOpenChange={setOpen}>
@@ -33,7 +38,7 @@ export function AdvancedOptions(props: {
           render={
             <button
               type="button"
-              className="group flex w-full items-center justify-between gap-3 rounded-md py-3 text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="group flex w-full items-center justify-between gap-3 rounded-md py-2.5 text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           }
         >
@@ -45,9 +50,7 @@ export function AdvancedOptions(props: {
             {t("Advanced options")}
           </span>
           <span className="text-xs font-normal text-muted-foreground">
-            {props.method === "axolotl"
-              ? t("Axolotl (default)")
-              : t("Official MineSkin")}
+            {props.method === "axolotl" ? t("Axolotl") : t("Official")}
           </span>
         </CollapsibleTrigger>
         <CollapsibleContent>

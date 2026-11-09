@@ -267,6 +267,39 @@ test("a change in another tab is offered, never swapped into the form", async ()
   store.dispose();
 });
 
+test("a populated library stays unselected on startup and library updates", async () => {
+  const client = library();
+  let imported = false;
+  const seed = new SkinSelectionStore({
+    preview: autoPreview(),
+    library: client,
+    events: { imported: () => (imported = true) },
+  });
+  seed.selectFiles([await skinFile(1), await skinFile(2)]);
+  await until(() => imported);
+  seed.dispose();
+
+  const preview = manualPreview();
+  const store = new SkinSelectionStore({
+    preview: preview.preview,
+    library: client,
+  });
+  store.connect();
+  try {
+    const { skins } = await client.run(withLibrary((l) => l.list));
+    assert.equal(skins.length, 2);
+    assert.equal(store.getSnapshot().selection, null);
+
+    await client.run(withLibrary((l) => l.rename(skins[0].id, "Renamed skin")));
+    store.refresh();
+    assert.equal(store.getSnapshot().selection, null);
+    assert.equal(store.getSnapshot().previewUrl, null);
+    assert.equal(preview.pending.length, 0);
+  } finally {
+    store.dispose();
+  }
+});
+
 test("a skin selected from the library is the stored current version", async () => {
   const client = library();
   const keep = new SkinSelectionStore({
@@ -294,6 +327,7 @@ test("a skin selected from the library is the stored current version", async () 
 test("a generation result belongs to the exact snapshot and options", async () => {
   const file = await skinFile(1);
   const input = {
+    purpose: "skin-url",
     file,
     variant: "classic" as const,
     method: "axolotl",
@@ -302,6 +336,7 @@ test("a generation result belongs to the exact snapshot and options", async () =
   };
   assert.equal(sameGenerationInput(input, { ...input }), true);
   for (const change of [
+    { purpose: "createcustom" },
     { file: new File([file], file.name) },
     { variant: "slim" as const },
     { method: "mineskin" },

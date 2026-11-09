@@ -1,6 +1,6 @@
 ---
-title: "Editar una skin en el sitio"
-description: "Corrige y pinta una skin PNG en el navegador, descárgala o genera un comando."
+title: "Estudio de skins"
+description: "Guarda skins en tu navegador, corrígelas y píntalas en 2D o 3D, y obtén un comando de SkinsRestorer."
 docType: "how-to"
 appliesTo: "Usuarios del sitio y jugadores de Java Edition"
 reviewed: "2026-11-09"
@@ -8,95 +8,140 @@ version: "15.12.6"
 icon: "Brush"
 ---
 
-El [editor](/editor) trabaja con skins de Java Edition en el navegador. No se conecta a tu servidor de Minecraft.
+El [Estudio de skins](/studio) trabaja con skins de Java Edition en el navegador. Tiene tres partes:
 
-## Abrir una skin [#open-a-skin]
+- La **Biblioteca** a la izquierda: las skins que guarda este navegador.
+- La skin seleccionada en el centro, como un modelo 3D que puedes girar.
+- Las opciones a la derecha: el modelo, la capa y el comando que se genera.
 
-Elige una skin guardada, un PNG de 64×64 o 64×32 de hasta 5 MB, o una plantilla clásica o delgada. También puedes abrir un hash o URL `https://textures.minecraft.net/texture/…`.
+En un teléfono, la biblioteca se abre con el botón **Biblioteca** y las opciones están debajo del modelo.
 
-El formato antiguo 64×32 se convierte a 64×64. El brazo y la pierna izquierdos reciben copias reflejadas de los derechos, como en el juego. El editor no abre skins HD. Redúcelas primero a 64×64 en otro editor.
+[Subir skin](/upload) y el [generador](/generator) abren el mismo estudio. Subir skin siempre crea un comando `/skin url`. El generador siempre crea un comando `/sr createcustom`. En la página del estudio, elige **Usar en un servidor** o **Skin personalizada**. El estudio no se conecta a tu servidor de Minecraft. Más detalles en [Privacidad](#privacy).
 
-Solo se admiten enlaces de `textures.minecraft.net`. Para otros sitios, descarga el PNG. No se buscan nombres de jugadores. En el [generador](/generator), **Editar esta skin** abre la textura extraída de un archivo de skin.
+## Añadir una skin [#add-a-skin]
 
-Los archivos y texturas abiertos se añaden a **Tus skins**. Si ya existe una skin con los mismos píxeles y modelo, se usa esa entrada.
+Selecciona **+** en la biblioteca y elige una opción:
 
-## Pintar [#paint]
+- **Subir PNG**: una skin PNG de hasta 5 MB. También puedes soltar archivos PNG en el centro de la página.
+- **Crear skin**: una figura clásica o delgada simple que pintas y guardas.
+- **Abrir archivo .skin**: un archivo de almacenamiento de SkinsRestorer, como `.customskin`. El estudio lee la URL de textura del archivo y abre esa textura.
+- **Abrir URL de textura**: un hash de textura o una URL `https://textures.minecraft.net/texture/…`.
 
-1. Elige **Clásica** o **Delgada** en **Modelo**. Cambiar el modelo no mueve los píxeles.
-2. Elige la capa **Base** o **Exterior**.
-3. Elige **Lápiz**, **Borrador**, **Rellenar cara** o **Tomar color**.
-4. Pinta en la textura o el modelo 3D.
+El estudio añade cada skin nueva a la biblioteca y la selecciona. Si la misma skin con el mismo modelo ya está en la biblioteca, usa esa skin. La skin seleccionada se muestra al instante y no se sube nada.
 
-En Java Edition, la capa base siempre es opaca. El lápiz pinta píxeles opacos en ella y el borrador solo funciona en la capa exterior. La capa exterior admite transparencia.
+Solo se aceptan enlaces de `textures.minecraft.net`. Para una skin de otro sitio, descarga el PNG y súbelo. El estudio no busca nombres de jugadores.
 
-El relleno se limita al área conectada de un color dentro de una cara. En 3D, el trazo permanece en la cara donde empezó. Las herramientas no cambian partes ocultas. Oculta la capa exterior de una parte para pintar debajo.
+## Obtener un comando [#get-a-command]
 
-Cada trazo, relleno, reparación y cambio de modelo ocupa un paso de deshacer. Abrir otra skin reinicia el historial.
+Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. La [guía de subida](/docs/features/skin-upload) y las [skins personalizadas](/docs/features/custom-skins) explican cada comando.
 
-## Mover la vista [#move-the-view]
+## Editar una skin [#edit-a-skin]
 
-**Mover vista** desplaza la textura y gira el modelo. **Pintar** vuelve a la herramienta. En modo pintura, gira con el botón derecho o dos dedos. Los botones de zoom cambian la vista. El zoom de la página con dos dedos funciona fuera de las superficies de pintura.
+Selecciona **Editar skin** debajo del modelo. El centro muestra la textura y la derecha un modelo 3D en vivo. El editor abre skins de 64×64 y skins antiguas de 64×32. Convierte una skin de 64×32 al formato 64×64 sin aviso. Para editar una skin HD, redimensiónala primero a 64×64 en un editor de imágenes.
 
-## Teclado [#keyboard]
+1. Elige la capa **Base** o **Exterior**. Las herramientas cambian solo la capa activa.
+2. Elige una herramienta: **Lápiz**, **Borrador**, **Rellenar cara** o **Tomar color**.
+3. Elige un color debajo de la textura.
+4. Pinta sobre la textura o sobre el modelo 3D.
+
+La capa base siempre es opaca en Java Edition. Por eso el lápiz pinta píxeles opacos en la capa base y el borrador solo funciona en la capa exterior. La capa exterior puede tener píxeles transparentes, por eso tiene un control de opacidad.
+
+**Rellenar cara** rellena el área conectada de un color y se detiene en el borde de la cara. En el modelo 3D, un trazo se queda en la cara donde empezó.
+
+Usa **Partes visibles** para ocultar una parte o una capa. Las herramientas no cambian las partes ocultas. Para pintar la capa base bajo un píxel exterior, oculta la capa exterior de esa parte.
+
+Cada trazo, relleno o corrección es un paso de deshacer. Cambiar el modelo también lo es.
+
+### Mover la vista [#move-the-view]
+
+Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un arrastre con el botón derecho o dos dedos giran el modelo.
+
+### Teclado [#keyboard]
 
 | Tecla | Acción |
 | --- | --- |
-| `B` / `E` / `G` / `I` | Lápiz / borrador / relleno / tomar color |
-| `L` | Cambiar de capa |
-| `P` / `M` | Pintar / mover |
+| `B` | Lápiz |
+| `E` | Borrador |
+| `G` | Rellenar cara |
+| `I` | Tomar color |
+| `L` | Cambiar entre la capa base y la exterior |
+| `P` / `M` | Pintar o mover la vista |
 | `Ctrl+Z` | Deshacer |
 | `Ctrl+Shift+Z` o `Ctrl+Y` | Rehacer |
+| `Esc` | Cancelar la edición |
 
-Usa `Tab` para enfocar la textura. Las flechas mueven el cursor un píxel y `Shift` con una flecha lo mueve cuatro. `Space` o `Enter` aplica la herramienta. El lector de pantalla anuncia parte, cara, capa y coordenadas. Los atajos no actúan mientras escribes en un campo de texto.
+Para pintar con el teclado, mueve el foco a la textura con `Tab`. Las flechas mueven un cursor de píxel, y `Shift` con una flecha mueve cuatro píxeles. `Space` o `Enter` usan la herramienta. Un lector de pantalla lee la parte, la cara, la capa y la posición del cursor. Los atajos no hacen nada mientras un campo de texto tiene el foco.
 
-## Comprobación de la skin [#skin-check]
+## Revisión de la skin [#skin-check]
 
-Solo aparecen avisos cuando hay problemas. La comprobación no cambia píxeles. **Mostrar píxeles** marca el área afectada. Las reparaciones se ejecutan al pulsar su botón y se pueden deshacer.
+Mientras editas, el estudio busca problemas que cambian el aspecto de la skin en Java Edition. Solo muestra un aviso cuando encuentra un problema.
 
-- **Hacer opacos** conserva los colores y elimina la transparencia de la capa base, como hace el juego.
-- **Limpiar áreas sin uso** elimina píxeles fuera del modelo.
-- **Usar clásica** o **Usar delgada** solo cambia el modelo. Es una estimación: revisa la vista previa. El modelo delgado ignora la cuarta columna del brazo; una columna vacía en el clásico puede verse como una franja oscura. El editor no borra píxeles de los brazos.
+La revisión no cambia píxeles. Una corrección se aplica solo al pulsar su botón, y puedes deshacerla. Selecciona **Mostrar píxeles** para marcar los píxeles afectados en la textura.
 
-Una capa exterior opaca no es un problema.
+| Problema | Corrección |
+| --- | --- |
+| Píxeles base transparentes | **Hacer opacos** mantiene cada color y lo hace opaco, como lo muestra el juego. |
+| Píxeles en áreas sin uso | **Limpiar áreas sin uso** elimina los píxeles que el juego no muestra. |
+| La skin puede ser clásica o delgada | **Usar clásica** o **Usar delgada** cambia el modelo. Es una suposición, así que revisa la vista previa primero. Con el modelo delgado, el juego ignora la columna ancha del brazo. Con el modelo clásico, una cuarta columna vacía puede verse como una franja oscura. El editor no borra píxeles del brazo por este problema. |
 
-## Guardar el trabajo [#save-your-work]
+Una capa exterior opaca no es un problema. Algunas skins la usan a propósito.
 
-El icono junto al nombre muestra el estado. La marca indica guardado; el punto, cambios sin guardar; el icono giratorio, guardado en curso. El disco tachado indica almacenamiento no disponible. Pasa el puntero para ver el detalle.
+## Guardar tu trabajo [#save-your-work]
 
-**Guardar cambios** actualiza la skin y conserva su original para restaurarlo. Una plantilla nueva crea una entrada. **Guardar una copia** crea otra skin. **Descartar** elimina los cambios sin guardar.
+- **Guardar cambios** escribe tus cambios en la skin de la biblioteca. La skin conserva su archivo original, así que puedes restaurarlo después.
+- **Guardar una copia** añade una skin nueva con tus cambios y la selecciona. La skin que abriste no cambia.
+- **Cancelar** vuelve a la skin que estaba seleccionada antes.
 
-Si otra pestaña modificó la skin, el editor ofrece guardar una copia o reemplazarla. Si fue eliminada, puedes conservar tu trabajo como copia.
+Para una skin nueva de **Crear skin**, **Guardar en la biblioteca** la añade a la biblioteca.
+
+El modelo, la capa, el método de subida, la clave de API y el nombre de la skin se mantienen mientras editas, guardas o cancelas.
+
+Un icono junto al nombre muestra el estado. Pasa el puntero por el icono para verlo:
+
+| Icono | Estado |
+| --- | --- |
+| Marca de verificación | Guardada en la biblioteca. |
+| Punto | Cambios sin guardar, o una skin nueva que aún no se guardó. |
+| Indicador giratorio | Guardando. |
+| Disco tachado | El navegador no puede guardar esta skin. |
+
+Si editas la misma skin en dos pestañas y guardas primero en una, la otra no la sobrescribe. Te pide guardar tu trabajo como copia o reemplazar la otra versión. Si otra pestaña eliminó la skin, puedes guardar tu trabajo como copia.
+
+Si pulsas **Cancelar**, `Esc` o el botón Atrás del navegador con cambios sin guardar, el estudio pregunta primero. Puedes seguir editando, descartar los cambios o guardarlos como borrador.
 
 ## Borradores [#drafts]
 
-Los cambios se guardan automáticamente como un borrador separado en este navegador. No cambian la skin guardada. Cada editor abierto tiene su propio borrador.
+Mientras pintas, el estudio guarda un borrador de tus cambios sin guardar en este navegador. El borrador no cambia la skin guardada. Cada editor abierto tiene su propio borrador, así que dos pestañas no se sobrescriben.
 
-Después de cerrar o abrir otra skin, puedes continuar el borrador. **Continuar** lo abre y **Descartar** lo elimina. El historial de deshacer no se guarda. El borrador antiguo se migra una vez con el nombre «Recovered draft». Un borrador antiguo dañado se conserva hasta que lo descartes.
+Si cierras la pestaña antes de guardar, el borrador se mantiene. La próxima vez que abras el estudio, te pregunta si quieres continuarlo. **Continuar** abre el borrador. **Descartar** lo elimina. El estudio no guarda el historial de deshacer.
 
-Si el almacenamiento está bloqueado o lleno, puedes editar sin guardar skins ni borradores. Descarga el PNG. El navegador pide confirmación antes de salir con cambios sin guardar.
+Versiones anteriores del editor guardaban un borrador en otro lugar del navegador. El estudio mueve ese borrador a la biblioteca una vez, como una skin llamada "Recovered draft". Si el borrador antiguo está dañado, el estudio lo conserva y muestra un mensaje con el botón **Descartar borrador**.
 
-## Tus skins [#your-skins]
+Si tu navegador bloquea el almacenamiento del sitio o está lleno, el estudio sigue funcionando, pero no guarda skins ni borradores. Usa el botón de descarga sobre la textura para conservar tu trabajo. En ese caso, el navegador pregunta antes de salir de la página con cambios sin guardar.
 
-Subir skin, Generador y Editor comparten la lista de este navegador. Cada skin conserva original, versión actual, modelos y nombre. No se sincroniza entre dispositivos. Borrar los datos del sitio, o que el navegador los elimine, borra la lista.
+## La biblioteca [#your-skins]
 
-**Ver todas** abre la búsqueda. El menú ofrece **Renombrar**, **Duplicar**, **Descargar PNG**, **Restaurar original** y **Eliminar**. Un punto indica un borrador. Tras eliminar una skin, **Deshacer** en el mensaje la recupera. Descarga PNG para conservar copias.
+El estudio, Subir skin y el generador comparten una biblioteca en este navegador. Una skin de la biblioteca conserva su archivo original y su versión actual, el modelo de cada una y su nombre.
 
-## Terminar [#finish]
+- La biblioteca solo existe en este navegador y dispositivo. No se sincroniza con otros dispositivos ni cuentas.
+- Si borras los datos del sitio, o si el navegador elimina datos antiguos, la biblioteca se borra. Usa **Descargar PNG** para conservar una copia.
+- Selecciona una skin una vez para usarla. Cada skin tiene un menú con **Renombrar**, **Duplicar**, **Descargar PNG**, **Restaurar original** y **Eliminar**.
+- Un punto en una skin indica que tiene cambios sin guardar en un borrador.
+- Después de eliminar una skin, selecciona **Deshacer** en el mensaje para recuperarla.
+- La marca junto a **Biblioteca** indica que el navegador guarda tus skins. Un disco tachado indica que no puede. Pasa el puntero por el icono para ver el motivo.
 
-**Descargar PNG** guarda un archivo 64×64 con los colores y transparencia exactos. **Usar en Subir skin** y **Usar en el generador** pasan la skin y su modelo a esas páginas. No se envía nada a la red hasta pulsar el botón de generación. La skin transferida sigue disponible al recargar en la misma pestaña.
+## Editar desde Subir skin o el generador [#edit-from-upload-or-generator]
 
-Consulta [subir una skin](/docs/features/skin-upload) y [skins personalizadas](/docs/features/custom-skins).
+[Subir skin](/upload) y el [generador](/generator) tienen el mismo botón **Editar skin** y el mismo editor. Al guardar, la skin editada queda seleccionada y la página conserva sus demás opciones. La página no envía nada hasta que pulses su botón de generar.
 
-## Editar sobre el formulario [#edit-from-upload-or-generator]
-
-En Subir skin o Generador, pulsa **Editar** junto a la skin. El formulario conserva modelo, capa, método, clave de API y nombre. Guardar devuelve la skin editada o una copia. Descartar devuelve la selección anterior.
-
-Cerrar con `Esc`, el botón o Atrás primero ofrece continuar editando, guardar un borrador o descartar los cambios.
+Los enlaces antiguos a la página del editor abren el estudio. Un enlace con un hash de textura abre esa textura en el estudio.
 
 ## Privacidad [#privacy]
 
-La edición, lista, borradores y descarga de PNG funcionan en el navegador. No envían la imagen a un servidor. Abrir una URL descarga la textura desde `textures.minecraft.net`. Subir skin y Generador envían el PNG a MineSkin directamente o mediante Axolotl solo al pulsar generar. Consulta [MineSkin](/docs/integrations/mineskin).
+La edición, la biblioteca, los borradores y las descargas de PNG ocurren en tu navegador. El estudio no envía la imagen de tu skin a SkinsRestorer ni a ningún otro servidor hasta que pulses un botón de generar. Añadir, renombrar o eliminar una skin de la biblioteca tampoco la envía.
 
-## Si no aparece el modelo 3D [#if-the-3d-model-does-not-show]
+Si abres una URL de textura o un archivo `.skin`, tu navegador descarga la textura de `textures.minecraft.net`. El botón de generar envía el PNG seleccionado a MineSkin, directamente o mediante el proxy SkinsRestorer Axolotl. Más información en [integración con MineSkin](/docs/integrations/mineskin).
 
-El modelo necesita WebGL. Si no está disponible, la textura, comprobación y descarga siguen funcionando. **Reintentar** inicia de nuevo el modelo.
+## Si el modelo 3D no aparece [#if-the-3d-model-does-not-show]
+
+El modelo 3D necesita WebGL. Si tu navegador desactiva WebGL o pierde el contexto gráfico, el estudio muestra un mensaje. La edición de la textura, la revisión, la generación y la descarga siguen funcionando. En el editor, selecciona **Reintentar** para iniciar el modelo de nuevo.

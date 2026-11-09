@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Upload"
 ---
 
-A [página de envio](/upload) gera um comando a partir de uma skin PNG. Ela não se conecta ao seu servidor Minecraft. Você precisa executar o comando no jogo.
+A [página de envio](/upload) gera um comando a partir de uma skin PNG. Ela é o [Estúdio de skins](/docs/features/skin-editor) com o comando `/skin url` selecionado. Ela não se conecta ao seu servidor Minecraft. Você precisa executar o comando no jogo.
 
 ## Antes de começar [#before-you-start]
 
@@ -16,17 +16,17 @@ Você precisa de uma skin PNG e da permissão `skinsrestorer.command.set.url`. O
 
 Escolha o [modelo correto](/docs/features/skin-design). O site confere as dimensões antes de permitir a geração. Se a prévia 3D não funcionar, você ainda pode gerar o comando.
 
-**Editar** abre o [editor](/docs/features/skin-editor) sobre a página e mantém as opções do formulário. **Usar em Enviar skin** no editor envia o PNG e seu modelo. Nada é enviado à rede até você selecionar **Gerar /skin url**.
+**Editar skin**, abaixo do modelo, abre o [editor](/docs/features/skin-editor#edit-a-skin) na mesma página e mantém as outras opções. Nada é enviado à rede até você selecionar **Gerar /skin url**.
 
 ## Gerar e aplicar [#generate-and-apply]
 
 1. Abra [Enviar skin](/upload).
-2. Selecione **Escolher arquivos** ou escolha uma skin em **Suas skins**.
+2. Selecione **Enviar skin** e escolha seu PNG, ou solte-o na página. Você também pode escolher uma skin na **Biblioteca**.
 3. Confira a prévia e escolha **Clássico** (braços de 4 px) ou **Fino** (3 px).
 4. Se quiser uma capa, escolha uma da lista.
 5. Para mudar o método, abra **Opções avançadas**. **Axolotl** é o padrão. A outra opção é **Oficial**.
 6. Selecione **Gerar /skin url**.
-7. Copie o comando e cole no chat do Minecraft.
+7. Copie o comando com o botão ao lado de **Comando** e cole no chat do Minecraft. Para compartilhar a skin, copie a **URL da skin**: é o endereço permanente da textura em `textures.minecraft.net`.
 
 Mudar a skin, o modelo, a capa ou o método remove o resultado anterior. Gere outro comando para as novas opções.
 
@@ -38,13 +38,13 @@ Mantenha as aspas da URL. O comando inclui o modelo escolhido. O resultado pode 
 
 Espere a mensagem de sucesso. Peça a outro jogador para conferir a skin e entre novamente para conferir a persistência.
 
-## Suas skins [#your-skins]
+## A biblioteca [#your-skins]
 
-O site salva as skins escolhidas neste navegador. Escolher uma skin da lista não a envia para nenhum servidor. Ao gerar, o site envia o arquivo exato que você selecionou.
+O site salva as skins escolhidas na **Biblioteca** deste navegador. Escolher uma skin da lista não a envia para nenhum servidor. Ao gerar, o site envia o arquivo exato que você selecionou.
 
-Se você arrastar vários PNGs, o site salva os válidos e seleciona o primeiro. Ele não gera comandos para os outros.
+Se você enviar vários PNGs, o site salva os válidos e seleciona o primeiro. Ele não gera comandos para os outros.
 
-A lista existe apenas neste dispositivo e navegador. Leia [Suas skins](/docs/features/skin-editor#your-skins) para renomear, baixar ou remover skins. Se o armazenamento estiver indisponível, você ainda pode usar a skin selecionada. A marca de verificação indica que ela foi salva. O disco riscado indica que não foi possível salvar. Passe o ponteiro sobre o ícone para ver o motivo.
+A lista existe apenas neste dispositivo e navegador. Leia [a biblioteca](/docs/features/skin-editor#your-skins) para renomear, baixar ou remover skins. Se o armazenamento estiver indisponível, você ainda pode usar a skin selecionada. O ícone ao lado do nome da skin indica se ela foi salva. Passe o ponteiro sobre o ícone para ver o motivo.
 
 ## Chave de API e capas [#api-key-and-capes]
 
