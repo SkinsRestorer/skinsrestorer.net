@@ -6,8 +6,10 @@ import { HISTORY_LIMIT } from "./skin-history";
 import {
   allPartsVisible,
   defaultBrush,
+  SHADE_STEPS,
   shadeColor,
   type PaintSettings,
+  type Rgba,
 } from "./skin-paint";
 import { mirrorPixel, SKIN_SIZE } from "./skin-regions";
 
@@ -326,4 +328,102 @@ test("a cancelled mirrored shade stroke restores both sides", () => {
   store.cancelStroke();
   assert.deepEqual(store.pixels, before);
   assert.equal(store.getSnapshot().canUndo, false);
+});
+
+test("strong shade with mirror overlap changes each pixel once per stroke", () => {
+  const store = setup();
+  const strong = settings({
+    shade: "darken",
+    shadeStrength: "strong",
+    mirror: true,
+    size: 8,
+  });
+  const before = pixel(store, 12, 12);
+  // The head front mirrors onto itself, so the square and its mirror overlap.
+  store.beginStroke("shade", strong, 12, 12, { surfaceLock: true });
+  store.strokeTo(11, 12);
+  store.strokeTo(12, 12);
+  store.endStroke();
+  assert.deepEqual(pixel(store, 12, 12), [
+    ...shadeColor(before as unknown as Rgba, "darken", SHADE_STEPS.strong)!,
+  ]);
+  assert.deepEqual(pixel(store, 11, 12), pixel(store, 12, 12));
+  // A soft stroke darkens less than a strong one.
+  const soft = setup();
+  soft.beginStroke("shade", { ...strong, shadeStrength: "soft" }, 12, 12);
+  soft.endStroke();
+  assert.ok(pixel(soft, 12, 12)[0] > pixel(store, 12, 12)[0]);
+});
+
+test("Shift lines continue the last stroke on the same face as one undo step", () => {
+  const store = setup();
+  const brush = settings({ size: 1 });
+  store.beginStroke("pencil", brush, 8, 8);
+  store.endStroke();
+  const afterDot = store.pixels.slice();
+  assert.equal(store.lineTo("pencil", brush, 15, 15), true);
+  for (let i = 0; i <= 7; i++)
+    assert.deepEqual(pixel(store, 8 + i, 8 + i), [200, 10, 10, 255]);
+  store.undo();
+  assert.deepEqual(store.pixels, afterDot);
+  store.undo();
+  assert.equal(store.getSnapshot().canUndo, false);
+});
+
+test("a line never jumps to another face, tool, layer, or document", () => {
+  const store = setup();
+  const brush = settings();
+  const dot = (tool: "pencil" | "shade" = "pencil", s = brush) => {
+    store.beginStroke(tool, s, 9, 9);
+    store.endStroke();
+  };
+  dot();
+  // The head right side is another UV island.
+  assert.equal(store.lineTo("pencil", brush, 2, 10), false);
+  assert.equal(
+    store.lineTo("eraser", settings({ layer: "outer" }), 12, 12),
+    false,
+  );
+  assert.equal(store.lineTo("shade", brush, 12, 12), false);
+  assert.equal(
+    store.lineTo("pencil", settings({ layer: "outer" }), 44, 12),
+    false,
+  );
+  // Size, mirror, and color changes keep the anchor and use the new values.
+  assert.equal(
+    store.lineTo("pencil", settings({ size: 2, mirror: true }), 12, 9),
+    true,
+  );
+  for (const reset of [
+    () => store.undo(),
+    () => store.resetLineAnchor(),
+    () => store.setVariant("slim"),
+    () => store.load(createTemplate("classic")),
+    () => store.fill(brush, 20, 20),
+    () => {
+      store.beginStroke("pencil", brush, 9, 9);
+      store.cancelStroke();
+    },
+  ]) {
+    dot();
+    reset();
+    assert.equal(store.lineTo("pencil", brush, 12, 9), false);
+  }
+  // The anchor moves to the end of each line.
+  dot();
+  assert.equal(store.lineTo("pencil", brush, 12, 9), true);
+  assert.equal(store.lineTo("pencil", brush, 12, 14), true);
+  assert.deepEqual(pixel(store, 12, 12), [200, 10, 10, 255]);
+});
+
+test("a shaded line changes each pixel once, also at the anchor", () => {
+  const store = setup();
+  const shade = settings({ shadeStrength: "strong" });
+  const original = pixel(store, 10, 10);
+  store.beginStroke("shade", shade, 9, 10);
+  store.endStroke();
+  store.lineTo("shade", shade, 12, 10);
+  assert.deepEqual(pixel(store, 10, 10), [
+    ...shadeColor(original as unknown as Rgba, "darken", SHADE_STEPS.strong)!,
+  ]);
 });

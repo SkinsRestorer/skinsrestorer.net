@@ -48,27 +48,57 @@ Selecione uma skin, confira o modelo e a capa e selecione o botão de gerar. O [
 Selecione **Editar skin** abaixo do modelo. O centro mostra a textura e a direita mostra um modelo 3D ao vivo. O editor abre skins 64×64 e skins antigas 64×32. Ele converte uma skin 64×32 para o formato 64×64 sem aviso. Para editar uma skin HD, redimensione-a para 64×64 em um editor de imagens primeiro.
 
 1. Escolha a camada **Base** ou **Externa**. As ferramentas mudam só a camada ativa.
-2. Escolha uma ferramenta: **Lápis**, **Borracha**, **Clarear ou escurecer**, **Preencher face** ou **Conta-gotas**.
-3. Escolha uma cor abaixo da textura.
+2. Escolha uma ferramenta: **Lápis**, **Borracha**, **Clarear ou escurecer**, **Preencher** ou **Conta-gotas**.
+3. Escolha uma cor abaixo da textura. As oito últimas cores que você usou para pintar ficam abaixo da textura, também depois que você fecha o editor ou recarrega a página. O navegador as guarda só neste dispositivo.
 4. Pinte na textura ou no modelo 3D.
 
 A camada base é sempre opaca no Java Edition. Por isso o lápis pinta pixels opacos na camada base e a borracha só funciona na camada externa. A camada externa pode ter pixels transparentes, por isso tem um controle de opacidade.
 
-**Preencher face** preenche a área conectada de uma cor e para na borda da face. No modelo 3D, um traço fica na face onde começou.
+**Preencher** tem duas áreas. Escolha uma abaixo das ferramentas ou pressione `G` de novo:
 
-**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas. A ferramenta mantém o tom e a opacidade de cada pixel e não muda pixels transparentes. Um traço muda cada pixel uma só vez, então você pode passar várias vezes no mesmo lugar sem escurecê-lo mais e mais. Comece um novo traço para mudá-lo de novo.
+- **Face** preenche a área conectada de uma cor e para na borda da face. Esta é a opção padrão.
+- **Em tudo** substitui cada pixel exatamente da cor que você clicou, em todas as partes visíveis da camada ativa. Use para mudar a cor de uma camisa em um passo. Um pixel de uma cor um pouco diferente não muda. Partes ocultas, a outra camada e áreas não usadas não mudam.
 
-**Tamanho** define a largura do pincel para o lápis, a borracha e **Clarear ou escurecer**, de 1 a 8 pixels. O pincel é um quadrado. Um tamanho ímpar fica centralizado no ponteiro. Um tamanho par vai um pixel a mais para cima e para a esquerda. O pincel fica na face sob o ponteiro. A textura mostra o contorno do pincel.
+No modelo 3D, um traço fica na face onde começou.
 
-**Espelhar** (o botão de reflexo) também pinta o outro lado do modelo. O braço esquerdo e o direito trocam de lugar, e as pernas também. A cabeça e o corpo se espelham sobre si mesmos. Espelhar funciona com o lápis, a borracha, **Clarear ou escurecer** e **Preencher face**. Ele muda só a camada ativa e não muda partes ocultas. Um contorno tracejado na textura mostra os pixels espelhados.
+**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas e uma intensidade: **Suave**, **Média** ou **Forte**. **Média** é o padrão. **Suave** muda a luminosidade pela metade, e **Forte** pelo dobro. A ferramenta mantém o tom e a opacidade de cada pixel e não muda pixels transparentes. Um traço muda cada pixel uma só vez, então você pode passar várias vezes no mesmo lugar sem escurecê-lo mais e mais. Comece um novo traço para mudá-lo de novo.
+
+**Tamanho** define a largura do pincel para o lápis, a borracha e **Clarear ou escurecer**, de 1 a 8 pixels. O pincel é um quadrado. Um tamanho ímpar fica centralizado no ponteiro. Um tamanho par vai um pixel a mais para cima e para a esquerda. O pincel fica na face sob o ponteiro. A textura mostra o contorno do pincel. Com um mouse ou uma caneta, o modelo 3D também marca os pixels que a ferramenta vai mudar antes do clique. A marca não faz parte da skin. Uma marca vermelha e um ponteiro bloqueado indicam que um pixel da camada externa cobre a camada base nesse ponto.
+
+**Espelhar** (o botão de reflexo) também pinta o outro lado do modelo. O braço esquerdo e o direito trocam de lugar, e as pernas também. A cabeça e o corpo se espelham sobre si mesmos. Espelhar funciona com o lápis, a borracha, **Clarear ou escurecer** e **Preencher** com **Face**. **Em tudo** já muda cada pixel da cor, então o botão Espelhar não aparece com essa opção. Ele muda só a camada ativa e não muda partes ocultas. Um contorno tracejado na textura e uma marca mais clara no modelo 3D mostram os pixels espelhados.
+
+Para traçar uma linha reta com o lápis, a borracha ou **Clarear ou escurecer**, segure `Shift` e clique. A linha começa onde o seu último traço terminou e usa o tamanho, o espelhamento e a intensidade atuais. Uma linha fica em uma face. Se você clicar em outra face, ou mudar de ferramenta ou de camada, o clique começa um novo traço. Depois de desfazer, mudar o modelo, preencher ou usar uma ação de parte, a linha também começa a partir do próximo traço.
 
 Use **Partes visíveis** para ocultar uma parte ou uma camada. As ferramentas não mudam partes ocultas. Para pintar a camada base sob um pixel externo, oculte a camada externa dessa parte.
 
-Cada traço, preenchimento ou correção é um passo de desfazer. Mudar o modelo também é.
+Cada traço, linha, preenchimento, correção ou ação de parte é um passo de desfazer. Mudar o modelo ou converter os braços também é um passo.
+
+### Espelhar ou copiar uma parte [#flip-or-copy-a-part]
+
+Selecione **Espelhar ou copiar uma parte** abaixo do modelo. As ações mudam só a camada ativa. Elas não mudam partes ocultas nem áreas não usadas. Cada pixel mantém a cor e a opacidade.
+
+- **Espelhar da esquerda para a direita** mostra a parte como ela aparece em um espelho. Os lados esquerdo e direito trocam de lugar, e cada face inverte as colunas.
+- **Copiar sem espelhar** dá a um braço ou a uma perna o desenho do outro. Cada face recebe a mesma face do outro membro, como está. Por exemplo, a frente do braço direito vira a frente do braço esquerdo.
+
+Para ter uma cópia espelhada, copie o membro e depois espelhe o membro de destino.
+
+### Mudar a largura dos braços [#change-the-arm-width]
+
+Braços clássicos têm 4 pixels de largura, e braços finos têm 3 pixels. Você pode mudar a largura de duas formas:
+
+- **Modelo** informa ao jogo a largura dos braços da textura. Ele não muda pixels. Use quando a textura já combina com o outro modelo.
+- **Converter braços para finos** ou **Converter braços para clássicos** muda os pixels dos braços e o modelo juntos. Use para deixar fina uma skin clássica, ou clássica uma skin fina.
+
+A conversão muda os dois braços, nas duas camadas. As faces laterais mantêm cada pixel. O topo, a base, a frente e as costas têm a largura do braço, então perdem ou ganham uma coluna:
+
+- Para fino: as duas colunas junto ao corpo ficam no lugar. A coluna da borda externa fica, e a coluna ao lado dela é removida.
+- Para clássico: a coluna do meio do braço fino é copiada para a coluna nova. Nenhuma faixa vazia aparece.
+
+Os pixels de braço que o novo modelo não usa ficam transparentes. A cabeça, o corpo, as pernas e os outros pixels não mudam. Converter para fino remove uma coluna, então converter de volta não a restaura. Desfazer restaura os pixels e o modelo originais. Se a textura já combina com o outro modelo, escolha o modelo. A conversão moveria a coluna vazia para o braço.
 
 ### Mover a visualização [#move-the-view]
 
-Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou o mouse. Selecione o botão do pincel para voltar à ferramenta. No modo de pintura, um dedo pinta e arrastar com o botão direito gira o modelo. Dois dedos rolam a textura ou giram o modelo, e o traço que o primeiro dedo começou é removido. Em uma tela de toque, **Preencher face** e **Conta-gotas** agem quando você levanta o dedo, então um gesto com dois dedos nunca preenche por acidente.
+Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou o mouse. Selecione o botão do pincel para voltar à ferramenta. No modo de pintura, um dedo pinta e arrastar com o botão direito gira o modelo. Dois dedos rolam a textura ou giram o modelo, e o traço que o primeiro dedo começou é removido. Em uma tela de toque, **Preencher** e **Conta-gotas** agem quando você levanta o dedo, então um gesto com dois dedos nunca preenche por acidente.
 
 ### Teclado [#keyboard]
 
@@ -77,17 +107,18 @@ Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou 
 | `B` | Lápis |
 | `E` | Borracha |
 | `S` | Clarear ou escurecer. Pressione de novo para alternar entre clarear e escurecer. |
-| `G` | Preencher face |
+| `G` | Preencher. Pressione de novo para alternar entre **Face** e **Em tudo**. |
 | `I` | Conta-gotas |
 | `X` | Ligar ou desligar o espelhamento |
 | `[` / `]` | Pincel menor ou maior |
 | `L` | Alternar entre a camada base e a externa |
 | `P` / `M` | Pintar ou mover a visualização |
+| `Shift` e clique | Uma linha reta a partir do fim do último traço |
 | `Ctrl+Z` | Desfazer |
 | `Ctrl+Shift+Z` ou `Ctrl+Y` | Refazer |
 | `Esc` | Cancelar a edição |
 
-Para pintar com o teclado, mova o foco para a textura com `Tab`. As setas movem um cursor de pixel, e `Shift` com uma seta move quatro pixels. `Space` ou `Enter` usam a ferramenta. Um leitor de tela lê a parte, a face, a camada e a posição do cursor. Os atalhos não fazem nada enquanto um campo de texto tem o foco.
+Para pintar com o teclado, mova o foco para a textura com `Tab`. As setas movem um cursor de pixel, e `Shift` com uma seta move quatro pixels. `Space` ou `Enter` usam a ferramenta. `Shift+Space` ou `Shift+Enter` traçam uma linha reta até o cursor. Um leitor de tela lê a parte, a face, a camada e a posição do cursor. Os atalhos não fazem nada enquanto um campo de texto tem o foco.
 
 ## Verificação da skin [#skin-check]
 
@@ -99,7 +130,7 @@ A verificação não muda pixels. Uma correção só roda quando você seleciona
 | --- | --- |
 | Pixels base transparentes | **Tornar opacos** mantém cada cor e a deixa opaca, como o jogo mostra. |
 | Pixels em áreas não usadas | **Limpar áreas não usadas** remove pixels que o jogo não mostra. |
-| A skin pode ser clássica ou fina | **Usar clássico** ou **Usar fino** muda o modelo. É uma suposição, então veja a pré-visualização primeiro. No modelo fino, o jogo ignora a coluna larga do braço. No modelo clássico, uma quarta coluna vazia pode aparecer como uma faixa escura. O editor não apaga pixels do braço por esse problema. |
+| A skin pode ser clássica ou fina | **Usar clássico** ou **Usar fino** muda o modelo. É uma suposição, então veja a pré-visualização primeiro. No modelo fino, o jogo ignora a coluna larga do braço. No modelo clássico, uma quarta coluna vazia pode aparecer como uma faixa escura. Esses botões não mudam pixels. Para mudar os pixels dos braços, leia [Mudar a largura dos braços](#change-the-arm-width). |
 
 Uma camada externa opaca não é um problema. Algumas skins a usam de propósito.
 

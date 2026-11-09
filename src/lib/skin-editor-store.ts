@@ -13,12 +13,19 @@ import {
   paintableRegion,
   readPixel,
   shadeColor,
+  SHADE_STEPS,
   toolColor,
   type PaintSettings,
   type Rgba,
   type StrokeTool,
 } from "./skin-paint";
-import { sameRegion, SKIN_SIZE, type SkinRegion } from "./skin-regions";
+import {
+  sameRegion,
+  SKIN_SIZE,
+  type SkinLayer,
+  type SkinRegion,
+} from "./skin-regions";
+import { convertArms, transformPart, type PartAction } from "./skin-transform";
 
 export interface SkinEditorSnapshot {
   /** Changes on every pixel or model change. */
@@ -30,6 +37,7 @@ export interface SkinEditorSnapshot {
 }
 
 interface Stroke {
+  readonly tool: StrokeTool;
   /** The color to write, or undefined to shade each pixel's own color. */
   readonly color: Rgba | undefined;
   readonly settings: PaintSettings;
@@ -42,6 +50,17 @@ interface Stroke {
 }
 
 /**
+ * Where the last stroke ended. Shift with a click draws a straight line from
+ * here with the same tool on the same layer.
+ */
+interface LineAnchor {
+  readonly x: number;
+  readonly y: number;
+  readonly tool: StrokeTool;
+  readonly layer: SkinLayer;
+}
+
+/**
  * Own the pixel document and its history. Views read pixels from here and
  * subscribe for changes; they never keep their own copy of the skin.
  */
@@ -50,6 +69,7 @@ export class SkinEditorStore {
   private variant: SkinVariant = "classic";
   private readonly history = new EditHistory();
   private stroke: Stroke | undefined;
+  private anchor: LineAnchor | undefined;
   private readonly listeners = new Set<() => void>();
   private current: SkinEditorSnapshot = {
     revision: 0,
@@ -86,6 +106,7 @@ export class SkinEditorStore {
   /** Replace the document. History starts again for the new skin. */
   load(document: SkinDocument) {
     this.stroke = undefined;
+    this.anchor = undefined;
     this.pixels.set(document.pixels);
     this.variant = document.variant;
     this.history.clear();
@@ -95,6 +116,7 @@ export class SkinEditorStore {
   /** Open another skin as one undo step, so an accidental open can be undone. */
   replace(document: SkinDocument) {
     this.endStroke();
+    this.anchor = undefined;
     const builder = new PatchBuilder(this.pixels);
     for (let pixel = 0; pixel < SKIN_SIZE * SKIN_SIZE; pixel++)
       builder.write(pixel, document.pixels.subarray(pixel * 4, pixel * 4 + 4));
@@ -139,6 +161,7 @@ export class SkinEditorStore {
       : undefined;
     if (options.surfaceLock && !lock) return false;
     this.stroke = {
+      tool,
       color,
       settings,
       builder: new PatchBuilder(this.pixels),
@@ -181,6 +204,7 @@ export class SkinEditorStore {
               Math.floor(index / SKIN_SIZE),
             ),
             stroke.settings.shade,
+            SHADE_STEPS[stroke.settings.shadeStrength],
           );
         if (color) changed = stroke.builder.write(index, color) || changed;
       }
@@ -192,6 +216,12 @@ export class SkinEditorStore {
     const stroke = this.stroke;
     if (!stroke) return;
     this.stroke = undefined;
+    this.anchor = stroke.last && {
+      x: stroke.last[0],
+      y: stroke.last[1],
+      tool: stroke.tool,
+      layer: stroke.settings.layer,
+    };
     const patch = stroke.builder.finish();
     if (patch) this.history.push(patch);
     this.emit(false);
@@ -202,13 +232,44 @@ export class SkinEditorStore {
     const stroke = this.stroke;
     if (!stroke) return;
     this.stroke = undefined;
+    this.anchor = undefined;
     const patch = stroke.builder.finish();
     if (patch) applyPatch(this.pixels, patch, "undo");
     this.emit(patch !== undefined);
   }
 
+  /**
+   * Draw a straight line from the end of the last stroke to a pixel, as one
+   * undo step. It returns false and draws nothing when there is no anchor,
+   * when the tool or layer changed since the last stroke, or when the pixel
+   * is on another face. A line never crosses from one UV island to another.
+   */
+  lineTo(tool: StrokeTool, settings: PaintSettings, x: number, y: number) {
+    const anchor = this.anchor;
+    if (this.stroke || !anchor) return false;
+    if (anchor.tool !== tool || anchor.layer !== settings.layer) return false;
+    const start = paintableRegion(this.variant, settings, anchor.x, anchor.y);
+    const end = paintableRegion(this.variant, settings, x, y);
+    if (!start || !end || !sameRegion(start, end)) return false;
+    if (
+      !this.beginStroke(tool, settings, anchor.x, anchor.y, {
+        surfaceLock: true,
+      })
+    )
+      return false;
+    this.strokeTo(x, y);
+    this.endStroke();
+    return true;
+  }
+
+  /** Forget the line anchor, for example after a tool or layer change. */
+  resetLineAnchor() {
+    this.anchor = undefined;
+  }
+
   fill(settings: PaintSettings, x: number, y: number) {
     this.endStroke();
+    this.anchor = undefined;
     const builder = new PatchBuilder(this.pixels);
     fillFace(this.pixels, builder, this.variant, settings, x, y);
     return this.commit(builder.finish());
@@ -217,14 +278,48 @@ export class SkinEditorStore {
   /** Apply a prepared change, such as a skin check repair, as one undo step. */
   apply(change: (pixels: Uint8ClampedArray, builder: PatchBuilder) => void) {
     this.endStroke();
+    this.anchor = undefined;
     const builder = new PatchBuilder(this.pixels);
     change(this.pixels, builder);
     return this.commit(builder.finish());
   }
 
+  /** Flip a part or copy an arm or leg on the active layer, as one undo step. */
+  transformPart(
+    settings: Pick<PaintSettings, "layer" | "visibility">,
+    action: PartAction,
+  ) {
+    return this.apply((pixels, builder) =>
+      transformPart(pixels, builder, this.variant, settings, action),
+    );
+  }
+
+  /**
+   * Change the model and convert the arm texture to it, as one undo step.
+   * {@link setVariant} changes only the model.
+   */
+  convertVariant(variant: SkinVariant) {
+    if (variant === this.variant) return false;
+    this.endStroke();
+    this.anchor = undefined;
+    const builder = new PatchBuilder(this.pixels);
+    convertArms(this.pixels, builder, this.variant, variant);
+    const patch = builder.finish();
+    this.history.push({
+      indices: patch?.indices ?? new Uint16Array(),
+      before: patch?.before ?? new Uint8ClampedArray(),
+      after: patch?.after ?? new Uint8ClampedArray(),
+      variant: { before: this.variant, after: variant },
+    });
+    this.variant = variant;
+    this.emit(true);
+    return true;
+  }
+
   setVariant(variant: SkinVariant) {
     if (variant === this.variant) return;
     this.endStroke();
+    this.anchor = undefined;
     const patch: SkinPatch = {
       indices: new Uint16Array(),
       before: new Uint8ClampedArray(),
@@ -238,6 +333,7 @@ export class SkinEditorStore {
 
   undo() {
     this.endStroke();
+    this.anchor = undefined;
     const patch = this.history.undo();
     if (!patch) return false;
     applyPatch(this.pixels, patch, "undo");
@@ -248,6 +344,7 @@ export class SkinEditorStore {
 
   redo() {
     this.endStroke();
+    this.anchor = undefined;
     const patch = this.history.redo();
     if (!patch) return false;
     applyPatch(this.pixels, patch, "redo");

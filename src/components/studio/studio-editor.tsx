@@ -19,6 +19,7 @@ import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import type { EditorInteraction } from "@/components/editor/editor-types";
 import { LayerToggle, VisibleParts } from "@/components/editor/layers-panel";
 import { ModelCanvas } from "@/components/editor/model-canvas";
+import { PartActions } from "@/components/editor/part-actions";
 import { SkinIssueAlerts } from "@/components/editor/skin-issue-alerts";
 import { TextureCanvas } from "@/components/editor/texture-canvas";
 import { ToolOptions } from "@/components/editor/tool-options";
@@ -37,7 +38,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { EditorSession, SaveResult } from "@/lib/editor-session";
 import { checkSkin, repairSkin, type SkinIssueId } from "@/lib/skin-check";
 import { exportSkinPng } from "@/lib/skin-document";
@@ -46,14 +52,18 @@ import {
   allPartsVisible,
   BRUSH_SIZES,
   defaultBrush,
+  type FillScope,
   type PaintSettings,
   type PaintTool,
   type Rgba,
   type ShadeMode,
+  type ShadeStrength,
 } from "@/lib/skin-paint";
+import type { PartAction } from "@/lib/skin-transform";
 import { SKIN_SIZE, type SkinLayer } from "@/lib/skin-regions";
 import { useT } from "@/lib/i18n-react";
 import { downloadSkin } from "@/lib/hooks/use-skin-library";
+import { useRecentColors } from "@/lib/hooks/use-recent-colors";
 import { cn } from "@/lib/utils";
 
 const HISTORY_MARK = "skinsrestorerStudioEditor";
@@ -106,11 +116,15 @@ export function StudioEditor(props: {
   const [tool, setTool] = useState<PaintTool>("pencil");
   const [layer, setLayer] = useState<SkinLayer>("base");
   const [color, setColor] = useState<Rgba>([76, 118, 160, 255]);
-  const [recent, setRecent] = useState<Rgba[]>([]);
+  const [recent, addRecent] = useRecentColors();
   const [visibility, setVisibility] = useState(allPartsVisible);
   const [size, setSize] = useState(defaultBrush.size);
   const [mirror, setMirror] = useState(defaultBrush.mirror);
   const [shade, setShade] = useState<ShadeMode>(defaultBrush.shade);
+  const [shadeStrength, setShadeStrength] = useState<ShadeStrength>(
+    defaultBrush.shadeStrength,
+  );
+  const [fillScope, setFillScope] = useState<FillScope>(defaultBrush.fillScope);
   const [interaction, setInteraction] = useState<EditorInteraction>("paint");
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [fitScale, setFitScale] = useState(5);
@@ -124,9 +138,23 @@ export function StudioEditor(props: {
   const draftsOff = work.drafts.kind === "off";
 
   const settings = useMemo<PaintSettings>(
-    () => ({ layer, color, visibility, size, mirror, shade }),
-    [layer, color, visibility, size, mirror, shade],
+    () => ({
+      layer,
+      color,
+      visibility,
+      size,
+      mirror,
+      shade,
+      shadeStrength,
+      fillScope,
+    }),
+    [layer, color, visibility, size, mirror, shade, shadeStrength, fillScope],
   );
+
+  // A straight line continues the last stroke of the same tool and layer.
+  useEffect(() => {
+    store.resetLineAnchor();
+  }, [store, tool, layer]);
   const scale = zoom === "fit" ? fitScale : zoom;
   const issues = checkSkin(store.pixels, snapshot.variant);
   const highlightedPixels = issues.find((i) => i.id === highlight)?.pixels;
@@ -205,13 +233,8 @@ export function StudioEditor(props: {
     if (tool !== "pencil" && tool !== "fill") return;
     const used: Rgba =
       layer === "base" ? [color[0], color[1], color[2], 255] : color;
-    setRecent((list) =>
-      [used, ...list.filter((c) => c.some((v, i) => v !== used[i]))].slice(
-        0,
-        8,
-      ),
-    );
-  }, [tool, layer, color]);
+    addRecent(used);
+  }, [tool, layer, color, addRecent]);
 
   const onPick = useCallback(
     (picked: Rgba) => {
@@ -270,9 +293,12 @@ export function StudioEditor(props: {
         g: "fill",
         i: "eyedropper",
       };
-      // S on the active Shade tool switches between lighten and darken.
+      // S on the active Shade tool switches between lighten and darken, and
+      // G on the active Fill tool switches between face and everywhere.
       if (key === "s" && shortcuts.current.tool === "shade")
         setShade((mode) => (mode === "lighten" ? "darken" : "lighten"));
+      else if (key === "g" && shortcuts.current.tool === "fill")
+        setFillScope((scope) => (scope === "face" ? "everywhere" : "face"));
       else if (tools[key]) setTool(tools[key]);
       else if (key === "x") setMirror((on) => !on);
       else if (event.key === "[" || event.key === "]")
@@ -346,6 +372,23 @@ export function StudioEditor(props: {
     handle(await session.save({ replace }), "save");
   };
   const saveCopy = async () => handle(await session.saveCopy(), "copy");
+
+  const convertArms = () => {
+    const target =
+      store.getSnapshot().variant === "classic" ? "slim" : "classic";
+    store.convertVariant(target);
+    showStatus(
+      target === "slim"
+        ? t("Converted the arms to slim.")
+        : t("Converted the arms to classic."),
+    );
+  };
+
+  const transformPart = (action: PartAction) => {
+    if (!store.transformPart(settings, action))
+      showStatus(t("Nothing changed."));
+    else setStatus("");
+  };
 
   const zoomBy = (step: number) =>
     setZoom(Math.max(3, Math.min(24, scale + step)));
@@ -449,9 +492,13 @@ export function StudioEditor(props: {
           size={size}
           mirror={mirror}
           shade={shade}
+          shadeStrength={shadeStrength}
+          fillScope={fillScope}
           onSize={setSize}
           onMirror={setMirror}
           onShade={setShade}
+          onShadeStrength={setShadeStrength}
+          onFillScope={setFillScope}
         />
         <output
           className={status ? "text-xs text-muted-foreground" : "sr-only"}
@@ -547,7 +594,31 @@ export function StudioEditor(props: {
             value={snapshot.variant}
             onValueChange={(variant) => store.setVariant(variant)}
           />
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-auto min-h-8 max-w-full self-start text-left whitespace-normal"
+                  onClick={convertArms}
+                />
+              }
+            >
+              {snapshot.variant === "classic"
+                ? t("Convert arms to slim")
+                : t("Convert arms to classic")}
+            </TooltipTrigger>
+            <TooltipContent>
+              {t("Changes the arm pixels and the model. Undo restores them.")}
+            </TooltipContent>
+          </Tooltip>
         </div>
+        <PartActions
+          layer={layer}
+          visibility={visibility}
+          onAction={transformPart}
+        />
         <VisibleParts
           visibility={visibility}
           onVisibilityChange={setVisibility}

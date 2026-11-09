@@ -48,27 +48,57 @@ Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. L
 Selecciona **Editar skin** debajo del modelo. El centro muestra la textura y la derecha un modelo 3D en vivo. El editor abre skins de 64×64 y skins antiguas de 64×32. Convierte una skin de 64×32 al formato 64×64 sin aviso. Para editar una skin HD, redimensiónala primero a 64×64 en un editor de imágenes.
 
 1. Elige la capa **Base** o **Exterior**. Las herramientas cambian solo la capa activa.
-2. Elige una herramienta: **Lápiz**, **Borrador**, **Aclarar u oscurecer**, **Rellenar cara** o **Tomar color**.
-3. Elige un color debajo de la textura.
+2. Elige una herramienta: **Lápiz**, **Borrador**, **Aclarar u oscurecer**, **Rellenar** o **Tomar color**.
+3. Elige un color debajo de la textura. Los ocho últimos colores con los que pintaste quedan debajo de la textura, también después de cerrar el editor o recargar la página. El navegador los guarda solo en este dispositivo.
 4. Pinta sobre la textura o sobre el modelo 3D.
 
 La capa base siempre es opaca en Java Edition. Por eso el lápiz pinta píxeles opacos en la capa base y el borrador solo funciona en la capa exterior. La capa exterior puede tener píxeles transparentes, por eso tiene un control de opacidad.
 
-**Rellenar cara** rellena el área conectada de un color y se detiene en el borde de la cara. En el modelo 3D, un trazo se queda en la cara donde empezó.
+**Rellenar** tiene dos áreas. Elige una debajo de las herramientas o pulsa `G` otra vez:
 
-**Aclarar u oscurecer** hace los píxeles más claros o más oscuros. Selecciona **Aclarar** u **Oscurecer** debajo de las herramientas. La herramienta mantiene el tono y la opacidad de cada píxel y no cambia los píxeles transparentes. Un trazo cambia cada píxel una sola vez, así que puedes pasar varias veces por el mismo sitio sin oscurecerlo más y más. Empieza un trazo nuevo para cambiarlo otra vez.
+- **Cara** rellena el área conectada de un color y se detiene en el borde de la cara. Es la opción predeterminada.
+- **En todo** reemplaza cada píxel exactamente del color que pulsaste, en todas las partes visibles de la capa activa. Úsalo para cambiar el color de una camiseta en un paso. Un píxel de un color un poco distinto no cambia. Las partes ocultas, la otra capa y las áreas sin uso no cambian.
 
-**Tamaño** fija el ancho del pincel para el lápiz, el borrador y **Aclarar u oscurecer**, de 1 a 8 píxeles. El pincel es un cuadrado. Un tamaño impar queda centrado en el puntero. Un tamaño par llega un píxel más hacia arriba y a la izquierda. El pincel se queda en la cara bajo el puntero. La textura muestra el contorno del pincel.
+En el modelo 3D, un trazo se queda en la cara donde empezó.
 
-**Espejo** (el botón de reflejo) también pinta el otro lado del modelo. El brazo izquierdo y el derecho se intercambian, y también las piernas. La cabeza y el cuerpo se reflejan sobre sí mismos. Espejo funciona con el lápiz, el borrador, **Aclarar u oscurecer** y **Rellenar cara**. Solo cambia la capa activa y no cambia partes ocultas. Un contorno discontinuo en la textura muestra los píxeles reflejados.
+**Aclarar u oscurecer** hace los píxeles más claros o más oscuros. Selecciona **Aclarar** u **Oscurecer** debajo de las herramientas, y una intensidad: **Suave**, **Media** o **Fuerte**. **Media** es la predeterminada. **Suave** cambia la luminosidad la mitad, y **Fuerte** el doble. La herramienta mantiene el tono y la opacidad de cada píxel y no cambia los píxeles transparentes. Un trazo cambia cada píxel una sola vez, así que puedes pasar varias veces por el mismo sitio sin oscurecerlo más y más. Empieza un trazo nuevo para cambiarlo otra vez.
+
+**Tamaño** fija el ancho del pincel para el lápiz, el borrador y **Aclarar u oscurecer**, de 1 a 8 píxeles. El pincel es un cuadrado. Un tamaño impar queda centrado en el puntero. Un tamaño par llega un píxel más hacia arriba y a la izquierda. El pincel se queda en la cara bajo el puntero. La textura muestra el contorno del pincel. Con un ratón o un lápiz, el modelo 3D también marca los píxeles que la herramienta va a cambiar antes de hacer clic. La marca no forma parte de la skin. Una marca roja y un puntero bloqueado indican que un píxel de la capa exterior cubre la capa base en ese punto.
+
+**Espejo** (el botón de reflejo) también pinta el otro lado del modelo. El brazo izquierdo y el derecho se intercambian, y también las piernas. La cabeza y el cuerpo se reflejan sobre sí mismos. Espejo funciona con el lápiz, el borrador, **Aclarar u oscurecer** y **Rellenar** con **Cara**. **En todo** ya cambia cada píxel del color, así que el botón Espejo no aparece con esa opción. Solo cambia la capa activa y no cambia partes ocultas. Un contorno discontinuo en la textura y una marca más clara en el modelo 3D muestran los píxeles reflejados.
+
+Para trazar una línea recta con el lápiz, el borrador o **Aclarar u oscurecer**, mantén `Shift` y haz clic. La línea empieza donde terminó tu último trazo y usa el tamaño, el espejo y la intensidad actuales. Una línea se queda en una cara. Si haces clic en otra cara, o cambias de herramienta o de capa, el clic empieza un trazo nuevo. Después de deshacer, cambiar el modelo, rellenar o usar una acción de parte, la línea también empieza desde el siguiente trazo.
 
 Usa **Partes visibles** para ocultar una parte o una capa. Las herramientas no cambian las partes ocultas. Para pintar la capa base bajo un píxel exterior, oculta la capa exterior de esa parte.
 
-Cada trazo, relleno o corrección es un paso de deshacer. Cambiar el modelo también lo es.
+Cada trazo, línea, relleno, corrección o acción de parte es un paso de deshacer. Cambiar el modelo o convertir los brazos también es un paso.
+
+### Voltear o copiar una parte [#flip-or-copy-a-part]
+
+Selecciona **Voltear o copiar una parte** debajo del modelo. Las acciones cambian solo la capa activa. No cambian partes ocultas ni áreas sin uso. Cada píxel mantiene su color y su opacidad.
+
+- **Voltear de izquierda a derecha** muestra la parte como se ve en un espejo. Sus lados izquierdo y derecho se intercambian, y cada cara invierte sus columnas.
+- **Copiar sin reflejar** le da a un brazo o una pierna el diseño del otro. Cada cara recibe la misma cara de la otra extremidad, tal cual. Por ejemplo, el frente del brazo derecho pasa a ser el frente del brazo izquierdo.
+
+Para obtener una copia reflejada, copia la extremidad y luego voltea la extremidad de destino.
+
+### Cambiar el ancho de los brazos [#change-the-arm-width]
+
+Los brazos clásicos miden 4 píxeles de ancho y los delgados 3 píxeles. Puedes cambiar el ancho de dos formas:
+
+- **Modelo** le dice al juego qué ancho de brazo tiene la textura. No cambia píxeles. Úsalo cuando la textura ya encaja con el otro modelo.
+- **Convertir brazos a delgados** o **Convertir brazos a clásicos** cambia los píxeles de los brazos y el modelo a la vez. Úsalo para hacer delgada una skin clásica, o clásica una skin delgada.
+
+La conversión cambia los dos brazos, en las dos capas. Las caras laterales mantienen cada píxel. La parte de arriba, la de abajo, el frente y la espalda tienen el ancho del brazo, así que pierden o ganan una columna:
+
+- A delgado: las dos columnas junto al cuerpo quedan en su sitio. La columna del borde exterior queda, y se quita la columna de al lado.
+- A clásico: la columna central del brazo delgado se copia en la columna nueva. No aparece ninguna franja vacía.
+
+Los píxeles de brazo que el nuevo modelo no usa quedan transparentes. La cabeza, el cuerpo, las piernas y los demás píxeles no cambian. Convertir a delgado quita una columna, así que volver a clásico no la recupera. Deshacer restaura los píxeles y el modelo originales. Si la textura ya encaja con el otro modelo, elige el modelo. La conversión movería la columna vacía al brazo.
 
 ### Mover la vista [#move-the-view]
 
-Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un dedo pinta y un arrastre con el botón derecho gira el modelo. Dos dedos desplazan la textura o giran el modelo, y se quita el trazo que empezó el primer dedo. En una pantalla táctil, **Rellenar cara** y **Tomar color** actúan al levantar el dedo, así que un gesto con dos dedos nunca rellena por accidente.
+Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un dedo pinta y un arrastre con el botón derecho gira el modelo. Dos dedos desplazan la textura o giran el modelo, y se quita el trazo que empezó el primer dedo. En una pantalla táctil, **Rellenar** y **Tomar color** actúan al levantar el dedo, así que un gesto con dos dedos nunca rellena por accidente.
 
 ### Teclado [#keyboard]
 
@@ -77,17 +107,18 @@ Selecciona el botón de la mano para desplazar la textura y girar el modelo con 
 | `B` | Lápiz |
 | `E` | Borrador |
 | `S` | Aclarar u oscurecer. Pulsa otra vez para cambiar entre aclarar y oscurecer. |
-| `G` | Rellenar cara |
+| `G` | Rellenar. Pulsa otra vez para cambiar entre **Cara** y **En todo**. |
 | `I` | Tomar color |
 | `X` | Activar o desactivar el espejo |
 | `[` / `]` | Pincel más pequeño o más grande |
 | `L` | Cambiar entre la capa base y la exterior |
 | `P` / `M` | Pintar o mover la vista |
+| `Shift` y clic | Una línea recta desde el final del último trazo |
 | `Ctrl+Z` | Deshacer |
 | `Ctrl+Shift+Z` o `Ctrl+Y` | Rehacer |
 | `Esc` | Cancelar la edición |
 
-Para pintar con el teclado, mueve el foco a la textura con `Tab`. Las flechas mueven un cursor de píxel, y `Shift` con una flecha mueve cuatro píxeles. `Space` o `Enter` usan la herramienta. Un lector de pantalla lee la parte, la cara, la capa y la posición del cursor. Los atajos no hacen nada mientras un campo de texto tiene el foco.
+Para pintar con el teclado, mueve el foco a la textura con `Tab`. Las flechas mueven un cursor de píxel, y `Shift` con una flecha mueve cuatro píxeles. `Space` o `Enter` usan la herramienta. `Shift+Space` o `Shift+Enter` trazan una línea recta hasta el cursor. Un lector de pantalla lee la parte, la cara, la capa y la posición del cursor. Los atajos no hacen nada mientras un campo de texto tiene el foco.
 
 ## Revisión de la skin [#skin-check]
 
@@ -99,7 +130,7 @@ La revisión no cambia píxeles. Una corrección se aplica solo al pulsar su bot
 | --- | --- |
 | Píxeles base transparentes | **Hacer opacos** mantiene cada color y lo hace opaco, como lo muestra el juego. |
 | Píxeles en áreas sin uso | **Limpiar áreas sin uso** elimina los píxeles que el juego no muestra. |
-| La skin puede ser clásica o delgada | **Usar clásica** o **Usar delgada** cambia el modelo. Es una suposición, así que revisa la vista previa primero. Con el modelo delgado, el juego ignora la columna ancha del brazo. Con el modelo clásico, una cuarta columna vacía puede verse como una franja oscura. El editor no borra píxeles del brazo por este problema. |
+| La skin puede ser clásica o delgada | **Usar clásica** o **Usar delgada** cambia el modelo. Es una suposición, así que revisa la vista previa primero. Con el modelo delgado, el juego ignora la columna ancha del brazo. Con el modelo clásico, una cuarta columna vacía puede verse como una franja oscura. Estos botones no cambian píxeles. Para cambiar los píxeles de los brazos, lee [Cambiar el ancho de los brazos](#change-the-arm-width). |
 
 Una capa exterior opaca no es un problema. Algunas skins la usan a propósito.
 

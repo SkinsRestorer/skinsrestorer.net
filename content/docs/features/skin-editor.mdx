@@ -48,27 +48,57 @@ Select a skin, check the model and the cape, then select the generate button. Th
 Select **Edit skin** below the model. The center shows the texture and the right side shows a live 3D model. The editor opens 64×64 and legacy 64×32 skins. It converts a 64×32 skin to the 64×64 layout without a message. To edit an HD skin, resize it to 64×64 in an image editor first.
 
 1. Choose the **Base** or **Outer** layer. Tools change only the active layer.
-2. Choose a tool: **Pencil**, **Eraser**, **Shade**, **Fill face**, or **Pick color**.
-3. Choose a color below the texture.
+2. Choose a tool: **Pencil**, **Eraser**, **Shade**, **Fill**, or **Pick color**.
+3. Choose a color below the texture. The last eight colors that you painted with stay below the texture, also after you close the editor or reload the page. The browser keeps them on this device only.
 4. Paint on the texture or on the 3D model.
 
 The base layer is always opaque in Java Edition. For this reason, the pencil paints opaque pixels on the base layer and the eraser works only on the outer layer. The outer layer can have see-through pixels, so it also has an opacity slider.
 
-**Fill face** fills the connected area of one color, and stops at the edge of the face. On the 3D model, a stroke stays on the face where it started.
+**Fill** has two areas. Select one below the tools, or press `G` again:
 
-**Shade** makes pixels lighter or darker. Select **Lighten** or **Darken** below the tools. Shade keeps the hue and the opacity of each pixel, and it does not change clear pixels. One stroke changes a pixel only one time, so you can drag over the same spot without making it darker and darker. Start a new stroke to shade it again.
+- **Face** fills the connected area of one color, and stops at the edge of the face. This is the default.
+- **Everywhere** replaces every pixel of exactly the clicked color, on all visible parts of the active layer. Use it to recolor a shirt in one step. A pixel of a slightly different color does not change. Hidden parts, the other layer, and unused areas do not change.
 
-**Size** sets the brush width for the pencil, the eraser, and shade, from 1 to 8 pixels. The brush is a square. An odd size is centered on the pointer. An even size reaches one more pixel up and to the left. The brush stays on the face under the pointer. The texture shows the outline of the brush.
+On the 3D model, a stroke stays on the face where it started.
 
-**Mirror** (the flip button) also paints the other side of the model. The left arm and the right arm swap, and so do the legs. The head and the body mirror onto themselves. Mirror works with the pencil, the eraser, shade, and **Fill face**. It changes only the active layer, and it does not change a hidden part. A dashed outline on the texture shows the mirrored pixels.
+**Shade** makes pixels lighter or darker. Select **Lighten** or **Darken** below the tools, and select a strength: **Soft**, **Medium**, or **Strong**. **Medium** is the default. **Soft** changes the lightness half as much, and **Strong** twice as much. Shade keeps the hue and the opacity of each pixel, and it does not change clear pixels. One stroke changes a pixel only one time, so you can drag over the same spot without making it darker and darker. Start a new stroke to shade it again.
+
+**Size** sets the brush width for the pencil, the eraser, and shade, from 1 to 8 pixels. The brush is a square. An odd size is centered on the pointer. An even size reaches one more pixel up and to the left. The brush stays on the face under the pointer. The texture shows the outline of the brush. With a mouse or a pen, the 3D model also marks the pixels that the tool will change before you click. The mark is not part of the skin. A red mark and a blocked pointer mean that an outer-layer pixel covers the base layer at that spot.
+
+**Mirror** (the flip button) also paints the other side of the model. The left arm and the right arm swap, and so do the legs. The head and the body mirror onto themselves. Mirror works with the pencil, the eraser, shade, and **Fill** with **Face**. **Everywhere** already changes every pixel of the color, so the Mirror button is not shown for it. Mirror changes only the active layer, and it does not change a hidden part. A dashed outline on the texture and a lighter mark on the 3D model show the mirrored pixels.
+
+To draw a straight line with the pencil, the eraser, or shade, hold `Shift` and click. The line starts where your last stroke ended and uses the current size, mirror, and shade strength. A line stays on one face. If you click another face, another tool, or another layer, the click starts a new stroke instead. Undo, a model change, a fill, and a part action also start again from the next stroke.
 
 Use **Visible parts** to hide a part or a layer. Tools do not change hidden parts. To paint the base layer under an outer-layer pixel, hide the outer layer of that part.
 
-Each stroke, fill, or fix is one undo step. Changing the model is also an undo step.
+Each stroke, line, fill, fix, or part action is one undo step. Changing the model or converting the arms is also one undo step.
+
+### Flip or copy a part [#flip-or-copy-a-part]
+
+Select **Flip or copy a part** below the model. The actions change only the active layer, and they do not change a hidden part or an unused area. Each pixel keeps its color and opacity.
+
+- **Flip left to right** shows the part as it looks in a mirror. Its left and right sides swap, and each face reverses its columns.
+- **Copy without mirroring** gives one arm or leg the design of the other. Each face gets the same face of the other limb, as it is. For example, the front of the right arm becomes the front of the left arm.
+
+To get a mirrored copy, copy the limb, and then flip the target limb.
+
+### Change the arm width [#change-the-arm-width]
+
+Classic arms are 4 pixels wide, and slim arms are 3 pixels wide. You can change the arm width in two ways:
+
+- **Model** tells the game which arm width the texture has. It does not change pixels. Use it when the texture already fits the other model.
+- **Convert arms to slim** or **Convert arms to classic** changes the arm pixels and the model together. Use it to make a classic skin slim, or a slim skin classic.
+
+The conversion changes both arms, on both layers. The side faces keep every pixel. The top, bottom, front, and back are as wide as the arm, so they lose or gain one column:
+
+- To slim: the two columns next to the body stay in place. The outer edge column stays, and the column next to it is removed.
+- To classic: the middle column of the slim arm is copied into the new column. No empty stripe appears.
+
+Arm pixels that the new model does not use become clear. The head, the body, the legs, and other pixels do not change. Converting to slim removes one column, so converting back does not restore it. Undo restores the original pixels and the model. If the texture already fits the other model, select the model instead. A conversion would move the empty column into the arm.
 
 ### Move the view
 
-Select the hand button to scroll the texture and turn the model with one finger or the mouse. Select the brush button to use the tool again. In paint mode, one finger paints, and a right drag turns the model. Two fingers scroll the texture or turn the model, and a stroke that the first finger started is removed. On a touch screen, **Fill face** and **Pick color** work when you lift the finger, so a two-finger gesture never fills by accident.
+Select the hand button to scroll the texture and turn the model with one finger or the mouse. Select the brush button to use the tool again. In paint mode, one finger paints, and a right drag turns the model. Two fingers scroll the texture or turn the model, and a stroke that the first finger started is removed. On a touch screen, **Fill** and **Pick color** work when you lift the finger, so a two-finger gesture never fills by accident.
 
 ### Keyboard
 
@@ -77,17 +107,18 @@ Select the hand button to scroll the texture and turn the model with one finger 
 | `B` | Pencil |
 | `E` | Eraser |
 | `S` | Shade. Press again to switch between lighten and darken. |
-| `G` | Fill face |
+| `G` | Fill. Press again to switch between **Face** and **Everywhere**. |
 | `I` | Pick color |
 | `X` | Mirror on or off |
 | `[` / `]` | Smaller or larger brush |
 | `L` | Switch between the base and outer layer |
 | `P` / `M` | Paint or move view |
+| `Shift` and click | A straight line from the end of the last stroke |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Shift+Z` or `Ctrl+Y` | Redo |
 | `Esc` | Cancel editing |
 
-To paint with the keyboard, move the focus to the texture with `Tab`. The arrow keys move a pixel cursor, and `Shift` with an arrow key moves four pixels. `Space` or `Enter` uses the tool. A screen reader reads the part, face, layer, and position of the cursor. The shortcuts do nothing while a text field has the focus.
+To paint with the keyboard, move the focus to the texture with `Tab`. The arrow keys move a pixel cursor, and `Shift` with an arrow key moves four pixels. `Space` or `Enter` uses the tool. `Shift+Space` or `Shift+Enter` draws a straight line to the cursor. A screen reader reads the part, face, layer, and position of the cursor. The shortcuts do nothing while a text field has the focus.
 
 ## Skin check
 
@@ -99,7 +130,7 @@ The check does not change pixels. A fix runs only when you select its button, an
 | --- | --- |
 | See-through base pixels | **Make opaque** keeps each color and sets it to opaque, which is how the game shows it. |
 | Pixels in unused areas | **Clear unused areas** removes pixels that the game does not show. |
-| The skin may be classic or slim | **Use classic** or **Use slim** changes the model. This is a guess, so look at the preview first. With the slim model, the game ignores the wide arm column. With the classic model, an empty fourth column can show as a dark stripe. The editor does not erase arm pixels for this problem. |
+| The skin may be classic or slim | **Use classic** or **Use slim** changes the model. This is a guess, so look at the preview first. With the slim model, the game ignores the wide arm column. With the classic model, an empty fourth column can show as a dark stripe. These buttons do not change pixels. To change the arm pixels, read [Change the arm width](#change-the-arm-width). |
 
 An opaque outer layer is not a problem. Some skins use it on purpose.
 

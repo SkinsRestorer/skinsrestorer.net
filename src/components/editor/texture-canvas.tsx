@@ -276,8 +276,8 @@ export function TextureCanvas(props: TextureCanvasProps) {
     propsRef.current.onPainted();
   };
 
-  const applyAtCursor = (x: number, y: number) => {
-    const result = startTool(propsRef.current, x, y);
+  const applyAtCursor = (x: number, y: number, line: boolean) => {
+    const result = startTool(propsRef.current, x, y, { line });
     if (result === "stroke") finishStroke();
   };
 
@@ -330,7 +330,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
             );
           } else if (event.key === " " || event.key === "Enter") {
             event.preventDefault();
-            applyAtCursor(cursor.x, cursor.y);
+            applyAtCursor(cursor.x, cursor.y, event.shiftKey);
           }
         }}
         onPointerDown={(event) => {
@@ -362,7 +362,11 @@ export function TextureCanvas(props: TextureCanvasProps) {
             tap.current = { id: event.pointerId, ...pixel };
             return;
           }
-          if (startTool(propsRef.current, pixel.x, pixel.y) === "stroke")
+          if (
+            startTool(propsRef.current, pixel.x, pixel.y, {
+              line: event.shiftKey,
+            }) === "stroke"
+          )
             event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
@@ -413,7 +417,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
       />
       <p id={instructionsId} className="sr-only">
         {t(
-          "Use the arrow keys to move the pixel cursor. Hold Shift to move four pixels. Press Space or Enter to use the selected tool.",
+          "Use the arrow keys to move the pixel cursor. Hold Shift to move four pixels. Press Space or Enter to use the selected tool. Add Shift to draw a straight line from the last stroke.",
         )}
       </p>
       <p className="min-h-4 text-xs text-muted-foreground" aria-hidden="true">

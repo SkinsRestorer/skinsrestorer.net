@@ -199,7 +199,64 @@ const mirrorParts: Record<SkinPart, SkinPart> = {
   rightLeg: "leftLeg",
   leftLeg: "rightLeg",
 };
-const mirrorCache = new Map<SkinVariant, Int16Array>();
+
+/** The arm or leg on the other side of the body. The head and body have none. */
+export const pairedParts: Partial<Record<SkinPart, SkinPart>> = {
+  rightArm: "leftArm",
+  leftArm: "rightArm",
+  rightLeg: "leftLeg",
+  leftLeg: "rightLeg",
+};
+
+type PixelMap = "mirror" | "flip" | "pair";
+const mapCache = new Map<string, Int16Array>();
+
+/**
+ * Build a pixel table for one transform. "mirror" and "flip" reflect across
+ * the player's left-right axis, so the left and right sides swap and every
+ * face reverses its columns. "mirror" moves to the paired part, and "flip"
+ * stays on the same part. "pair" moves to the paired part without
+ * reflection: each face keeps its side, rows, and columns.
+ */
+function pixelMap(variant: SkinVariant, kind: PixelMap): Int16Array {
+  const key = `${variant} ${kind}`;
+  let table = mapCache.get(key);
+  if (table) return table;
+  table = new Int16Array(SKIN_SIZE * SKIN_SIZE).fill(-1);
+  for (const region of skinRegions(variant)) {
+    const part =
+      kind === "flip"
+        ? region.part
+        : kind === "pair"
+          ? pairedParts[region.part]
+          : mirrorParts[region.part];
+    if (!part) continue;
+    const reflect = kind !== "pair";
+    const face = !reflect
+      ? region.face
+      : region.face === "left"
+        ? "right"
+        : region.face === "right"
+          ? "left"
+          : region.face;
+    const target = findRegion(variant, part, region.layer, face);
+    for (let row = 0; row < region.height; row++)
+      for (let column = 0; column < region.width; column++)
+        table[(region.y + row) * SKIN_SIZE + region.x + column] =
+          (target.y + row) * SKIN_SIZE +
+          target.x +
+          (reflect ? target.width - 1 - column : column);
+  }
+  mapCache.set(key, table);
+  return table;
+}
+
+function mapPixel(variant: SkinVariant, kind: PixelMap, x: number, y: number) {
+  if (!regionAt(variant, x, y)) return undefined;
+  const index = pixelMap(variant, kind)[y * SKIN_SIZE + x];
+  if (index < 0) return undefined;
+  return { x: index % SKIN_SIZE, y: Math.floor(index / SKIN_SIZE) };
+}
 
 /**
  * The pixel on the other side of the model, mirrored across the player's
@@ -207,37 +264,25 @@ const mirrorCache = new Map<SkinVariant, Int16Array>();
  * every face reverses its columns. Rows stay the same. The result is on the
  * same layer. Unused pixels have no mirror.
  */
-export function mirrorPixel(
-  variant: SkinVariant,
-  x: number,
-  y: number,
-): { x: number; y: number } | undefined {
-  if (!regionAt(variant, x, y)) return undefined;
-  let table = mirrorCache.get(variant);
-  if (!table) {
-    table = new Int16Array(SKIN_SIZE * SKIN_SIZE).fill(-1);
-    for (const region of skinRegions(variant)) {
-      const face =
-        region.face === "left"
-          ? "right"
-          : region.face === "right"
-            ? "left"
-            : region.face;
-      const target = findRegion(
-        variant,
-        mirrorParts[region.part],
-        region.layer,
-        face,
-      );
-      for (let row = 0; row < region.height; row++)
-        for (let column = 0; column < region.width; column++)
-          table[(region.y + row) * SKIN_SIZE + region.x + column] =
-            (target.y + row) * SKIN_SIZE + target.x + target.width - 1 - column;
-    }
-    mirrorCache.set(variant, table);
-  }
-  const index = table[y * SKIN_SIZE + x];
-  return { x: index % SKIN_SIZE, y: Math.floor(index / SKIN_SIZE) };
+export function mirrorPixel(variant: SkinVariant, x: number, y: number) {
+  return mapPixel(variant, "mirror", x, y);
+}
+
+/**
+ * The pixel that a left-right flip of its own part moves it to: the left and
+ * right sides swap and every face reverses its columns, like a reflection in
+ * a mirror. The pixel stays on the same part and layer.
+ */
+export function flipPixel(variant: SkinVariant, x: number, y: number) {
+  return mapPixel(variant, "flip", x, y);
+}
+
+/**
+ * The same face, row, and column on the paired arm or leg, without a
+ * reflection. The head and body have no paired pixel.
+ */
+export function pairedPixel(variant: SkinVariant, x: number, y: number) {
+  return mapPixel(variant, "pair", x, y);
 }
 
 export function regionContains(region: SkinRegion, x: number, y: number) {

@@ -7,6 +7,7 @@ import {
   sameRegion,
   SKIN_SIZE,
   skinParts,
+  skinRegions,
   type SkinLayer,
   type SkinPart,
   type SkinRegion,
@@ -16,6 +17,10 @@ export type PaintTool = "pencil" | "eraser" | "shade" | "eyedropper" | "fill";
 /** Tools that paint a stroke from pointer down to pointer up. */
 export type StrokeTool = "pencil" | "eraser" | "shade";
 export type ShadeMode = "lighten" | "darken";
+/** How much one shade changes the lightness. */
+export type ShadeStrength = "soft" | "medium" | "strong";
+/** Fill the connected area in one face, or every pixel of the color. */
+export type FillScope = "face" | "everywhere";
 export type Rgba = readonly [number, number, number, number];
 export type PartVisibility = Record<SkinPart, Record<SkinLayer, boolean>>;
 
@@ -28,14 +33,21 @@ export interface PaintSettings {
   /** Also paint the mirrored pixels on the other side of the model. */
   readonly mirror: boolean;
   readonly shade: ShadeMode;
+  readonly shadeStrength: ShadeStrength;
+  readonly fillScope: FillScope;
 }
 
 export const BRUSH_SIZES = { min: 1, max: 8 } as const;
 
-export const defaultBrush: Pick<PaintSettings, "size" | "mirror" | "shade"> = {
+export const defaultBrush: Pick<
+  PaintSettings,
+  "size" | "mirror" | "shade" | "shadeStrength" | "fillScope"
+> = {
   size: 1,
   mirror: false,
   shade: "darken",
+  shadeStrength: "medium",
+  fillScope: "face",
 };
 
 export interface PixelRect {
@@ -154,15 +166,25 @@ export function brushPixels(
   return [...pixels];
 }
 
-/** The change in HSL lightness for one shade of a pixel. */
+/** The change in HSL lightness for one shade of a pixel at medium strength. */
 export const SHADE_STEP = 0.08;
+
+export const SHADE_STEPS: Record<ShadeStrength, number> = {
+  soft: SHADE_STEP / 2,
+  medium: SHADE_STEP,
+  strong: SHADE_STEP * 2,
+};
 
 /**
  * Make one pixel lighter or darker. The hue, saturation, and alpha stay the
  * same, and the lightness stops at black or white. A clear pixel has no color
  * to shade, so it returns undefined.
  */
-export function shadeColor(color: Rgba, mode: ShadeMode): Rgba | undefined {
+export function shadeColor(
+  color: Rgba,
+  mode: ShadeMode,
+  step: number = SHADE_STEP,
+): Rgba | undefined {
   if (color[3] === 0) return undefined;
   const r = color[0] / 255;
   const g = color[1] / 255;
@@ -181,7 +203,7 @@ export function shadeColor(color: Rgba, mode: ShadeMode): Rgba | undefined {
   }
   const next = Math.min(
     1,
-    Math.max(0, lightness + (mode === "lighten" ? SHADE_STEP : -SHADE_STEP)),
+    Math.max(0, lightness + (mode === "lighten" ? step : -step)),
   );
   const c = (1 - Math.abs(2 * next - 1)) * saturation;
   const x = c * (1 - Math.abs((hue % 2) - 1));
@@ -238,11 +260,83 @@ export function readPixel(
   return [pixels[at], pixels[at + 1], pixels[at + 2], pixels[at + 3]];
 }
 
+function samePixel(pixels: Uint8ClampedArray, index: number, color: Rgba) {
+  const at = index * 4;
+  return (
+    pixels[at] === color[0] &&
+    pixels[at + 1] === color[1] &&
+    pixels[at + 2] === color[2] &&
+    pixels[at + 3] === color[3]
+  );
+}
+
 /**
- * Replace the connected area of matching pixels, staying inside the face that
- * was clicked so the fill never runs into a neighbouring UV island. With
- * mirror on, the same shape is also filled on the other side of the model.
+ * The pixels a fill changes, before it changes them.
+ *
+ * - Face scope: the connected area of matching pixels inside the face that
+ *   was clicked, so the fill never runs into a neighbouring UV island. With
+ *   mirror on, the same shape on the other side of the model is in `mirror`.
+ * - Everywhere scope: every pixel with exactly the clicked RGBA on visible
+ *   parts of the active layer. Mirror adds nothing here, because a mirrored
+ *   pixel of another color is not the color being replaced.
  */
+export function fillTargets(
+  pixels: Uint8ClampedArray,
+  variant: SkinVariant,
+  settings: Pick<
+    PaintSettings,
+    "layer" | "visibility" | "mirror" | "fillScope"
+  >,
+  x: number,
+  y: number,
+): { source: number[]; mirror: number[] } | undefined {
+  const region = paintableRegion(variant, settings, x, y);
+  if (!region) return undefined;
+  const target = readPixel(pixels, x, y);
+  if (settings.fillScope === "everywhere") {
+    const source: number[] = [];
+    for (const face of skinRegions(variant)) {
+      if (face.layer !== settings.layer) continue;
+      if (!settings.visibility[face.part][face.layer]) continue;
+      for (let py = face.y; py < face.y + face.height; py++)
+        for (let px = face.x; px < face.x + face.width; px++) {
+          const index = py * SKIN_SIZE + px;
+          if (samePixel(pixels, index, target)) source.push(index);
+        }
+    }
+    return { source, mirror: [] };
+  }
+  const area = new Set<number>();
+  const stack: Array<readonly [number, number]> = [[x, y]];
+  while (stack.length > 0) {
+    const [px, py] = stack.pop()!;
+    const index = py * SKIN_SIZE + px;
+    if (
+      area.has(index) ||
+      !regionContains(region, px, py) ||
+      !samePixel(pixels, index, target)
+    )
+      continue;
+    area.add(index);
+    stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
+  }
+  const mirror: number[] = [];
+  if (settings.mirror)
+    for (const index of area) {
+      const other = mirrorPixel(
+        variant,
+        index % SKIN_SIZE,
+        Math.floor(index / SKIN_SIZE),
+      );
+      if (!other || !paintableRegion(variant, settings, other.x, other.y))
+        continue;
+      const otherIndex = other.y * SKIN_SIZE + other.x;
+      if (!area.has(otherIndex)) mirror.push(otherIndex);
+    }
+  return { source: [...area], mirror };
+}
+
+/** Fill with the paint color. See {@link fillTargets} for the scopes. */
 export function fillFace(
   pixels: Uint8ClampedArray,
   builder: PatchBuilder,
@@ -251,40 +345,51 @@ export function fillFace(
   x: number,
   y: number,
 ) {
-  const region = paintableRegion(variant, settings, x, y);
   const color = toolColor("pencil", settings.layer, settings.color);
-  if (!region || !color) return;
-  const target = readPixel(pixels, x, y);
-  const same = (px: number, py: number) => {
-    const at = (py * SKIN_SIZE + px) * 4;
-    return (
-      pixels[at] === target[0] &&
-      pixels[at + 1] === target[1] &&
-      pixels[at + 2] === target[2] &&
-      pixels[at + 3] === target[3]
-    );
+  const targets = fillTargets(pixels, variant, settings, x, y);
+  if (!targets || !color) return;
+  for (const index of [...targets.source, ...targets.mirror])
+    builder.write(index, color);
+}
+
+function rectPixels(rect: PixelRect) {
+  const pixels: number[] = [];
+  for (let py = rect.y; py < rect.y + rect.height; py++)
+    for (let px = rect.x; px < rect.x + rect.width; px++)
+      pixels.push(py * SKIN_SIZE + px);
+  return pixels;
+}
+
+/**
+ * The pixels a tool would change at a pixel on the 3D model, for a preview.
+ * It uses the same brush, face lock, mirror, and fill rules as the tool. It
+ * returns undefined where the tool cannot work, such as the eraser on the
+ * base layer.
+ */
+export function toolFootprint(
+  pixels: Uint8ClampedArray,
+  variant: SkinVariant,
+  tool: PaintTool,
+  settings: PaintSettings,
+  x: number,
+  y: number,
+): { source: number[]; mirror: number[] } | undefined {
+  if (tool === "eyedropper")
+    return regionAt(variant, x, y)
+      ? { source: [y * SKIN_SIZE + x], mirror: [] }
+      : undefined;
+  if (tool === "fill") return fillTargets(pixels, variant, settings, x, y);
+  if (tool === "eraser" && !toolColor("eraser", settings.layer, settings.color))
+    return undefined;
+  const region = paintableRegion(variant, settings, x, y);
+  const area = region && brushArea(variant, settings, x, y, region);
+  if (!area) return undefined;
+  const source = rectPixels(area.source);
+  const seen = new Set(source);
+  return {
+    source,
+    mirror: area.mirror
+      ? rectPixels(area.mirror).filter((index) => !seen.has(index))
+      : [],
   };
-  // Find the whole area first, so the mirror copy cannot change it.
-  const area = new Set<number>();
-  const stack: Array<readonly [number, number]> = [[x, y]];
-  while (stack.length > 0) {
-    const [px, py] = stack.pop()!;
-    const index = py * SKIN_SIZE + px;
-    if (area.has(index) || !regionContains(region, px, py) || !same(px, py))
-      continue;
-    area.add(index);
-    stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
-  }
-  const targets = new Set(area);
-  if (settings.mirror)
-    for (const index of area) {
-      const mirror = mirrorPixel(
-        variant,
-        index % SKIN_SIZE,
-        Math.floor(index / SKIN_SIZE),
-      );
-      if (mirror && paintableRegion(variant, settings, mirror.x, mirror.y))
-        targets.add(mirror.y * SKIN_SIZE + mirror.x);
-    }
-  for (const index of targets) builder.write(index, color);
 }

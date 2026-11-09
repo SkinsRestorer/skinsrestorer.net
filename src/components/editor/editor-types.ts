@@ -26,7 +26,7 @@ export const toolLabels: Record<PaintTool, { label: string; key: string }> = {
   pencil: { label: "Pencil", key: "B" },
   eraser: { label: "Eraser", key: "E" },
   shade: { label: "Shade", key: "S" },
-  fill: { label: "Fill face", key: "G" },
+  fill: { label: "Fill", key: "G" },
   eyedropper: { label: "Pick color", key: "I" },
 };
 
@@ -41,13 +41,15 @@ export function usesBrush(tool: PaintTool) {
 
 /**
  * Start the tool at a pixel. Pencil, eraser, and shade start a stroke that the caller
- * continues and ends; fill and pick finish at once.
+ * continues and ends; fill and pick finish at once. With `line` (Shift), a
+ * brush tool draws a straight line from the end of its last stroke on the
+ * same face and finishes at once. Without a line to draw, it starts a stroke.
  */
 export function startTool(
   props: EditorSurfaceProps,
   x: number,
   y: number,
-  options: { surfaceLock?: boolean; pickColor?: Rgba } = {},
+  options: { surfaceLock?: boolean; pickColor?: Rgba; line?: boolean } = {},
 ): "stroke" | "done" | "blocked" {
   const { store, tool, settings } = props;
   if (tool === "eyedropper") {
@@ -70,6 +72,10 @@ export function startTool(
       "Java Edition always shows the base layer as opaque, so it cannot be erased. Paint over it instead.",
     );
     return "blocked";
+  }
+  if (options.line && store.lineTo(tool, settings, x, y)) {
+    props.onPainted();
+    return "done";
   }
   if (!paintableRegion(store.getSnapshot().variant, settings, x, y)) {
     props.onStatus(blockedMessage(settings));
