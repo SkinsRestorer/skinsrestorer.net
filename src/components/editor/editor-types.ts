@@ -25,6 +25,7 @@ export interface EditorSurfaceProps {
 export const toolLabels: Record<PaintTool, { label: string; key: string }> = {
   pencil: { label: "Pencil", key: "B" },
   eraser: { label: "Eraser", key: "E" },
+  shade: { label: "Shade", key: "S" },
   fill: { label: "Fill face", key: "G" },
   eyedropper: { label: "Pick color", key: "I" },
 };
@@ -33,8 +34,13 @@ export function blockedMessage(settings: PaintSettings) {
   return `That pixel is not on a visible part of the ${settings.layer} layer.`;
 }
 
+/** Tools that use the brush size. */
+export function usesBrush(tool: PaintTool) {
+  return tool === "pencil" || tool === "eraser" || tool === "shade";
+}
+
 /**
- * Start the tool at a pixel. Pencil and eraser start a stroke that the caller
+ * Start the tool at a pixel. Pencil, eraser, and shade start a stroke that the caller
  * continues and ends; fill and pick finish at once.
  */
 export function startTool(

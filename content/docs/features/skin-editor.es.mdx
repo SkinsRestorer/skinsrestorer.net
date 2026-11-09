@@ -40,7 +40,7 @@ Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. L
 Selecciona **Editar skin** debajo del modelo. El centro muestra la textura y la derecha un modelo 3D en vivo. El editor abre skins de 64×64 y skins antiguas de 64×32. Convierte una skin de 64×32 al formato 64×64 sin aviso. Para editar una skin HD, redimensiónala primero a 64×64 en un editor de imágenes.
 
 1. Elige la capa **Base** o **Exterior**. Las herramientas cambian solo la capa activa.
-2. Elige una herramienta: **Lápiz**, **Borrador**, **Rellenar cara** o **Tomar color**.
+2. Elige una herramienta: **Lápiz**, **Borrador**, **Aclarar u oscurecer**, **Rellenar cara** o **Tomar color**.
 3. Elige un color debajo de la textura.
 4. Pinta sobre la textura o sobre el modelo 3D.
 
@@ -48,13 +48,19 @@ La capa base siempre es opaca en Java Edition. Por eso el lápiz pinta píxeles 
 
 **Rellenar cara** rellena el área conectada de un color y se detiene en el borde de la cara. En el modelo 3D, un trazo se queda en la cara donde empezó.
 
+**Aclarar u oscurecer** hace los píxeles más claros o más oscuros. Selecciona **Aclarar** u **Oscurecer** debajo de las herramientas. La herramienta mantiene el tono y la opacidad de cada píxel y no cambia los píxeles transparentes. Un trazo cambia cada píxel una sola vez, así que puedes pasar varias veces por el mismo sitio sin oscurecerlo más y más. Empieza un trazo nuevo para cambiarlo otra vez.
+
+**Tamaño** fija el ancho del pincel para el lápiz, el borrador y **Aclarar u oscurecer**, de 1 a 8 píxeles. El pincel es un cuadrado. Un tamaño impar queda centrado en el puntero. Un tamaño par llega un píxel más hacia arriba y a la izquierda. El pincel se queda en la cara bajo el puntero. La textura muestra el contorno del pincel.
+
+**Espejo** (el botón de reflejo) también pinta el otro lado del modelo. El brazo izquierdo y el derecho se intercambian, y también las piernas. La cabeza y el cuerpo se reflejan sobre sí mismos. Espejo funciona con el lápiz, el borrador, **Aclarar u oscurecer** y **Rellenar cara**. Solo cambia la capa activa y no cambia partes ocultas. Un contorno discontinuo en la textura muestra los píxeles reflejados.
+
 Usa **Partes visibles** para ocultar una parte o una capa. Las herramientas no cambian las partes ocultas. Para pintar la capa base bajo un píxel exterior, oculta la capa exterior de esa parte.
 
 Cada trazo, relleno o corrección es un paso de deshacer. Cambiar el modelo también lo es.
 
 ### Mover la vista [#move-the-view]
 
-Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un arrastre con el botón derecho o dos dedos giran el modelo.
+Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un dedo pinta y un arrastre con el botón derecho gira el modelo. Dos dedos desplazan la textura o giran el modelo, y se quita el trazo que empezó el primer dedo. En una pantalla táctil, **Rellenar cara** y **Tomar color** actúan al levantar el dedo, así que un gesto con dos dedos nunca rellena por accidente.
 
 ### Teclado [#keyboard]
 
@@ -62,8 +68,11 @@ Selecciona el botón de la mano para desplazar la textura y girar el modelo con 
 | --- | --- |
 | `B` | Lápiz |
 | `E` | Borrador |
+| `S` | Aclarar u oscurecer. Pulsa otra vez para cambiar entre aclarar y oscurecer. |
 | `G` | Rellenar cara |
 | `I` | Tomar color |
+| `X` | Activar o desactivar el espejo |
+| `[` / `]` | Pincel más pequeño o más grande |
 | `L` | Cambiar entre la capa base y la exterior |
 | `P` / `M` | Pintar o mover la vista |
 | `Ctrl+Z` | Deshacer |

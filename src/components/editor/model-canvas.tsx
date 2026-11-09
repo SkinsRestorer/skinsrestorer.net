@@ -65,6 +65,8 @@ export function ModelCanvas(
   const [failure, setFailure] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [animate, setAnimate] = useState(false);
+  /** A fill or pick that waits for the finger to lift, as a tap. */
+  const tap = useRef<{ id: number; target: PaintTarget } | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -342,7 +344,8 @@ export function ModelCanvas(
             if (!painting) return;
             if (event.pointerType === "mouse" && event.button !== 0) return;
             if (!event.isPrimary) {
-              // A second finger turns the model; drop the stroke it started.
+              // A second finger turns the model; drop what the first started.
+              tap.current = null;
               store.cancelStroke();
               return;
             }
@@ -352,6 +355,16 @@ export function ModelCanvas(
               return;
             }
             if (!target) return;
+            // A finger may become a two-finger turn, so fill and pick wait
+            // for the tap to end.
+            const { tool } = propsRef.current;
+            if (
+              event.pointerType === "touch" &&
+              (tool === "fill" || tool === "eyedropper")
+            ) {
+              tap.current = { id: event.pointerId, target };
+              return;
+            }
             const result = startTool(propsRef.current, target.x, target.y, {
               surfaceLock: true,
               pickColor: target.color,
@@ -368,12 +381,24 @@ export function ModelCanvas(
                 store.strokeTo(target.x, target.y);
             }
           }}
-          onPointerUp={() => {
+          onPointerUp={(event) => {
+            const pending = tap.current;
+            tap.current = null;
+            if (pending?.id === event.pointerId) {
+              startTool(propsRef.current, pending.target.x, pending.target.y, {
+                surfaceLock: true,
+                pickColor: pending.target.color,
+              });
+              return;
+            }
             if (!store.getSnapshot().painting) return;
             store.endStroke();
             propsRef.current.onPainted();
           }}
-          onPointerCancel={() => store.cancelStroke()}
+          onPointerCancel={() => {
+            tap.current = null;
+            store.cancelStroke();
+          }}
         />
       </div>
       {!failure && (

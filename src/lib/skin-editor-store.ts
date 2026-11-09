@@ -7,13 +7,16 @@ import {
   type SkinPatch,
 } from "./skin-history";
 import {
+  brushPixels,
   fillFace,
   linePoints,
   paintableRegion,
   readPixel,
+  shadeColor,
   toolColor,
   type PaintSettings,
   type Rgba,
+  type StrokeTool,
 } from "./skin-paint";
 import { sameRegion, SKIN_SIZE, type SkinRegion } from "./skin-regions";
 
@@ -27,11 +30,14 @@ export interface SkinEditorSnapshot {
 }
 
 interface Stroke {
-  readonly color: Rgba;
+  /** The color to write, or undefined to shade each pixel's own color. */
+  readonly color: Rgba | undefined;
   readonly settings: PaintSettings;
   readonly builder: PatchBuilder;
   /** With surface lock, the stroke stays on the face where it started. */
   readonly lock?: SkinRegion;
+  /** Pixels the stroke already changed. Each pixel changes once per stroke. */
+  readonly touched: Set<number>;
   last?: readonly [number, number];
 }
 
@@ -112,19 +118,22 @@ export class SkinEditorStore {
   }
 
   /**
-   * Start a pencil or eraser stroke. A stroke from pointer down to pointer up
-   * becomes one undo step.
+   * Start a pencil, eraser, or shade stroke. A stroke from pointer down to
+   * pointer up becomes one undo step.
    */
   beginStroke(
-    tool: "pencil" | "eraser",
+    tool: StrokeTool,
     settings: PaintSettings,
     x: number,
     y: number,
     options: { surfaceLock?: boolean } = {},
   ) {
     this.endStroke();
-    const color = toolColor(tool, settings.layer, settings.color);
-    if (!color) return false;
+    const color =
+      tool === "shade"
+        ? undefined
+        : toolColor(tool, settings.layer, settings.color);
+    if (tool !== "shade" && !color) return false;
     const lock = options.surfaceLock
       ? paintableRegion(this.variant, settings, x, y)
       : undefined;
@@ -134,12 +143,17 @@ export class SkinEditorStore {
       settings,
       builder: new PatchBuilder(this.pixels),
       lock,
+      touched: new Set(),
     };
     this.strokeTo(x, y);
     return true;
   }
 
-  /** Paint every pixel on the line from the last sample, so fast moves leave no gaps. */
+  /**
+   * Stamp the brush on every pixel of the line from the last sample, so fast
+   * moves leave no gaps. Shade changes a pixel only the first time the stroke
+   * reaches it, so a slow drag does not keep darkening the same pixel.
+   */
   strokeTo(x: number, y: number) {
     const stroke = this.stroke;
     if (!stroke) return;
@@ -148,11 +162,28 @@ export class SkinEditorStore {
       ? linePoints(stroke.last[0], stroke.last[1], x, y)
       : [[x, y] as const];
     let changed = false;
-    for (const [px, py] of points) {
-      if (!paintableOn(stroke, this.variant, px, py)) continue;
-      changed =
-        stroke.builder.write(py * SKIN_SIZE + px, stroke.color) || changed;
-    }
+    for (const [px, py] of points)
+      for (const index of brushPixels(
+        this.variant,
+        stroke.settings,
+        px,
+        py,
+        stroke.lock,
+      )) {
+        if (stroke.touched.has(index)) continue;
+        stroke.touched.add(index);
+        const color =
+          stroke.color ??
+          shadeColor(
+            readPixel(
+              this.pixels,
+              index % SKIN_SIZE,
+              Math.floor(index / SKIN_SIZE),
+            ),
+            stroke.settings.shade,
+          );
+        if (color) changed = stroke.builder.write(index, color) || changed;
+      }
     stroke.last = [x, y];
     if (changed) this.emit(true);
   }

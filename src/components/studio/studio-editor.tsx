@@ -21,6 +21,7 @@ import { LayerToggle, VisibleParts } from "@/components/editor/layers-panel";
 import { ModelCanvas } from "@/components/editor/model-canvas";
 import { SkinIssueAlerts } from "@/components/editor/skin-issue-alerts";
 import { TextureCanvas } from "@/components/editor/texture-canvas";
+import { ToolOptions } from "@/components/editor/tool-options";
 import { ModelSelector } from "@/components/model-selector";
 import { SaveStatus, type SaveState } from "@/components/save-status";
 import { CustomTimeAgo } from "@/components/time-ago";
@@ -43,9 +44,12 @@ import { exportSkinPng } from "@/lib/skin-document";
 import type { SkinEditorStore } from "@/lib/skin-editor-store";
 import {
   allPartsVisible,
+  BRUSH_SIZES,
+  defaultBrush,
   type PaintSettings,
   type PaintTool,
   type Rgba,
+  type ShadeMode,
 } from "@/lib/skin-paint";
 import { SKIN_SIZE, type SkinLayer } from "@/lib/skin-regions";
 import { useT } from "@/lib/i18n-react";
@@ -104,6 +108,9 @@ export function StudioEditor(props: {
   const [color, setColor] = useState<Rgba>([76, 118, 160, 255]);
   const [recent, setRecent] = useState<Rgba[]>([]);
   const [visibility, setVisibility] = useState(allPartsVisible);
+  const [size, setSize] = useState(defaultBrush.size);
+  const [mirror, setMirror] = useState(defaultBrush.mirror);
+  const [shade, setShade] = useState<ShadeMode>(defaultBrush.shade);
   const [interaction, setInteraction] = useState<EditorInteraction>("paint");
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [fitScale, setFitScale] = useState(5);
@@ -117,8 +124,8 @@ export function StudioEditor(props: {
   const draftsOff = work.drafts.kind === "off";
 
   const settings = useMemo<PaintSettings>(
-    () => ({ layer, color, visibility }),
-    [layer, color, visibility],
+    () => ({ layer, color, visibility, size, mirror, shade }),
+    [layer, color, visibility, size, mirror, shade],
   );
   const scale = zoom === "fit" ? fitScale : zoom;
   const issues = checkSkin(store.pixels, snapshot.variant);
@@ -195,7 +202,7 @@ export function StudioEditor(props: {
 
   const onPainted = useCallback(() => {
     setStatus("");
-    if (tool === "eraser" || tool === "eyedropper") return;
+    if (tool !== "pencil" && tool !== "fill") return;
     const used: Rgba =
       layer === "base" ? [color[0], color[1], color[2], 255] : color;
     setRecent((list) =>
@@ -228,7 +235,13 @@ export function StudioEditor(props: {
   );
 
   // Keyboard shortcuts work everywhere on the page except in text fields.
-  const shortcuts = useAsRef({ layer, changeLayer, requestExit, confirm });
+  const shortcuts = useAsRef({
+    tool,
+    layer,
+    changeLayer,
+    requestExit,
+    confirm,
+  });
   useEffect(() => {
     const handle = (event: KeyboardEvent) => {
       if (event.defaultPrevented || isTyping(event.target)) return;
@@ -253,10 +266,22 @@ export function StudioEditor(props: {
       const tools: Record<string, PaintTool> = {
         b: "pencil",
         e: "eraser",
+        s: "shade",
         g: "fill",
         i: "eyedropper",
       };
-      if (tools[key]) setTool(tools[key]);
+      // S on the active Shade tool switches between lighten and darken.
+      if (key === "s" && shortcuts.current.tool === "shade")
+        setShade((mode) => (mode === "lighten" ? "darken" : "lighten"));
+      else if (tools[key]) setTool(tools[key]);
+      else if (key === "x") setMirror((on) => !on);
+      else if (event.key === "[" || event.key === "]")
+        setSize((current) =>
+          Math.max(
+            BRUSH_SIZES.min,
+            Math.min(BRUSH_SIZES.max, current + (event.key === "]" ? 1 : -1)),
+          ),
+        );
       else if (key === "l")
         shortcuts.current.changeLayer(
           shortcuts.current.layer === "base" ? "outer" : "base",
@@ -419,6 +444,15 @@ export function StudioEditor(props: {
             </Toggle>
           </span>
         </div>
+        <ToolOptions
+          tool={tool}
+          size={size}
+          mirror={mirror}
+          shade={shade}
+          onSize={setSize}
+          onMirror={setMirror}
+          onShade={setShade}
+        />
         <output
           className={status ? "text-xs text-muted-foreground" : "sr-only"}
           aria-live="polite"

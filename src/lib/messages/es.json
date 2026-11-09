@@ -593,5 +593,13 @@
   "Use on a server": "Usar en un servidor",
   "{name}, 3D view. Drag or use the arrow keys to turn it.": "{name}, vista 3D. Arrastra o usa las flechas para girarla.",
   "{name}, {model} model": "{name}, modelo {model}",
-  "{name}, {model} model, has unsaved edits": "{name}, modelo {model}, tiene cambios sin guardar"
+  "{name}, {model} model, has unsaved edits": "{name}, modelo {model}, tiene cambios sin guardar",
+  "Shade": "Aclarar u oscurecer",
+  "Tool options": "Opciones de la herramienta",
+  "Mirror": "Espejo",
+  "Mirror left and right (X)": "Espejo entre izquierda y derecha (X)",
+  "Size": "Tamaño",
+  "{size} px": "{size} px",
+  "Lighten": "Aclarar",
+  "Darken": "Oscurecer"
 }

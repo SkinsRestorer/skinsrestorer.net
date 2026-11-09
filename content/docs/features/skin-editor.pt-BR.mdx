@@ -40,7 +40,7 @@ Selecione uma skin, confira o modelo e a capa e selecione o botão de gerar. O [
 Selecione **Editar skin** abaixo do modelo. O centro mostra a textura e a direita mostra um modelo 3D ao vivo. O editor abre skins 64×64 e skins antigas 64×32. Ele converte uma skin 64×32 para o formato 64×64 sem aviso. Para editar uma skin HD, redimensione-a para 64×64 em um editor de imagens primeiro.
 
 1. Escolha a camada **Base** ou **Externa**. As ferramentas mudam só a camada ativa.
-2. Escolha uma ferramenta: **Lápis**, **Borracha**, **Preencher face** ou **Conta-gotas**.
+2. Escolha uma ferramenta: **Lápis**, **Borracha**, **Clarear ou escurecer**, **Preencher face** ou **Conta-gotas**.
 3. Escolha uma cor abaixo da textura.
 4. Pinte na textura ou no modelo 3D.
 
@@ -48,13 +48,19 @@ A camada base é sempre opaca no Java Edition. Por isso o lápis pinta pixels op
 
 **Preencher face** preenche a área conectada de uma cor e para na borda da face. No modelo 3D, um traço fica na face onde começou.
 
+**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas. A ferramenta mantém o tom e a opacidade de cada pixel e não muda pixels transparentes. Um traço muda cada pixel uma só vez, então você pode passar várias vezes no mesmo lugar sem escurecê-lo mais e mais. Comece um novo traço para mudá-lo de novo.
+
+**Tamanho** define a largura do pincel para o lápis, a borracha e **Clarear ou escurecer**, de 1 a 8 pixels. O pincel é um quadrado. Um tamanho ímpar fica centralizado no ponteiro. Um tamanho par vai um pixel a mais para cima e para a esquerda. O pincel fica na face sob o ponteiro. A textura mostra o contorno do pincel.
+
+**Espelhar** (o botão de reflexo) também pinta o outro lado do modelo. O braço esquerdo e o direito trocam de lugar, e as pernas também. A cabeça e o corpo se espelham sobre si mesmos. Espelhar funciona com o lápis, a borracha, **Clarear ou escurecer** e **Preencher face**. Ele muda só a camada ativa e não muda partes ocultas. Um contorno tracejado na textura mostra os pixels espelhados.
+
 Use **Partes visíveis** para ocultar uma parte ou uma camada. As ferramentas não mudam partes ocultas. Para pintar a camada base sob um pixel externo, oculte a camada externa dessa parte.
 
 Cada traço, preenchimento ou correção é um passo de desfazer. Mudar o modelo também é.
 
 ### Mover a visualização [#move-the-view]
 
-Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou o mouse. Selecione o botão do pincel para voltar à ferramenta. No modo de pintura, arrastar com o botão direito ou dois dedos gira o modelo.
+Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou o mouse. Selecione o botão do pincel para voltar à ferramenta. No modo de pintura, um dedo pinta e arrastar com o botão direito gira o modelo. Dois dedos rolam a textura ou giram o modelo, e o traço que o primeiro dedo começou é removido. Em uma tela de toque, **Preencher face** e **Conta-gotas** agem quando você levanta o dedo, então um gesto com dois dedos nunca preenche por acidente.
 
 ### Teclado [#keyboard]
 
@@ -62,8 +68,11 @@ Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou 
 | --- | --- |
 | `B` | Lápis |
 | `E` | Borracha |
+| `S` | Clarear ou escurecer. Pressione de novo para alternar entre clarear e escurecer. |
 | `G` | Preencher face |
 | `I` | Conta-gotas |
+| `X` | Ligar ou desligar o espelhamento |
+| `[` / `]` | Pincel menor ou maior |
 | `L` | Alternar entre a camada base e a externa |
 | `P` / `M` | Pintar ou mover a visualização |
 | `Ctrl+Z` | Desfazer |

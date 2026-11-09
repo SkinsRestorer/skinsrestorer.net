@@ -191,6 +191,55 @@ export function findRegion(
   return region;
 }
 
+const mirrorParts: Record<SkinPart, SkinPart> = {
+  head: "head",
+  body: "body",
+  rightArm: "leftArm",
+  leftArm: "rightArm",
+  rightLeg: "leftLeg",
+  leftLeg: "rightLeg",
+};
+const mirrorCache = new Map<SkinVariant, Int16Array>();
+
+/**
+ * The pixel on the other side of the model, mirrored across the player's
+ * left-right axis. Arms and legs swap, the left and right sides swap, and
+ * every face reverses its columns. Rows stay the same. The result is on the
+ * same layer. Unused pixels have no mirror.
+ */
+export function mirrorPixel(
+  variant: SkinVariant,
+  x: number,
+  y: number,
+): { x: number; y: number } | undefined {
+  if (!regionAt(variant, x, y)) return undefined;
+  let table = mirrorCache.get(variant);
+  if (!table) {
+    table = new Int16Array(SKIN_SIZE * SKIN_SIZE).fill(-1);
+    for (const region of skinRegions(variant)) {
+      const face =
+        region.face === "left"
+          ? "right"
+          : region.face === "right"
+            ? "left"
+            : region.face;
+      const target = findRegion(
+        variant,
+        mirrorParts[region.part],
+        region.layer,
+        face,
+      );
+      for (let row = 0; row < region.height; row++)
+        for (let column = 0; column < region.width; column++)
+          table[(region.y + row) * SKIN_SIZE + region.x + column] =
+            (target.y + row) * SKIN_SIZE + target.x + target.width - 1 - column;
+    }
+    mirrorCache.set(variant, table);
+  }
+  const index = table[y * SKIN_SIZE + x];
+  return { x: index % SKIN_SIZE, y: Math.floor(index / SKIN_SIZE) };
+}
+
 export function regionContains(region: SkinRegion, x: number, y: number) {
   return (
     x >= region.x &&

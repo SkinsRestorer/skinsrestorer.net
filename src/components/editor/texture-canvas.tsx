@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { describePixel, SKIN_SIZE, skinRegions } from "@/lib/skin-regions";
 import {
   startTool,
+  usesBrush,
   type EditorSurfaceProps,
 } from "@/components/editor/editor-types";
+import { brushArea, type PixelRect } from "@/lib/skin-paint";
 import { useT } from "@/lib/i18n-react";
 
 interface TextureCanvasProps extends EditorSurfaceProps {
@@ -16,6 +18,26 @@ interface TextureCanvasProps extends EditorSurfaceProps {
   readonly showGrid: boolean;
   /** Pixel indexes to outline, for example from the skin check. */
   readonly highlight?: readonly number[];
+}
+
+/**
+ * Scroll the nearest scrolling ancestor, such as the texture frame. What it
+ * cannot scroll goes to the page, so two fingers also scroll a fitted texture.
+ */
+function panBy(element: Element, dx: number, dy: number) {
+  let parent = element.parentElement;
+  while (parent && !/auto|scroll/.test(getComputedStyle(parent).overflow))
+    parent = parent.parentElement;
+  let restX = dx;
+  let restY = dy;
+  if (parent) {
+    const { scrollLeft, scrollTop } = parent;
+    parent.scrollBy(dx, dy);
+    restX -= parent.scrollLeft - scrollLeft;
+    restY -= parent.scrollTop - scrollTop;
+  }
+  if (Math.abs(restX) >= 1 || Math.abs(restY) >= 1)
+    window.scrollBy(restX, restY);
 }
 
 function themeColor(element: Element, name: string, fallback: string) {
@@ -29,7 +51,8 @@ function themeColor(element: Element, name: string, fallback: string) {
  */
 export function TextureCanvas(props: TextureCanvasProps) {
   const t = useT();
-  const { store, settings, scale, showGrid, highlight, interaction } = props;
+  const { store, tool, settings, scale, showGrid, highlight, interaction } =
+    props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useAsRef(props);
   const maskCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
@@ -41,7 +64,10 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const [themeRevision, setThemeRevision] = useState(0);
   const [revision, setRevision] = useState(() => store.getSnapshot().revision);
   const instructionsId = useId();
-  const pointers = useRef(new Set<number>());
+  /** Touch points on the canvas, to tell one-finger paint from two-finger pan. */
+  const touches = useRef(new Map<number, { x: number; y: number }>());
+  /** A fill or pick that waits for the finger to lift, as a tap. */
+  const tap = useRef<{ id: number; x: number; y: number } | null>(null);
 
   useEffect(
     () =>
@@ -183,18 +209,40 @@ export function TextureCanvas(props: TextureCanvasProps) {
         );
     }
 
-    const outline = (x: number, y: number, dashed: boolean) => {
+    const outline = (rect: PixelRect, dashed: boolean) => {
       ctx.setLineDash(dashed ? [cell / 4, cell / 4] : []);
       ctx.lineWidth = Math.max(2, ratio * 2);
       ctx.strokeStyle = foreground;
-      ctx.strokeRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
+      ctx.strokeRect(
+        rect.x * cell + 1,
+        rect.y * cell + 1,
+        rect.width * cell - 2,
+        rect.height * cell - 2,
+      );
       ctx.strokeStyle = background;
       ctx.lineWidth = Math.max(1, ratio);
-      ctx.strokeRect(x * cell + 3, y * cell + 3, cell - 6, cell - 6);
+      ctx.strokeRect(
+        rect.x * cell + 3,
+        rect.y * cell + 3,
+        rect.width * cell - 6,
+        rect.height * cell - 6,
+      );
       ctx.setLineDash([]);
     };
-    if (hover && interaction === "paint") outline(hover.x, hover.y, true);
-    if (focused) outline(cursor.x, cursor.y, false);
+    // The pixels the tool changes here: the brush square clipped to the face,
+    // and its mirror image with a dashed line.
+    const footprint = (x: number, y: number, solid: boolean) => {
+      const area = brushArea(
+        variant,
+        usesBrush(tool) ? settings : { ...settings, size: 1 },
+        x,
+        y,
+      );
+      outline(area?.source ?? { x, y, width: 1, height: 1 }, !solid);
+      if (area?.mirror && tool !== "eyedropper") outline(area.mirror, true);
+    };
+    if (hover && interaction === "paint") footprint(hover.x, hover.y, false);
+    if (focused) footprint(cursor.x, cursor.y, true);
   }, [
     store,
     revision,
@@ -206,6 +254,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
     focused,
     cursor,
     interaction,
+    tool,
     themeRevision,
   ]);
 
@@ -285,24 +334,56 @@ export function TextureCanvas(props: TextureCanvasProps) {
           }
         }}
         onPointerDown={(event) => {
-          pointers.current.add(event.pointerId);
           if (interaction !== "paint") return;
-          if (pointers.current.size > 1) {
-            // A second finger means a gesture, not paint.
-            store.cancelStroke();
-            return;
+          if (event.pointerType === "touch") {
+            touches.current.set(event.pointerId, {
+              x: event.clientX,
+              y: event.clientY,
+            });
+            if (touches.current.size > 1) {
+              // A second finger pans the texture. Drop what the first finger
+              // started, so a gesture never leaves a mark.
+              tap.current = null;
+              store.cancelStroke();
+              return;
+            }
           }
           if (event.pointerType === "mouse" && event.button !== 0) return;
           const pixel = toPixel(event);
           if (!pixel) return;
           event.preventDefault();
           setCursor(pixel);
+          // A finger may become a two-finger pan, so fill and pick wait for a tap.
+          if (
+            event.pointerType === "touch" &&
+            (propsRef.current.tool === "fill" ||
+              propsRef.current.tool === "eyedropper")
+          ) {
+            tap.current = { id: event.pointerId, ...pixel };
+            return;
+          }
           if (startTool(propsRef.current, pixel.x, pixel.y) === "stroke")
             event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
-          const pixel = toPixel(event);
-          setHover(pixel ?? null);
+          const last = touches.current.get(event.pointerId);
+          if (last) {
+            const panning = touches.current.size > 1;
+            const next = { x: event.clientX, y: event.clientY };
+            touches.current.set(event.pointerId, next);
+            if (panning) {
+              // Each finger moves the view by half its distance, so two fingers
+              // together move it by their average.
+              panBy(
+                event.currentTarget,
+                (last.x - next.x) / touches.current.size,
+                (last.y - next.y) / touches.current.size,
+              );
+              return;
+            }
+          } else {
+            setHover(toPixel(event) ?? null);
+          }
           if (!store.getSnapshot().painting) return;
           const samples = event.nativeEvent.getCoalescedEvents?.() ?? [];
           for (const sample of samples.length ? samples : [event]) {
@@ -311,12 +392,21 @@ export function TextureCanvas(props: TextureCanvasProps) {
           }
         }}
         onPointerUp={(event) => {
-          pointers.current.delete(event.pointerId);
+          touches.current.delete(event.pointerId);
+          const pending = tap.current;
+          tap.current = null;
+          if (pending?.id === event.pointerId) {
+            const result = startTool(propsRef.current, pending.x, pending.y);
+            if (result === "stroke") finishStroke();
+            return;
+          }
           finishStroke();
         }}
         onPointerCancel={(event) => {
-          pointers.current.delete(event.pointerId);
-          finishStroke();
+          // The browser took the pointer, for example for a system gesture.
+          touches.current.delete(event.pointerId);
+          tap.current = null;
+          store.cancelStroke();
         }}
         onPointerLeave={() => setHover(null)}
         onLostPointerCapture={finishStroke}

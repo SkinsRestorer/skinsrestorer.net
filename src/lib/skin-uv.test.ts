@@ -3,7 +3,12 @@ import { test } from "node:test";
 import { SkinObject } from "skinview3d/libs/model.js";
 import { Box3, Raycaster, Vector3, type Mesh } from "three";
 import type { SkinVariant } from "./skin";
-import { skinParts, skinRegions, type SkinFace } from "./skin-regions";
+import {
+  mirrorPixel,
+  skinParts,
+  skinRegions,
+  type SkinFace,
+} from "./skin-regions";
 import { hitToPixel } from "./skin-uv";
 
 const directions: Record<SkinFace, Vector3> = {
@@ -98,3 +103,82 @@ test("3D hits keep the texture orientation of the face", () => {
   });
   assert.deepEqual([edge?.x, edge?.y], [15, 15]);
 });
+
+const counterpart = {
+  head: "head",
+  body: "body",
+  rightArm: "leftArm",
+  leftArm: "rightArm",
+  rightLeg: "leftLeg",
+  leftLeg: "rightLeg",
+} as const;
+
+for (const variant of ["classic", "slim"] as const) {
+  test(`${variant} mirror pixels match the reflected point on the 3D model`, () => {
+    const skin = model(variant);
+    const mirror = new Vector3(-1, 1, 1);
+    for (const part of skinParts)
+      for (const layer of ["base", "outer"] as const) {
+        const meshOf = (name: (typeof skinParts)[number]) =>
+          (layer === "base"
+            ? skin[name].innerLayer
+            : skin[name].outerLayer) as Mesh;
+        const mesh = meshOf(part);
+        const other = meshOf(counterpart[part]);
+        const box = new Box3().setFromObject(mesh);
+        const center = box.getCenter(new Vector3());
+        const size = box.getSize(new Vector3());
+        for (const region of skinRegions(variant).filter(
+          (r) => r.part === part && r.layer === layer,
+        )) {
+          const outward = directions[region.face];
+          // The two world axes along the face, matched to its pixel counts.
+          const [across, down] =
+            region.face === "front" || region.face === "back"
+              ? (["x", "y"] as const)
+              : region.face === "left" || region.face === "right"
+                ? (["z", "y"] as const)
+                : (["x", "z"] as const);
+          const covered = new Set<number>();
+          for (let i = 0; i < region.width; i++)
+            for (let j = 0; j < region.height; j++) {
+              const point = center
+                .clone()
+                .add(outward.clone().multiply(size).multiplyScalar(0.5));
+              point[across] =
+                box.min[across] + ((i + 0.5) / region.width) * size[across];
+              point[down] =
+                box.min[down] + ((j + 0.5) / region.height) * size[down];
+              const hit = castAt(mesh, outward, point);
+              const source = hitToPixel(
+                variant,
+                part,
+                layer,
+                hit.faceIndex!,
+                hit.uv!,
+              )!;
+              covered.add(source.y * 64 + source.x);
+              const reflected = castAt(
+                other,
+                outward.clone().multiply(mirror),
+                point.clone().multiply(mirror),
+              );
+              const target = hitToPixel(
+                variant,
+                counterpart[part],
+                layer,
+                reflected.faceIndex!,
+                reflected.uv!,
+              )!;
+              assert.deepEqual(
+                mirrorPixel(variant, source.x, source.y),
+                { x: target.x, y: target.y },
+                `${part} ${layer} ${region.face} ${source.x},${source.y}`,
+              );
+            }
+          // Every pixel of the face was checked.
+          assert.equal(covered.size, region.width * region.height);
+        }
+      }
+  });
+}

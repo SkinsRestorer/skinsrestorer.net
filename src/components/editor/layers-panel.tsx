@@ -31,10 +31,18 @@ export function LayerToggle(props: {
         if (value[0]) props.onLayerChange(value[0] as SkinLayer);
       }}
     >
-      <ToggleGroupItem value="base" aria-keyshortcuts="L">
+      <ToggleGroupItem
+        value="base"
+        className="pointer-coarse:h-9"
+        aria-keyshortcuts="L"
+      >
         {t("Base")}
       </ToggleGroupItem>
-      <ToggleGroupItem value="outer" aria-keyshortcuts="L">
+      <ToggleGroupItem
+        value="outer"
+        className="pointer-coarse:h-9"
+        aria-keyshortcuts="L"
+      >
         {t("Outer")}
       </ToggleGroupItem>
     </ToggleGroup>

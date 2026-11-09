@@ -40,7 +40,7 @@ Select a skin, check the model and the cape, then select the generate button. Th
 Select **Edit skin** below the model. The center shows the texture and the right side shows a live 3D model. The editor opens 64×64 and legacy 64×32 skins. It converts a 64×32 skin to the 64×64 layout without a message. To edit an HD skin, resize it to 64×64 in an image editor first.
 
 1. Choose the **Base** or **Outer** layer. Tools change only the active layer.
-2. Choose a tool: **Pencil**, **Eraser**, **Fill face**, or **Pick color**.
+2. Choose a tool: **Pencil**, **Eraser**, **Shade**, **Fill face**, or **Pick color**.
 3. Choose a color below the texture.
 4. Paint on the texture or on the 3D model.
 
@@ -48,13 +48,19 @@ The base layer is always opaque in Java Edition. For this reason, the pencil pai
 
 **Fill face** fills the connected area of one color, and stops at the edge of the face. On the 3D model, a stroke stays on the face where it started.
 
+**Shade** makes pixels lighter or darker. Select **Lighten** or **Darken** below the tools. Shade keeps the hue and the opacity of each pixel, and it does not change clear pixels. One stroke changes a pixel only one time, so you can drag over the same spot without making it darker and darker. Start a new stroke to shade it again.
+
+**Size** sets the brush width for the pencil, the eraser, and shade, from 1 to 8 pixels. The brush is a square. An odd size is centered on the pointer. An even size reaches one more pixel up and to the left. The brush stays on the face under the pointer. The texture shows the outline of the brush.
+
+**Mirror** (the flip button) also paints the other side of the model. The left arm and the right arm swap, and so do the legs. The head and the body mirror onto themselves. Mirror works with the pencil, the eraser, shade, and **Fill face**. It changes only the active layer, and it does not change a hidden part. A dashed outline on the texture shows the mirrored pixels.
+
 Use **Visible parts** to hide a part or a layer. Tools do not change hidden parts. To paint the base layer under an outer-layer pixel, hide the outer layer of that part.
 
 Each stroke, fill, or fix is one undo step. Changing the model is also an undo step.
 
 ### Move the view
 
-Select the hand button to scroll the texture and turn the model with one finger or the mouse. Select the brush button to use the tool again. In paint mode, a right drag or two fingers turn the model.
+Select the hand button to scroll the texture and turn the model with one finger or the mouse. Select the brush button to use the tool again. In paint mode, one finger paints, and a right drag turns the model. Two fingers scroll the texture or turn the model, and a stroke that the first finger started is removed. On a touch screen, **Fill face** and **Pick color** work when you lift the finger, so a two-finger gesture never fills by accident.
 
 ### Keyboard
 
@@ -62,8 +68,11 @@ Select the hand button to scroll the texture and turn the model with one finger 
 | --- | --- |
 | `B` | Pencil |
 | `E` | Eraser |
+| `S` | Shade. Press again to switch between lighten and darken. |
 | `G` | Fill face |
 | `I` | Pick color |
+| `X` | Mirror on or off |
+| `[` / `]` | Smaller or larger brush |
 | `L` | Switch between the base and outer layer |
 | `P` / `M` | Paint or move view |
 | `Ctrl+Z` | Undo |

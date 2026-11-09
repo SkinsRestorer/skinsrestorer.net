@@ -593,5 +593,13 @@
   "Use on a server": "Для сервера",
   "{name}, 3D view. Drag or use the arrow keys to turn it.": "{name}, 3D-вид. Перетащите или используйте стрелки, чтобы повернуть.",
   "{name}, {model} model": "{name}, модель {model}",
-  "{name}, {model} model, has unsaved edits": "{name}, модель {model}, есть несохранённые изменения"
+  "{name}, {model} model, has unsaved edits": "{name}, модель {model}, есть несохранённые изменения",
+  "Shade": "Светотень",
+  "Tool options": "Параметры инструмента",
+  "Mirror": "Зеркальное рисование",
+  "Mirror left and right (X)": "Зеркальное рисование слева и справа (X)",
+  "Size": "Размер",
+  "{size} px": "{size} пикс.",
+  "Lighten": "Светлее",
+  "Darken": "Темнее"
 }

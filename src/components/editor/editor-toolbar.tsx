@@ -2,6 +2,7 @@
 
 import {
   Brush,
+  Contrast,
   Eraser,
   Hand,
   PaintBucket,
@@ -28,11 +29,21 @@ import { useT } from "@/lib/i18n-react";
 const toolIcons = {
   pencil: Brush,
   eraser: Eraser,
+  shade: Contrast,
   fill: PaintBucket,
   eyedropper: Pipette,
 } as const;
 
-const tools: readonly PaintTool[] = ["pencil", "eraser", "fill", "eyedropper"];
+const tools: readonly PaintTool[] = [
+  "pencil",
+  "eraser",
+  "shade",
+  "fill",
+  "eyedropper",
+];
+
+/** Larger hit areas when the main pointer is a finger. */
+const coarse = "pointer-coarse:h-9 pointer-coarse:min-w-9";
 
 /** Icon-only paint tools, pointer action, and undo/redo. */
 export function EditorToolbar(props: {
@@ -76,6 +87,7 @@ export function EditorToolbar(props: {
                 render={
                   <ToggleGroupItem
                     value={tool}
+                    className={coarse}
                     aria-label={label}
                     aria-keyshortcuts={key}
                   />
@@ -104,6 +116,7 @@ export function EditorToolbar(props: {
             render={
               <ToggleGroupItem
                 value="paint"
+                className={coarse}
                 aria-label={t("Paint")}
                 aria-keyshortcuts="P"
               />
@@ -118,6 +131,7 @@ export function EditorToolbar(props: {
             render={
               <ToggleGroupItem
                 value="move"
+                className={coarse}
                 aria-label={t("Move view")}
                 aria-keyshortcuts="M"
               />

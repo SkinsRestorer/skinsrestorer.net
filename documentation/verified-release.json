@@ -923,7 +923,7 @@
     "src/lib/editor-session.ts": "812956a94f81c616f7c6d2ad8ad08c91337eb1c3c4202d14b92c20d04bc99f13",
     "src/components/studio/skin-studio.tsx": "2d526f92f1fa79f86808c5e25b76fe960f560c0e545f0d1e15614a8dd3984738",
     "src/components/studio/studio-library.tsx": "ef508a74baaf85b52621158c3170d22d962e2814da029b278912300ad9203d79",
-    "src/components/studio/studio-editor.tsx": "9420a8b6f760018a19807426b4fcb282193087d7bdfdf234fe7ea9207df20d80",
+    "src/components/studio/studio-editor.tsx": "9bd8ad53a8696b65d11917c10a45758c7be6948864228f56d4c6c34ce1eb6878",
     "src/components/advanced-options.tsx": "341c25e43da53a91ecc82c5b082fcdd8b5f9e72f6acbbbcf11a35a9e640eaa5a",
     "src/components/cape-support-fields.tsx": "011e8167f9e3cfc001a4aeb41d64eb7f9714e35e12a570cf18c18af55b5738d9",
     "src/lib/effect-http.ts": "e68c36a5f56d07f233e3515949d12dc6de3a4f1a151393526eebe9fa3c4bbe51",
