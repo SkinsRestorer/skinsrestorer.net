@@ -91,6 +91,36 @@ test("loads completed job results when the skin is not included", async () => {
   }
 });
 
+test("accepts null names in cached, queued, and fetched MineSkin results", async () => {
+  // Public MineSkin skin responses include name: null for unnamed skins.
+  const unnamedSkin = { ...skin, name: null };
+  const completed = {
+    success: true,
+    job: { id: "job-id", status: "completed", result: skin.uuid },
+    skin: unnamedSkin,
+  };
+  for (const responses of [
+    [completed],
+    [{ success: true, job: { id: "job-id", status: "waiting" } }, completed],
+    [
+      { ...completed, skin: false },
+      { success: true, skin: unnamedSkin },
+    ],
+  ]) {
+    const expectedRequests = responses.length;
+    const calls = mockFetch(async () => Response.json(responses.shift()));
+    const result = await uploadMineSkinFile({
+      file,
+      variant: "slim",
+      waitMs: 0,
+    });
+    assert.deepEqual(result.skin, unnamedSkin);
+    assert.equal(calls.length, expectedRequests);
+    assert.equal(calls.filter(([, init]) => init?.method === "POST").length, 1);
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("rejects missing or failed skin lookups without resubmitting the upload", async () => {
   for (const response of [
     Response.json({ success: true, skin: false }),

@@ -12,7 +12,7 @@ const errorsSchema = Schema.optional(
 const skinSchema = Schema.Struct({
   uuid: Schema.String,
   url: Schema.optional(Schema.String),
-  name: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   texture: Schema.Struct({
     data: Schema.Struct({ value: Schema.String, signature: Schema.String }),
   }),
