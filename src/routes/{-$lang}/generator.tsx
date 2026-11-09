@@ -1,9 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useHydrated } from "@tanstack/react-router";
 import { HomeLayout } from "@/components/home-layout";
 import { SkinStudio } from "@/components/studio/skin-studio";
 import { isLocale } from "@/lib/i18n";
 import { getPageHead } from "@/lib/seo";
-import { studioSearch } from "@/lib/studio";
+import { studioSearch, type StudioSearch } from "@/lib/studio";
+
+const noSearch: StudioSearch = {};
 
 export const Route = createFileRoute("/{-$lang}/generator")({
   validateSearch: studioSearch,
@@ -15,9 +17,12 @@ export const Route = createFileRoute("/{-$lang}/generator")({
         "Generate copyable /sr createcustom commands or reverse existing skin files.",
     }),
   component: function Page() {
+    const search = Route.useSearch();
+    // Prerendered HTML has no query: apply it after hydration.
+    const hydrated = useHydrated();
     return (
       <HomeLayout>
-        <SkinStudio entry="generator" search={Route.useSearch()} />
+        <SkinStudio entry="generator" search={hydrated ? search : noSearch} />
       </HomeLayout>
     );
   },

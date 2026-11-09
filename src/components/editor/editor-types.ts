@@ -22,12 +22,12 @@ export interface EditorSurfaceProps {
   readonly onStatus: (message: string) => void;
 }
 
-export const toolLabels: Record<PaintTool, { label: string; key: string }> = {
-  pencil: { label: "Pencil", key: "B" },
-  eraser: { label: "Eraser", key: "E" },
-  shade: { label: "Shade", key: "S" },
-  fill: { label: "Fill", key: "G" },
-  eyedropper: { label: "Pick color", key: "I" },
+export const toolLabels: Record<PaintTool, string> = {
+  pencil: "Pencil",
+  eraser: "Eraser",
+  shade: "Shade",
+  fill: "Fill",
+  eyedropper: "Pick color",
 };
 
 export function blockedMessage(settings: PaintSettings) {

@@ -1,17 +1,22 @@
 "use client";
 
-import { ImageOff, LoaderCircle } from "lucide-react";
+import { ImageOff, LoaderCircle, Search } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { runHttpEffect } from "@/lib/effect-http";
 import type { GalleryState } from "@/lib/hooks/use-skin-gallery";
 import { useT } from "@/lib/i18n-react";
 import { searchGallery, type GallerySkin } from "@/lib/skin-gallery";
 import { loadTextureEffect } from "@/lib/skin-texture";
+import { MAX_GALLERY_QUERY } from "@/lib/studio";
 import { cn } from "@/lib/utils";
 import { SkinThumbnail } from "./skin-thumbnail";
 
@@ -38,13 +43,19 @@ export function StudioGallery(props: {
         <FieldLabel htmlFor={id} className="sr-only">
           {t("Search gallery")}
         </FieldLabel>
-        <Input
-          id={id}
-          type="search"
-          placeholder={t("Search")}
-          value={props.query}
-          onChange={(event) => props.onQuery(event.target.value)}
-        />
+        <InputGroup>
+          <InputGroupAddon>
+            <Search aria-hidden="true" />
+          </InputGroupAddon>
+          <InputGroupInput
+            id={id}
+            type="search"
+            placeholder={t("Search")}
+            maxLength={MAX_GALLERY_QUERY}
+            value={props.query}
+            onChange={(event) => props.onQuery(event.target.value)}
+          />
+        </InputGroup>
       </Field>
       {state.status === "error" ? (
         <Alert>

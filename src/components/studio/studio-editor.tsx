@@ -1,5 +1,6 @@
 "use client";
 
+import { useHotkeys, type UseHotkeyDefinition } from "@tanstack/react-hotkeys";
 import { useBlocker } from "@tanstack/react-router";
 import { Download, Grid3x3, Maximize, ZoomIn, ZoomOut } from "lucide-react";
 import posthog from "posthog-js";
@@ -14,6 +15,11 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { useAsRef } from "@/hooks/use-as-ref";
+import {
+  editorShortcuts,
+  toolCommands,
+  type EditorCommand,
+} from "@/components/editor/editor-commands";
 import { ColorControls, toHex } from "@/components/editor/color-panel";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import type { EditorInteraction } from "@/components/editor/editor-types";
@@ -37,6 +43,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
@@ -66,19 +79,16 @@ import { downloadSkin } from "@/lib/hooks/use-skin-library";
 import { useRecentColors } from "@/lib/hooks/use-recent-colors";
 import { cn } from "@/lib/utils";
 
-const HISTORY_MARK = "skinsrestorerStudioEditor";
-
 function errorMessage(cause: unknown) {
   if (cause && typeof cause === "object" && "message" in cause)
     return String(cause.message);
   return "Something went wrong.";
 }
 
-function isTyping(target: EventTarget | null) {
-  return (
-    target instanceof HTMLElement &&
-    (target.isContentEditable ||
-      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+/** An open menu, list, or dialog handles Escape before the editor does. */
+function popupOpen() {
+  return !!document.querySelector(
+    "[role=menu],[role=listbox],[role=dialog],[role=alertdialog]",
   );
 }
 
@@ -179,7 +189,7 @@ export function StudioEditor(props: {
     else exit();
   }, [session, exit]);
 
-  // Drafts survive a closed tab. Without drafts, the browser asks first.
+  // Drafts survive a closed tab.
   useEffect(() => {
     const flush = () => void session.flush();
     const hidden = () => {
@@ -192,41 +202,24 @@ export function StudioEditor(props: {
       document.removeEventListener("visibilitychange", hidden);
     };
   }, [session]);
-  const unsafeToLeave = work.dirty && draftsOff;
-  useBlocker({
-    shouldBlockFn: ({ current, next }) =>
-      next.pathname !== current.pathname &&
-      !window.confirm(
-        t(
-          "Leave without saving? Drafts are off, so your changes will be lost.",
-        ),
-      ),
-    enableBeforeUnload: () => unsafeToLeave,
-    disabled: !unsafeToLeave,
-  });
 
-  // Back returns to the view instead of leaving the page.
-  useEffect(() => {
-    window.history.pushState(
-      { ...window.history.state, [HISTORY_MARK]: true },
-      "",
-    );
-    const pop = () => {
-      if (exited.current) return;
-      if (session.getSnapshot().dirty) {
-        window.history.pushState(
-          { ...window.history.state, [HISTORY_MARK]: true },
-          "",
-        );
-        setConfirm({ kind: "leave" });
-      } else exit();
-    };
-    window.addEventListener("popstate", pop);
-    return () => {
-      window.removeEventListener("popstate", pop);
-      if (window.history.state?.[HISTORY_MARK]) window.history.back();
-    };
-  }, [session, exit]);
+  // Back, links, and URL changes ask first while there are unsaved changes.
+  // The Studio's own navigations that keep the work skip this blocker.
+  const shouldBlock = useCallback(
+    () => !exited.current && session.getSnapshot().dirty,
+    [session],
+  );
+  // Without drafts, closing the tab loses the work, so the browser asks.
+  const unsafeToClose = useCallback(() => {
+    const work = session.getSnapshot();
+    return work.dirty && work.drafts.kind === "off";
+  }, [session]);
+  const navigation = useBlocker({
+    shouldBlockFn: shouldBlock,
+    enableBeforeUnload: unsafeToClose,
+    withResolver: true,
+  });
+  const blocked = navigation.status === "blocked";
 
   const onPainted = useCallback(() => {
     setStatus("");
@@ -257,69 +250,58 @@ export function StudioEditor(props: {
     [tool],
   );
 
-  // Keyboard shortcuts work everywhere on the page except in text fields.
-  const shortcuts = useAsRef({
-    tool,
-    layer,
-    changeLayer,
-    requestExit,
-    confirm,
-  });
-  useEffect(() => {
-    const handle = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || isTyping(event.target)) return;
-      const key = event.key.toLowerCase();
-      if (event.ctrlKey || event.metaKey) {
-        if (event.altKey) return;
-        if (key === "z" && !event.shiftKey) store.undo();
-        else if ((key === "z" && event.shiftKey) || key === "y") store.redo();
-        else return;
-        event.preventDefault();
-        return;
-      }
-      if (event.altKey) return;
-      if (key === "escape") {
-        // Menus and dialogs close themselves first.
-        if (shortcuts.current.confirm || document.querySelector("[role=menu]"))
-          return;
-        shortcuts.current.requestExit();
-        event.preventDefault();
-        return;
-      }
-      const tools: Record<string, PaintTool> = {
-        b: "pencil",
-        e: "eraser",
-        s: "shade",
-        g: "fill",
-        i: "eyedropper",
-      };
-      // S on the active Shade tool switches between lighten and darken, and
-      // G on the active Fill tool switches between face and everywhere.
-      if (key === "s" && shortcuts.current.tool === "shade")
-        setShade((mode) => (mode === "lighten" ? "darken" : "lighten"));
-      else if (key === "g" && shortcuts.current.tool === "fill")
-        setFillScope((scope) => (scope === "face" ? "everywhere" : "face"));
-      else if (tools[key]) setTool(tools[key]);
-      else if (key === "x") setMirror((on) => !on);
-      else if (event.key === "[" || event.key === "]")
-        setSize((current) =>
-          Math.max(
-            BRUSH_SIZES.min,
-            Math.min(BRUSH_SIZES.max, current + (event.key === "]" ? 1 : -1)),
-          ),
-        );
-      else if (key === "l")
-        shortcuts.current.changeLayer(
-          shortcuts.current.layer === "base" ? "outer" : "base",
-        );
-      else if (key === "p") setInteraction("paint");
-      else if (key === "m") setInteraction("move");
-      else return;
-      event.preventDefault();
-    };
-    window.addEventListener("keydown", handle);
-    return () => window.removeEventListener("keydown", handle);
-  }, [store, shortcuts]);
+  // Shortcuts work on the whole page, including popups, but not while the
+  // user types in a field or another control already handled the key.
+  const run = (command: EditorCommand, action: () => void, repeat = false) =>
+    editorShortcuts[command].map((hotkey): UseHotkeyDefinition => ({
+      hotkey,
+      callback: action,
+      // Toggles need a new key press; holding a size or undo key repeats.
+      options: { requireReset: !repeat },
+    }));
+  const resize = (step: number) =>
+    setSize((current) =>
+      Math.max(BRUSH_SIZES.min, Math.min(BRUSH_SIZES.max, current + step)),
+    );
+  useHotkeys(
+    [
+      ...toolCommands.flatMap((command) =>
+        run(command, () => {
+          // S on the active Shade tool switches between lighten and darken,
+          // and G on the active Fill tool between face and everywhere.
+          if (command === "shade" && tool === "shade")
+            setShade((mode) => (mode === "lighten" ? "darken" : "lighten"));
+          else if (command === "fill" && tool === "fill")
+            setFillScope((scope) => (scope === "face" ? "everywhere" : "face"));
+          else setTool(command);
+        }),
+      ),
+      ...run("mirror", () => setMirror((on) => !on)),
+      ...run("smaller", () => resize(-1), true),
+      ...run("larger", () => resize(1), true),
+      ...run("layer", () => changeLayer(layer === "base" ? "outer" : "base")),
+      ...run("paint", () => setInteraction("paint")),
+      ...run("move", () => setInteraction("move")),
+      ...run("undo", () => store.undo(), true),
+      ...run("redo", () => store.redo(), true),
+      ...editorShortcuts.close.map((hotkey): UseHotkeyDefinition => ({
+        hotkey,
+        callback: () => {
+          if (!popupOpen()) requestExit();
+        },
+        options: {
+          requireReset: true,
+          preventDefault: false,
+          stopPropagation: false,
+        },
+      })),
+    ],
+    {
+      enabled: confirm === null && !blocked,
+      ignoreInputs: true,
+      ignoreDefaultPrevented: true,
+    },
+  );
 
   useEffect(() => {
     const frame = textureFrame.current;
@@ -392,6 +374,16 @@ export function StudioEditor(props: {
 
   const zoomBy = (step: number) =>
     setZoom(Math.max(3, Math.min(24, scale + step)));
+
+  // One confirmation for Cancel, Escape, Back, and links.
+  const shown: Confirm | null = confirm ?? (blocked ? { kind: "leave" } : null);
+  /** Finish leaving: let a held navigation go on, or close the editor. */
+  const leave = () => {
+    if (navigation.status === "blocked") {
+      exited.current = true;
+      navigation.proceed();
+    } else exit();
+  };
 
   const [saveState, saveLabel]: [SaveState, string] = work.busy
     ? ["saving", t("Saving")]
@@ -626,15 +618,17 @@ export function StudioEditor(props: {
       </section>
 
       <AlertDialog
-        open={confirm !== null}
+        open={shown !== null}
         onOpenChange={(open) => {
-          if (!open) setConfirm(null);
+          if (open) return;
+          setConfirm(null);
+          navigation.reset?.();
         }}
       >
         <AlertDialogContent>
-          {confirm && (
+          {shown && (
             <ConfirmBody
-              confirm={confirm}
+              confirm={shown}
               draftsOff={draftsOff}
               onCopy={() => {
                 setConfirm(null);
@@ -651,12 +645,12 @@ export function StudioEditor(props: {
               onDiscard={async () => {
                 setConfirm(null);
                 await session.discard();
-                exit();
+                leave();
               }}
               onKeepDraft={async () => {
                 setConfirm(null);
                 await session.flush();
-                exit();
+                leave();
               }}
             />
           )}
@@ -752,17 +746,18 @@ export function DraftRecovery(props: {
       <Alert>
         <AlertTitle>{t("Continue unsaved changes?")}</AlertTitle>
         <AlertDescription>
-          <ul className="flex flex-col gap-2">
+          <ItemGroup>
             {work.recovery.map((draft) => (
-              <li
-                key={draft.id}
-                className="flex flex-wrap items-center justify-between gap-2"
-              >
-                <span className="min-w-0 truncate">
-                  {draft.name}
-                  {t(", changed")} <CustomTimeAgo date={draft.updatedAt} />
-                </span>
-                <span className="flex gap-2">
+              <Item key={draft.id} render={<li />} size="xs">
+                <ItemContent>
+                  <ItemTitle className="min-w-0">
+                    <span className="truncate">
+                      {draft.name}
+                      {t(", changed")} <CustomTimeAgo date={draft.updatedAt} />
+                    </span>
+                  </ItemTitle>
+                </ItemContent>
+                <ItemActions>
                   <Button
                     size="sm"
                     onClick={() =>
@@ -784,10 +779,10 @@ export function DraftRecovery(props: {
                   >
                     {t("Discard")}
                   </Button>
-                </span>
-              </li>
+                </ItemActions>
+              </Item>
             ))}
-          </ul>
+          </ItemGroup>
         </AlertDescription>
       </Alert>
     </div>

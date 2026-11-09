@@ -12,6 +12,10 @@ import {
 } from "@/components/ui/tooltip";
 import { usesBrush } from "@/components/editor/editor-types";
 import {
+  editorShortcuts,
+  ShortcutHint,
+} from "@/components/editor/editor-commands";
+import {
   BRUSH_SIZES,
   type FillScope,
   type PaintTool,
@@ -71,14 +75,17 @@ export function ToolOptions(props: {
                 <ToggleGroupItem
                   value="face"
                   className="pointer-coarse:h-9"
-                  aria-keyshortcuts="G"
+                  aria-keyshortcuts={editorShortcuts.fill.join(" ")}
                 />
               }
             >
               {t("Face")}
             </TooltipTrigger>
             <TooltipContent>
-              {t("Fill the connected color in one face (G)")}
+              <ShortcutHint
+                label={t("Fill the connected color in one face")}
+                commands={["fill"]}
+              />
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -87,14 +94,19 @@ export function ToolOptions(props: {
                 <ToggleGroupItem
                   value="everywhere"
                   className="pointer-coarse:h-9"
-                  aria-keyshortcuts="G"
+                  aria-keyshortcuts={editorShortcuts.fill.join(" ")}
                 />
               }
             >
               {t("Everywhere")}
             </TooltipTrigger>
             <TooltipContent>
-              {t("Replace this color on all visible parts of the layer (G)")}
+              <ShortcutHint
+                label={t(
+                  "Replace this color on all visible parts of the layer",
+                )}
+                commands={["fill"]}
+              />
             </TooltipContent>
           </Tooltip>
         </ToggleGroup>
@@ -107,7 +119,7 @@ export function ToolOptions(props: {
                 variant="outline"
                 size="sm"
                 aria-label={t("Mirror")}
-                aria-keyshortcuts="X"
+                aria-keyshortcuts={editorShortcuts.mirror.join(" ")}
                 className="pointer-coarse:h-9 pointer-coarse:min-w-9"
                 pressed={props.mirror}
                 onPressedChange={props.onMirror}
@@ -116,7 +128,12 @@ export function ToolOptions(props: {
           >
             <FlipHorizontal2 />
           </TooltipTrigger>
-          <TooltipContent>{t("Mirror left and right (X)")}</TooltipContent>
+          <TooltipContent>
+            <ShortcutHint
+              label={t("Mirror left and right")}
+              commands={["mirror"]}
+            />
+          </TooltipContent>
         </Tooltip>
       )}
       {usesBrush(props.tool) && (
@@ -127,7 +144,10 @@ export function ToolOptions(props: {
           <div className="w-24">
             <Slider
               aria-labelledby={sizeId}
-              aria-keyshortcuts="[ ]"
+              aria-keyshortcuts={[
+                ...editorShortcuts.smaller,
+                ...editorShortcuts.larger,
+              ].join(" ")}
               min={BRUSH_SIZES.min}
               max={BRUSH_SIZES.max}
               step={1}
@@ -156,7 +176,7 @@ export function ToolOptions(props: {
           <ToggleGroupItem
             value="lighten"
             className="pointer-coarse:h-9"
-            aria-keyshortcuts="S"
+            aria-keyshortcuts={editorShortcuts.shade.join(" ")}
           >
             <Sun />
             {t("Lighten")}
@@ -164,7 +184,7 @@ export function ToolOptions(props: {
           <ToggleGroupItem
             value="darken"
             className="pointer-coarse:h-9"
-            aria-keyshortcuts="S"
+            aria-keyshortcuts={editorShortcuts.shade.join(" ")}
           >
             <Moon />
             {t("Darken")}

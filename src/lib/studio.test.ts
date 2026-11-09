@@ -6,8 +6,12 @@ import type { GenerationInput } from "./skin-selection";
 import {
   fixedPurpose,
   generatedCommand,
+  MAX_GALLERY_QUERY,
   readSkinFileTexture,
+  skinSource,
   studioSearch,
+  withGallerySkin,
+  withoutSkinReference,
   suggestSkinName,
   textureUrlFromValue,
 } from "./studio";
@@ -66,18 +70,92 @@ function manualUpload() {
   return { calls, upload };
 }
 
-test("Studio search keeps only known intents and references", () => {
+test("Studio search keeps only known intents and one public reference", () => {
+  // A handoff wins over a texture, and a texture over a gallery skin.
   assert.deepEqual(
-    studioSearch({ intent: "createcustom", texture: "abc", handoff: "id" }),
-    { intent: "createcustom", texture: "abc", handoff: "id" },
+    studioSearch({
+      intent: "createcustom",
+      texture: "abc",
+      handoff: "id",
+      skin: "boy",
+    }),
+    { intent: "createcustom", handoff: "id" },
   );
+  assert.deepEqual(studioSearch({ texture: " abc ", skin: "boy" }), {
+    texture: "abc",
+  });
   assert.deepEqual(studioSearch({ intent: "hack", texture: "", other: 1 }), {});
   assert.deepEqual(
     studioSearch({ skin: "boy-white-shirt", intent: "skin-url" }),
     { skin: "boy-white-shirt", intent: "skin-url" },
   );
-  for (const skin of ["../private", "", "a".repeat(101), 7])
+  for (const skin of ["../private", "", "a".repeat(101), null, ["a"], {}])
     assert.deepEqual(studioSearch({ skin }), {});
+  // The router decodes numeric values; gallery IDs can be digits.
+  assert.deepEqual(studioSearch({ skin: 2024 }), { skin: "2024" });
+  assert.deepEqual(studioSearch({ handoff: "x".repeat(129) }), {});
+});
+
+test("Studio search omits defaults and keeps search text only with the gallery", () => {
+  // A gallery link opens the gallery, so its source is implied.
+  assert.equal(skinSource(studioSearch({ skin: "boy" })), "gallery");
+  assert.deepEqual(studioSearch({ skin: "boy", source: "gallery" }), {
+    skin: "boy",
+  });
+  assert.deepEqual(studioSearch({ skin: "boy", source: "library" }), {
+    skin: "boy",
+    source: "library",
+  });
+  assert.deepEqual(studioSearch({ source: "library" }), {});
+  assert.deepEqual(studioSearch({ source: "shelf" }), {});
+  assert.deepEqual(studioSearch({ source: "gallery", q: "  red hat " }), {
+    source: "gallery",
+    q: "red hat",
+  });
+  assert.deepEqual(studioSearch({ q: "red" }), {});
+  assert.deepEqual(studioSearch({ source: "gallery", q: "   " }), {
+    source: "gallery",
+  });
+  assert.deepEqual(studioSearch({ source: "gallery", q: 42 }), {
+    source: "gallery",
+    q: "42",
+  });
+  assert.equal(
+    studioSearch({ source: "gallery", q: "x".repeat(300) }).q?.length,
+    MAX_GALLERY_QUERY,
+  );
+});
+
+test("selecting and clearing a skin keep the list and other URL state", () => {
+  const gallery = studioSearch({
+    source: "gallery",
+    q: "hat",
+    intent: "createcustom",
+  });
+  const chosen = withGallerySkin(gallery, "red-hat");
+  assert.deepEqual(chosen, {
+    intent: "createcustom",
+    skin: "red-hat",
+    q: "hat",
+  });
+  assert.equal(skinSource(chosen), "gallery");
+  // A library skin replaces the public reference but keeps the gallery open.
+  assert.deepEqual(withoutSkinReference(chosen), {
+    intent: "createcustom",
+    source: "gallery",
+    q: "hat",
+  });
+  // A gallery skin chosen while the library shows keeps the library.
+  const fromLibrary = withGallerySkin(
+    studioSearch({ texture: "abc" }),
+    "red-hat",
+  );
+  assert.deepEqual(fromLibrary, { skin: "red-hat", source: "library" });
+  assert.deepEqual(withoutSkinReference(fromLibrary), {});
+  assert.deepEqual(
+    withoutSkinReference(studioSearch({ handoff: "id", intent: "skin-url" })),
+    { intent: "skin-url" },
+  );
 });
 
 test("Upload and Generator URLs fix their purpose over a contradictory intent", () => {

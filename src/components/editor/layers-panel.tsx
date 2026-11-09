@@ -12,6 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { allPartsVisible, type PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
+import { editorShortcuts } from "@/components/editor/editor-commands";
 import { useT } from "@/lib/i18n-react";
 
 /** The active layer. Tools change only this layer (L switches). */
@@ -22,7 +23,7 @@ export function LayerToggle(props: {
   const t = useT();
   return (
     <ToggleGroup
-      aria-label={t("Active layer (L)")}
+      aria-label={t("Active layer")}
       variant="outline"
       size="sm"
       spacing={0}
@@ -34,14 +35,14 @@ export function LayerToggle(props: {
       <ToggleGroupItem
         value="base"
         className="pointer-coarse:h-9"
-        aria-keyshortcuts="L"
+        aria-keyshortcuts={editorShortcuts.layer.join(" ")}
       >
         {t("Base")}
       </ToggleGroupItem>
       <ToggleGroupItem
         value="outer"
         className="pointer-coarse:h-9"
-        aria-keyshortcuts="L"
+        aria-keyshortcuts={editorShortcuts.layer.join(" ")}
       >
         {t("Outer")}
       </ToggleGroupItem>

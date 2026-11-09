@@ -6,6 +6,11 @@ import { EditorSession, documentOf } from "./editor-session";
 import { createTemplate, exportSkinPng, pixelOffset } from "./skin-document";
 import { SkinEditorStore } from "./skin-editor-store";
 import {
+  allPartsVisible,
+  defaultBrush,
+  type PaintSettings,
+} from "./skin-paint";
+import {
   createLibraryClient,
   withLibrary,
   type LibraryClient,
@@ -27,10 +32,10 @@ function tab(factory: IDBFactory) {
   return client;
 }
 
-function editor(library: LibraryClient | undefined) {
+function editor(library: LibraryClient | undefined, saveDelayMs = 0) {
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));
-  const session = new EditorSession(store, library, { saveDelayMs: 0 });
+  const session = new EditorSession(store, library, { saveDelayMs });
   disposers.push(() => session.dispose());
   return { store, session };
 }
@@ -66,6 +71,15 @@ async function open(session: EditorSession, skin: StoredSkin) {
   });
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const pencil: PaintSettings = {
+  ...defaultBrush,
+  layer: "base",
+  color: [10, 20, 30, 255],
+  visibility: allPartsVisible(),
+};
+
 const list = (library: LibraryClient) =>
   library.run(withLibrary((l) => l.list));
 
@@ -91,6 +105,67 @@ test("autosave writes only the editor's own draft, never the skin", async () => 
     await bytes(listing.skins[0].current.png),
     await bytes(skin.current.png),
   );
+});
+
+test("autosave waits for a quiet moment and never writes during a stroke", async () => {
+  const library = tab(new IDBFactory());
+  const { store, session } = editor(library, 30);
+  paint(store, 10);
+  await sleep(5);
+  assert.equal((await list(library)).sessions.length, 0);
+  // A stroke cancels the scheduled write until the stroke ends.
+  store.beginStroke("pencil", pencil, 8, 8);
+  store.strokeTo(12, 8);
+  await sleep(60);
+  assert.equal((await list(library)).sessions.length, 0);
+  store.endStroke();
+  await sleep(60);
+  await session.flush();
+  const listing = await list(library);
+  assert.equal(listing.sessions.length, 1);
+  assert.equal(listing.sessions[0].id, session.getSnapshot().sessionId);
+});
+
+test("an explicit flush replaces the scheduled write and resolves after it", async () => {
+  const library = tab(new IDBFactory());
+  const { store, session } = editor(library, 30);
+  paint(store, 11);
+  const id = session.getSnapshot().sessionId;
+  await session.flush();
+  assert.equal((await list(library)).sessions.length, 1);
+  const first = (await list(library)).sessions[0].updatedAt;
+  // The cancelled schedule does not write a second time.
+  await sleep(60);
+  const listing = await list(library);
+  assert.equal(listing.sessions.length, 1);
+  assert.equal(listing.sessions[0].id, id);
+  assert.equal(listing.sessions[0].updatedAt, first);
+});
+
+test("discard cancels a scheduled autosave so the draft does not come back", async () => {
+  const library = tab(new IDBFactory());
+  const { store, session } = editor(library, 20);
+  paint(store, 12);
+  await session.flush();
+  paint(store, 13);
+  await session.discard();
+  await sleep(50);
+  assert.equal((await list(library)).sessions.length, 0);
+  assert.equal(session.getSnapshot().dirty, false);
+});
+
+test("dispose writes pending work and resolves after the write", async () => {
+  const library = tab(new IDBFactory());
+  const store = new SkinEditorStore();
+  store.load(createTemplate("classic"));
+  const session = new EditorSession(store, library, { saveDelayMs: 10_000 });
+  paint(store, 14);
+  await session.dispose();
+  assert.equal((await list(library)).sessions.length, 1);
+  // The store no longer schedules writes for this session.
+  paint(store, 15);
+  await sleep(20);
+  assert.equal((await list(library)).sessions.length, 1);
 });
 
 test("a queued draft keeps its pixels and owner when another skin opens", async () => {

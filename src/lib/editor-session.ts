@@ -1,3 +1,4 @@
+import { Debouncer } from "@tanstack/pacer";
 import { Effect } from "effect";
 import type { SkinVariant } from "./skin";
 import {
@@ -65,7 +66,11 @@ export class EditorSession {
   private readonly listeners = new Set<() => void>();
   private base: SkinDocument;
   private clean: number;
-  private timer: ReturnType<typeof setTimeout> | undefined;
+  /**
+   * Schedules the draft write after the last change. It only decides when
+   * `flush` runs; the queue below owns every write and its promise.
+   */
+  private readonly autosave: Debouncer<() => void>;
   /** Session writes and saves run one at a time, in order. */
   private queue: Promise<void> = Promise.resolve();
   private stopStore: () => void;
@@ -93,6 +98,9 @@ export class EditorSession {
         : { kind: "off", message: "This browser cannot keep drafts." },
       recovery: [],
     };
+    this.autosave = new Debouncer<() => void>(() => void this.flush(), {
+      wait: options.saveDelayMs ?? SAVE_DELAY_MS,
+    });
     let revision = store.getSnapshot().revision;
     this.stopStore = store.subscribe(() => {
       const snapshot = store.getSnapshot();
@@ -100,12 +108,9 @@ export class EditorSession {
         revision = snapshot.revision;
         this.set({ dirty: revision !== this.clean });
       }
-      clearTimeout(this.timer);
-      if (this.state.dirty && !snapshot.painting)
-        this.timer = setTimeout(
-          () => this.flush(),
-          options.saveDelayMs ?? SAVE_DELAY_MS,
-        );
+      // No draft writes during a stroke; the stroke's end schedules one.
+      if (this.state.dirty && !snapshot.painting) this.autosave.maybeExecute();
+      else this.autosave.cancel();
     });
   }
 
@@ -118,9 +123,11 @@ export class EditorSession {
 
   getSnapshot = () => this.state;
 
+  /** Stop following the store. The returned promise ends after the last write. */
   dispose() {
-    this.flush();
+    const written = this.flush();
     this.stopStore();
+    return written;
   }
 
   private newId() {
@@ -157,7 +164,7 @@ export class EditorSession {
     target: EditTarget,
     options: { readonly sessionId?: string; readonly base?: SkinDocument } = {},
   ) {
-    clearTimeout(this.timer);
+    this.autosave.cancel();
     this.store.load(document);
     this.base = options.base ?? document;
     // Continued drafts differ from the skin, so they start as unsaved.
@@ -253,7 +260,7 @@ export class EditorSession {
 
   /** Write this editor's draft now, for example when the page hides. */
   flush() {
-    clearTimeout(this.timer);
+    this.autosave.cancel();
     const library = this.library;
     if (!library || !this.state.dirty || this.state.drafts.kind === "off")
       return Promise.resolve();
@@ -353,7 +360,7 @@ export class EditorSession {
 
   /** Drop unsaved work and its draft. The skin does not change. */
   async discard() {
-    clearTimeout(this.timer);
+    this.autosave.cancel();
     const { sessionId } = this.state;
     this.store.load(this.base);
     this.markClean(this.store.getSnapshot().revision, this.base);
@@ -374,7 +381,7 @@ export class EditorSession {
       name: string;
     }>,
   ): Promise<SaveResult> {
-    clearTimeout(this.timer);
+    this.autosave.cancel();
     this.set({ busy: true });
     const revision = this.store.getSnapshot().revision;
     const document = this.store.document();

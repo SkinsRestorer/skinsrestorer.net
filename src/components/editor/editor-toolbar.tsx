@@ -24,6 +24,12 @@ import {
   toolLabels,
   type EditorInteraction,
 } from "@/components/editor/editor-types";
+import {
+  editorShortcuts,
+  ShortcutHint,
+  toolCommands,
+  useAriaShortcuts,
+} from "@/components/editor/editor-commands";
 import { useT } from "@/lib/i18n-react";
 
 const toolIcons = {
@@ -33,14 +39,6 @@ const toolIcons = {
   fill: PaintBucket,
   eyedropper: Pipette,
 } as const;
-
-const tools: readonly PaintTool[] = [
-  "pencil",
-  "eraser",
-  "shade",
-  "fill",
-  "eyedropper",
-];
 
 /** Larger hit areas when the main pointer is a finger. */
 const coarse = "pointer-coarse:h-9 pointer-coarse:min-w-9";
@@ -58,6 +56,8 @@ export function EditorToolbar(props: {
   onRedo: () => void;
 }) {
   const t = useT();
+  const undoKeys = useAriaShortcuts("undo");
+  const redoKeys = useAriaShortcuts("redo");
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <ToggleGroup
@@ -70,17 +70,16 @@ export function EditorToolbar(props: {
           if (value[0]) props.onTool(value[0] as PaintTool);
         }}
       >
-        {tools.map((tool) => {
+        {toolCommands.map((tool) => {
           const Icon = toolIcons[tool];
-          const { label: sourceLabel, key } = toolLabels[tool];
-          const label = t(sourceLabel);
+          const label = t(toolLabels[tool]);
           const hint =
             tool === "eraser" && props.layer === "base"
               ? t(
-                  "{tool} ({key}) works on the outer layer only. The base layer is always opaque.",
-                  { tool: label, key },
+                  "{tool} works on the outer layer only. The base layer is always opaque.",
+                  { tool: label },
                 )
-              : `${label} (${key})`;
+              : label;
           return (
             <Tooltip key={tool}>
               <TooltipTrigger
@@ -89,13 +88,15 @@ export function EditorToolbar(props: {
                     value={tool}
                     className={coarse}
                     aria-label={label}
-                    aria-keyshortcuts={key}
+                    aria-keyshortcuts={editorShortcuts[tool].join(" ")}
                   />
                 }
               >
                 <Icon />
               </TooltipTrigger>
-              <TooltipContent>{hint}</TooltipContent>
+              <TooltipContent>
+                <ShortcutHint label={hint} commands={[tool]} />
+              </TooltipContent>
             </Tooltip>
           );
         })}
@@ -118,13 +119,18 @@ export function EditorToolbar(props: {
                 value="paint"
                 className={coarse}
                 aria-label={t("Paint")}
-                aria-keyshortcuts="P"
+                aria-keyshortcuts={editorShortcuts.paint.join(" ")}
               />
             }
           >
             <Brush />
           </TooltipTrigger>
-          <TooltipContent>{t("Pointers use the tool (P)")}</TooltipContent>
+          <TooltipContent>
+            <ShortcutHint
+              label={t("Pointers use the tool")}
+              commands={["paint"]}
+            />
+          </TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger
@@ -133,14 +139,17 @@ export function EditorToolbar(props: {
                 value="move"
                 className={coarse}
                 aria-label={t("Move view")}
-                aria-keyshortcuts="M"
+                aria-keyshortcuts={editorShortcuts.move.join(" ")}
               />
             }
           >
             <Hand />
           </TooltipTrigger>
           <TooltipContent>
-            {t("Pointers scroll the texture and turn the model (M)")}
+            <ShortcutHint
+              label={t("Pointers scroll the texture and turn the model")}
+              commands={["move"]}
+            />
           </TooltipContent>
         </Tooltip>
       </ToggleGroup>
@@ -153,7 +162,7 @@ export function EditorToolbar(props: {
                 variant="ghost"
                 size="icon-sm"
                 aria-label={t("Undo")}
-                aria-keyshortcuts="Control+Z"
+                aria-keyshortcuts={undoKeys}
                 disabled={!props.canUndo}
                 onClick={props.onUndo}
               />
@@ -161,7 +170,9 @@ export function EditorToolbar(props: {
           >
             <Undo2 />
           </TooltipTrigger>
-          <TooltipContent>{t("Undo (Ctrl+Z)")}</TooltipContent>
+          <TooltipContent>
+            <ShortcutHint label={t("Undo")} commands={["undo"]} />
+          </TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger
@@ -170,7 +181,7 @@ export function EditorToolbar(props: {
                 variant="ghost"
                 size="icon-sm"
                 aria-label={t("Redo")}
-                aria-keyshortcuts="Control+Shift+Z Control+Y"
+                aria-keyshortcuts={redoKeys}
                 disabled={!props.canRedo}
                 onClick={props.onRedo}
               />
@@ -178,7 +189,9 @@ export function EditorToolbar(props: {
           >
             <Redo2 />
           </TooltipTrigger>
-          <TooltipContent>{t("Redo (Ctrl+Shift+Z or Ctrl+Y)")}</TooltipContent>
+          <TooltipContent>
+            <ShortcutHint label={t("Redo")} commands={["redo"]} />
+          </TooltipContent>
         </Tooltip>
       </div>
     </div>

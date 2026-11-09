@@ -5,31 +5,41 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
-import { InfoIcon, XIcon } from "lucide-react";
+import { InfoIcon, LoaderCircle, XIcon } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/hooks/use-cape-selection";
+import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/studio-options";
 import type { MineSkinCape } from "@/lib/mineskin";
 import { useT } from "@/lib/i18n-react";
 
-/** The MineSkin API key for the Official method. It stays in form state only. */
-export function MineSkinKeyFields(props: {
-  apiKey: string;
-  capeStatus: CapeStatus;
-  onApiKeyChange: (value: string) => void;
+/**
+ * The MineSkin API key for the Official method. The key stays in form memory
+ * only; the check button is the only request that uses it before Generate.
+ */
+export function MineSkinKeyField(props: {
+  value: string;
+  status: CapeStatus;
+  invalid?: boolean;
+  onChange: (value: string) => void;
+  onBlur: () => void;
   onCheckCapeAccess: () => void;
 }) {
   const t = useT();
-  const mineskinApiKeyId = useId();
-  const { apiKey, capeStatus } = props;
+  const id = useId();
+  const { status } = props;
   return (
-    <div className="flex flex-col gap-2">
+    <Field data-invalid={props.invalid || undefined}>
       <div className="flex items-center gap-2">
-        <Label htmlFor={mineskinApiKeyId}>{t("MineSkin API key")}</Label>
+        <FieldLabel htmlFor={id}>{t("MineSkin API key")}</FieldLabel>
         <Popover>
           <PopoverTrigger
             render={
@@ -77,31 +87,41 @@ export function MineSkinKeyFields(props: {
           </PopoverContent>
         </Popover>
       </div>
-      <Input
-        id={mineskinApiKeyId}
-        type="password"
-        placeholder={t("Required for cape support")}
-        value={apiKey}
-        onChange={(event) => {
-          props.onApiKeyChange(event.target.value);
-        }}
-      />
-      <Button
-        type="button"
-        variant="outline"
-        onClick={props.onCheckCapeAccess}
-        disabled={capeStatus === "loading"}
-      >
-        {capeStatus === "loading"
-          ? t("Checking cape support...")
-          : t("Check cape access")}
-      </Button>
-      {capeStatus === "denied" && (
-        <p className="text-xs text-muted-foreground">
+      <InputGroup>
+        <InputGroupInput
+          id={id}
+          type="password"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder={t("Required for cape support")}
+          aria-invalid={props.invalid || undefined}
+          value={props.value}
+          onChange={(event) => props.onChange(event.target.value)}
+          onBlur={props.onBlur}
+        />
+        <InputGroupAddon align="block-end">
+          <InputGroupButton
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            disabled={status === "loading"}
+            onClick={props.onCheckCapeAccess}
+          >
+            {status === "loading" && (
+              <LoaderCircle data-icon="inline-start" className="animate-spin" />
+            )}
+            {status === "loading"
+              ? t("Checking cape support...")
+              : t("Check cape access")}
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+      {status === "denied" && (
+        <FieldDescription>
           {t("Cape support requires an API key with the capes grant.")}
-        </p>
+        </FieldDescription>
       )}
-    </div>
+    </Field>
   );
 }
 

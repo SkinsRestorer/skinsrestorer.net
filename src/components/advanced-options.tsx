@@ -1,22 +1,21 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Label } from "@/components/ui/label";
+import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/lib/i18n-react";
-
-export type UploadMethod = "axolotl" | "mineskin";
+import type { UploadMethod } from "@/lib/studio-options";
 
 /**
  * The upload method and the optional MineSkin key, closed by default. The
- * Studio keeps it mounted, so it keeps its open state while the user edits
- * the skin or changes other options.
+ * Studio owns the open state, so it stays open while the user edits the
+ * skin or changes other options.
  */
 export function AdvancedOptions(props: {
   method: UploadMethod;
@@ -24,16 +23,13 @@ export function AdvancedOptions(props: {
   /** Fields for the Official method, such as the API key. */
   officialFields: ReactNode;
   /** Controlled open state, for example to show the key field on request. */
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const t = useT();
-  const [ownOpen, setOwnOpen] = useState(false);
-  const open = props.open ?? ownOpen;
-  const setOpen = props.onOpenChange ?? setOwnOpen;
   return (
     <div className="border-t">
-      <Collapsible open={open} onOpenChange={setOpen}>
+      <Collapsible open={props.open} onOpenChange={props.onOpenChange}>
         <CollapsibleTrigger
           render={
             <button
@@ -54,38 +50,40 @@ export function AdvancedOptions(props: {
           </span>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="flex flex-col gap-4 pb-1">
-            <div className="flex flex-col gap-2">
-              <Label>{t("Upload method")}</Label>
-              <Tabs
-                value={props.method}
-                onValueChange={(value) =>
-                  props.onMethodChange(value as UploadMethod)
-                }
-              >
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="axolotl">{t("Axolotl")}</TabsTrigger>
-                  <TabsTrigger value="mineskin">{t("Official")}</TabsTrigger>
-                </TabsList>
-                <TabsContent
-                  value="axolotl"
-                  className="text-xs text-muted-foreground"
+          <div className="pb-1">
+            <FieldGroup>
+              <FieldSet>
+                <FieldLegend variant="label">{t("Upload method")}</FieldLegend>
+                <Tabs
+                  value={props.method}
+                  onValueChange={(value) =>
+                    props.onMethodChange(value as UploadMethod)
+                  }
                 >
-                  {t(
-                    "Use SkinsRestorer Axolotl proxy to upload skins with cape support. This is a free service thanks to a partnership with MineSkin.",
-                  )}
-                </TabsContent>
-                <TabsContent
-                  value="mineskin"
-                  className="text-xs text-muted-foreground"
-                >
-                  {t(
-                    "Provide a MineSkin API key to upload skins directly with the official MineSkin API.",
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
-            {props.method === "mineskin" && props.officialFields}
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="axolotl">{t("Axolotl")}</TabsTrigger>
+                    <TabsTrigger value="mineskin">{t("Official")}</TabsTrigger>
+                  </TabsList>
+                  <TabsContent
+                    value="axolotl"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t(
+                      "Use SkinsRestorer Axolotl proxy to upload skins with cape support. This is a free service thanks to a partnership with MineSkin.",
+                    )}
+                  </TabsContent>
+                  <TabsContent
+                    value="mineskin"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t(
+                      "Provide a MineSkin API key to upload skins directly with the official MineSkin API.",
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </FieldSet>
+              {props.method === "mineskin" && props.officialFields}
+            </FieldGroup>
           </div>
         </CollapsibleContent>
       </Collapsible>
