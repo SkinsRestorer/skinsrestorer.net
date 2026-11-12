@@ -29,7 +29,9 @@
     "deploy": "bun run generate:images && cf deploy",
     "deploy:check": "cf deploy --dry-run --prebuilt --mode production",
     "cf-typegen": "cf workers types",
-    "i18n:check": "bun scripts/check-translations.ts"
+    "i18n:check": "bun scripts/check-translations.ts",
+    "prepare": "lefthook install",
+    "pre-commit": "lefthook run pre-commit"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -94,6 +96,7 @@
     "blurhash": "^2.0.5",
     "cf": "1.0.0-beta.30",
     "fake-indexeddb": "^6.2.8",
+    "lefthook": "2.2.2",
     "oxfmt": "^0.78.0",
     "oxlint": "^1.85.0",
     "shadcn": "^4.0.0",

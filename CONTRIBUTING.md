@@ -64,3 +64,10 @@ Add a body when the reason or compatibility impact is not obvious.
 
 For vulnerabilities, follow [the security reporting instructions](SECURITY.md).
 Remove credentials and private data from examples, logs, and screenshots.
+
+## Git hooks
+
+`bun install` installs Lefthook for this checkout and preserves the existing preparation steps.
+Run `bun run pre-commit` to run the commit checks manually.
+Pre-commit runs staged-file lint and formatting. Before pushing, formatting, translation, and documentation checks run for relevant changes.
+Full lint and TypeScript checks remain manual because unchanged source currently fails those checks.
