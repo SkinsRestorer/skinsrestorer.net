@@ -21,5 +21,11 @@
     "allowImportingTsExtensions": true
   },
   "include": ["**/*.ts", "**/*.tsx", ".cloudflare/types/index.d.ts"],
-  "exclude": ["node_modules", "dist", ".cloudflare/output"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".cloudflare/output",
+    ".next",
+    "next-env.d.ts"
+  ]
 }

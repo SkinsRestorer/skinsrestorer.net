@@ -20,7 +20,7 @@ import remarkMdx from "remark-mdx";
 import release from "../documentation/verified-release.json";
 import { docsRedirects } from "../src/lib/docs-redirects";
 import { docsSchema } from "../src/lib/docs-schema";
-import { docsStringify } from "../src/lib/docs-stringify";
+import { remarkDocsStringify } from "../src/lib/docs-stringify";
 import { parseYaml, validateConfig } from "../src/lib/docs-validation";
 
 const root = path.resolve("content/docs");
@@ -71,9 +71,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
       if (body.includes("—"))
         throw new Error("Replace em dashes with plain punctuation");
       const tree = parser.parse(body);
-      const data = structure(body, [remarkMdx, remarkGfm], {
-        stringify: docsStringify,
-      });
+      const data = structure(body, [remarkMdx, remarkGfm, remarkDocsStringify]);
       const relative = path.relative(root, file).replaceAll(path.sep, "/");
       const info = docFileInfo(relative);
       const route = localizePath(info.path, info.locale);

@@ -1,7 +1,10 @@
 import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import lastModified from "fumadocs-mdx/plugins/last-modified";
 import { docsFrontmatterSchema } from "./src/lib/docs-schema.ts";
-import { docsStringify } from "./src/lib/docs-stringify.ts";
+import {
+  docsStringify,
+  remarkDocsStringify,
+} from "./src/lib/docs-stringify.ts";
 import { remarkDocsTableHeaders } from "./src/lib/docs-table-headers.ts";
 
 export const docs = defineDocs({
@@ -17,7 +20,11 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
-    remarkPlugins: (plugins) => [remarkDocsTableHeaders, ...plugins],
+    remarkPlugins: (plugins) => [
+      remarkDocsTableHeaders,
+      remarkDocsStringify,
+      ...plugins,
+    ],
     remarkStructureOptions: {
       types: (node) =>
         ["heading", "paragraph", "blockquote", "mdxJsxFlowElement"].includes(
@@ -25,7 +32,6 @@ export default defineConfig({
         ) ||
         (node.type === "tableRow" && !node.data?.docsTableHeader),
       mdxTypes: (node) => node.name === "Card",
-      stringify: docsStringify,
     },
     rehypeCodeOptions: {
       themes: {

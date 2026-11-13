@@ -21,6 +21,8 @@
     "**/*.md",
     "**/*.mdx",
     "src/routeTree.gen.ts",
-    ".cloudflare"
+    ".cloudflare",
+    ".next",
+    "next-env.d.ts"
   ]
 }

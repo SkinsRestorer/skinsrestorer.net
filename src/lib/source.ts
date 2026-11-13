@@ -1,15 +1,26 @@
 import { docs } from "fumadocs-mdx:collections/server";
-import { type InferPageType, loader } from "fumadocs-core/source";
-import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
+import {
+  type InferPageType,
+  type LoaderOutput,
+  type Meta,
+  type Page,
+  loader,
+} from "fumadocs-core/source";
+import { lucideIconsPlugin } from "fumadocs-core/source/plugins/lucide-icons";
 
 import { docFileInfo, locales, type Locale, i18n } from "./i18n";
 
-export const source = loader({
+// Fumadocs 16.19 widens static source inference. The loader retains the MDX
+// entries, including their front matter, methods, and generated metadata.
+export const source = loader(docs.toFumadocsSource(), {
   i18n,
   baseUrl: "/docs",
-  source: docs.toFumadocsSource(),
   plugins: [lucideIconsPlugin()],
-});
+}) as LoaderOutput<{
+  page: Page<undefined, (typeof docs.docs)[number]>;
+  meta: Meta<undefined, (typeof docs.meta)[number]>;
+  i18n: typeof i18n;
+}>;
 
 export function getPageImage(page: InferPageType<typeof source>) {
   const segments = [

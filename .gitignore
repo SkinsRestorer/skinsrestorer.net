@@ -76,4 +76,6 @@ _pagefind/
 
 .cloudflare/
 .tanstack/
+/.next/
+/next-env.d.ts
 /public/_images/

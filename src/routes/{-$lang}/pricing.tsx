@@ -91,7 +91,7 @@ function PricingPage() {
 
           {/* Supporter Plan */}
           <Card className="relative flex flex-col border-primary/50 shadow-lg shadow-primary/5">
-            <div className="absolute inset-x-0 -top-px mx-auto h-px w-3/4 bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="absolute inset-x-0 -top-px mx-auto h-px w-3/4 bg-linear-to-r from-transparent via-primary to-transparent" />
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="flex items-center justify-center size-10 rounded-lg bg-primary/10">

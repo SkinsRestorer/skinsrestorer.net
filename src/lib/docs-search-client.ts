@@ -1,5 +1,5 @@
-import { create, type Language } from "@orama/orama";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import { staticClient } from "fumadocs-core/search/client/orama-static";
+import { create, type Language } from "zbsearch";
 import type { Locale } from "./i18n";
 
 export const searchLanguages: Record<Locale, Language> = {
@@ -11,11 +11,11 @@ export const searchLanguages: Record<Locale, Language> = {
 
 /** Match the server tokenizer when loading each exported locale database. */
 export function createDocsSearchClient(locale: Locale, from = "/api/search") {
-  return oramaStaticClient({
+  return staticClient({
     from,
     locale,
     search: { limit: 24 },
-    initOrama: (language) =>
+    initDB: (language) =>
       create({
         schema: { _: "string" },
         language: searchLanguages[language as Locale] ?? "english",
