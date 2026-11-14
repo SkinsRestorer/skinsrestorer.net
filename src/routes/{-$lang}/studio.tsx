@@ -13,7 +13,7 @@ export const Route = createFileRoute("/{-$lang}/studio")({
     getPageHead("/studio", {
       locale: isLocale(params.lang) ? params.lang : "en",
       titleKey: "studio.title",
-      description: "seo.studioDescription",
+      descriptionKey: "seo.studioDescription",
     }),
   component: function Page() {
     const search = Route.useSearch();

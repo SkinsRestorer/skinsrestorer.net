@@ -13,7 +13,7 @@ export const Route = createFileRoute("/{-$lang}/generator")({
     getPageHead("/generator", {
       locale: isLocale(params.lang) ? params.lang : "en",
       titleKey: "generator.title",
-      description: "generator.description",
+      descriptionKey: "generator.description",
     }),
   component: function Page() {
     const search = Route.useSearch();

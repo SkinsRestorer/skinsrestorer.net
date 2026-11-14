@@ -221,8 +221,9 @@ export const Route = createFileRoute("/{-$lang}/pricing")({
   head: ({ params }) =>
     getPageHead("/pricing", {
       locale: isLocale(params.lang) ? params.lang : "en",
-      title: "pricing.pricing",
-      description: "pricing.skinsrestorerFreeOpenSourceSupportDevelopmentGet",
+      titleKey: "pricing.pricing",
+      descriptionKey:
+        "pricing.skinsrestorerFreeOpenSourceSupportDevelopmentGet",
     }),
   component: () => (
     <HomeLayout>

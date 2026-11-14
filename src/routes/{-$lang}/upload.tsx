@@ -13,7 +13,7 @@ export const Route = createFileRoute("/{-$lang}/upload")({
     getPageHead("/upload", {
       locale: isLocale(params.lang) ? params.lang : "en",
       titleKey: "upload.title",
-      description: "seo.uploadDescription",
+      descriptionKey: "seo.uploadDescription",
     }),
   component: function Page() {
     const search = Route.useSearch();
