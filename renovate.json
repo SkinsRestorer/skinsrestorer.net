@@ -10,6 +10,11 @@
     {
       "matchPackageNames": ["typescript"],
       "allowedVersions": "<7"
+    },
+    {
+      "description": "Keep the Three runtime and types compatible with skinview3d 3.x.",
+      "matchPackageNames": ["three", "@types/three"],
+      "allowedVersions": "<0.157"
     }
   ]
 }
