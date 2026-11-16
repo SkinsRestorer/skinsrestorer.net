@@ -57,6 +57,15 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const propsRef = useAsRef(props);
   const maskCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
   const checkCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
+  const textureCache = useRef<HTMLCanvasElement>(null);
+  /** Theme colors, read again only when the theme changes. */
+  const colorCache = useRef<{
+    revision: number;
+    muted: string;
+    background: string;
+    foreground: string;
+    destructive: string;
+  }>(null);
   const [cursor, setCursor] = useState({ x: 8, y: 8 });
   const [focused, setFocused] = useState(false);
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
@@ -107,16 +116,24 @@ export function TextureCanvas(props: TextureCanvasProps) {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     const size = SKIN_SIZE * scale;
-    canvas.width = Math.round(size * ratio);
-    canvas.height = Math.round(size * ratio);
+    const pixels = Math.round(size * ratio);
+    // Assigning a size reallocates the buffer, even when it stays the same.
+    if (canvas.width !== pixels) canvas.width = pixels;
+    if (canvas.height !== pixels) canvas.height = pixels;
     canvas.style.width = `${size}px`;
     canvas.style.height = `${size}px`;
     const cell = canvas.width / SKIN_SIZE;
     const variant = store.getSnapshot().variant;
-    const muted = themeColor(canvas, "--muted", "#eee");
-    const background = themeColor(canvas, "--background", "#fff");
-    const foreground = themeColor(canvas, "--foreground", "#111");
-    const destructive = themeColor(canvas, "--destructive", "#d33");
+    // Reading computed styles right after a render forces a style recalc.
+    if (colorCache.current?.revision !== themeRevision)
+      colorCache.current = {
+        revision: themeRevision,
+        muted: themeColor(canvas, "--muted", "#eee"),
+        background: themeColor(canvas, "--background", "#fff"),
+        foreground: themeColor(canvas, "--foreground", "#111"),
+        destructive: themeColor(canvas, "--destructive", "#d33"),
+      };
+    const { muted, background, foreground, destructive } = colorCache.current;
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -137,9 +154,12 @@ export function TextureCanvas(props: TextureCanvasProps) {
     }
     ctx.drawImage(checkCache.current.canvas, 0, 0, canvas.width, canvas.height);
 
-    const texture = document.createElement("canvas");
-    texture.width = SKIN_SIZE;
-    texture.height = SKIN_SIZE;
+    if (!textureCache.current) {
+      textureCache.current = document.createElement("canvas");
+      textureCache.current.width = SKIN_SIZE;
+      textureCache.current.height = SKIN_SIZE;
+    }
+    const texture = textureCache.current;
     texture
       .getContext("2d")
       ?.putImageData(

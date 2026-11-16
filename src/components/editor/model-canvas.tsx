@@ -117,11 +117,16 @@ export function ModelCanvas(
   const [animate, setAnimate] = useState(false);
   /** A fill or pick that waits for the finger to lift, as a tap. */
   const tap = useRef<{ id: number; target: PaintTarget } | null>(null);
-  /** Moves the hover footprint. Set while a viewer exists. */
+  /**
+   * Moves the hover footprint. Set while a viewer exists. The model is drawn
+   * on demand, so every change to the view must call `redraw`.
+   */
   const hover = useRef<{
     move: (clientX: number, clientY: number) => void;
     leave: () => void;
+    /** Redraw the footprint, if the pointer is over the model. */
     refresh: () => void;
+    redraw: () => void;
   } | null>(null);
   const painting = interaction === "paint" && !animate;
   const paintingRef = useAsRef(painting);
@@ -191,6 +196,9 @@ export function ModelCanvas(
         height: frame.clientHeight || 360,
         zoom: 0.8,
         enableControls: true,
+        // Draw on demand. A loop that redraws every frame keeps the main
+        // thread and GPU busy while nothing moves.
+        renderPaused: true,
       });
     } catch {
       setFailure(message("editor.webglUnavailable"));
@@ -267,6 +275,8 @@ export function ModelCanvas(
         canvas.style.cursor = blocked ? "not-allowed" : "";
       }
       texture.needsUpdate = true;
+      // While the walk animation plays, skinview3d's own loop draws.
+      if (viewer.renderPaused) viewer.render();
     };
     const request = () => {
       if (!frameRequest) frameRequest = requestAnimationFrame(sync);
@@ -286,9 +296,12 @@ export function ModelCanvas(
       refresh: () => {
         if (pointer) request();
       },
+      redraw: request,
     };
-    const turned = () => hover.current?.refresh();
-    viewer.controls.addEventListener("change", turned);
+    viewer.controls.addEventListener("change", request);
+    // Browser zoom or a move to another screen resizes the drawing buffer,
+    // which clears it.
+    window.addEventListener("resize", request);
 
     const resize = new ResizeObserver(() => {
       if (frame.clientWidth && frame.clientHeight)
@@ -307,7 +320,8 @@ export function ModelCanvas(
       hover.current = null;
       pointer = null;
       canvas.style.cursor = "";
-      viewer.controls.removeEventListener("change", turned);
+      viewer.controls.removeEventListener("change", request);
+      window.removeEventListener("resize", request);
       canvas.removeEventListener("webglcontextlost", lost);
       if (frameRequest) cancelAnimationFrame(frameRequest);
       unsubscribe();
@@ -328,6 +342,7 @@ export function ModelCanvas(
       viewer.playerObject.skin[part].outerLayer.visible =
         settings.visibility[part].outer;
     }
+    hover.current?.redraw();
   }, [settings.visibility, attempt, failure]);
 
   // The footprint follows the tool, its settings, and the visible parts.
@@ -347,7 +362,11 @@ export function ModelCanvas(
       ? { TWO: TOUCH.DOLLY_ROTATE }
       : { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_ROTATE };
     viewer.animation = animate ? new WalkingAnimation() : null;
-    if (!animate) viewer.playerObject.resetJoints();
+    viewer.renderPaused = !animate;
+    if (!animate) {
+      viewer.playerObject.resetJoints();
+      hover.current?.redraw();
+    }
   }, [painting, animate, attempt, failure]);
 
   const coverMessage = () =>
@@ -358,13 +377,13 @@ export function ModelCanvas(
   const rotate = (angle: number) => {
     const viewer = viewerRef.current;
     if (viewer) viewer.playerWrapper.rotation.y += angle;
-    hover.current?.refresh();
+    hover.current?.redraw();
   };
   const zoom = (factor: number) => {
     const viewer = viewerRef.current;
     if (viewer)
       viewer.zoom = Math.min(2.5, Math.max(0.4, viewer.zoom * factor));
-    hover.current?.refresh();
+    hover.current?.redraw();
   };
 
   return (
@@ -416,7 +435,7 @@ export function ModelCanvas(
             viewer.playerWrapper.rotation.y = 0;
             viewer.zoom = 0.8;
             viewer.resetCameraPose();
-            hover.current?.refresh();
+            hover.current?.redraw();
           }}
         >
           {t("editor.resetView")}
