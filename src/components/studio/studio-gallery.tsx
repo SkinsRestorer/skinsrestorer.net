@@ -86,7 +86,11 @@ export function StudioGallery(props: {
                 </li>
               ))}
             {skins.map((skin) => (
-              <li key={skin.id} className="min-w-0">
+              // Offscreen entries skip layout and paint until scrolled near.
+              <li
+                key={skin.id}
+                className="min-w-0 [contain-intrinsic-block-size:auto_8rem] [content-visibility:auto]"
+              >
                 <button
                   type="button"
                   aria-current={props.selectedId === skin.id || undefined}
@@ -136,6 +140,34 @@ export function StudioGallery(props: {
   );
 }
 
+const onVisible = new WeakMap<Element, () => void>();
+let visibility: IntersectionObserver | undefined;
+
+/**
+ * Call `show` once when `element` comes near the viewport. All thumbnails
+ * share one observer: the gallery mounts dozens at once, and each observer
+ * adds setup work to the frame that shows the gallery.
+ */
+function whenVisible(element: Element, show: () => void) {
+  visibility ??= new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        visibility?.unobserve(entry.target);
+        onVisible.get(entry.target)?.();
+        onVisible.delete(entry.target);
+      }
+    },
+    { rootMargin: "80px" },
+  );
+  onVisible.set(element, show);
+  visibility.observe(element);
+  return () => {
+    visibility?.unobserve(element);
+    onVisible.delete(element);
+  };
+}
+
 /** Offscreen catalog entries do not download a PNG or decode a thumbnail. */
 function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
   const t = useT();
@@ -143,33 +175,29 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
   const [png, setPng] = useState<Blob>();
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    const element = frame.current;
+    if (!element) return;
     const controller = new AbortController();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        observer.disconnect();
-        void runHttpEffect(
-          loadTextureEffect(skin.textureUrl),
-          controller.signal,
-        ).then(
-          (result) => {
-            if (!controller.signal.aborted)
-              setPng(
-                new Blob([result.bytes as Uint8Array<ArrayBuffer>], {
-                  type: "image/png",
-                }),
-              );
-          },
-          () => {
-            if (!controller.signal.aborted) setFailed(true);
-          },
-        );
-      },
-      { rootMargin: "80px" },
-    );
-    if (frame.current) observer.observe(frame.current);
+    const stop = whenVisible(element, () => {
+      void runHttpEffect(
+        loadTextureEffect(skin.textureUrl),
+        controller.signal,
+      ).then(
+        (result) => {
+          if (!controller.signal.aborted)
+            setPng(
+              new Blob([result.bytes as Uint8Array<ArrayBuffer>], {
+                type: "image/png",
+              }),
+            );
+        },
+        () => {
+          if (!controller.signal.aborted) setFailed(true);
+        },
+      );
+    });
     return () => {
-      observer.disconnect();
+      stop();
       controller.abort();
     };
   }, [skin.textureUrl]);

@@ -938,7 +938,7 @@
     "src/lib/skin.ts": "6ce7099ecd4954acb98cd7e0166060f2733b770bcb135cee3dad5500ec3d3579",
     "src/lib/skin-check.ts": "f5e83356de49cfc518cba3f4c3fd95e96292c4daff80167117a244d93d97c0a8",
     "src/lib/skin-draft.ts": "9543fa1fdbc56927c74c2b877797fec8db97c916bbae5aa953f8d2e1cdfa021b",
-    "src/components/studio/studio-gallery.tsx": "4123c90318a117514f0001264ab80c02ef3ee0698fe1e30aecf356d91b06b4de",
+    "src/components/studio/studio-gallery.tsx": "59feb3825e632176091e10db3fdeb970af4bf7463f2e68dbb649f7ab14c847d6",
     "src/lib/skin-gallery.ts": "ccca53943b4b24292fb684d469da1300780c389cfba5cf3bd9b3dd4e7c5e2ce9"
   }
 }
