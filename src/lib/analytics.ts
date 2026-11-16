@@ -20,6 +20,8 @@ if (typeof window !== "undefined" && apiKey) {
       ],
     },
     session_recording: { sampleRate: 0.1 },
+    // Record which element and phase made INP or CLS slow.
+    capture_performance: { web_vitals_attribution: true },
     debug: import.meta.env.DEV,
     cookieless_mode: "on_reject",
     // Texture links identify a skin; keep them out of events and replays.
