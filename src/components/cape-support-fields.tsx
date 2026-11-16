@@ -26,6 +26,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/studio-options";
 import type { MineSkinCape } from "@/lib/mineskin";
 import { useT } from "@/lib/i18n-react";
+import { cn } from "@/lib/utils";
 
 /**
  * The MineSkin API key for the Official method. The key stays in form memory
@@ -134,7 +135,11 @@ export function MineSkinKeyField(props: {
 }
 
 /** Fixed placeholder slots while the cape list loads. */
-const CAPE_PLACEHOLDERS = ["cape-slot-a", "cape-slot-b", "cape-slot-c"];
+/** Enough slots to fill the list's full height, so loading does not shift it. */
+const CAPE_PLACEHOLDERS = Array.from(
+  { length: 11 },
+  (_, slot) => `cape-slot-${slot}`,
+);
 
 /**
  * The cape choice, always visible as a grid. "No cape" is a dotted outline.
@@ -171,7 +176,11 @@ export function CapePicker(props: {
   return (
     <div className="flex flex-col gap-1.5">
       <div
-        className="max-h-36 overflow-y-auto p-0.5"
+        className={cn(
+          "max-h-36 overflow-y-auto p-0.5",
+          // The loaded list fills this height, so the page keeps its layout.
+          loading && "h-36 overflow-hidden",
+        )}
         aria-busy={loading || undefined}
       >
         <ToggleGroup
@@ -216,11 +225,6 @@ export function CapePicker(props: {
             ))}
         </ToggleGroup>
       </div>
-      {loading && (
-        <output className="text-xs text-muted-foreground">
-          {t("capes.loadingCapes")}
-        </output>
-      )}
       {failed && (
         <p className="flex flex-wrap items-center gap-x-2 text-xs text-destructive">
           {t("capes.failedLoadAvailableCapes")}
@@ -231,11 +235,21 @@ export function CapePicker(props: {
           )}
         </p>
       )}
-      <p className="truncate text-xs text-muted-foreground" aria-live="polite">
-        <span className="font-medium text-foreground">
-          {selected?.alias ?? t("common.noCape")}
-        </span>
-      </p>
+      {loading ? (
+        // Uses the selected cape's line, so no line appears and disappears.
+        <output className="truncate text-xs text-muted-foreground">
+          {t("capes.loadingCapes")}
+        </output>
+      ) : (
+        <p
+          className="truncate text-xs text-muted-foreground"
+          aria-live="polite"
+        >
+          <span className="font-medium text-foreground">
+            {selected?.alias ?? t("common.noCape")}
+          </span>
+        </p>
+      )}
       {props.keyHint}
     </div>
   );
