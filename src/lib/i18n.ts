@@ -39,10 +39,10 @@ export function localizePath(path: string, locale: Locale): string {
 }
 
 /** Legal text and service endpoints remain at their existing English URLs. */
-export function localizeHref(href: string, locale: Locale): string {
-  if (!href.startsWith("/") || href.startsWith("//")) return href;
+export function hasLocalizedPages(href: string): boolean {
   const path = splitLocalePath(href.split(/[?#]/)[0]).path;
-  return path === "/" ||
+  return (
+    path === "/" ||
     [
       "/studio",
       "/upload",
@@ -52,8 +52,12 @@ export function localizeHref(href: string, locale: Locale): string {
       "/docs",
     ].includes(path) ||
     path.startsWith("/docs/")
-    ? localizePath(href, locale)
-    : href;
+  );
+}
+
+export function localizeHref(href: string, locale: Locale): string {
+  if (!href.startsWith("/") || href.startsWith("//")) return href;
+  return hasLocalizedPages(href) ? localizePath(href, locale) : href;
 }
 
 /** Parse Fumadocs' dot convention without treating the locale as a slug. */

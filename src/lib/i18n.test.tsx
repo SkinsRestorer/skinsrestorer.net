@@ -5,6 +5,7 @@ import { ModelSelector } from "@/components/model-selector";
 import { SkinIssueAlerts } from "@/components/editor/skin-issue-alerts";
 import {
   docFileInfo,
+  hasLocalizedPages,
   isLocale,
   localizeHref,
   localizePath,
@@ -54,6 +55,15 @@ test("locale URLs preserve English permalinks and handoff, texture and section r
     localizeHref("//example.com/editor", "es"),
     "//example.com/editor",
   );
+});
+
+test("only pages with translations have localized URLs for the language switcher", () => {
+  assert.equal(hasLocalizedPages("/ru/studio?handoff=abc"), true);
+  assert.equal(hasLocalizedPages("/docs/installation#setup"), true);
+  assert.equal(hasLocalizedPages("/es"), true);
+  assert.equal(hasLocalizedPages("/privacy-policy"), false);
+  assert.equal(hasLocalizedPages("/cookie-policy?x=1"), false);
+  assert.equal(hasLocalizedPages("/documentation"), false);
 });
 
 test("Fumadocs filenames map locale suffixes and index files to stable slugs", () => {

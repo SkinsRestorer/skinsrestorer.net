@@ -3,7 +3,7 @@
 import { Cookie } from "lucide-react";
 import Link from "fumadocs-core/link";
 import posthog from "posthog-js";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,7 @@ import { useT } from "@/lib/i18n-react";
 
 const CookieConsentBanner = () => {
   const t = useT();
+  const titleId = useId();
   const [consentState, setConsentState] = useState<
     ReturnType<typeof posthog.get_explicit_consent_status> | ""
   >("");
@@ -41,10 +42,13 @@ const CookieConsentBanner = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 sm:bottom-4 sm:left-4">
+    <section
+      aria-labelledby={titleId}
+      className="fixed inset-x-0 bottom-0 z-50 sm:right-auto sm:bottom-4 sm:left-4"
+    >
       <Card className="m-3 shadow-lg sm:max-w-md">
         <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
-          <CardTitle className="text-lg">
+          <CardTitle id={titleId} className="text-lg">
             {t("consent.websiteAnalytics")}
           </CardTitle>
           <Cookie className="h-5 w-5" />
@@ -84,7 +88,7 @@ const CookieConsentBanner = () => {
           </Button>
         </CardFooter>
       </Card>
-    </div>
+    </section>
   );
 };
 

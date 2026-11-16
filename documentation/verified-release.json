@@ -921,11 +921,11 @@
     "src/lib/skin-library.ts": "c91df858bab9c534de9d852e80ed124e1906052568a0b93a35fdf3ed350a5c0b",
     "src/lib/skin-library-client.ts": "9e1f32136d0727292dbae8b516b45b76b832f782abb08fb06f9b7d2df55d6264",
     "src/lib/editor-session.ts": "d0110ba3e20b7a308d753637578e5fea85f94676a470b0a044cd01802531cae9",
-    "src/components/studio/skin-studio.tsx": "03766c09d45bb07366060a4052bad3ef56d04a79139cf04ac4bb7841f9724f9c",
-    "src/components/studio/studio-library.tsx": "5cb731b8d767f9b76cb5831acf53c537cd0c7af5627c3a99ed49aae7aaa59cfe",
-    "src/components/studio/studio-editor.tsx": "deaef8da1fb8f092a4d97236cfe2b9e325e9e39ca6975de092acaa6e81cb1c00",
+    "src/components/studio/skin-studio.tsx": "4376032d0ceb40f4b0527d9678891fba15b80abc98cd839f93c35823653b4563",
+    "src/components/studio/studio-library.tsx": "a08d3d7d6baffb45270669a7a6a88afc58abad3cab7564c177bfc01ba933719f",
+    "src/components/studio/studio-editor.tsx": "f4c2bdf32a50b62b48c45a87bf2db2d5f324481750ddd0510372a1a63f683cf9",
     "src/components/advanced-options.tsx": "3930707b29a870b79274fe0f6e72da61a5a961fa9dd22f6010f3d46c7f42ff4f",
-    "src/components/cape-support-fields.tsx": "9fcf136ecc6f9cc1ac789a9d0e262a60ad73c56cb7ea9ce0f0afbf679b97c107",
+    "src/components/cape-support-fields.tsx": "7105cdb84cc4e3f77330c9b11bdf17c277d5af071ae542050798b3c30aba1f28",
     "src/lib/effect-http.ts": "aa1290b21e1bb46977ba0f7f35196315834ca21684736f69bec93f17149f1c9b",
     "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
@@ -937,7 +937,7 @@
     "src/lib/skin.ts": "6ce7099ecd4954acb98cd7e0166060f2733b770bcb135cee3dad5500ec3d3579",
     "src/lib/skin-check.ts": "f5e83356de49cfc518cba3f4c3fd95e96292c4daff80167117a244d93d97c0a8",
     "src/lib/skin-draft.ts": "9543fa1fdbc56927c74c2b877797fec8db97c916bbae5aa953f8d2e1cdfa021b",
-    "src/components/studio/studio-gallery.tsx": "7a3c0b6d777d87fa0768a376abf49c46182c44446b38a90188f6743db57227ab",
+    "src/components/studio/studio-gallery.tsx": "4123c90318a117514f0001264ab80c02ef3ee0698fe1e30aecf356d91b06b4de",
     "src/lib/skin-gallery.ts": "ccca53943b4b24292fb684d469da1300780c389cfba5cf3bd9b3dd4e7c5e2ce9"
   }
 }

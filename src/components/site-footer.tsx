@@ -15,7 +15,7 @@ export function SiteFooter() {
           aria-label={t("footer.footer")}
           className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
         >
-          <Link href="/donate" className="hover:text-fd-foreground">
+          <Link href="/pricing" className="hover:text-fd-foreground">
             {t("footer.supportSkinsrestorer")}
           </Link>
           <Link href="/terms-of-service" className="hover:text-fd-foreground">

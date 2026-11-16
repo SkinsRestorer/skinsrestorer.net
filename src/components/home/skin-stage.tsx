@@ -9,7 +9,13 @@ import {
   useInView,
   useReducedMotion,
 } from "motion/react";
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { Button } from "@/components/ui/button";
 import styles from "./minecraft.module.css";
 import { useT } from "@/lib/i18n-react";
@@ -58,6 +64,24 @@ function steppedEase(steps: number) {
   return (progress: number) => Math.min(1, Math.ceil(progress * steps) / steps);
 }
 
+let webGl2Supported: boolean | undefined;
+
+// Paper Shaders throws when the browser cannot create a WebGL2 context.
+function supportsWebGl2() {
+  if (webGl2Supported === undefined) {
+    const gl = document.createElement("canvas").getContext("webgl2");
+    webGl2Supported = gl !== null;
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+  }
+  return webGl2Supported;
+}
+
+const subscribeNever = () => () => {};
+
+function useWebGl2Supported() {
+  return useSyncExternalStore(subscribeNever, supportsWebGl2, () => false);
+}
+
 function SkinHead() {
   return <span aria-hidden="true" className={styles.head} />;
 }
@@ -67,6 +91,7 @@ export function SkinStage() {
   const stageRef = useRef<HTMLDivElement>(null);
   const inView = useInView(stageRef, { margin: "80px" });
   const reduceMotion = useReducedMotion() ?? false;
+  const webGl2 = useWebGl2Supported();
   const [entries, setEntries] = useState<ChatEntry[]>([
     { id: 0, command: demoCommands[0] },
   ]);
@@ -107,18 +132,25 @@ export function SkinStage() {
         ref={stageRef}
         className={`${styles.stage} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-[5/4] lg:aspect-[4/5]`}
       >
-        <Dithering
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 size-full"
-          colorBack="#171913"
-          colorFront="#4d4a1a"
-          shape="simplex"
-          type="4x4"
-          size={3}
-          scale={0.7}
-          speed={inView && !reduceMotion ? 0.35 : 0}
-          maxPixelCount={1200 * 1500}
-        />
+        {webGl2 ? (
+          <Dithering
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 size-full"
+            colorBack="#171913"
+            colorFront="#4d4a1a"
+            shape="simplex"
+            type="4x4"
+            size={3}
+            scale={0.7}
+            speed={inView && !reduceMotion ? 0.35 : 0}
+            maxPixelCount={1200 * 1500}
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className={`${styles.backdrop} absolute inset-0 -z-10`}
+          />
+        )}
         <div
           aria-hidden="true"
           className={`${styles.ground} absolute inset-x-0 bottom-0 -z-10 h-1/4`}
@@ -209,10 +241,8 @@ export function SkinStage() {
               ))}
             </AnimatePresence>
           </ol>
-          <p
-            aria-label={t("home.chatInput")}
-            className="flex items-center bg-black/60 px-1.5 py-1 text-white"
-          >
+          <p className="flex items-center bg-black/60 px-1.5 py-1 text-white">
+            <span className="sr-only">{`${t("home.chatInput")}: `}</span>
             <motion.span
               key={latest.id}
               initial={
@@ -256,7 +286,11 @@ export function SkinStage() {
           </Button>
         ))}
       </fieldset>
-      <p aria-live="polite" className="min-h-10 text-sm text-muted-foreground">
+      {/* Announce only commands the visitor picks, not every autoplay step. */}
+      <p
+        aria-live={autoplay ? "off" : "polite"}
+        className="min-h-10 text-sm text-muted-foreground"
+      >
         {t(latest.command.description)}
       </p>
     </div>

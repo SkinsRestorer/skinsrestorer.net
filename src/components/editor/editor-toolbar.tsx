@@ -5,6 +5,7 @@ import {
   Contrast,
   Eraser,
   Hand,
+  MousePointer2,
   PaintBucket,
   Pipette,
   Redo2,
@@ -120,7 +121,7 @@ export function EditorToolbar(props: {
               />
             }
           >
-            <Brush />
+            <MousePointer2 />
           </TooltipTrigger>
           <TooltipContent>
             <ShortcutHint

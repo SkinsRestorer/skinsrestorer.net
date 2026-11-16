@@ -5,8 +5,8 @@ import Link from "fumadocs-core/link";
 
 function CookiePolicyPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-12">
-      <article className="prose max-w-none">
+    <div className="mx-auto w-full max-w-4xl px-4 py-12">
+      <article className="prose mx-auto max-w-prose">
         <h1>Cookie Policy</h1>
         <p>
           <strong>Last updated:</strong> March 21, 2026
@@ -76,7 +76,7 @@ function CookiePolicyPage() {
           read the <Link href="/privacy-policy">Privacy Policy</Link>.
         </p>
       </article>
-    </main>
+    </div>
   );
 }
 

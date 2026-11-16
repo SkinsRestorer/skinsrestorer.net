@@ -10,7 +10,10 @@ const icons = {
   unavailable: SaveOff,
 } as const;
 
-/** A quiet save status: an icon whose title and name say the state. */
+/**
+ * A quiet save status: an icon with the state as a title. It is a polite
+ * live region, so screen readers announce a new state.
+ */
 export function SaveStatus(props: {
   state: SaveState;
   label: string;
@@ -18,9 +21,7 @@ export function SaveStatus(props: {
 }) {
   const Icon = icons[props.state];
   return (
-    <span
-      role="img"
-      aria-label={props.label}
+    <output
       title={props.label}
       className={cn(
         "inline-flex shrink-0 text-muted-foreground",
@@ -32,6 +33,7 @@ export function SaveStatus(props: {
         aria-hidden="true"
         className={cn("size-3.5", props.state === "saving" && "animate-spin")}
       />
-    </span>
+      <span className="sr-only">{props.label}</span>
+    </output>
   );
 }

@@ -5,8 +5,8 @@ import Link from "fumadocs-core/link";
 
 function PrivacyPolicyPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-12">
-      <article className="prose max-w-none">
+    <div className="mx-auto w-full max-w-4xl px-4 py-12">
+      <article className="prose mx-auto max-w-prose">
         <h1>Privacy Policy</h1>
         <p>
           <strong>Last updated:</strong> March 21, 2026
@@ -134,7 +134,7 @@ function PrivacyPolicyPage() {
           will revise the date at the top of this page.
         </p>
       </article>
-    </main>
+    </div>
   );
 }
 

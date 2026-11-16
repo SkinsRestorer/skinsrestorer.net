@@ -18,6 +18,11 @@ export function CustomTimeAgo(props: Props) {
   return (
     <TimeAgo
       formatter={locale === "en" ? undefined : formatters[locale]}
+      // The default title is a UTC timestamp. Show the local date and time.
+      title={new Date(props.date).toLocaleString(locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })}
       {...props}
     />
   );

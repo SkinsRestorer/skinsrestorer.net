@@ -80,8 +80,9 @@ export function StudioGallery(props: {
           >
             {state.status !== "ready" &&
               placeholders.map((slot) => (
-                <li key={slot}>
+                <li key={slot} className="flex flex-col gap-1.5">
                   <Skeleton className="aspect-square w-full" />
+                  <Skeleton className="h-4 w-3/4" />
                 </li>
               ))}
             {skins.map((skin) => (
@@ -89,6 +90,7 @@ export function StudioGallery(props: {
                 <button
                   type="button"
                   aria-current={props.selectedId === skin.id || undefined}
+                  aria-busy={props.pendingId === skin.id || undefined}
                   aria-label={t("gallery.nameModelModel", {
                     name: skin.name,
                     model: t(
@@ -115,9 +117,7 @@ export function StudioGallery(props: {
                       />
                     )}
                   </span>
-                  <span className="w-full truncate text-xs" title={skin.name}>
-                    {skin.name}
-                  </span>
+                  <span className="w-full truncate text-xs">{skin.name}</span>
                 </button>
               </li>
             ))}

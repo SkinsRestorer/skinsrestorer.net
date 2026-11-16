@@ -43,6 +43,7 @@ import {
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -737,6 +738,16 @@ export function SkinStudio(props: {
   );
   const purpose = fixed ?? options.purpose;
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  /** Wraps the MineSkin key field, for focus and its Enter key. */
+  const keyField = useRef<HTMLDivElement>(null);
+  const generateHintId = useId();
+  const [focusKeyField, setFocusKeyField] = useState(false);
+  // The "Open advanced options" link unmounts on click: move focus to the key.
+  useEffect(() => {
+    if (!focusKeyField) return;
+    setFocusKeyField(false);
+    keyField.current?.querySelector("input")?.focus();
+  }, [focusKeyField]);
   const capes = useCapeAccess({ keyRequired: options.method === "mineskin" });
   purposeRef.current = purpose;
   capeStatusRef.current = capes.status;
@@ -866,7 +877,7 @@ export function SkinStudio(props: {
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-4 pt-4 pb-10 sm:pt-6">
+    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-4 pt-4 pb-10 sm:pt-6">
       <header className="flex flex-col gap-0.5">
         <h1 className="text-lg font-semibold tracking-tight">
           {t(info.title)}
@@ -1032,9 +1043,21 @@ export function SkinStudio(props: {
               aria-label={t("studio.options")}
               className={cn(panel, "flex flex-col gap-4")}
             >
+              {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- delegates Enter from the key input inside the form. */}
               <form
                 noValidate
                 className="flex flex-col gap-4"
+                onKeyDown={(event) => {
+                  // Enter in the key field checks cape access. It never uploads.
+                  if (
+                    event.key !== "Enter" ||
+                    !(event.target instanceof HTMLInputElement) ||
+                    !keyField.current?.contains(event.target)
+                  )
+                    return;
+                  event.preventDefault();
+                  void capes.verify(form.getFieldValue("apiKey").trim());
+                }}
                 onSubmit={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -1081,6 +1104,7 @@ export function SkinStudio(props: {
                       {(field) => (
                         <TextField
                           label={t("studio.skinNameOptional")}
+                          description={t("studio.skinNameHint")}
                           value={field.state.value}
                           placeholder={
                             (current && suggestSkinName(current.name)) ||
@@ -1131,7 +1155,10 @@ export function SkinStudio(props: {
                                     <Button
                                       variant="link"
                                       size="sm"
-                                      onClick={() => setAdvancedOpen(true)}
+                                      onClick={() => {
+                                        setAdvancedOpen(true);
+                                        setFocusKeyField(true);
+                                      }}
                                     >
                                       {t("studio.openAdvancedOptions")}
                                     </Button>
@@ -1176,15 +1203,17 @@ export function SkinStudio(props: {
                           }}
                         >
                           {(field) => (
-                            <MineSkinKeyField
-                              value={field.state.value}
-                              status={capes.status}
-                              onChange={field.handleChange}
-                              onBlur={field.handleBlur}
-                              onCheckCapeAccess={() =>
-                                void capes.verify(field.state.value.trim())
-                              }
-                            />
+                            <div ref={keyField} className="contents">
+                              <MineSkinKeyField
+                                value={field.state.value}
+                                status={capes.status}
+                                onChange={field.handleChange}
+                                onBlur={field.handleBlur}
+                                onCheckCapeAccess={() =>
+                                  void capes.verify(field.state.value.trim())
+                                }
+                              />
+                            </div>
                           )}
                         </form.Field>
                       }
@@ -1192,30 +1221,40 @@ export function SkinStudio(props: {
                   )}
                 </form.Field>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={
-                    !input ||
-                    !!pendingGallery ||
-                    nameInvalid ||
-                    submitting ||
-                    shown.status === "pending"
-                  }
-                  title={current ? undefined : t("studio.selectSkinFirst")}
-                >
-                  {shown.status === "pending" && (
-                    <LoaderCircle
-                      data-icon="inline-start"
-                      className="animate-spin"
-                    />
+                <div className="flex flex-col gap-1.5">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={
+                      !input ||
+                      !!pendingGallery ||
+                      nameInvalid ||
+                      submitting ||
+                      shown.status === "pending"
+                    }
+                    aria-describedby={current ? undefined : generateHintId}
+                  >
+                    {shown.status === "pending" && (
+                      <LoaderCircle
+                        data-icon="inline-start"
+                        className="animate-spin"
+                      />
+                    )}
+                    {shown.status === "pending"
+                      ? t("studio.generating")
+                      : purpose === "createcustom"
+                        ? t("studio.generateSrCreatecustom")
+                        : t("studio.generateSkinUrl")}
+                  </Button>
+                  {!current && (
+                    <p
+                      id={generateHintId}
+                      className="text-center text-xs text-muted-foreground"
+                    >
+                      {t("studio.selectSkinFirst")}
+                    </p>
                   )}
-                  {shown.status === "pending"
-                    ? t("studio.generating")
-                    : purpose === "createcustom"
-                      ? t("studio.generateSrCreatecustom")
-                      : t("studio.generateSkinUrl")}
-                </Button>
+                </div>
               </form>
 
               {shown.status === "failed" && (
@@ -1295,7 +1334,7 @@ export function SkinStudio(props: {
           importTexture(reference);
         }}
       />
-    </main>
+    </div>
   );
 }
 
@@ -1320,6 +1359,7 @@ function ChoiceSet(props: {
 /** A text field with a label and its validation messages. */
 function TextField(props: {
   label: string;
+  description?: string;
   value: string;
   placeholder?: string;
   errors?: readonly unknown[];
@@ -1327,6 +1367,7 @@ function TextField(props: {
   onBlur?: () => void;
 }) {
   const id = useId();
+  const descriptionId = `${id}-description`;
   const invalid = !!props.errors?.length;
   return (
     <Field data-invalid={invalid || undefined}>
@@ -1338,9 +1379,15 @@ function TextField(props: {
         autoComplete="off"
         spellCheck={false}
         aria-invalid={invalid || undefined}
+        aria-describedby={props.description ? descriptionId : undefined}
         onChange={(event) => props.onChange(event.target.value)}
         onBlur={props.onBlur}
       />
+      {props.description && (
+        <FieldDescription id={descriptionId}>
+          {props.description}
+        </FieldDescription>
+      )}
       <LocalizedFieldError errors={props.errors} />
     </Field>
   );
@@ -1555,6 +1602,10 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
             try {
               await navigator.clipboard.writeText(props.value);
               setCopied(true);
+              // The icon change alone is easy to miss.
+              toast.success(t("common.copiedClipboard"), {
+                id: `copy-${id}`,
+              });
             } catch {
               toast.error(t("common.failedCopy"));
             }
@@ -1562,9 +1613,6 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
         >
           {copied ? <Check /> : <Copy />}
         </Button>
-        <output className="sr-only">
-          {copied ? t("common.copiedClipboard") : ""}
-        </output>
       </div>
     </div>
   );

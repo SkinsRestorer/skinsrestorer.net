@@ -81,6 +81,7 @@ export function ColorControls(props: {
             min={0}
             max={100}
             step={1}
+            format={{ style: "unit", unit: "percent" }}
             value={[opacity]}
             onValueChange={(value) => {
               const next = Array.isArray(value) ? value[0] : value;

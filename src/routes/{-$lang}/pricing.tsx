@@ -54,7 +54,9 @@ function PricingPage() {
                 <div className="flex items-center justify-center size-10 rounded-lg bg-muted">
                   <Users className="size-5" />
                 </div>
-                <CardTitle className="text-xl">{t("pricing.free")}</CardTitle>
+                <CardTitle className="text-xl">
+                  <h2>{t("pricing.free")}</h2>
+                </CardTitle>
               </div>
               <CardDescription>
                 {t("pricing.everythingYouNeedManageSkinsServer")}
@@ -63,7 +65,9 @@ function PricingPage() {
             <CardContent className="flex-1">
               <div className="mb-6">
                 <span className="text-4xl font-bold tracking-tight">0€</span>
-                <span className="text-muted-foreground ml-1">/month</span>
+                <span className="text-muted-foreground ml-1">
+                  {t("common.month")}
+                </span>
               </div>
               <ul className="flex flex-col gap-3">
                 {freePlanFeatures.map((feature) => (
@@ -98,7 +102,7 @@ function PricingPage() {
                   <Heart className="size-5 text-primary" />
                 </div>
                 <CardTitle className="text-xl">
-                  {t("pricing.supporter")}
+                  <h2>{t("pricing.supporter")}</h2>
                 </CardTitle>
                 <span className="ml-auto inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                   {t("pricing.popular")}
@@ -111,7 +115,9 @@ function PricingPage() {
             <CardContent className="flex-1">
               <div className="mb-6">
                 <span className="text-4xl font-bold tracking-tight">5€</span>
-                <span className="text-muted-foreground ml-1">/month</span>
+                <span className="text-muted-foreground ml-1">
+                  {t("common.month")}
+                </span>
               </div>
               <ul className="flex flex-col gap-3">
                 {supporterPlanFeatures.map((feature) => (
@@ -125,8 +131,8 @@ function PricingPage() {
             <CardFooter>
               <Button
                 render={
-                  <a href="http://ko-fi.com/skinsrestorer/tiers">
-                    <SiKofi className="h-4 w-4" />
+                  <a href="https://ko-fi.com/skinsrestorer/tiers">
+                    <SiKofi aria-hidden className="size-4" />
                     {t("pricing.becomeSupporter")}
                   </a>
                 }
@@ -173,8 +179,10 @@ function PricingPage() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
-                <SiKofi className="size-5" />
-                <CardTitle className="text-xl">{"Ko-fi"}</CardTitle>
+                <SiKofi aria-hidden className="size-5" />
+                <CardTitle className="text-xl">
+                  <h3>{"Ko-fi"}</h3>
+                </CardTitle>
               </div>
               <CardDescription>
                 {t("pricing.donateViaPaypalCardMembershipOneTime")}
@@ -194,8 +202,10 @@ function PricingPage() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
-                <SiBitcoin className="size-5" />
-                <CardTitle className="text-xl">{t("pricing.crypto")}</CardTitle>
+                <SiBitcoin aria-hidden className="size-5" />
+                <CardTitle className="text-xl">
+                  <h3>{t("pricing.crypto")}</h3>
+                </CardTitle>
               </div>
               <CardDescription>
                 {t("pricing.donateCryptocurrencyViaNowpayments")}
@@ -206,7 +216,7 @@ function PricingPage() {
                 src="https://nowpayments.io/embeds/donation-widget?api_key=bae4c439-45fd-44b6-918d-b91054b8d6af"
                 width="346"
                 height="623"
-                className="border-none overflow-y-hidden"
+                className="max-w-full border-none overflow-y-hidden"
                 title={t("pricing.nowpaymentsCryptoDonationWidget")}
               />
             </CardContent>

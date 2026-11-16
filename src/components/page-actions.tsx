@@ -6,7 +6,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
-import { useCopyButton } from "fumadocs-ui/utils/use-copy-button";
 import {
   Check,
   ChevronDown,
@@ -14,11 +13,22 @@ import {
   ExternalLinkIcon,
   MessageCircleIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
 const cache = new Map<string, string>();
+
+async function loadMarkdown(markdownUrl: string, failedMessage: string) {
+  const cached = cache.get(markdownUrl);
+  if (cached !== undefined) return cached;
+  const res = await fetch(markdownUrl);
+  if (!res.ok) throw new Error(failedMessage);
+  const content = await res.text();
+  cache.set(markdownUrl, content);
+  return content;
+}
 
 export function LLMCopyButton({
   /**
@@ -30,32 +40,48 @@ export function LLMCopyButton({
 }) {
   const t = useT();
   const [isLoading, setLoading] = useState(false);
-  const [checked, onClick] = useCopyButton(async () => {
-    const cached = cache.get(markdownUrl);
-    if (cached) return navigator.clipboard.writeText(cached);
+  const [checked, setChecked] = useState(false);
+  const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  useEffect(() => () => clearTimeout(timeout.current), []);
+
+  async function copy() {
     setLoading(true);
-
+    const markdown = loadMarkdown(
+      markdownUrl,
+      t("docs.failedLoadPageMarkdown"),
+    );
+    const blob = markdown.then(
+      (text) => new Blob([text], { type: "text/plain" }),
+    );
+    // The fallback below reports a failed download, so the Blob promise
+    // must not surface it again as an unhandled rejection.
+    blob.catch(() => {});
     try {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          "text/plain": fetch(markdownUrl).then(async (res) => {
-            if (!res.ok) throw new Error(t("docs.failedLoadPageMarkdown"));
-            const content = await res.text();
-            cache.set(markdownUrl, content);
-
-            return content;
-          }),
-        }),
-      ]);
+      try {
+        // Start the clipboard write inside the click so Safari keeps the
+        // user activation while the Markdown downloads. Chrome only accepts
+        // Blob values with a matching type here.
+        await navigator.clipboard.write([
+          new ClipboardItem({ "text/plain": blob }),
+        ]);
+      } catch {
+        await navigator.clipboard.writeText(await markdown);
+      }
+      setChecked(true);
+      clearTimeout(timeout.current);
+      timeout.current = setTimeout(() => setChecked(false), 1500);
+    } catch {
+      toast.error(t("common.failedCopy"));
     } finally {
       setLoading(false);
     }
-  });
+  }
 
   return (
     <button
       disabled={isLoading}
+      aria-busy={isLoading}
       className={cn(
         buttonVariants({
           color: "secondary",
@@ -63,11 +89,14 @@ export function LLMCopyButton({
           className: "gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground",
         }),
       )}
-      onClick={onClick}
+      onClick={() => void copy()}
       type="button"
     >
-      {checked ? <Check /> : <Copy />}
+      {checked ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
       {t("docs.copyPage")}
+      <output className="sr-only">
+        {checked ? t("common.copiedClipboard") : ""}
+      </output>
     </button>
   );
 }

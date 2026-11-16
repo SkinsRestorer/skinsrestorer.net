@@ -17,13 +17,17 @@ import { useLocale } from "@/lib/i18n-react";
 export default function LocalizedSearchDialog(props: SharedProps) {
   const locale = useLocale();
   const client = useMemo(() => createDocsSearchClient(locale), [locale]);
-  const { search, setSearch, query } = useDocsSearch({ client });
+  const { search, onSearchChange, isLoading, data, error } = useDocsSearch({
+    client,
+  });
   return (
     <SearchDialog
       {...props}
       search={search}
-      onSearchChange={setSearch}
-      isLoading={query.isLoading}
+      onSearchChange={onSearchChange}
+      isLoading={isLoading}
+      data={data}
+      error={error}
     >
       <SearchDialogOverlay />
       <SearchDialogContent>
@@ -32,7 +36,7 @@ export default function LocalizedSearchDialog(props: SharedProps) {
           <SearchDialogInput />
           <SearchDialogClose />
         </SearchDialogHeader>
-        <SearchDialogList items={query.data === "empty" ? [] : query.data} />
+        <SearchDialogList />
       </SearchDialogContent>
     </SearchDialog>
   );

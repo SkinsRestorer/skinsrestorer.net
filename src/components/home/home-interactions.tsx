@@ -60,7 +60,7 @@ export function HomeFaq({
       {items.map((item) => (
         <AccordionItem key={item.question} value={item.question}>
           <AccordionTrigger>{item.question}</AccordionTrigger>
-          <AccordionContent className="text-muted-foreground">
+          <AccordionContent hiddenUntilFound className="text-muted-foreground">
             {item.answer}
           </AccordionContent>
         </AccordionItem>

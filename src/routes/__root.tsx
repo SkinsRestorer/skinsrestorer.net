@@ -10,6 +10,8 @@ import {
   Link,
   useRouterState,
   useNavigate,
+  isNotFound,
+  rootRouteId,
 } from "@tanstack/react-router";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
@@ -23,9 +25,12 @@ import {
   localizePath,
   splitLocalePath,
   isLocale,
+  hasLocalizedPages,
 } from "@/lib/i18n";
 import { LocaleProvider, useLocale, useT } from "@/lib/i18n-react";
 import { fumadocsMessages } from "@/lib/messages/fumadocs";
+import { translate } from "@/lib/messages";
+import { siteTitleKey } from "@/lib/seo";
 import { getSiteRedirect } from "@/lib/site-redirects";
 import "@/lib/analytics";
 import appCss from "../style.css?url";
@@ -44,9 +49,11 @@ export const Route = createRootRoute({
       });
     }
   },
-  head: () => ({
+  head: ({ matches }) => ({
     meta: [
       { charSet: "utf-8" },
+      // Pages set their own title. This covers not-found and error states.
+      { title: getFallbackTitle(matches) },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#B2A711" },
       { name: "application-name", content: "SkinsRestorer" },
@@ -97,8 +104,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               })),
               translations: fumadocsMessages(locale),
               onLocaleChange: (next) => {
-                if (isLocale(next))
-                  void navigate({ href: localizePath(location.href, next) });
+                if (!isLocale(next)) return;
+                // English-only pages, such as legal text, have no localized URL.
+                void navigate({
+                  href: localizePath(
+                    hasLocalizedPages(location.href) ? location.href : "/",
+                    next,
+                  ),
+                });
               },
             }}
             search={{ SearchDialog: LocalizedSearchDialog }}
@@ -112,6 +125,20 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
+}
+
+function getFallbackTitle(
+  matches: readonly { routeId: string; pathname: string; error: unknown }[],
+) {
+  const leaf = matches.at(-1);
+  const locale = splitLocalePath(leaf?.pathname ?? "/").locale;
+  const notFound =
+    matches.some((match) => isNotFound(match.error)) ||
+    leaf?.routeId === rootRouteId ||
+    leaf?.routeId === "/{-$lang}";
+  return notFound
+    ? `${translate(locale, "common.pageNotFound")} - SR`
+    : translate(locale, siteTitleKey);
 }
 
 function LocaleLink({

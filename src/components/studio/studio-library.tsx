@@ -163,7 +163,7 @@ export function StudioLibrary(props: {
           placeholders.map((slot) => (
             <li key={slot} className="flex flex-col gap-1.5">
               <Skeleton className="aspect-square w-full" />
-              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="h-4 w-3/4" />
             </li>
           ))}
         {listing?.skins.map((skin) => (
@@ -230,12 +230,14 @@ function LibraryItem(props: {
 }) {
   const t = useT();
   const { skin } = props;
+  const button = useRef<HTMLButtonElement>(null);
   const model = t(
     skin.current.variant === "slim" ? "model.slim" : "model.classic",
   );
   return (
     <li className="group/item relative min-w-0">
       <button
+        ref={button}
         type="button"
         aria-current={props.selected || undefined}
         aria-label={t(
@@ -282,7 +284,14 @@ function LibraryItem(props: {
         )}
       </button>
       {props.renaming && (
-        <RenameField name={skin.name} onDone={props.onRenamed} />
+        <RenameField
+          name={skin.name}
+          onDone={(name, keyboard) => {
+            props.onRenamed(name);
+            // The field unmounts: keep keyboard focus on this skin.
+            if (keyboard) button.current?.focus();
+          }}
+        />
       )}
       <span
         className={cn(
@@ -343,15 +352,16 @@ function LibraryItem(props: {
 /** Rename in place. Enter or leaving the field saves; Escape cancels. */
 function RenameField(props: {
   name: string;
-  onDone: (name: string | null) => void;
+  /** `keyboard` is true when Enter or Escape ended the rename. */
+  onDone: (name: string | null, keyboard: boolean) => void;
 }) {
   const t = useT();
   const [value, setValue] = useState(props.name);
   const done = useRef(false);
-  const finish = (name: string | null) => {
+  const finish = (name: string | null, keyboard = false) => {
     if (done.current) return;
     done.current = true;
-    props.onDone(name);
+    props.onDone(name, keyboard);
   };
   return (
     <div className="mt-1.5">
@@ -366,10 +376,10 @@ function RenameField(props: {
         onChange={(event) => setValue(event.target.value)}
         onBlur={() => finish(value.trim() || null)}
         onKeyDown={(event) => {
-          if (event.key === "Enter") finish(value.trim() || null);
+          if (event.key === "Enter") finish(value.trim() || null, true);
           if (event.key === "Escape") {
             event.stopPropagation();
-            finish(null);
+            finish(null, true);
           }
         }}
       />

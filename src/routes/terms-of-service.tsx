@@ -5,8 +5,8 @@ import Link from "fumadocs-core/link";
 
 function TermsOfServicePage() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-12">
-      <article className="prose max-w-none">
+    <div className="mx-auto w-full max-w-4xl px-4 py-12">
+      <article className="prose mx-auto max-w-prose">
         <h1>Terms of Service</h1>
         <p>
           <strong>Last updated:</strong> March 21, 2026
@@ -111,7 +111,7 @@ function TermsOfServicePage() {
           or reach out through <a href="/discord">Discord</a>.
         </p>
       </article>
-    </main>
+    </div>
   );
 }
 

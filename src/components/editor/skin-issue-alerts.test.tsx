@@ -34,11 +34,11 @@ test("a skin with a problem shows its alert and fix", () => {
   assert.ok(!html.includes("No problems"));
 });
 
-test("the save status has an accessible name and a matching title", () => {
+test("the save status is a live region with its state as text and title", () => {
   const html = renderToStaticMarkup(
     <SaveStatus state="unsaved" label="Unsaved changes" />,
   );
-  assert.ok(html.includes('role="img"'));
-  assert.ok(html.includes('aria-label="Unsaved changes"'));
+  assert.ok(html.startsWith("<output"));
   assert.ok(html.includes('title="Unsaved changes"'));
+  assert.ok(html.includes('<span class="sr-only">Unsaved changes</span>'));
 });

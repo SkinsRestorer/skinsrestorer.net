@@ -31,6 +31,7 @@ interface FeedbackData {
 export function Feedback({ url, version }: { url: string; version: string }) {
   const t = useT();
   const messageId = useId();
+  const questionId = useId();
   const [previous, setPrevious] = useState<FeedbackData | null>(null);
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
   const [message, setMessage] = useState("");
@@ -79,11 +80,18 @@ export function Feedback({ url, version }: { url: string; version: string }) {
       }}
       className="border-y py-3"
     >
-      <div className="flex flex-row items-center gap-2">
-        <p className="text-sm font-medium pe-2">{t("feedback.didPageHelp")}</p>
+      <div
+        role="group"
+        aria-labelledby={questionId}
+        className="flex flex-row flex-wrap items-center gap-2"
+      >
+        <p id={questionId} className="text-sm font-medium pe-2">
+          {t("feedback.didPageHelp")}
+        </p>
         <button
           type="button"
           disabled={previous !== null}
+          aria-pressed={activeOpinion === "good"}
           className={cn(
             rateButtonVariants({
               active: activeOpinion === "good",
@@ -93,12 +101,13 @@ export function Feedback({ url, version }: { url: string; version: string }) {
             setOpinion("good");
           }}
         >
-          <ThumbsUp />
+          <ThumbsUp aria-hidden="true" />
           {t("feedback.yes")}
         </button>
         <button
           type="button"
           disabled={previous !== null}
+          aria-pressed={activeOpinion === "bad"}
           className={cn(
             rateButtonVariants({
               active: activeOpinion === "bad",
@@ -108,14 +117,14 @@ export function Feedback({ url, version }: { url: string; version: string }) {
             setOpinion("bad");
           }}
         >
-          <ThumbsDown />
+          <ThumbsDown aria-hidden="true" />
           {t("feedback.no")}
         </button>
       </div>
       <CollapsibleContent className="mt-3">
         {previous ? (
           <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-muted-foreground text-sm text-center rounded-xl">
-            <p>{t("feedback.thankYouFeedback")}</p>
+            <output>{t("feedback.thankYouFeedback")}</output>
             <div className="flex flex-row items-center gap-2">
               <button
                 type="button"
@@ -151,7 +160,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none placeholder:text-fd-muted-foreground"
+              className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-fd-muted-foreground"
               placeholder={t(
                 "feedback.includeStepSetupResultKeepCredentialsPrivate",
               )}

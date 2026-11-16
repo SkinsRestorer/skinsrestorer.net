@@ -14,38 +14,46 @@ export function HomeLayout({ children }: { children: ReactNode }) {
     select: (state) => splitLocalePath(state.location.pathname).path,
   });
   return (
-    <FumadocsHomeLayout
-      {...baseOptions}
-      i18n={
-        !["/privacy-policy", "/terms-of-service", "/cookie-policy"].includes(
-          path,
-        )
-      }
-      links={[
-        {
-          type: "main",
-          text: t("nav.documentation"),
-          url: localizeHref("/docs", locale),
-          description: t("common.installConfigureTroubleshootSkinsrestorer"),
-        },
-        {
-          type: "main",
-          text: t("nav.studio"),
-          url: localizeHref("/studio", locale),
-          active: "nested-url",
-          description: t("common.editSkinsGetSkinUrlSrCreatecustom"),
-        },
-        {
-          type: "main",
-          text: t("nav.support"),
-          url: localizeHref("/pricing", locale),
-          description: t("common.optionalSupporterPlansDonations"),
-        },
-        ...(baseOptions.links || []),
-      ]}
-    >
-      {children}
-      <SiteFooter />
-    </FumadocsHomeLayout>
+    <>
+      <a
+        href="#nd-home-layout"
+        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-2 focus-visible:left-2 focus-visible:z-100 focus-visible:rounded-md focus-visible:bg-background focus-visible:px-3 focus-visible:py-2 focus-visible:text-sm focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {t("common.skipToContent")}
+      </a>
+      <FumadocsHomeLayout
+        {...baseOptions}
+        i18n={
+          !["/privacy-policy", "/terms-of-service", "/cookie-policy"].includes(
+            path,
+          )
+        }
+        links={[
+          {
+            type: "main",
+            text: t("nav.documentation"),
+            url: localizeHref("/docs", locale),
+            description: t("common.installConfigureTroubleshootSkinsrestorer"),
+          },
+          {
+            type: "main",
+            text: t("nav.studio"),
+            url: localizeHref("/studio", locale),
+            active: "nested-url",
+            description: t("common.editSkinsGetSkinUrlSrCreatecustom"),
+          },
+          {
+            type: "main",
+            text: t("nav.support"),
+            url: localizeHref("/pricing", locale),
+            description: t("common.optionalSupporterPlansDonations"),
+          },
+          ...(baseOptions.links || []),
+        ]}
+      >
+        {children}
+        <SiteFooter />
+      </FumadocsHomeLayout>
+    </>
   );
 }

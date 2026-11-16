@@ -9,7 +9,12 @@ import { InfoIcon, LoaderCircle, XIcon } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -35,9 +40,13 @@ export function MineSkinKeyField(props: {
 }) {
   const t = useT();
   const id = useId();
+  const statusId = `${id}-status`;
   const { status } = props;
+  // A key without the capes grant is a field error, not a hint.
+  const invalid = props.invalid || status === "denied";
+  const hasStatus = status === "denied" || status === "granted";
   return (
-    <Field data-invalid={props.invalid || undefined}>
+    <Field data-invalid={invalid || undefined}>
       <div className="flex items-center gap-2">
         <FieldLabel htmlFor={id}>{t("capes.mineskinApiKey")}</FieldLabel>
         <Popover>
@@ -86,7 +95,8 @@ export function MineSkinKeyField(props: {
           autoComplete="off"
           spellCheck={false}
           placeholder={t("capes.requiredCapeSupport")}
-          aria-invalid={props.invalid || undefined}
+          aria-invalid={invalid || undefined}
+          aria-describedby={hasStatus ? statusId : undefined}
           value={props.value}
           onChange={(event) => props.onChange(event.target.value)}
           onBlur={props.onBlur}
@@ -109,8 +119,13 @@ export function MineSkinKeyField(props: {
         </InputGroupAddon>
       </InputGroup>
       {status === "denied" && (
-        <FieldDescription>
+        <FieldError id={statusId}>
           {t("capes.capeSupportRequiresApiKeyCapesGrant")}
+        </FieldError>
+      )}
+      {status === "granted" && (
+        <FieldDescription id={statusId}>
+          {t("capes.capeSupportEnabledApiKey")}
         </FieldDescription>
       )}
     </Field>

@@ -30,6 +30,7 @@ const discordLink = import.meta.env.VITE_DISCORD_LINK ?? "/discord";
 
 const linkClassName =
   "inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline";
+const inlineLinkClassName = "text-foreground underline underline-offset-4";
 
 function LatestRelease() {
   const t = useT();
@@ -209,9 +210,13 @@ function useFaqItems() {
       answer: (
         <>
           {t("home.yesFreeLicensedUnderGpl30")}{" "}
-          <a href={githubLink}>{"GitHub"}</a>
+          <a className={inlineLinkClassName} href={githubLink}>
+            {"GitHub"}
+          </a>
           {t("home.paid")}{" "}
-          <Link href="/pricing">{t("home.supporterPlans")}</Link>{" "}
+          <Link className={inlineLinkClassName} href="/pricing">
+            {t("home.supporterPlans")}
+          </Link>{" "}
           {t("home.optionalTheyComePriorityHelpDiscord")}
         </>
       ),
@@ -228,9 +233,14 @@ function useFaqItems() {
       question: t("home.howDoIUseSkinPngFile"),
       answer: (
         <>
-          <Link href="/upload">{t("home.faqUploadPng")}</Link> {t("home.get")}{" "}
-          <code>/skin url</code> {t("home.commandThenRunGameServerStaffCan")}{" "}
-          <Link href="/generator">{t("home.skinGenerator")}</Link>{" "}
+          <Link className={inlineLinkClassName} href="/upload">
+            {t("home.faqUploadPng")}
+          </Link>{" "}
+          {t("home.get")} <code>/skin url</code>{" "}
+          {t("home.commandThenRunGameServerStaffCan")}{" "}
+          <Link className={inlineLinkClassName} href="/generator">
+            {t("home.skinGenerator")}
+          </Link>{" "}
           {t("home.saveSkinUnderNameEveryPlayerCan")}
         </>
       ),
@@ -240,12 +250,18 @@ function useFaqItems() {
       answer: (
         <>
           {t("home.start")}{" "}
-          <Link href="/docs/troubleshooting">
+          <Link className={inlineLinkClassName} href="/docs/troubleshooting">
             {t("home.troubleshootingGuides")}
           </Link>
-          {t("home.ifDoesNotFixAsk")} <a href={discordLink}>{"Discord"}</a>{" "}
+          {t("home.ifDoesNotFixAsk")}{" "}
+          <a className={inlineLinkClassName} href={discordLink}>
+            {"Discord"}
+          </a>{" "}
           {t("home.includeServerVersionRecentLogReportBugs")}{" "}
-          <a href={`${githubLink}/issues`}>{t("home.githubIssues")}</a>.
+          <a className={inlineLinkClassName} href={`${githubLink}/issues`}>
+            {t("home.githubIssues")}
+          </a>
+          .
         </>
       ),
     },
@@ -553,10 +569,12 @@ export default function IndexPage() {
                     className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
                   >
                     <img
-                      src={`https://github.com/${member.username}.png`}
+                      src={`https://github.com/${member.username}.png?size=80`}
                       alt=""
                       width={40}
                       height={40}
+                      loading="lazy"
+                      decoding="async"
                       className="rounded-md"
                     />
                     <span className="flex flex-1 flex-col">
@@ -590,10 +608,7 @@ export default function IndexPage() {
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:px-8">
           <SectionHeading id="faq-title" title={t("home.questions")}>
             {t("home.shortAnswers")}{" "}
-            <Link
-              href="/docs"
-              className="text-foreground underline underline-offset-4"
-            >
+            <Link href="/docs" className={inlineLinkClassName}>
               {t("home.documentation")}
             </Link>{" "}
             {t("home.hasDetails")}

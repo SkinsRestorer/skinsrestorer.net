@@ -460,12 +460,18 @@ export function ModelCanvas(
           key={attempt}
           ref={canvasRef}
           hidden={!!failure}
+          role="img"
           aria-label={
             painting
               ? t("editor.modelPaintInstructions")
               : t("editor.modelMoveInstructions")
           }
-          className={cn("block", painting ? "cursor-crosshair" : "cursor-grab")}
+          className={cn(
+            "block",
+            painting
+              ? "cursor-crosshair"
+              : "cursor-grab active:cursor-grabbing",
+          )}
           onContextMenu={(event) => event.preventDefault()}
           onPointerDown={(event) => {
             // Touch has no hover, so a finger never leaves a footprint.

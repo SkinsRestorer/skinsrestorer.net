@@ -62,6 +62,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [themeRevision, setThemeRevision] = useState(0);
+  const [ratio, setRatio] = useState(1);
   const [revision, setRevision] = useState(() => store.getSnapshot().revision);
   const instructionsId = useId();
   /** Touch points on the canvas, to tell one-finger paint from two-finger pan. */
@@ -86,11 +87,25 @@ export function TextureCanvas(props: TextureCanvasProps) {
     return () => observer.disconnect();
   }, []);
 
+  // Browser zoom and a move to another screen change the pixel ratio. Redraw
+  // at the new ratio so the texture stays sharp.
+  useEffect(() => {
+    let query: MediaQueryList | undefined;
+    const update = () => {
+      query?.removeEventListener("change", update);
+      const next = window.devicePixelRatio || 1;
+      setRatio(next);
+      query = matchMedia(`(resolution: ${next}dppx)`);
+      query.addEventListener("change", update);
+    };
+    update();
+    return () => query?.removeEventListener("change", update);
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
-    const ratio = window.devicePixelRatio || 1;
     const size = SKIN_SIZE * scale;
     canvas.width = Math.round(size * ratio);
     canvas.height = Math.round(size * ratio);
@@ -256,6 +271,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
     interaction,
     tool,
     themeRevision,
+    ratio,
   ]);
 
   const toPixel = (event: { clientX: number; clientY: number }) => {
@@ -287,7 +303,6 @@ export function TextureCanvas(props: TextureCanvasProps) {
         ref={canvasRef}
         tabIndex={0}
         role="application"
-        aria-roledescription="skin texture"
         aria-label={t("editor.skinTexture6464Pixels")}
         aria-describedby={instructionsId}
         className={cn(

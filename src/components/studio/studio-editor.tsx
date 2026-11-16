@@ -88,6 +88,10 @@ function popupOpen() {
   );
 }
 
+/** Texture zoom limits, in CSS pixels for each skin pixel. */
+const MIN_ZOOM = 3;
+const MAX_ZOOM = 24;
+
 type Confirm =
   | { readonly kind: "changed" | "removed" | "leave" }
   | { readonly kind: "failed"; readonly message: Message };
@@ -369,7 +373,7 @@ export function StudioEditor(props: {
   };
 
   const zoomBy = (step: number) =>
-    setZoom(Math.max(3, Math.min(24, scale + step)));
+    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, scale + step)));
 
   // One confirmation for Cancel, Escape, Back, and links.
   const shown: Confirm | null = confirm ?? (blocked ? { kind: "leave" } : null);
@@ -446,6 +450,8 @@ export function StudioEditor(props: {
               variant="ghost"
               size="icon-sm"
               aria-label={t("studio.zoomTextureOut")}
+              disabled={scale <= MIN_ZOOM}
+              focusableWhenDisabled
               onClick={() => zoomBy(-2)}
             >
               <ZoomOut />
@@ -454,6 +460,8 @@ export function StudioEditor(props: {
               variant="ghost"
               size="icon-sm"
               aria-label={t("studio.zoomTexture")}
+              disabled={scale >= MAX_ZOOM}
+              focusableWhenDisabled
               onClick={() => zoomBy(2)}
             >
               <ZoomIn />

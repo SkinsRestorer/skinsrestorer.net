@@ -1,6 +1,7 @@
 "use client";
 
 import { Box } from "lucide-react";
+import { useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { IdleAnimation, SkinViewer } from "skinview3d";
 import {
@@ -35,6 +36,7 @@ export function SkinView(props: {
   /** Increments when a viewer starts, so texture effects run again. */
   const [ready, setReady] = useState(0);
   const [failed, setFailed] = useState(false);
+  const reduceMotion = useReducedMotion() ?? false;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -56,7 +58,6 @@ export function SkinView(props: {
     current.controls.enablePan = false;
     current.controls.enableZoom = false;
     current.playerWrapper.rotation.y = FRONT;
-    current.animation = new IdleAnimation();
     viewerRef.current = current;
     setReady((n) => n + 1);
     const resize = new ResizeObserver(() => {
@@ -76,6 +77,14 @@ export function SkinView(props: {
       viewerRef.current = null;
     };
   }, []);
+
+  // The idle sway stops when the user asks for less motion.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+    viewer.animation = reduceMotion ? null : new IdleAnimation();
+    if (reduceMotion) viewer.playerObject.resetJoints();
+  }, [ready, reduceMotion]);
 
   // Each load owns its image. A superseded load is cancelled before it can
   // draw, so only the latest skin and cape reach the viewer.
