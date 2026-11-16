@@ -17,6 +17,8 @@ const cspDirectives = {
     "'unsafe-inline'",
     posthogHost,
     "https://analytics.ahrefs.com",
+    // Cloudflare injects its Web Analytics beacon into production pages.
+    "https://static.cloudflareinsights.com",
   ],
   // Server-rendered style attributes, theme and toast styles.
   "style-src": ["'self'", "'unsafe-inline'"],
@@ -36,6 +38,7 @@ const cspDirectives = {
     posthogHost,
     "https://eu.posthog.com",
     "https://analytics.ahrefs.com",
+    "https://cloudflareinsights.com",
     "https://api.mineskin.org",
     "https://axolotl.skinsrestorer.net",
     "https://textures.minecraft.net",
