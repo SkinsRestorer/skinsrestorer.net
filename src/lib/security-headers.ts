@@ -31,6 +31,8 @@ const cspDirectives = {
     // Team avatars on the home page redirect to avatars.githubusercontent.com.
     "https://github.com",
     "https://avatars.githubusercontent.com",
+    // Yandex Browser's built-in translator shows its icons inside the page.
+    "https://yastatic.net",
   ],
   "font-src": ["'self'"],
   "connect-src": [
@@ -65,7 +67,7 @@ export const securityHeaders = {
   "X-XSS-Protection": "0",
   "X-Frame-Options": "SAMEORIGIN",
   "X-Content-Type-Options": "nosniff",
-  // Report-only until production reports show no legitimate violations.
-  "Content-Security-Policy-Report-Only": contentSecurityPolicy,
+  // Enforced; violations are still reported to PostHog.
+  "Content-Security-Policy": contentSecurityPolicy,
   "Reporting-Endpoints": `posthog="${cspReportUrl}"`,
 };

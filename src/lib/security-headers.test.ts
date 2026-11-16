@@ -51,12 +51,10 @@ function headerFor(rules: Rule[], path: string, name: string) {
 
 function directives() {
   return new Map(
-    securityHeaders["Content-Security-Policy-Report-Only"]
-      .split("; ")
-      .map((directive) => {
-        const [name = "", ...sources] = directive.split(" ");
-        return [name, sources] as const;
-      }),
+    securityHeaders["Content-Security-Policy"].split("; ").map((directive) => {
+      const [name = "", ...sources] = directive.split(" ");
+      return [name, sources] as const;
+    }),
   );
 }
 
