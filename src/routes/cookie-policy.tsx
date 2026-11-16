@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supportEmail } from "@/lib/contact";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
 import Link from "fumadocs-core/link";
@@ -83,10 +84,7 @@ function CookiePolicyPage() {
           For more information about how information is processed on this site,
           read the <Link href="/privacy-policy">Privacy Policy</Link>. For
           questions, contact{" "}
-          <a href="mailto:support@skinsrestorer.net">
-            support@skinsrestorer.net
-          </a>
-          .
+          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
         </p>
       </article>
     </div>

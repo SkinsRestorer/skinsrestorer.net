@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supportEmail } from "@/lib/contact";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
 import Link from "fumadocs-core/link";
@@ -106,10 +107,8 @@ function TermsOfServicePage() {
         <h2>10. Contact</h2>
         <p>
           For questions about these terms, contact{" "}
-          <a href="mailto:support@skinsrestorer.net">
-            support@skinsrestorer.net
-          </a>{" "}
-          or reach out through <a href="/discord">Discord</a>.
+          <a href={`mailto:${supportEmail}`}>{supportEmail}</a> or reach out
+          through <a href="/discord">Discord</a>.
         </p>
       </article>
     </div>

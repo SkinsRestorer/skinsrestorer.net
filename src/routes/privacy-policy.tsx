@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supportEmail } from "@/lib/contact";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
 import Link from "fumadocs-core/link";
@@ -110,10 +111,8 @@ function PrivacyPolicyPage() {
           </li>
           <li>
             You can contact{" "}
-            <a href="mailto:support@skinsrestorer.net">
-              support@skinsrestorer.net
-            </a>{" "}
-            for privacy-related questions
+            <a href={`mailto:${supportEmail}`}>{supportEmail}</a> for
+            privacy-related questions
           </li>
         </ul>
         <p>
