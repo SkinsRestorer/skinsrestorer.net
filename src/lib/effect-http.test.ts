@@ -176,25 +176,17 @@ test("HTTP cancellation waits for response reader cleanup", async () => {
   assert.equal(body.locked, false);
 });
 
-test("cancelling a response closes its reader before aborting the transport", async () => {
+test("cancelling a response closes its reader without aborting the transport", async () => {
   const events: string[] = [];
+  let transportSignal: AbortSignal | null | undefined;
   let reading!: () => void;
   const started = new Promise<void>((resolve) => {
     reading = resolve;
   });
   const transport: HttpFetch = async (_url, init) => {
+    transportSignal = init?.signal;
     const body = new ReadableStream<Uint8Array>(
       {
-        start(controller) {
-          init?.signal?.addEventListener(
-            "abort",
-            () => {
-              events.push("abort");
-              controller.error(init.signal?.reason);
-            },
-            { once: true },
-          );
-        },
         pull() {
           reading();
         },
@@ -213,13 +205,55 @@ test("cancelling a response closes its reader before aborting the transport", as
   await started;
   caller.abort();
   await pending;
-  assert.deepEqual(events, ["cancel", "abort"]);
+  assert.deepEqual(events, ["cancel"]);
+  assert.equal(transportSignal?.aborted, false);
 });
 
-test("cancellation aborts a response while an observer holds its cloned body", async () => {
+test("cancellation lets a fetch wrapper finish reading its cloned body", async () => {
   let transportSignal: AbortSignal | null | undefined;
-  let observer: ReadableStream<Uint8Array> | undefined;
-  let appBody: ReadableStream<Uint8Array> | undefined;
+  let wrapperRead: Promise<string> | undefined;
+  let reading!: () => void;
+  let release!: () => void;
+  const started = new Promise<void>((resolve) => {
+    reading = resolve;
+  });
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const transport: HttpFetch = async (_url, init) => {
+    transportSignal = init?.signal;
+    const body = new ReadableStream<Uint8Array>(
+      {
+        async pull(controller) {
+          reading();
+          await gate;
+          controller.enqueue(new TextEncoder().encode("skin"));
+          controller.close();
+        },
+      },
+      { highWaterMark: 0 },
+    );
+    // Wrappers such as analytics or extensions read a clone of the response.
+    const [appBody, wrapperBody] = body.tee();
+    wrapperRead = new Response(wrapperBody).text();
+    return new Response(appBody);
+  };
+  const caller = new AbortController();
+  const pending = Effect.runPromiseExit(provide(readHttpText(url), transport), {
+    signal: caller.signal,
+  });
+  await started;
+  caller.abort();
+  await yieldToEventLoop();
+  release();
+  await pending;
+  assert.equal(await wrapperRead, "skin");
+  assert.equal(transportSignal?.aborted, false);
+});
+
+test("an unread cloned body is aborted only after the deadline", async () => {
+  let transportSignal: AbortSignal | null | undefined;
+  let wrapperBody: ReadableStream<Uint8Array> | undefined;
   let reading!: () => void;
   const started = new Promise<void>((resolve) => {
     reading = resolve;
@@ -241,24 +275,28 @@ test("cancellation aborts a response while an observer holds its cloned body", a
       },
       { highWaterMark: 0 },
     );
-    // A response-body observer can keep the other branch unread indefinitely.
-    [appBody, observer] = body.tee();
+    // A wrapper can keep its branch without ever reading it.
+    let appBody: ReadableStream<Uint8Array>;
+    [appBody, wrapperBody] = body.tee();
     return new Response(appBody);
   };
-  const caller = new AbortController();
-  const pending = Effect.runPromiseExit(provide(readHttpText(url), transport), {
-    signal: caller.signal,
-  });
   try {
-    await started;
-    await yieldToEventLoop();
-    caller.abort();
-    await yieldToEventLoop();
+    await Effect.runPromise(
+      provide(
+        Effect.gen(function* () {
+          const read = yield* Effect.forkChild(readHttpText(url));
+          yield* Effect.promise(() => started);
+          const stopping = yield* Effect.forkChild(Fiber.interrupt(read));
+          yield* TestClock.adjust(9_999);
+          assert.equal(transportSignal?.aborted, false);
+          yield* TestClock.adjust(1);
+          yield* Fiber.join(stopping);
+        }),
+        transport,
+      ).pipe(Effect.provide(TestClock.layer())),
+    );
     assert.equal(transportSignal?.aborted, true);
-    await pending;
-    assert.equal(appBody?.locked, false);
   } finally {
-    await observer?.cancel().catch(() => undefined);
-    await pending;
+    await wrapperBody?.cancel().catch(() => undefined);
   }
 });

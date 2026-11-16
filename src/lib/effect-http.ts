@@ -101,22 +101,35 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
         }),
       ),
     (owner) =>
-      Effect.promise(async () => {
+      Effect.gen(function* () {
+        // Close pending body reads normally before anything can error the stream.
         let cancellation: Promise<void> | undefined;
-        try {
-          // Close pending body reads normally before abort can error the stream.
-          if (owner.reader) {
-            cancellation = owner.reader.cancel().catch(() => undefined);
-            owner.reader.releaseLock();
-          } else
-            cancellation = owner.response?.body
-              ?.cancel()
-              .catch(() => undefined);
-        } finally {
-          // A cloned body's cancellation can wait for the observer's branch.
+        if (owner.reader) {
+          cancellation = owner.reader.cancel().catch(() => undefined);
+          owner.reader.releaseLock();
+        } else
+          cancellation = owner.response?.body?.cancel().catch(() => undefined);
+        if (!cancellation) {
+          // Without a response, only an abort stops the request.
           owner.controller.abort();
+          return;
         }
-        await cancellation;
+        // A fetch wrapper can read its own clone of this response, and our
+        // branch's cancellation then waits for that read. An abort would reject
+        // the wrapper's read with our reason, which reaches error tracking as
+        // an unhandled AbortError. Abort only when the clone holds the transport
+        // open past the deadline, so cleanup cannot hang on an unread clone.
+        const settled = cancellation;
+        yield* Effect.promise(() => settled).pipe(
+          Effect.timeoutOrElse({
+            duration: options.timeoutMs ?? 10_000,
+            orElse: () =>
+              Effect.promise(() => {
+                owner.controller.abort();
+                return settled;
+              }),
+          }),
+        );
       }),
   );
 });

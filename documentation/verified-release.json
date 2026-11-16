@@ -927,7 +927,7 @@
     "src/components/studio/draft-recovery.tsx": "ae53299ef0d2782c966bef923cfc1bfd3779bdda7555dfb278cb7bb89dc968ef",
     "src/components/advanced-options.tsx": "3930707b29a870b79274fe0f6e72da61a5a961fa9dd22f6010f3d46c7f42ff4f",
     "src/components/cape-support-fields.tsx": "7105cdb84cc4e3f77330c9b11bdf17c277d5af071ae542050798b3c30aba1f28",
-    "src/lib/effect-http.ts": "aa1290b21e1bb46977ba0f7f35196315834ca21684736f69bec93f17149f1c9b",
+    "src/lib/effect-http.ts": "97ab7739fe2b8c07e3b0fc5e6ea18189670664ecf48f452c8fa0ebd8aed12049",
     "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
     "src/lib/hooks/use-studio-generation.ts": "fcbf7c71ebbdd6de6d81be8320dc11d993c42d18bce6819c9ca9ed8ea3d86bba",
