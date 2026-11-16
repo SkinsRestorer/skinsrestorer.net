@@ -13,6 +13,7 @@ import {
   copyName,
   prepareSkinContent,
   SkinChangedError,
+  SkinLibraryError,
   SkinNotFoundError,
   type EditSession,
   type SkinContent,
@@ -262,7 +263,10 @@ export class EditorSession {
   flush() {
     this.autosave.cancel();
     const library = this.library;
-    if (!library || !this.state.dirty || this.state.drafts.kind === "off")
+    // A failed draft write is tried again with the next change, so drafts
+    // come back after the user frees space. Only a library that cannot open
+    // stops them.
+    if (!library || this.unavailable || !this.state.dirty)
       return Promise.resolve();
     // Capture before queueing: opening another skin can replace the store
     // before this write starts, but the previous work still needs a draft.
@@ -289,6 +293,7 @@ export class EditorSession {
         if (this.state.sessionId === sessionId)
           this.set({ drafts: { kind: "saved" } });
       } catch (cause) {
+        if (isLibraryGone(cause)) this.unavailable = true;
         if (this.state.sessionId === sessionId)
           this.set({ drafts: { kind: "off", message: errorMessage(cause) } });
       }
@@ -421,6 +426,14 @@ export class EditorSession {
       this.set({ busy: false });
     }
   }
+}
+
+/** The database did not open, so no later write can work. */
+function isLibraryGone(cause: unknown) {
+  return (
+    cause instanceof SkinLibraryError &&
+    (cause.reason === "unavailable" || cause.reason === "newer")
+  );
 }
 
 function pngBlob(png: Uint8Array) {

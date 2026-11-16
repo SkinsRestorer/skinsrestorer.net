@@ -210,6 +210,32 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /*
+   * The default ring/50 outline is too faint to see on both themes.
+   * :where() keeps this at zero specificity, so component focus styles win.
+   */
+  :where(:focus-visible) {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* A spinner that stops looks like a frozen page. Its small turn stays. */
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 @layer base {
@@ -217,6 +243,21 @@
   body {
     @apply min-h-dvh w-full font-sans;
   }
+}
+
+/*
+ * Arial scaled to Geist metrics. Text keeps its line breaks and height when
+ * Geist replaces it, so the swap does not shift the layout.
+ * Values come from Geist's hhea metrics and its weighted average advance.
+ */
+@font-face {
+  font-family: "Geist Fallback";
+  src:
+    local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo");
+  size-adjust: 105.17%;
+  ascent-override: 95.56%;
+  descent-override: 28.05%;
+  line-gap-override: 0%;
 }
 
 @font-face {
@@ -228,7 +269,7 @@
 }
 
 :root {
-  --font-geist-sans: "Geist Variable", sans-serif;
+  --font-geist-sans: "Geist Variable", "Geist Fallback", sans-serif;
   --font-geist-mono: "Geist Mono Variable", monospace;
   --font-geist-pixel-square: "Geist Pixel Square", monospace;
 }

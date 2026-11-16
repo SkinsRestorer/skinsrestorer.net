@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import {
   detectPlatform,
   useFormatForDisplay,
@@ -8,6 +9,7 @@ import {
   type HotkeyPlatform,
 } from "@tanstack/react-hotkeys";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { TooltipContent } from "@/components/ui/tooltip";
 import type { PaintTool } from "@/lib/skin-paint";
 
 /**
@@ -88,5 +90,71 @@ export function ShortcutHint(props: {
       {props.label}
       <ShortcutKeys commands={props.commands} />
     </span>
+  );
+}
+
+export type ShortcutHintPayload = {
+  label: string;
+  commands: readonly EditorCommand[];
+};
+
+export type ShortcutHintHandle = TooltipPrimitive.Handle<ShortcutHintPayload>;
+
+/**
+ * How long the pointer rests on a control before its hint opens. A quick
+ * click never opens a hint, so it skips the popup mount and positioning.
+ * After one hint opens, the tooltip provider opens the next one at once.
+ * Keyboard focus opens a hint without a delay.
+ */
+export const HINT_DELAY = 400;
+
+/** A handle that connects many hint triggers to one shared tooltip. */
+export function useShortcutHints(): ShortcutHintHandle {
+  const [handle] = useState(() =>
+    TooltipPrimitive.createHandle<ShortcutHintPayload>(),
+  );
+  return handle;
+}
+
+/**
+ * One tooltip for a group of controls. Each control is a `HintTrigger`
+ * that sends its own text, so only the hovered control renders hint content.
+ */
+export function ShortcutHints(props: { handle: ShortcutHintHandle }) {
+  return (
+    <TooltipPrimitive.Root data-slot="tooltip" handle={props.handle}>
+      {({ payload }) =>
+        payload && (
+          <TooltipContent>
+            <ShortcutHint label={payload.label} commands={payload.commands} />
+          </TooltipContent>
+        )
+      }
+    </TooltipPrimitive.Root>
+  );
+}
+
+/** A control that shows its label and keys in the shared hint tooltip. */
+export function HintTrigger({
+  hints,
+  label,
+  commands,
+  ...props
+}: Omit<
+  TooltipPrimitive.Trigger.Props<ShortcutHintPayload>,
+  "handle" | "payload" | "delay"
+> & {
+  hints: ShortcutHintHandle;
+  label: string;
+  commands: readonly EditorCommand[];
+}) {
+  return (
+    <TooltipPrimitive.Trigger
+      data-slot="tooltip-trigger"
+      handle={hints}
+      payload={{ label, commands }}
+      delay={HINT_DELAY}
+      {...props}
+    />
   );
 }

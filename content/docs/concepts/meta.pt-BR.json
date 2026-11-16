@@ -1,10 +1,10 @@
 {
   "title": "Entender as skins",
   "pages": [
-    "[Workflow][Skin lifecycle](/docs/development/inner-workings)",
+    "[Workflow][Ciclo de vida da skin](/docs/development/inner-workings)",
     "skin-properties",
     "proxy",
-    "[Flag][Capes](/docs/features/capes)"
+    "[Flag][Capas](/docs/features/capes)"
   ],
   "defaultOpen": false,
   "icon": "Lightbulb",

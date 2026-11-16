@@ -60,6 +60,17 @@ export function getPageHead(
         name: "twitter:card",
         content: options.image ? "summary_large_image" : "summary",
       },
+      ...(bare === "/"
+        ? [
+            {
+              "script:ld+json": getHomeStructuredData(
+                url,
+                description,
+                contentLocale,
+              ),
+            },
+          ]
+        : []),
     ],
     links: [
       { rel: "canonical", href: url },
@@ -70,6 +81,42 @@ export function getPageHead(
           href,
         }),
       ),
+    ],
+  };
+}
+
+/** Describes the site and the plugin for search engines on the home page. */
+function getHomeStructuredData(
+  url: string,
+  description: string,
+  locale: Locale,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        name: "SkinsRestorer",
+        url,
+        inLanguage: locale,
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: "SkinsRestorer",
+        description,
+        url,
+        applicationCategory: "GameApplication",
+        operatingSystem: "Java",
+        license: "https://www.gnu.org/licenses/gpl-3.0.html",
+        image: new URL("/logo.png", siteUrl).href,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        sameAs: [
+          "https://github.com/SkinsRestorer/SkinsRestorer",
+          "https://modrinth.com/plugin/skinsrestorer",
+          "https://www.spigotmc.org/resources/skinsrestorer.2124",
+        ],
+      },
     ],
   };
 }

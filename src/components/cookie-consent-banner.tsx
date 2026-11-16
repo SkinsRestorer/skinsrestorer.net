@@ -1,6 +1,6 @@
 "use client";
 
-import { Cookie } from "lucide-react";
+import { Cookie, X } from "lucide-react";
 import Link from "fumadocs-core/link";
 import posthog from "posthog-js";
 import { useEffect, useId, useRef, useState } from "react";
@@ -14,19 +14,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAsRef } from "@/hooks/use-as-ref";
 import { useT } from "@/lib/i18n-react";
+import { cn } from "@/lib/utils";
 
-const reopenListeners = new Set<() => void>();
+const reopenListeners = new Set<(opener: HTMLElement | null) => void>();
 
 /** Show the consent banner again so visitors can change their choice. */
-function openCookieSettings() {
-  for (const listener of reopenListeners) listener();
+function openCookieSettings(opener: HTMLElement | null) {
+  for (const listener of reopenListeners) listener(opener);
 }
 
 const CookieConsentBanner = () => {
   const t = useT();
   const titleId = useId();
   const section = useRef<HTMLElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const [consentState, setConsentState] = useState<
     ReturnType<typeof posthog.get_explicit_consent_status> | ""
   >("");
@@ -34,28 +37,57 @@ const CookieConsentBanner = () => {
 
   useEffect(() => {
     setConsentState(posthog.get_explicit_consent_status());
-    const reopen = () => setReopened(true);
+    const reopen = (element: HTMLElement | null) => {
+      opener.current = element;
+      // Read the stored choice again so the banner shows the current value.
+      setConsentState(posthog.get_explicit_consent_status());
+      setReopened(true);
+      // Already open: move focus now, because the effect below will not rerun.
+      section.current?.focus();
+    };
     reopenListeners.add(reopen);
     return () => {
       reopenListeners.delete(reopen);
     };
   }, []);
 
-  // Opened from the footer: move focus so keyboard users land on the choice.
+  // Opened from cookie settings: move focus so keyboard users land on the choice.
   useEffect(() => {
     if (reopened) section.current?.focus();
   }, [reopened]);
 
+  const close = () => {
+    setReopened(false);
+    // Return focus to the control that opened the banner.
+    if (opener.current?.isConnected) opener.current.focus();
+    opener.current = null;
+  };
+
+  // Escape dismisses the reopened banner without changing the stored choice.
+  // A first-time visitor must still pick an option.
+  const dismissible = reopened && consentState !== "pending";
+  const closeRef = useAsRef(close);
+  useEffect(() => {
+    if (!dismissible) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) {
+        closeRef.current();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [closeRef, dismissible]);
+
   const handleAcceptCookies = () => {
     posthog.opt_in_capturing();
     setConsentState("granted");
-    setReopened(false);
+    close();
   };
 
   const handleDeclineCookies = () => {
     posthog.opt_out_capturing();
     setConsentState("denied");
-    setReopened(false);
+    close();
   };
 
   if (consentState !== "pending" && !reopened) {
@@ -74,12 +106,31 @@ const CookieConsentBanner = () => {
           <CardTitle id={titleId} className="text-lg">
             {t("consent.websiteAnalytics")}
           </CardTitle>
-          <Cookie className="h-5 w-5" />
+          {dismissible ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={close}
+              aria-label={t("common.close")}
+            >
+              <X aria-hidden="true" />
+            </Button>
+          ) : (
+            <Cookie aria-hidden="true" className="h-5 w-5" />
+          )}
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <CardDescription>
             {t("consent.weUseAnalyticsCookiesSeeWhichPages")}
           </CardDescription>
+          {dismissible ? (
+            <p className="text-sm font-medium">
+              {consentState === "granted"
+                ? t("consent.currentChoiceAllowed")
+                : t("consent.currentChoiceDeclined")}
+            </p>
+          ) : null}
           <p className="text-xs text-muted-foreground">
             {t("consent.select")}{" "}
             <span className="font-medium">{t("common.allowAnalytics")}</span>{" "}
@@ -97,7 +148,7 @@ const CookieConsentBanner = () => {
           <Button
             type="button"
             onClick={handleDeclineCookies}
-            variant="secondary"
+            variant={consentState === "denied" ? "default" : "secondary"}
             className="flex-1"
           >
             {t("consent.decline")}
@@ -105,6 +156,7 @@ const CookieConsentBanner = () => {
           <Button
             type="button"
             onClick={handleAcceptCookies}
+            variant={consentState === "denied" ? "secondary" : "default"}
             className="flex-1"
           >
             {t("common.allowAnalytics")}
@@ -119,7 +171,11 @@ const CookieConsentBanner = () => {
 function CookieSettingsButton({ className }: { className?: string }) {
   const t = useT();
   return (
-    <button type="button" onClick={openCookieSettings} className={className}>
+    <button
+      type="button"
+      onClick={(event) => openCookieSettings(event.currentTarget)}
+      className={cn("cursor-pointer", className)}
+    >
       {t("footer.cookieSettings")}
     </button>
   );

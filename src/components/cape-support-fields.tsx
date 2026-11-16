@@ -9,6 +9,7 @@ import { InfoIcon, LoaderCircle, XIcon } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Field,
   FieldDescription,
@@ -132,13 +133,19 @@ export function MineSkinKeyField(props: {
   );
 }
 
+/** Fixed placeholder slots while the cape list loads. */
+const CAPE_PLACEHOLDERS = ["cape-slot-a", "cape-slot-b", "cape-slot-c"];
+
 /**
  * The cape choice, always visible as a grid. "No cape" is a dotted outline.
- * Capes stay disabled while the chosen method cannot apply them.
+ * Capes stay disabled while the chosen method cannot apply them. While the
+ * list loads, placeholders keep its place; a failed load offers a retry.
  */
 export function CapePicker(props: {
   capeOptionsDisabled: boolean;
   supportedCapes: MineSkinCape[];
+  listStatus?: "loading" | "ready" | "failed";
+  onRetryList?: () => void;
   selectedCapeUuid: string;
   onCapeChange: (value: string) => void;
   /** Official needs a key with the capes grant; offer to open the key field. */
@@ -157,9 +164,16 @@ export function CapePicker(props: {
       texture: cape.url,
     })),
   ];
+  const loading =
+    props.listStatus === "loading" && props.supportedCapes.length === 0;
+  const failed =
+    props.listStatus === "failed" && props.supportedCapes.length === 0;
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="max-h-36 overflow-y-auto p-0.5">
+      <div
+        className="max-h-36 overflow-y-auto p-0.5"
+        aria-busy={loading || undefined}
+      >
         <ToggleGroup
           aria-labelledby={props.labelledBy}
           variant="outline"
@@ -191,8 +205,27 @@ export function CapePicker(props: {
               )}
             </ToggleGroupItem>
           ))}
+          {loading &&
+            CAPE_PLACEHOLDERS.map((slot) => (
+              <Skeleton key={slot} className="h-14 w-full" />
+            ))}
         </ToggleGroup>
       </div>
+      {loading && (
+        <output className="text-xs text-muted-foreground">
+          {t("capes.loadingCapes")}
+        </output>
+      )}
+      {failed && (
+        <p className="flex flex-wrap items-center gap-x-2 text-xs text-destructive">
+          {t("capes.failedLoadAvailableCapes")}
+          {props.onRetryList && (
+            <Button variant="link" size="sm" onClick={props.onRetryList}>
+              {t("common.tryAgain")}
+            </Button>
+          )}
+        </p>
+      )}
       <p className="truncate text-xs text-muted-foreground" aria-live="polite">
         <span className="font-medium text-foreground">
           {selected?.alias ?? t("common.noCape")}

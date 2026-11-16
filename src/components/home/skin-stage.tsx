@@ -3,6 +3,7 @@
 import type { MessageKey } from "@/lib/messages";
 
 import { Dithering } from "@paper-design/shaders-react";
+import { Pause, Play } from "lucide-react";
 import {
   AnimatePresence,
   motion,
@@ -142,7 +143,7 @@ export function SkinStage() {
             type="4x4"
             size={3}
             scale={0.7}
-            speed={inView && !reduceMotion ? 0.35 : 0}
+            speed={autoplay && inView && !reduceMotion ? 0.35 : 0}
             maxPixelCount={1200 * 1500}
           />
         ) : (
@@ -193,12 +194,29 @@ export function SkinStage() {
               }
               width={640}
               height={760}
-              sizes="(min-width: 1024px) 360px, 70vw"
               className="absolute inset-0 size-full object-contain [image-rendering:pixelated]"
               fetchPriority="high"
             />
           </motion.div>
         </motion.div>
+
+        {/* WCAG 2.2.2: the demo and shader move for more than 5 seconds, so they need a pause control. */}
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon-sm"
+          onClick={() => setAutoplay((value) => !value)}
+          aria-label={
+            autoplay ? t("home.pauseAnimation") : t("home.playAnimation")
+          }
+          className="absolute top-2 right-2 motion-reduce:hidden"
+        >
+          {autoplay ? (
+            <Pause aria-hidden="true" />
+          ) : (
+            <Play aria-hidden="true" />
+          )}
+        </Button>
 
         <div
           className={`${styles.chat} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}

@@ -3,12 +3,14 @@ import {
   messageFields,
   type LocalizedErrorFields,
 } from "./messages";
-import { Data, Effect } from "effect";
+import { Data, Effect, Semaphore } from "effect";
 import { readHttpBytes } from "./effect-http";
+import { readPngSize } from "./png";
 import {
   importSkinPng,
   MAX_SKIN_FILE_BYTES,
   SkinFileError,
+  validateEditorSkinSize,
 } from "./skin-document";
 
 export const TEXTURE_HOST = "textures.minecraft.net";
@@ -62,8 +64,8 @@ export function parseTextureReference(input: string): {
   return { hash, url: `https://${TEXTURE_HOST}/texture/${hash}` };
 }
 
-/** Download a trusted texture and open it locally. Redirects are refused. */
-export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
+/** Download trusted texture bytes. Redirects are refused. */
+const downloadTextureEffect = Effect.fn("Skin.downloadTexture")(function* (
   reference: string,
 ) {
   const { hash, url } = yield* Effect.try({
@@ -109,8 +111,16 @@ export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
         { status: response.status },
       ),
     });
+  return { hash, bytes: response.bytes };
+});
+
+/** Download a trusted texture and open it locally. Redirects are refused. */
+export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
+  reference: string,
+) {
+  const { hash, bytes } = yield* downloadTextureEffect(reference);
   const imported = yield* Effect.tryPromise({
-    try: () => importSkinPng(response.bytes),
+    try: () => importSkinPng(bytes),
     catch: (cause) =>
       new TextureImportError({
         ...(cause instanceof SkinFileError
@@ -119,5 +129,33 @@ export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
         cause,
       }),
   });
-  return { ...imported, hash, bytes: response.bytes };
+  return { ...imported, hash, bytes };
 });
+
+/** Thumbnail downloads share a few connections so visible items finish first. */
+const previewPermits = Semaphore.makeUnsafe(6);
+
+/**
+ * Download a texture for display only. The PNG header and size are checked,
+ * and the browser decodes the image. Opening a skin still uses
+ * `loadTextureEffect`, which decodes and validates every pixel.
+ */
+export const loadTexturePreviewEffect = Effect.fn("Skin.loadTexturePreview")(
+  function* (reference: string) {
+    const { bytes } = yield* previewPermits.withPermits(1)(
+      downloadTextureEffect(reference),
+    );
+    yield* Effect.try({
+      try: () => {
+        const { width, height } = readPngSize(bytes);
+        validateEditorSkinSize(width, height);
+      },
+      catch: (cause) =>
+        new TextureImportError({
+          ...errorFields(cause, "texture.textureNotValidSkinPng"),
+          cause,
+        }),
+    });
+    return new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "image/png" });
+  },
+);

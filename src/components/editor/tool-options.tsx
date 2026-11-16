@@ -7,15 +7,12 @@ import { useId } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { usesBrush } from "@/components/editor/editor-types";
 import {
   editorShortcuts,
-  ShortcutHint,
+  HintTrigger,
+  ShortcutHints,
+  useShortcutHints,
 } from "@/components/editor/editor-commands";
 import {
   BRUSH_SIZES,
@@ -55,6 +52,7 @@ export function ToolOptions(props: {
 }) {
   const t = useT();
   const sizeId = useId();
+  const hints = useShortcutHints();
   if (props.tool === "eyedropper") return null;
   // Everywhere replaces one exact color, so a mirror adds nothing to it.
   const showMirror = !(
@@ -63,6 +61,7 @@ export function ToolOptions(props: {
   return (
     <fieldset className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
       <legend className="sr-only">{t("editor.toolOptions")}</legend>
+      <ShortcutHints handle={hints} />
       {props.tool === "fill" && (
         <ToggleGroup
           aria-label={t("editor.fillArea")}
@@ -74,70 +73,55 @@ export function ToolOptions(props: {
             if (value[0]) props.onFillScope(value[0] as FillScope);
           }}
         >
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <ToggleGroupItem
-                  value="face"
-                  className="pointer-coarse:h-9"
-                  aria-keyshortcuts={editorShortcuts.fill.join(" ")}
-                />
-              }
-            >
-              {t("editor.face")}
-            </TooltipTrigger>
-            <TooltipContent>
-              <ShortcutHint
-                label={t("editor.fillConnectedColorOneFace")}
-                commands={["fill"]}
-              />
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <ToggleGroupItem
-                  value="everywhere"
-                  className="pointer-coarse:h-9"
-                  aria-keyshortcuts={editorShortcuts.fill.join(" ")}
-                />
-              }
-            >
-              {t("editor.everywhere")}
-            </TooltipTrigger>
-            <TooltipContent>
-              <ShortcutHint
-                label={t("editor.replaceColorAllVisiblePartsLayer")}
-                commands={["fill"]}
-              />
-            </TooltipContent>
-          </Tooltip>
-        </ToggleGroup>
-      )}
-      {showMirror && (
-        <Tooltip>
-          <TooltipTrigger
+          <HintTrigger
+            hints={hints}
+            label={t("editor.fillConnectedColorOneFace")}
+            commands={["fill"]}
             render={
-              <Toggle
-                variant="outline"
-                size="sm"
-                aria-label={t("editor.mirror")}
-                aria-keyshortcuts={editorShortcuts.mirror.join(" ")}
-                className="pointer-coarse:h-9 pointer-coarse:min-w-9"
-                pressed={props.mirror}
-                onPressedChange={props.onMirror}
+              <ToggleGroupItem
+                value="face"
+                className="pointer-coarse:h-9"
+                aria-keyshortcuts={editorShortcuts.fill.join(" ")}
               />
             }
           >
-            <FlipHorizontal2 />
-          </TooltipTrigger>
-          <TooltipContent>
-            <ShortcutHint
-              label={t("editor.mirrorLeftRight")}
-              commands={["mirror"]}
+            {t("editor.face")}
+          </HintTrigger>
+          <HintTrigger
+            hints={hints}
+            label={t("editor.replaceColorAllVisiblePartsLayer")}
+            commands={["fill"]}
+            render={
+              <ToggleGroupItem
+                value="everywhere"
+                className="pointer-coarse:h-9"
+                aria-keyshortcuts={editorShortcuts.fill.join(" ")}
+              />
+            }
+          >
+            {t("editor.everywhere")}
+          </HintTrigger>
+        </ToggleGroup>
+      )}
+      {showMirror && (
+        <HintTrigger
+          hints={hints}
+          label={t("editor.mirrorLeftRight")}
+          commands={["mirror"]}
+          render={
+            <Toggle
+              variant="outline"
+              size="sm"
+              aria-label={t("editor.mirror")}
+              aria-keyshortcuts={editorShortcuts.mirror.join(" ")}
+              className="pointer-coarse:h-9 pointer-coarse:min-w-9"
+              pressed={props.mirror}
+              onPressedChange={props.onMirror}
             />
-          </TooltipContent>
-        </Tooltip>
+          }
+        >
+          <FlipHorizontal2 />
+        </HintTrigger>
       )}
       {usesBrush(props.tool) && (
         <div className="flex items-center gap-2">

@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
 import Link from "fumadocs-core/link";
+import { CookieSettingsButton } from "@/components/cookie-consent-banner";
+import { buttonVariants } from "@/components/ui/button";
 
 function CookiePolicyPage() {
   return (
@@ -9,7 +11,8 @@ function CookiePolicyPage() {
       <article className="prose mx-auto max-w-prose">
         <h1>Cookie Policy</h1>
         <p>
-          <strong>Last updated:</strong> March 21, 2026
+          <strong>Last updated:</strong>{" "}
+          <time dateTime="2026-03-21">March 21, 2026</time>
         </p>
 
         <p>
@@ -69,11 +72,21 @@ function CookiePolicyPage() {
             scripts
           </li>
         </ul>
+        <p>
+          <CookieSettingsButton
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          />
+        </p>
 
         <h2>7. More information</h2>
         <p>
           For more information about how information is processed on this site,
-          read the <Link href="/privacy-policy">Privacy Policy</Link>.
+          read the <Link href="/privacy-policy">Privacy Policy</Link>. For
+          questions, contact{" "}
+          <a href="mailto:support@skinsrestorer.net">
+            support@skinsrestorer.net
+          </a>
+          .
         </p>
       </article>
     </div>

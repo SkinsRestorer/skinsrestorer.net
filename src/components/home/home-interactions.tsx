@@ -34,19 +34,22 @@ export function CopyCommand({ command }: { command: string }) {
     }
   }
 
+  // The status sits outside the button because button content is not announced as a live region.
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      onClick={copy}
-      aria-label={t("home.copyCommand", { command })}
-    >
-      {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={copy}
+        aria-label={t("home.copyCommand", { command })}
+      >
+        {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+      </Button>
       <output className="sr-only">
         {copied ? t("common.copiedClipboard") : ""}
       </output>
-    </Button>
+    </>
   );
 }
 

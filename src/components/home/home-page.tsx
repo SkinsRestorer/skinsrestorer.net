@@ -32,6 +32,9 @@ const linkClassName =
   "inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline";
 const inlineLinkClassName = "text-foreground underline underline-offset-4";
 
+// GitHub redirects this to the newest release, so the link works before the tag loads.
+const latestReleaseLink = `${releasesLink}/latest`;
+
 function LatestRelease() {
   const t = useT();
   const [data, setData] =
@@ -46,21 +49,13 @@ function LatestRelease() {
     return () => controller.abort();
   }, []);
 
-  if (!data) return <ReleaseHistoryLink />;
-
+  // The label stays the same and the tag fills a reserved slot, so the row does not shift.
   return (
-    <a href={data.html_url} className={linkClassName}>
-      {t("home.release")} {data.tag_name}
-      <ArrowUpRight aria-hidden="true" className="size-3.5" />
-    </a>
-  );
-}
-
-function ReleaseHistoryLink() {
-  const t = useT();
-  return (
-    <a href={releasesLink} className={linkClassName}>
-      {t("home.releaseHistory")}
+    <a href={data?.html_url ?? latestReleaseLink} className={linkClassName}>
+      {t("home.latestRelease")}
+      <span className="inline-block min-w-[8ch] font-mono text-xs tabular-nums text-muted-foreground">
+        {data?.tag_name}
+      </span>
       <ArrowUpRight aria-hidden="true" className="size-3.5" />
     </a>
   );

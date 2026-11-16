@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import type { SkinVariant } from "@/lib/skin";
 import { cn } from "@/lib/utils";
 
@@ -67,22 +67,28 @@ const headParts: Part[] = [
  */
 export function SkinThumbnail(props: {
   png: Blob;
+  /**
+   * The PNG's content hash. Library reads return new Blob objects for the
+   * same bytes; with a hash, the thumbnail decodes again only when the bytes
+   * change.
+   */
+  hash?: string;
   variant: SkinVariant;
   view?: "body" | "bust" | "head";
   className?: string;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = props.view ?? "body";
+  const currentPng = useEffectEvent(() => props.png);
+  const source = props.hash ?? props.png;
   useEffect(() => {
     const target = canvas.current;
     const context = target?.getContext("2d");
     if (!target || !context) return;
     let active = true;
-    let bitmap: ImageBitmap | undefined;
     context.clearRect(0, 0, target.width, target.height);
-    createImageBitmap(props.png).then(
+    createImageBitmap(currentPng()).then(
       (image) => {
-        bitmap = image;
         if (!active) return image.close();
         const scale = image.width / 64;
         const legacy = image.height * 2 === image.width;
@@ -106,14 +112,15 @@ export function SkinThumbnail(props: {
             w,
             h,
           );
+        // The canvas keeps the pixels; free the decoded image now.
+        image.close();
       },
       () => undefined,
     );
     return () => {
       active = false;
-      bitmap?.close();
     };
-  }, [props.png, props.variant, view]);
+  }, [source, props.variant, view]);
   return (
     <canvas
       ref={canvas}

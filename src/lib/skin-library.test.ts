@@ -17,6 +17,8 @@ import {
   SkinLibrary,
   SkinLibraryError,
   SkinNotFoundError,
+  copyName,
+  MAX_SKIN_NAME_LENGTH,
   skinLibraryLayer,
   type LibraryChannel,
   type SkinContent,
@@ -648,3 +650,15 @@ function quotaFactory(factory: IDBFactory): IDBFactory {
     },
   } as unknown as IDBFactory;
 }
+
+test("copy names count up and keep their suffix when a long name is shortened", () => {
+  assert.equal(copyName("Harbor"), "Harbor copy");
+  assert.equal(copyName("Harbor copy"), "Harbor copy 2");
+  assert.equal(copyName("Harbor copy 2"), "Harbor copy 3");
+  assert.equal(copyName("Harbor.png"), "Harbor copy");
+  const long = "a".repeat(MAX_SKIN_NAME_LENGTH);
+  const copy = copyName(long);
+  assert.equal(copy.length, MAX_SKIN_NAME_LENGTH);
+  assert.ok(copy.endsWith(" copy"));
+  assert.ok(copyName(copy).endsWith(" copy 2"));
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { cn } from "@/lib/utils";
 import { describePixel, SKIN_SIZE, skinRegions } from "@/lib/skin-regions";
@@ -18,6 +18,12 @@ interface TextureCanvasProps extends EditorSurfaceProps {
   readonly showGrid: boolean;
   /** Pixel indexes to outline, for example from the skin check. */
   readonly highlight?: readonly number[];
+  /** Asks for a new scale when two fingers pinch the texture. */
+  readonly onZoom?: (scale: number) => void;
+}
+
+function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 /**
@@ -78,6 +84,31 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const touches = useRef(new Map<number, { x: number; y: number }>());
   /** A fill or pick that waits for the finger to lift, as a tap. */
   const tap = useRef<{ id: number; x: number; y: number } | null>(null);
+  /** The finger distance and scale when a pinch started. */
+  const pinch = useRef<{ distance: number; scale: number } | null>(null);
+  /**
+   * The texture point under the pinch center, as a fraction of the canvas
+   * size, and where it was on screen. A new scale keeps it there.
+   */
+  const anchor = useRef<{
+    u: number;
+    v: number;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  useLayoutEffect(() => {
+    const point = anchor.current;
+    const canvas = canvasRef.current;
+    anchor.current = null;
+    if (!point || !canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    panBy(
+      canvas,
+      rect.left + point.u * rect.width - point.x,
+      rect.top + point.v * rect.height - point.y,
+    );
+  }, [scale]);
 
   useEffect(
     () =>
@@ -376,10 +407,15 @@ export function TextureCanvas(props: TextureCanvasProps) {
               y: event.clientY,
             });
             if (touches.current.size > 1) {
-              // A second finger pans the texture. Drop what the first finger
-              // started, so a gesture never leaves a mark.
+              // A second finger pans and pinches the texture. Drop what the
+              // first finger started, so a gesture never leaves a mark.
               tap.current = null;
               store.cancelStroke();
+              const [a, b] = touches.current.values();
+              pinch.current =
+                touches.current.size === 2
+                  ? { distance: distance(a, b), scale: propsRef.current.scale }
+                  : null;
               return;
             }
           }
@@ -418,6 +454,26 @@ export function TextureCanvas(props: TextureCanvasProps) {
                 (last.x - next.x) / touches.current.size,
                 (last.y - next.y) / touches.current.size,
               );
+              const start = pinch.current;
+              const { onZoom, scale: current } = propsRef.current;
+              if (start && start.distance > 0 && onZoom) {
+                const [a, b] = touches.current.values();
+                const zoomed = Math.round(
+                  (start.scale * distance(a, b)) / start.distance,
+                );
+                if (zoomed !== current) {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  const x = (a.x + b.x) / 2;
+                  const y = (a.y + b.y) / 2;
+                  anchor.current = {
+                    u: (x - rect.left) / rect.width,
+                    v: (y - rect.top) / rect.height,
+                    x,
+                    y,
+                  };
+                  onZoom(zoomed);
+                }
+              }
               return;
             }
           } else {
@@ -432,6 +488,11 @@ export function TextureCanvas(props: TextureCanvasProps) {
         }}
         onPointerUp={(event) => {
           touches.current.delete(event.pointerId);
+          if (touches.current.size < 2) {
+            // A pinch past the zoom limit leaves an anchor that no scale used.
+            pinch.current = null;
+            anchor.current = null;
+          }
           const pending = tap.current;
           tap.current = null;
           if (pending?.id === event.pointerId) {
@@ -444,6 +505,11 @@ export function TextureCanvas(props: TextureCanvasProps) {
         onPointerCancel={(event) => {
           // The browser took the pointer, for example for a system gesture.
           touches.current.delete(event.pointerId);
+          if (touches.current.size < 2) {
+            // A pinch past the zoom limit leaves an anchor that no scale used.
+            pinch.current = null;
+            anchor.current = null;
+          }
           tap.current = null;
           store.cancelStroke();
         }}

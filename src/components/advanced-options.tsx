@@ -1,14 +1,19 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  FieldDescription,
+  FieldGroup,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useT } from "@/lib/i18n-react";
 import type { UploadMethod } from "@/lib/studio-options";
 
@@ -27,6 +32,9 @@ export function AdvancedOptions(props: {
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useT();
+  const id = useId();
+  const legendId = `${id}-legend`;
+  const descriptionId = `${id}-description`;
   return (
     <div className="border-t">
       <Collapsible open={props.open} onOpenChange={props.onOpenChange}>
@@ -53,34 +61,34 @@ export function AdvancedOptions(props: {
           <div className="pb-1">
             <FieldGroup>
               <FieldSet>
-                <FieldLegend variant="label">
+                <FieldLegend id={legendId} variant="label">
                   {t("common.uploadMethod")}
                 </FieldLegend>
-                <Tabs
-                  value={props.method}
-                  onValueChange={(value) =>
-                    props.onMethodChange(value as UploadMethod)
-                  }
+                {/* A form choice, not navigation: a toggle group, not tabs. */}
+                <ToggleGroup
+                  aria-labelledby={legendId}
+                  aria-describedby={descriptionId}
+                  variant="outline"
+                  spacing={0}
+                  className="grid w-full grid-cols-2"
+                  value={[props.method]}
+                  onValueChange={(value) => {
+                    if (value[0])
+                      props.onMethodChange(value[0] as UploadMethod);
+                  }}
                 >
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="axolotl">{"Axolotl"}</TabsTrigger>
-                    <TabsTrigger value="mineskin">
-                      {t("common.official")}
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent
-                    value="axolotl"
-                    className="text-xs text-muted-foreground"
-                  >
-                    {t("common.useSkinsrestorerAxolotlProxyUploadSkinsCape")}
-                  </TabsContent>
-                  <TabsContent
-                    value="mineskin"
-                    className="text-xs text-muted-foreground"
-                  >
-                    {t("common.provideMineskinApiKeyUploadSkinsDirectly")}
-                  </TabsContent>
-                </Tabs>
+                  <ToggleGroupItem value="axolotl" className="w-full">
+                    {"Axolotl"}
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="mineskin" className="w-full">
+                    {t("common.official")}
+                  </ToggleGroupItem>
+                </ToggleGroup>
+                <FieldDescription id={descriptionId}>
+                  {props.method === "axolotl"
+                    ? t("common.useSkinsrestorerAxolotlProxyUploadSkinsCape")
+                    : t("common.provideMineskinApiKeyUploadSkinsDirectly")}
+                </FieldDescription>
               </FieldSet>
               {props.method === "mineskin" && props.officialFields}
             </FieldGroup>

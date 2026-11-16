@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
 import Link from "fumadocs-core/link";
+import { CookieSettingsButton } from "@/components/cookie-consent-banner";
+import { buttonVariants } from "@/components/ui/button";
 
 function PrivacyPolicyPage() {
   return (
@@ -9,7 +11,8 @@ function PrivacyPolicyPage() {
       <article className="prose mx-auto max-w-prose">
         <h1>Privacy Policy</h1>
         <p>
-          <strong>Last updated:</strong> November 16, 2026
+          <strong>Last updated:</strong>{" "}
+          <time dateTime="2026-11-16">November 16, 2026</time>
         </p>
 
         <p>
@@ -113,6 +116,11 @@ function PrivacyPolicyPage() {
             for privacy-related questions
           </li>
         </ul>
+        <p>
+          <CookieSettingsButton
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          />
+        </p>
 
         <h2>7. Data retention</h2>
         <p>

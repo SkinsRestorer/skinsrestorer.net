@@ -13,7 +13,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useId, useRef, useState } from "react";
 import { SaveStatus } from "@/components/save-status";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +24,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -37,6 +44,18 @@ import { cn } from "@/lib/utils";
 import { SkinThumbnail } from "./skin-thumbnail";
 
 const placeholders = ["slot-a", "slot-b", "slot-c", "slot-d"] as const;
+
+/**
+ * Where keyboard focus goes after a change to the list: the skin after a
+ * removed one, a new copy, or the empty state. It applies once the listing
+ * shows the change.
+ */
+interface FocusRequest {
+  readonly target: string | typeof EMPTY;
+  readonly gone?: string;
+  readonly appear?: string;
+}
+const EMPTY = Symbol("empty");
 
 export interface LibraryCommands {
   readonly upload: () => void;
@@ -115,9 +134,60 @@ export function StudioLibrary(props: {
   const listing = state.status === "ready" ? state.listing : undefined;
   const drafts = new Set(listing?.sessions.map((session) => session.skinId));
   const [renaming, setRenaming] = useState<string | null>(null);
+  const section = useRef<HTMLElement>(null);
+  const items = useRef(new Map<string, HTMLButtonElement>());
+  const emptyAction = useRef<HTMLButtonElement>(null);
+  const pendingFocus = useRef<FocusRequest | null>(null);
+  const shown = useRef(listing);
+
+  /** Move focus once the shown listing has the requested change. */
+  const applyFocus = () => {
+    const request = pendingFocus.current;
+    const skins = shown.current?.skins;
+    if (!request || !skins) return;
+    const has = (id: string) => skins.some((skin) => skin.id === id);
+    if (request.gone && has(request.gone)) return;
+    if (request.appear && !has(request.appear)) return;
+    pendingFocus.current = null;
+    // The menu item that started the change is gone, so focus fell back to
+    // the page. Leave focus alone if the user already moved it elsewhere.
+    const active = document.activeElement;
+    if (
+      active &&
+      active !== document.body &&
+      !section.current?.contains(active)
+    )
+      return;
+    const target =
+      request.target === EMPTY
+        ? emptyAction.current
+        : items.current.get(request.target);
+    target?.focus();
+  };
+  const applyShownFocus = useEffectEvent(applyFocus);
+
+  useEffect(() => {
+    shown.current = listing;
+    applyShownFocus();
+  }, [listing]);
+
+  const requestFocus = (request: FocusRequest) => {
+    pendingFocus.current = request;
+    applyFocus();
+  };
+
+  const remove = (id: string) => {
+    const skins = listing?.skins ?? [];
+    const index = skins.findIndex((skin) => skin.id === id);
+    const next = skins[index + 1] ?? skins[index - 1];
+    void actions.remove(id).then((removed) => {
+      if (removed) requestFocus({ target: next?.id ?? EMPTY, gone: id });
+    });
+  };
 
   return (
     <section
+      ref={section}
       aria-labelledby={headingId}
       className="flex min-h-0 flex-col gap-2.5"
     >
@@ -169,6 +239,10 @@ export function StudioLibrary(props: {
         {listing?.skins.map((skin) => (
           <LibraryItem
             key={skin.id}
+            register={(element) => {
+              if (element) items.current.set(skin.id, element);
+              else items.current.delete(skin.id);
+            }}
             skin={skin}
             selected={skin.id === props.selectedId}
             draft={drafts.has(skin.id)}
@@ -180,13 +254,17 @@ export function StudioLibrary(props: {
                 void actions.rename(skin.id, name);
             }}
             onSelect={() => props.onSelect(skin)}
-            onDuplicate={() => void actions.duplicate(skin.id)}
+            onDuplicate={() =>
+              void actions.duplicate(skin.id).then((copy) => {
+                if (copy) requestFocus({ target: copy.id, appear: copy.id });
+              })
+            }
             onRevert={() =>
               void actions.revert(skin.id).then((reverted) => {
                 if (reverted) props.onReverted(reverted);
               })
             }
-            onRemove={() => void actions.remove(skin.id)}
+            onRemove={() => remove(skin.id)}
           />
         ))}
         {listing?.damaged.map((record) => (
@@ -207,16 +285,48 @@ export function StudioLibrary(props: {
           </li>
         ))}
       </ul>
-      {listing && listing.skins.length === 0 && (
+      {state.status === "unavailable" && (
         <p className="text-xs text-muted-foreground">
-          {t("library.noSkinsYet")}
+          {t.message(state.message)}
         </p>
+      )}
+      {listing && listing.skins.length === 0 && (
+        <div className="flex rounded-lg border border-dashed">
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle>{t("library.noSkinsYet")}</EmptyTitle>
+              <EmptyDescription>{t("library.noSkinsYetHint")}</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  ref={emptyAction}
+                  size="sm"
+                  onClick={props.commands.upload}
+                >
+                  <Upload data-icon="inline-start" />
+                  {t("library.uploadPng")}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={props.commands.create}
+                >
+                  <Pencil data-icon="inline-start" />
+                  {t("common.createSkin")}
+                </Button>
+              </div>
+            </EmptyContent>
+          </Empty>
+        </div>
       )}
     </section>
   );
 }
 
 function LibraryItem(props: {
+  /** Receives the select button, so focus can move to this skin. */
+  register: (element: HTMLButtonElement | null) => void;
   skin: StoredSkin;
   selected: boolean;
   draft: boolean;
@@ -231,13 +341,17 @@ function LibraryItem(props: {
   const t = useT();
   const { skin } = props;
   const button = useRef<HTMLButtonElement>(null);
+  const setButton = (element: HTMLButtonElement | null) => {
+    button.current = element;
+    props.register(element);
+  };
   const model = t(
     skin.current.variant === "slim" ? "model.slim" : "model.classic",
   );
   return (
     <li className="group/item relative min-w-0">
       <button
-        ref={button}
+        ref={setButton}
         type="button"
         aria-current={props.selected || undefined}
         aria-label={t(
@@ -259,6 +373,7 @@ function LibraryItem(props: {
         >
           <SkinThumbnail
             png={skin.current.png}
+            hash={skin.current.hash}
             variant={skin.current.variant}
             view="bust"
             className="w-[64%]"
@@ -272,6 +387,7 @@ function LibraryItem(props: {
         </span>
         {!props.renaming && (
           <span
+            title={skin.name}
             className={cn(
               "truncate text-xs",
               props.selected

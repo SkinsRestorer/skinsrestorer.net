@@ -804,6 +804,38 @@ export function SkinStudio(props: {
     ],
   );
 
+  // A finished upload moves focus to its result, so keyboard and screen
+  // reader users land on the command, and phones scroll to it.
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+  const generateButton = useRef<HTMLButtonElement>(null);
+  const previousStatus = useRef(shown.status);
+  useEffect(() => {
+    const before = previousStatus.current;
+    previousStatus.current = shown.status;
+    if (before === "pending" && shown.status === "done")
+      resultHeading.current?.focus();
+  }, [shown.status]);
+  /** After "Stop waiting", once the button is enabled again. */
+  const refocusGenerate = useRef(false);
+  useEffect(() => {
+    if (!refocusGenerate.current || submitting) return;
+    refocusGenerate.current = false;
+    generateButton.current?.focus();
+  }, [submitting, shown.status]);
+  const generateHint: MessageKey | undefined = !current
+    ? "studio.selectSkinFirst"
+    : pendingGallery || current.status === "checking"
+      ? "studio.openingSkin"
+      : current.status === "invalid"
+        ? "studio.chooseUsableSkin"
+        : nameInvalid
+          ? "studio.fixSkinNameFirst"
+          : shown.status === "pending"
+            ? "studio.uploadingTakesMoment"
+            : shown.status === "done"
+              ? "studio.changeOptionsNewCommand"
+              : undefined;
+
   // The button submits the native form, so Enter in a field works too.
   // Nothing uploads before this, and a failure is never sent again on its own.
   submitRef.current = async (value) => {
@@ -1163,6 +1195,8 @@ export function SkinStudio(props: {
                             labelledBy={labelId}
                             capeOptionsDisabled={capes.capeOptionsDisabled}
                             supportedCapes={capes.supportedCapes}
+                            listStatus={capes.listStatus}
+                            onRetryList={capes.retryList}
                             selectedCapeUuid={field.state.value}
                             onCapeChange={chooseCape}
                             keyHint={
@@ -1242,6 +1276,7 @@ export function SkinStudio(props: {
 
                 <div className="flex flex-col gap-1.5">
                   <Button
+                    ref={generateButton}
                     type="submit"
                     className="w-full"
                     disabled={
@@ -1249,44 +1284,71 @@ export function SkinStudio(props: {
                       !!pendingGallery ||
                       nameInvalid ||
                       submitting ||
-                      shown.status === "pending"
+                      shown.status === "pending" ||
+                      // The same choices give the same command: no second upload.
+                      shown.status === "done"
                     }
-                    aria-describedby={current ? undefined : generateHintId}
+                    aria-describedby={generateHint ? generateHintId : undefined}
                   >
-                    {shown.status === "pending" && (
+                    {shown.status === "pending" ? (
                       <LoaderCircle
                         data-icon="inline-start"
                         className="animate-spin"
                       />
+                    ) : (
+                      shown.status === "done" && (
+                        <Check data-icon="inline-start" />
+                      )
                     )}
                     {shown.status === "pending"
                       ? t("studio.generating")
-                      : purpose === "createcustom"
-                        ? t("studio.generateSrCreatecustom")
-                        : t("studio.generateSkinUrl")}
+                      : shown.status === "done"
+                        ? t("studio.commandReady")
+                        : purpose === "createcustom"
+                          ? t("studio.generateSrCreatecustom")
+                          : t("studio.generateSkinUrl")}
                   </Button>
-                  {!current && (
-                    <p
-                      id={generateHintId}
-                      className="text-center text-xs text-muted-foreground"
-                    >
-                      {t("studio.selectSkinFirst")}
-                    </p>
-                  )}
+                  <output
+                    id={generateHintId}
+                    className="flex min-h-4 flex-wrap items-center justify-center gap-x-2 text-center text-xs text-muted-foreground"
+                  >
+                    {generateHint && t(generateHint)}
+                    {shown.status === "pending" && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => {
+                          // This link unmounts; focus returns to the button.
+                          refocusGenerate.current = true;
+                          generation.cancel();
+                        }}
+                      >
+                        {t("studio.stopWaiting")}
+                      </Button>
+                    )}
+                  </output>
                 </div>
               </form>
 
               {shown.status === "failed" && (
                 <Alert variant="destructive">
                   <TriangleAlert aria-hidden="true" />
+                  <AlertTitle>{t("studio.skinNotUploaded")}</AlertTitle>
                   <AlertDescription>
-                    {t("studio.failedUploadSkinError", {
-                      error: t.message(shown.message),
-                    })}
+                    <p>{t.message(shown.message)}</p>
+                    <p>
+                      {t(
+                        options.method === "axolotl"
+                          ? "studio.uploadFailedTryAgainOrOfficial"
+                          : "studio.uploadFailedTryAgainCheckKey",
+                      )}
+                    </p>
                   </AlertDescription>
                 </Alert>
               )}
-              {shown.status === "done" && <Result result={shown.result} />}
+              {shown.status === "done" && (
+                <Result result={shown.result} ref={resultHeading} />
+              )}
             </section>
           </>
         )}
@@ -1574,11 +1636,28 @@ function KeepStatus(props: { selection: SelectedSkin }) {
   return <SaveStatus state={state} label={label} />;
 }
 
-function Result(props: { result: GenerationResult }) {
+function Result(props: {
+  result: GenerationResult;
+  /** The heading that takes focus when a new result arrives. */
+  ref: React.Ref<HTMLHeadingElement>;
+}) {
   const t = useT();
-  const { result } = props;
+  const { result, ref } = props;
   return (
-    <div className="flex flex-col gap-3 border-t pt-3.5" aria-live="polite">
+    <div className="flex flex-col gap-3 border-t pt-3.5">
+      <div className="flex flex-col gap-0.5">
+        <h3
+          ref={ref}
+          tabIndex={-1}
+          className="flex items-center gap-1.5 text-sm font-semibold outline-none"
+        >
+          <Check aria-hidden="true" className="size-4 text-chart-2" />
+          {t("studio.commandReadyTitle")}
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          {t("studio.commandReadyHint")}
+        </p>
+      </div>
       <CopyField label={t("studio.command")} value={result.command} />
       <CopyField
         label={t("studio.skinUrl")}

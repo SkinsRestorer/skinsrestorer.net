@@ -33,9 +33,13 @@ export function SkinView(props: {
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewerRef = useRef<SkinViewer | null>(null);
+  /** Draws one frame while the animation loop is paused. */
+  const redrawRef = useRef(() => {});
   /** Increments when a viewer starts, so texture effects run again. */
   const [ready, setReady] = useState(0);
   const [failed, setFailed] = useState(false);
+  /** Whether the frame is on screen. The idle loop runs only while it is. */
+  const [onScreen, setOnScreen] = useState(true);
   const reduceMotion = useReducedMotion() ?? false;
 
   useEffect(() => {
@@ -50,6 +54,8 @@ export function SkinView(props: {
         height: frame.clientHeight || 360,
         zoom: 0.85,
         enableControls: true,
+        // The loop starts only when the idle animation can be seen.
+        renderPaused: true,
       });
     } catch {
       setFailed(true);
@@ -59,12 +65,30 @@ export function SkinView(props: {
     current.controls.enableZoom = false;
     current.playerWrapper.rotation.y = FRONT;
     viewerRef.current = current;
+    // While the loop is paused, draw at most once for each animation frame.
+    let frameRequest = 0;
+    const redraw = () => {
+      if (frameRequest || !current.renderPaused) return;
+      frameRequest = requestAnimationFrame(() => {
+        frameRequest = 0;
+        if (current.renderPaused && !current.disposed) current.render();
+      });
+    };
+    redrawRef.current = redraw;
+    current.controls.addEventListener("change", redraw);
     setReady((n) => n + 1);
     const resize = new ResizeObserver(() => {
       if (frame.clientWidth && frame.clientHeight)
         current.setSize(frame.clientWidth, frame.clientHeight);
+      redraw();
     });
     resize.observe(frame);
+    // A new pixel ratio resizes the drawing buffer, which clears it.
+    window.addEventListener("resize", redraw);
+    const visibility = new IntersectionObserver(([entry]) =>
+      setOnScreen(entry?.isIntersecting ?? true),
+    );
+    visibility.observe(frame);
     const lost = (event: Event) => {
       event.preventDefault();
       setFailed(true);
@@ -72,19 +96,27 @@ export function SkinView(props: {
     canvas.addEventListener("webglcontextlost", lost);
     return () => {
       canvas.removeEventListener("webglcontextlost", lost);
+      cancelAnimationFrame(frameRequest);
+      redrawRef.current = () => {};
+      current.controls.removeEventListener("change", redraw);
+      visibility.disconnect();
+      window.removeEventListener("resize", redraw);
       resize.disconnect();
       current.dispose();
       viewerRef.current = null;
     };
   }, []);
 
-  // The idle sway stops when the user asks for less motion.
+  // The idle sway stops when the user asks for less motion. Without it, or
+  // off screen, the loop pauses and the view draws only when it changes.
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
     viewer.animation = reduceMotion ? null : new IdleAnimation();
     if (reduceMotion) viewer.playerObject.resetJoints();
-  }, [ready, reduceMotion]);
+    viewer.renderPaused = reduceMotion || !onScreen;
+    redrawRef.current();
+  }, [ready, reduceMotion, onScreen]);
 
   // Each load owns its image. A superseded load is cancelled before it can
   // draw, so only the latest skin and cape reach the viewer.
@@ -96,7 +128,9 @@ export function SkinView(props: {
     const model = props.variant === "slim" ? "slim" : "default";
     runSkinEffect(
       withSkinImageEffect(url, (image) => {
-        if (!viewer.disposed) viewer.loadSkin(image, { model });
+        if (viewer.disposed) return;
+        viewer.loadSkin(image, { model });
+        redrawRef.current();
       }),
       owner.signal,
     ).catch(() => {
@@ -112,18 +146,24 @@ export function SkinView(props: {
     if (!capeUrl) {
       viewer.resetCape();
       viewer.playerWrapper.rotation.y = FRONT;
+      redrawRef.current();
       return;
     }
     const owner = new AbortController();
     viewer.playerWrapper.rotation.y = BACK;
+    redrawRef.current();
     // A cape that does not load leaves the skin visible without it.
     runSkinEffect(
       withSkinImageEffect(capeUrl, (image) => {
-        if (!viewer.disposed) viewer.loadCape(image);
+        if (viewer.disposed) return;
+        viewer.loadCape(image);
+        redrawRef.current();
       }),
       owner.signal,
     ).catch(() => {
-      if (!owner.signal.aborted && !viewer.disposed) viewer.resetCape();
+      if (owner.signal.aborted || viewer.disposed) return;
+      viewer.resetCape();
+      redrawRef.current();
     });
     return () => owner.abort();
   }, [ready, capeUrl]);
@@ -141,6 +181,7 @@ export function SkinView(props: {
         if (!viewer || step === undefined) return;
         event.preventDefault();
         viewer.playerWrapper.rotation.y += step;
+        redrawRef.current();
       }}
       className={cn(
         "relative h-[300px] touch-none overflow-hidden rounded-lg bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:h-[360px]",

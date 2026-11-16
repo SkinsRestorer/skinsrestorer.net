@@ -34,11 +34,13 @@ test("a skin with a problem shows its alert and fix", () => {
   assert.ok(!html.includes("No problems"));
 });
 
-test("the save status is a live region with its state as text and title", () => {
+test("the save status is a live region that shows its state as text", () => {
   const html = renderToStaticMarkup(
     <SaveStatus state="unsaved" label="Unsaved changes" />,
   );
   assert.ok(html.startsWith("<output"));
   assert.ok(html.includes('title="Unsaved changes"'));
-  assert.ok(html.includes('<span class="sr-only">Unsaved changes</span>'));
+  // The state is visible text, not only a hover title or screen reader text.
+  assert.ok(html.includes('<span class="truncate">Unsaved changes</span>'));
+  assert.ok(!html.includes("sr-only"));
 });

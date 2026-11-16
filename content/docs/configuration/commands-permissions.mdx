@@ -104,7 +104,7 @@ The built-in admin group omits `reload`, `dump`, and `purgeolddata`. Grant those
 
 Commands can require their parent command access too. The root nodes are `skinsrestorer.command`, `skinsrestorer.admincommand`, and `skinsrestorer.command.skull`.
 
-Use [player access](/docs/configuration/player-access) to configure groups. Use [skin restrictions](/docs/configuration/restrict-skins) for per-skin access and required consent.
+Use [player access](/docs/configuration/player-access) to configure groups. Use [skin restrictions](/docs/configuration/restrict-skins) for blocked names, URL prefixes, per-skin access, and required consent.
 
 ## Target selectors and administrative behavior
 
@@ -127,14 +127,6 @@ Run normal player commands and storage administration through the proxy. Proxy-m
 Skin changes and skull requests each use a 30-second cooldown by default. Their error cooldowns default to 5 seconds. `skinsrestorer.bypasscooldown` bypasses these cooldowns.
 
 Use [command configuration](/docs/reference/commands) to change the durations.
-
-## Restricting skin access
-
-Use [player access](/docs/configuration/player-access) for permission groups. Use [skin restrictions](/docs/configuration/restrict-skins) for blocked names, URL prefixes, and per-skin permissions.
-
-## Create a support report
-
-Use [diagnostic collection](/docs/troubleshooting/debugging) for `/sr dump`, debug logs, and a reproducible support report.
 
 ## Source
 

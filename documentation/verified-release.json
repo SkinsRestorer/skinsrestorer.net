@@ -915,18 +915,18 @@
   },
   "websiteSources": {
     "src/lib/mineskin.ts": "a72f5a29ce2e5a0bf06077d8f4b0a4e240e36cb57ce486466f533a5f8e24020f",
-    "src/lib/hooks/use-cape-access.ts": "ce7e4697783e11228200c2d81a40737941831ff073dbcd168e1850ad93b2d2de",
+    "src/lib/hooks/use-cape-access.ts": "408213e6b61516983335c645d11ec6df7a3c70a687b7569c9342e87010ee265f",
     "src/lib/hooks/use-skin-selection.ts": "e4cc76b5ab5679af90c7f472b0b65b134ce29d535c4566d05aa8fed7eb831d5a",
     "src/lib/skin-selection.ts": "c3639d56745654b12e024b597a99a327def1d0d5c1cbdb5b1d7b9b539ae92dbf",
-    "src/lib/skin-library.ts": "c91df858bab9c534de9d852e80ed124e1906052568a0b93a35fdf3ed350a5c0b",
+    "src/lib/skin-library.ts": "3c5a73cd0d3d265737910f950540bb71f60a3fc19e1b282d6c5799644643ab72",
     "src/lib/skin-library-client.ts": "9e1f32136d0727292dbae8b516b45b76b832f782abb08fb06f9b7d2df55d6264",
-    "src/lib/editor-session.ts": "d0110ba3e20b7a308d753637578e5fea85f94676a470b0a044cd01802531cae9",
-    "src/components/studio/skin-studio.tsx": "02c05e93a86c7e954d5bf538b9cd93361b2f77645a47cfad3a6c7036a2f03d6d",
-    "src/components/studio/studio-library.tsx": "a08d3d7d6baffb45270669a7a6a88afc58abad3cab7564c177bfc01ba933719f",
-    "src/components/studio/studio-editor.tsx": "f02f379494a85d12df8fe341dc79b7a2c6a595ce6537e90da3e98204d589f1e6",
+    "src/lib/editor-session.ts": "26847ea52b652b8404ee5feb3ac4a2c2b1fcce777c5891d7ec03cd865406b7b3",
+    "src/components/studio/skin-studio.tsx": "c7fd70eec65a898ed133a808b5102104f722dab32ee27398921bbceedb7fd0e6",
+    "src/components/studio/studio-library.tsx": "c73a4924f00c5d5d7c6274d0106b07f42722cf40a4ac5eb21d5a4e3faaf2e9ed",
+    "src/components/studio/studio-editor.tsx": "de57feb5987e2c6bb8f23a9af03d353f22ad6af2acd93ca2f8cae5ad01d29bc3",
     "src/components/studio/draft-recovery.tsx": "ae53299ef0d2782c966bef923cfc1bfd3779bdda7555dfb278cb7bb89dc968ef",
-    "src/components/advanced-options.tsx": "3930707b29a870b79274fe0f6e72da61a5a961fa9dd22f6010f3d46c7f42ff4f",
-    "src/components/cape-support-fields.tsx": "7105cdb84cc4e3f77330c9b11bdf17c277d5af071ae542050798b3c30aba1f28",
+    "src/components/advanced-options.tsx": "0c57274189b26155668dfab4307d1fe9ba804de4e0c294f0cb0c1a861e11829b",
+    "src/components/cape-support-fields.tsx": "afdee4c2a78351dea30670de5a5ac438379b3a395cca1e0b876503720ad04009",
     "src/lib/effect-http.ts": "97ab7739fe2b8c07e3b0fc5e6ea18189670664ecf48f452c8fa0ebd8aed12049",
     "src/lib/latest-task.ts": "02b1048076e5e676bfbde93d583ef1fca8a56c0ad0e7767f327e21fd9d435854",
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
@@ -938,7 +938,7 @@
     "src/lib/skin.ts": "6ce7099ecd4954acb98cd7e0166060f2733b770bcb135cee3dad5500ec3d3579",
     "src/lib/skin-check.ts": "f5e83356de49cfc518cba3f4c3fd95e96292c4daff80167117a244d93d97c0a8",
     "src/lib/skin-draft.ts": "9543fa1fdbc56927c74c2b877797fec8db97c916bbae5aa953f8d2e1cdfa021b",
-    "src/components/studio/studio-gallery.tsx": "59feb3825e632176091e10db3fdeb970af4bf7463f2e68dbb649f7ab14c847d6",
-    "src/lib/skin-gallery.ts": "ccca53943b4b24292fb684d469da1300780c389cfba5cf3bd9b3dd4e7c5e2ce9"
+    "src/components/studio/studio-gallery.tsx": "c95123fa9133b62b6e6703946ea79c8725d8d2b92cfe04a3979fbe89e9cca42e",
+    "src/lib/skin-gallery.ts": "89fcf7280f7e53752e0efc11c762aa2773db08d7b5b63d3f9cb872eaef997875"
   }
 }

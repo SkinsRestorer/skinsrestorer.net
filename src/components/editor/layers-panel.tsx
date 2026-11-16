@@ -12,7 +12,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { allPartsVisible, type PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
-import { editorShortcuts } from "@/components/editor/editor-commands";
+import {
+  editorShortcuts,
+  HintTrigger,
+  ShortcutHints,
+  useShortcutHints,
+} from "@/components/editor/editor-commands";
 import { useT } from "@/lib/i18n-react";
 
 /** The active layer. Tools change only this layer (L switches). */
@@ -21,32 +26,40 @@ export function LayerToggle(props: {
   onLayerChange: (layer: SkinLayer) => void;
 }) {
   const t = useT();
+  const hints = useShortcutHints();
+  const hint = t("editor.activeLayer");
   return (
-    <ToggleGroup
-      aria-label={t("editor.activeLayer")}
-      variant="outline"
-      size="sm"
-      spacing={0}
-      value={[props.layer]}
-      onValueChange={(value) => {
-        if (value[0]) props.onLayerChange(value[0] as SkinLayer);
-      }}
-    >
-      <ToggleGroupItem
-        value="base"
-        className="pointer-coarse:h-9"
-        aria-keyshortcuts={editorShortcuts.layer.join(" ")}
+    <>
+      <ShortcutHints handle={hints} />
+      <ToggleGroup
+        aria-label={hint}
+        variant="outline"
+        size="sm"
+        spacing={0}
+        value={[props.layer]}
+        onValueChange={(value) => {
+          if (value[0]) props.onLayerChange(value[0] as SkinLayer);
+        }}
       >
-        {t("common.base")}
-      </ToggleGroupItem>
-      <ToggleGroupItem
-        value="outer"
-        className="pointer-coarse:h-9"
-        aria-keyshortcuts={editorShortcuts.layer.join(" ")}
-      >
-        {t("common.outer")}
-      </ToggleGroupItem>
-    </ToggleGroup>
+        {(["base", "outer"] as const).map((layer) => (
+          <HintTrigger
+            key={layer}
+            hints={hints}
+            label={hint}
+            commands={["layer"]}
+            render={
+              <ToggleGroupItem
+                value={layer}
+                className="pointer-coarse:h-9"
+                aria-keyshortcuts={editorShortcuts.layer.join(" ")}
+              />
+            }
+          >
+            {t(layer === "base" ? "common.base" : "common.outer")}
+          </HintTrigger>
+        ))}
+      </ToggleGroup>
+    </>
   );
 }
 

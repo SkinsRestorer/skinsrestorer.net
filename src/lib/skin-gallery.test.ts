@@ -73,6 +73,10 @@ test("name search matches every word without case or accent differences", () => 
   assert.equal(searchGallery(skins, "RÁNGER forest").length, 1);
   assert.equal(searchGallery(skins, "ranger blue").length, 0);
   assert.equal(searchGallery(skins, " ").length, 1);
+  assert.equal(searchGallery(skins, "rang FOR").length, 1);
+  const accented = [{ ...skins[0], name: "Café Señor" }];
+  assert.equal(searchGallery(accented, "cafe senor").length, 1);
+  assert.equal(searchGallery(accented, "CAFÉ").length, 1);
 });
 
 test("gallery links preserve locale and fixed purpose without private library IDs", () => {

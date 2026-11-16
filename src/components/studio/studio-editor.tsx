@@ -158,8 +158,18 @@ export function StudioEditor(props: {
     store.resetLineAnchor();
   }, [store, tool, layer]);
   const scale = zoom === "fit" ? fitScale : zoom;
-  const issues = checkSkin(store.pixels, snapshot.variant);
-  const highlightedPixels = issues.find((i) => i.id === highlight)?.pixels;
+  // The check reads every pixel, so it runs once for each pixel or model
+  // change. A stable result also keeps the texture from redrawing when only
+  // other editor state changes.
+  const issues = useMemo(
+    () => checkSkin(store.pixels, snapshot.variant),
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- `revision` marks pixel changes in the mutable `store.pixels`.
+    [store, snapshot.revision, snapshot.variant],
+  );
+  const highlightedPixels = useMemo(
+    () => issues.find((i) => i.id === highlight)?.pixels,
+    [issues, highlight],
+  );
 
   const statusTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const showStatus = useCallback((message: Message) => {
@@ -242,6 +252,18 @@ export function StudioEditor(props: {
     [tool],
   );
 
+  // The base layer is always opaque, so the eraser works on the outer layer.
+  const changeTool = useCallback(
+    (next: PaintTool) => {
+      setTool(next);
+      if (next === "eraser" && layer === "base") {
+        setLayer("outer");
+        showStatus(t("studio.eraserSwitchedOuterLayer"));
+      }
+    },
+    [layer, showStatus, t],
+  );
+
   // Shortcuts work on the whole page, including popups, but not while the
   // user types in a field or another control already handled the key.
   const run = (command: EditorCommand, action: () => void, repeat = false) =>
@@ -265,7 +287,7 @@ export function StudioEditor(props: {
             setShade((mode) => (mode === "lighten" ? "darken" : "lighten"));
           else if (command === "fill" && tool === "fill")
             setFillScope((scope) => (scope === "face" ? "everywhere" : "face"));
-          else setTool(command);
+          else changeTool(command);
         }),
       ),
       ...run("mirror", () => setMirror((on) => !on)),
@@ -364,8 +386,11 @@ export function StudioEditor(props: {
     else setStatus("");
   };
 
-  const zoomBy = (step: number) =>
-    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, scale + step)));
+  const zoomTo = useCallback(
+    (next: number) => setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next))),
+    [],
+  );
+  const zoomBy = (step: number) => zoomTo(scale + step);
 
   // One confirmation for Cancel, Escape, Back, and links.
   const shown: Confirm | null = confirm ?? (blocked ? { kind: "leave" } : null);
@@ -431,50 +456,78 @@ export function StudioEditor(props: {
             interaction={interaction}
             canUndo={snapshot.canUndo}
             canRedo={snapshot.canRedo}
-            onTool={setTool}
+            onTool={changeTool}
             onInteraction={setInteraction}
             onUndo={() => store.undo()}
             onRedo={() => store.redo()}
           />
           <LayerToggle layer={layer} onLayerChange={changeLayer} />
           <span className="ml-auto flex items-center">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("studio.zoomTextureOut")}
-              disabled={scale <= MIN_ZOOM}
-              focusableWhenDisabled
-              onClick={() => zoomBy(-2)}
-            >
-              <ZoomOut />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("studio.zoomTexture")}
-              disabled={scale >= MAX_ZOOM}
-              focusableWhenDisabled
-              onClick={() => zoomBy(2)}
-            >
-              <ZoomIn />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("studio.fit")}
-              aria-pressed={zoom === "fit"}
-              onClick={() => setZoom("fit")}
-            >
-              <Maximize />
-            </Button>
-            <Toggle
-              size="sm"
-              aria-label={t("studio.pixelGrid")}
-              pressed={showGrid}
-              onPressedChange={setShowGrid}
-            >
-              <Grid3x3 />
-            </Toggle>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t("studio.zoomTextureOut")}
+                    disabled={scale <= MIN_ZOOM}
+                    focusableWhenDisabled
+                    onClick={() => zoomBy(-2)}
+                  />
+                }
+              >
+                <ZoomOut />
+              </TooltipTrigger>
+              <TooltipContent>{t("studio.zoomTextureOut")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t("studio.zoomTexture")}
+                    disabled={scale >= MAX_ZOOM}
+                    focusableWhenDisabled
+                    onClick={() => zoomBy(2)}
+                  />
+                }
+              >
+                <ZoomIn />
+              </TooltipTrigger>
+              <TooltipContent>{t("studio.zoomTexture")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t("studio.fit")}
+                    aria-pressed={zoom === "fit"}
+                    onClick={() => setZoom("fit")}
+                  />
+                }
+              >
+                <Maximize />
+              </TooltipTrigger>
+              <TooltipContent>{t("studio.fit")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Toggle
+                    size="sm"
+                    aria-label={t("studio.pixelGrid")}
+                    pressed={showGrid}
+                    onPressedChange={setShowGrid}
+                  />
+                }
+              >
+                <Grid3x3 />
+              </TooltipTrigger>
+              <TooltipContent>{t("studio.pixelGrid")}</TooltipContent>
+            </Tooltip>
           </span>
         </div>
         <ToolOptions
@@ -511,6 +564,7 @@ export function StudioEditor(props: {
             scale={scale}
             showGrid={showGrid}
             highlight={highlightedPixels}
+            onZoom={zoomTo}
             onPick={onPick}
             onPainted={onPainted}
             onStatus={showStatus}

@@ -1,8 +1,8 @@
 {
   "title": "Referência",
   "pages": [
-    "[Terminal][Commands and permissions](/docs/configuration/commands-permissions)",
-    "[SlidersHorizontal][Configuration overview](/docs/configuration/options)",
+    "[Terminal][Comandos e permissões](/docs/configuration/commands-permissions)",
+    "[SlidersHorizontal][Visão geral da configuração](/docs/configuration/options)",
     "storage",
     "commands",
     "database",

@@ -43,7 +43,12 @@ export function isGalleryId(value: unknown): value is string {
 
 /** Decode catalog metadata, accepting only Minecraft texture URLs. */
 export function parseGalleryCatalog(input: unknown): readonly GallerySkin[] {
-  const catalog = Schema.decodeUnknownSync(catalogSchema)(input);
+  return galleryEntries(Schema.decodeUnknownSync(catalogSchema)(input));
+}
+
+function galleryEntries(
+  catalog: typeof catalogSchema.Type,
+): readonly GallerySkin[] {
   if (catalog.skins.length > 1000) throw new Error("Too many gallery skins.");
   const ids = new Set<string>();
   return catalog.skins.map((skin) => {
@@ -97,7 +102,8 @@ export const loadGalleryEffect = Effect.fn("Skin.loadGallery")(function* () {
       ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
     });
   return yield* Effect.try({
-    try: () => parseGalleryCatalog(response.data),
+    // readHttpJson already decoded the schema, so only entries are checked.
+    try: () => galleryEntries(response.data),
     catch: () =>
       new GalleryError({
         ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
@@ -105,16 +111,28 @@ export const loadGalleryEffect = Effect.fn("Skin.loadGallery")(function* () {
   });
 });
 
+function normalizeSearch(text: string) {
+  return text
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+/** Normalized names, kept per entry so each keystroke skips Unicode work. */
+const searchNames = new WeakMap<GallerySkin, string>();
+
+/** Match entries whose name contains every word, ignoring case and accents. */
 export function searchGallery(skins: readonly GallerySkin[], query: string) {
-  const normalize = (text: string) =>
-    text
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-  const words = normalize(query).trim().split(/\s+/).filter(Boolean);
-  return skins.filter((skin) =>
-    words.every((word) => normalize(skin.name).includes(word)),
-  );
+  const words = normalizeSearch(query).trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return skins;
+  return skins.filter((skin) => {
+    let name = searchNames.get(skin);
+    if (name === undefined) {
+      name = normalizeSearch(skin.name);
+      searchNames.set(skin, name);
+    }
+    return words.every((word) => name.includes(word));
+  });
 }
 
 /** Public catalog IDs only; browser library IDs never appear in links. */

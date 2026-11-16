@@ -55,21 +55,26 @@ export function ColorControls(props: {
           const rgb = parseHex(event.target.value);
           if (rgb) onChange([...rgb, color[3]]);
         }}
-        className="h-8 w-10 cursor-pointer rounded-md border bg-background p-0.5"
+        className="h-8 w-10 cursor-pointer rounded-md border bg-background p-0.5 pointer-coarse:h-9"
       />
       <Input
         aria-label={t("editor.hexCode")}
         value={hexText}
         spellCheck={false}
         autoComplete="off"
+        maxLength={7}
         aria-invalid={!hexValid || undefined}
         onChange={(event) => {
           setHexDraft(event.target.value);
           const rgb = parseHex(event.target.value);
           if (rgb) onChange([...rgb, color[3]]);
         }}
+        onKeyDown={(event) => {
+          // Enter confirms: the field shows the applied color in full form.
+          if (event.key === "Enter") setHexDraft(null);
+        }}
         onBlur={() => setHexDraft(null)}
-        className="h-8 w-24"
+        className="h-8 w-24 pointer-coarse:h-9"
       />
       {layer === "outer" && (
         <div className="flex min-w-36 flex-1 items-center gap-2">
@@ -110,6 +115,7 @@ export function ColorControls(props: {
               <li key={key}>
                 <RecentSwatch
                   swatch={swatch}
+                  current={swatch.every((value, i) => value === color[i])}
                   label={t("editor.useColorOpacityOpacity", {
                     color: hex,
                     opacity: Math.round((swatch[3] / 255) * 100),
@@ -128,6 +134,7 @@ export function ColorControls(props: {
 /** The swatch color is data, so it is painted on a canvas, not with styles. */
 function RecentSwatch(props: {
   swatch: Rgba;
+  current: boolean;
   label: string;
   onSelect: () => void;
 }) {
@@ -144,9 +151,10 @@ function RecentSwatch(props: {
     <button
       type="button"
       aria-label={props.label}
+      aria-pressed={props.current}
       title={props.label}
       onClick={props.onSelect}
-      className="block size-6 overflow-hidden rounded-md border outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="block size-6 overflow-hidden rounded-md border outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground/30 pointer-coarse:size-8"
     >
       <canvas ref={setCanvas} width={2} height={2} className="size-full" />
     </button>

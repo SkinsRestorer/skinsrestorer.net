@@ -11,8 +11,9 @@ const icons = {
 } as const;
 
 /**
- * A quiet save status: an icon with the state as a title. It is a polite
- * live region, so screen readers announce a new state.
+ * A quiet save status: an icon and the state as short text. Long text
+ * truncates, and the title keeps the full text. It is a polite live
+ * region, so screen readers announce a new state.
  */
 export function SaveStatus(props: {
   state: SaveState;
@@ -24,16 +25,19 @@ export function SaveStatus(props: {
     <output
       title={props.label}
       className={cn(
-        "inline-flex shrink-0 text-muted-foreground",
+        "inline-flex min-w-0 items-center gap-1 text-xs text-muted-foreground",
         props.state === "saved" && "text-chart-2",
         props.className,
       )}
     >
       <Icon
         aria-hidden="true"
-        className={cn("size-3.5", props.state === "saving" && "animate-spin")}
+        className={cn(
+          "size-3.5 shrink-0",
+          props.state === "saving" && "animate-spin motion-reduce:animate-none",
+        )}
       />
-      <span className="sr-only">{props.label}</span>
+      <span className="truncate">{props.label}</span>
     </output>
   );
 }

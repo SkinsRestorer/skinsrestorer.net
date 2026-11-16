@@ -16,6 +16,7 @@ import {
   type LibraryClient,
 } from "./skin-library-client";
 import {
+  libraryError,
   prepareSkinContent,
   skinLibraryLayer,
   type StoredSkin,
@@ -380,4 +381,35 @@ test("when the library cannot open, saving returns the PNG without asking", asyn
   const result = await session.save();
   assert.equal(result.kind, "saved");
   if (result.kind === "saved") assert.equal(result.skin, undefined);
+});
+
+test("drafts come back after a full storage write, and stop when the library cannot open", async () => {
+  const real = tab(new IDBFactory());
+  let failWith: "full" | "unavailable" | undefined = "full";
+  const flaky: LibraryClient = {
+    ...real,
+    run: (effect, signal) =>
+      failWith
+        ? Promise.reject(libraryError(failWith))
+        : real.run(effect, signal),
+  };
+  const { store, session } = editor(flaky);
+  paint(store, 1);
+  await session.flush();
+  assert.equal(session.getSnapshot().drafts.kind, "off");
+  // The user frees space; the next change writes the draft again.
+  failWith = undefined;
+  paint(store, 2);
+  await session.flush();
+  assert.equal(session.getSnapshot().drafts.kind, "saved");
+  assert.equal((await list(real)).sessions.length, 1);
+
+  failWith = "unavailable";
+  paint(store, 3);
+  await session.flush();
+  assert.equal(session.getSnapshot().drafts.kind, "off");
+  failWith = undefined;
+  paint(store, 4);
+  await session.flush();
+  assert.equal(session.getSnapshot().drafts.kind, "off");
 });

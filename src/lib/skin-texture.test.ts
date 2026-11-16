@@ -3,7 +3,12 @@ import { test } from "node:test";
 import { Effect, Exit } from "effect";
 import { HttpClient, type HttpFetch } from "./effect-http";
 import { createTemplate, exportSkinPng } from "./skin-document";
-import { loadTextureEffect, parseTextureReference } from "./skin-texture";
+import { encodePng } from "./png";
+import {
+  loadTextureEffect,
+  loadTexturePreviewEffect,
+  parseTextureReference,
+} from "./skin-texture";
 
 const hash = "26c156a5a28ba3647b3de3b5bfec4d399670b1f063d6526ba201c2be01b60df5";
 
@@ -101,4 +106,55 @@ test("cancelling a texture read aborts the request", async () => {
   const exit = await pending;
   assert.ok(Exit.isFailure(exit));
   assert.equal(signal?.aborted, true);
+});
+
+test("previews return the downloaded PNG after a header check", async () => {
+  const png = await exportSkinPng(createTemplate("classic").pixels);
+  const exit = await run(
+    loadTexturePreviewEffect(hash),
+    async () => new Response(png as Uint8Array<ArrayBuffer>),
+  );
+  assert.ok(Exit.isSuccess(exit));
+  assert.equal(exit.value.type, "image/png");
+  assert.deepEqual(new Uint8Array(await exit.value.arrayBuffer()), png);
+  for (const body of [
+    new TextEncoder().encode("<html>not a png</html>"),
+    await encodePng(new Uint8ClampedArray(16 * 16 * 4), 16, 16),
+  ]) {
+    const rejected = await run(
+      loadTexturePreviewEffect(hash),
+      async () => new Response(body as Uint8Array<ArrayBuffer>),
+    );
+    assert.ok(Exit.isFailure(rejected));
+  }
+});
+
+test("preview downloads run at most six at a time", async () => {
+  const png = await exportSkinPng(createTemplate("classic").pixels);
+  let active = 0;
+  let peak = 0;
+  const release: (() => void)[] = [];
+  const fetch: HttpFetch = async () => {
+    active++;
+    peak = Math.max(peak, active);
+    await new Promise<void>((resolve) => release.push(resolve));
+    active--;
+    return new Response(png as Uint8Array<ArrayBuffer>);
+  };
+  const pending = Promise.all(
+    Array.from({ length: 10 }, () =>
+      run(loadTexturePreviewEffect(hash), fetch),
+    ),
+  );
+  while (release.length < 6)
+    await new Promise((resolve) => setTimeout(resolve));
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(peak, 6);
+  while (release.length > 0 || active > 0) {
+    release.splice(0).forEach((resolve) => resolve());
+    await new Promise((resolve) => setTimeout(resolve));
+  }
+  const exits = await pending;
+  assert.ok(exits.every(Exit.isSuccess));
+  assert.equal(peak, 6);
 });

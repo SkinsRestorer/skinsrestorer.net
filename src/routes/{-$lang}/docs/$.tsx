@@ -91,7 +91,6 @@ const clientLoader = browserCollections.docs.createClientLoader<{
       <DocsPage
         toc={toc}
         full={frontmatter.full}
-        lastUpdate={new Date(frontmatter.reviewed)}
         tableOfContent={{ style: "clerk" }}
       >
         <div className="flex flex-col gap-2">

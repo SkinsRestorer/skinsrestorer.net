@@ -34,6 +34,8 @@ import { siteTitleKey } from "@/lib/seo";
 import { getSiteRedirect } from "@/lib/site-redirects";
 import "@/lib/analytics";
 import appCss from "../style.css?url";
+import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import geistCyrillic from "@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2?url";
 
 const LocalizedSearchDialog = lazy(
   () => import("@/components/localized-search-dialog"),
@@ -64,6 +66,14 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      // Body text uses Geist. Fetch the subsets this locale needs with the CSS.
+      ...getFontPreloads(matches).map((href) => ({
+        rel: "preload",
+        href,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous" as const,
+      })),
       { rel: "icon", href: "/favicon.ico" },
       { rel: "icon", type: "image/png", href: "/icon.png" },
       { rel: "apple-touch-icon", href: "/apple-icon.png" },
@@ -136,6 +146,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 const providerComponents = { Image: ContentImage, Link: LocaleLink };
 const providerSearch = { SearchDialog: LocalizedSearchDialog };
+
+function getFontPreloads(matches: readonly { pathname: string }[]) {
+  const locale = splitLocalePath(matches.at(-1)?.pathname ?? "/").locale;
+  return locale === "ru" ? [geistLatin, geistCyrillic] : [geistLatin];
+}
 
 function getFallbackTitle(
   matches: readonly { routeId: string; pathname: string; error: unknown }[],

@@ -1,4 +1,5 @@
 import Link from "fumadocs-core/link";
+import { ArrowUpRight } from "lucide-react";
 import { CookieSettingsButton } from "@/components/cookie-consent-banner";
 import { useT } from "@/lib/i18n-react";
 
@@ -14,7 +15,7 @@ export function SiteFooter() {
         </p>
         <nav
           aria-label={t("footer.footer")}
-          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
+          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-y-2"
         >
           <Link href="/pricing" className="hover:text-fd-foreground">
             {t("footer.supportSkinsrestorer")}
@@ -32,9 +33,10 @@ export function SiteFooter() {
         </nav>
         <a
           href="https://www.cloudflare.com"
-          className="shrink-0 hover:text-fd-foreground"
+          className="inline-flex shrink-0 items-center gap-0.5 hover:text-fd-foreground"
         >
           {t("footer.hostedCloudflare")}
+          <ArrowUpRight aria-hidden="true" className="size-3.5" />
         </a>
       </div>
     </footer>

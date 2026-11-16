@@ -14,11 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { PaintTool } from "@/lib/skin-paint";
 import type { SkinLayer } from "@/lib/skin-regions";
 import {
@@ -27,9 +22,11 @@ import {
 } from "@/components/editor/editor-types";
 import {
   editorShortcuts,
-  ShortcutHint,
+  HintTrigger,
+  ShortcutHints,
   toolCommands,
   useAriaShortcuts,
+  useShortcutHints,
 } from "@/components/editor/editor-commands";
 import { useT } from "@/lib/i18n-react";
 
@@ -44,6 +41,12 @@ const toolIcons = {
 /** Larger hit areas when the main pointer is a finger. */
 const coarse = "pointer-coarse:h-9 pointer-coarse:min-w-9";
 
+/**
+ * Undo and Redo stay focusable and hoverable when there is nothing to do,
+ * so their hint still explains the shortcut. Base UI then sets
+ * `aria-disabled` instead of `disabled`, and the Button variants style only
+ * `disabled`, so the icon carries the dimmed look.
+ */
 /** Icon-only paint tools, pointer action, and undo/redo. */
 export function EditorToolbar(props: {
   tool: PaintTool;
@@ -59,8 +62,10 @@ export function EditorToolbar(props: {
   const t = useT();
   const undoKeys = useAriaShortcuts("undo");
   const redoKeys = useAriaShortcuts("redo");
+  const hints = useShortcutHints();
   return (
     <div className="flex flex-wrap items-center gap-1.5">
+      <ShortcutHints handle={hints} />
       <ToggleGroup
         aria-label={t("editor.tool")}
         variant="outline"
@@ -79,23 +84,22 @@ export function EditorToolbar(props: {
               ? t("editor.toolWorksOuterLayerOnlyBaseLayer", { tool: label })
               : label;
           return (
-            <Tooltip key={tool}>
-              <TooltipTrigger
-                render={
-                  <ToggleGroupItem
-                    value={tool}
-                    className={coarse}
-                    aria-label={label}
-                    aria-keyshortcuts={editorShortcuts[tool].join(" ")}
-                  />
-                }
-              >
-                <Icon />
-              </TooltipTrigger>
-              <TooltipContent>
-                <ShortcutHint label={hint} commands={[tool]} />
-              </TooltipContent>
-            </Tooltip>
+            <HintTrigger
+              key={tool}
+              hints={hints}
+              label={hint}
+              commands={[tool]}
+              render={
+                <ToggleGroupItem
+                  value={tool}
+                  className={coarse}
+                  aria-label={label}
+                  aria-keyshortcuts={editorShortcuts[tool].join(" ")}
+                />
+              }
+            >
+              <Icon />
+            </HintTrigger>
           );
         })}
       </ToggleGroup>
@@ -110,87 +114,77 @@ export function EditorToolbar(props: {
           if (value[0]) props.onInteraction(value[0] as EditorInteraction);
         }}
       >
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <ToggleGroupItem
-                value="paint"
-                className={coarse}
-                aria-label={t("editor.paint")}
-                aria-keyshortcuts={editorShortcuts.paint.join(" ")}
-              />
-            }
-          >
-            <MousePointer2 />
-          </TooltipTrigger>
-          <TooltipContent>
-            <ShortcutHint
-              label={t("editor.pointersUseTool")}
-              commands={["paint"]}
+        <HintTrigger
+          hints={hints}
+          label={t("editor.pointersUseTool")}
+          commands={["paint"]}
+          render={
+            <ToggleGroupItem
+              value="paint"
+              className={coarse}
+              aria-label={t("editor.paint")}
+              aria-keyshortcuts={editorShortcuts.paint.join(" ")}
             />
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <ToggleGroupItem
-                value="move"
-                className={coarse}
-                aria-label={t("editor.moveView")}
-                aria-keyshortcuts={editorShortcuts.move.join(" ")}
-              />
-            }
-          >
-            <Hand />
-          </TooltipTrigger>
-          <TooltipContent>
-            <ShortcutHint
-              label={t("editor.pointersScrollTextureTurnModel")}
-              commands={["move"]}
+          }
+        >
+          <MousePointer2 />
+        </HintTrigger>
+        <HintTrigger
+          hints={hints}
+          label={t("editor.pointersScrollTextureTurnModel")}
+          commands={["move"]}
+          render={
+            <ToggleGroupItem
+              value="move"
+              className={coarse}
+              aria-label={t("editor.moveView")}
+              aria-keyshortcuts={editorShortcuts.move.join(" ")}
             />
-          </TooltipContent>
-        </Tooltip>
+          }
+        >
+          <Hand />
+        </HintTrigger>
       </ToggleGroup>
       <Separator orientation="vertical" className="hidden h-5 sm:block" />
       <div className="flex gap-1">
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("common.undo")}
-                aria-keyshortcuts={undoKeys}
-                disabled={!props.canUndo}
-                onClick={props.onUndo}
-              />
-            }
-          >
-            <Undo2 />
-          </TooltipTrigger>
-          <TooltipContent>
-            <ShortcutHint label={t("common.undo")} commands={["undo"]} />
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("common.redo")}
-                aria-keyshortcuts={redoKeys}
-                disabled={!props.canRedo}
-                onClick={props.onRedo}
-              />
-            }
-          >
-            <Redo2 />
-          </TooltipTrigger>
-          <TooltipContent>
-            <ShortcutHint label={t("common.redo")} commands={["redo"]} />
-          </TooltipContent>
-        </Tooltip>
+        <HintTrigger
+          hints={hints}
+          label={props.canUndo ? t("common.undo") : t("editor.nothingToUndo")}
+          commands={["undo"]}
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={coarse}
+              aria-label={t("common.undo")}
+              aria-keyshortcuts={undoKeys}
+              disabled={!props.canUndo}
+              focusableWhenDisabled
+              onClick={props.onUndo}
+            />
+          }
+        >
+          <Undo2 />
+        </HintTrigger>
+        <HintTrigger
+          hints={hints}
+          label={props.canRedo ? t("common.redo") : t("editor.nothingToRedo")}
+          commands={["redo"]}
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={coarse}
+              aria-label={t("common.redo")}
+              aria-keyshortcuts={redoKeys}
+              disabled={!props.canRedo}
+              focusableWhenDisabled
+              onClick={props.onRedo}
+            />
+          }
+        >
+          <Redo2 />
+        </HintTrigger>
       </div>
     </div>
   );

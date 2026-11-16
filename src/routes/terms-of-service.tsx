@@ -9,7 +9,8 @@ function TermsOfServicePage() {
       <article className="prose mx-auto max-w-prose">
         <h1>Terms of Service</h1>
         <p>
-          <strong>Last updated:</strong> November 16, 2026
+          <strong>Last updated:</strong>{" "}
+          <time dateTime="2026-11-16">November 16, 2026</time>
         </p>
 
         <p>

@@ -58,7 +58,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
     event.preventDefault();
     if (opinion === null) return;
 
-    const feedback = { opinion, message };
+    const feedback = { opinion, message: message.trim() };
     posthog.capture("on_rate_docs", { url, version, ...feedback });
     setPrevious(feedback);
     setMessage("");
@@ -98,7 +98,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
             }),
           )}
           onClick={() => {
-            setOpinion("good");
+            setOpinion((current) => (current === "good" ? null : "good"));
           }}
         >
           <ThumbsUp aria-hidden="true" />
@@ -114,7 +114,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
             }),
           )}
           onClick={() => {
-            setOpinion("bad");
+            setOpinion((current) => (current === "bad" ? null : "bad"));
           }}
         >
           <ThumbsDown aria-hidden="true" />
@@ -151,13 +151,15 @@ export function Feedback({ url, version }: { url: string; version: string }) {
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
             <label htmlFor={messageId} className="text-sm">
-              {t("feedback.whatWorkedWhichStepNeedsCorrection")}
+              {t("feedback.whatWorkedWhichStepNeedsCorrection")}{" "}
+              <span className="text-fd-muted-foreground">
+                ({t("feedback.optional")})
+              </span>
             </label>
             <textarea
               id={messageId}
               // oxlint-disable-next-line jsx-a11y/no-autofocus -- Focus the feedback field when it opens.
               autoFocus
-              required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-fd-muted-foreground"

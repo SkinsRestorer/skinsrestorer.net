@@ -125,7 +125,12 @@ export function useSkinLibrary() {
     rename: (id: string, name: string) =>
       act("rename", (c) => c.run(withLibrary((l) => l.rename(id, name)))),
     duplicate: (id: string) =>
-      act("duplicate", (c) => c.run(withLibrary((l) => l.duplicate(id)))),
+      act("duplicate", (c) => c.run(withLibrary((l) => l.duplicate(id)))).then(
+        (copy) => {
+          if (copy) toast(t("library.skinDuplicated", { name: copy.name }));
+          return copy;
+        },
+      ),
     remove: (id: string) =>
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed) => {
@@ -139,6 +144,7 @@ export function useSkinLibrary() {
                 ),
             },
           });
+          return removed;
         },
       ),
     revert: (id: string) =>

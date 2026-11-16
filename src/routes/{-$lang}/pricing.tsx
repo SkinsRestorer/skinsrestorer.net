@@ -3,7 +3,7 @@ import { HomeLayout } from "@/components/home-layout";
 import { isLocale } from "@/lib/i18n";
 import { getPageHead } from "@/lib/seo";
 import { SiBitcoin, SiKofi } from "@icons-pack/react-simple-icons";
-import { Check, Gift, Heart, Users } from "lucide-react";
+import { ArrowUpRight, Check, Gift, Heart, Users } from "lucide-react";
 import Link from "fumadocs-core/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useT } from "@/lib/i18n-react";
+import { useLocale, useT } from "@/lib/i18n-react";
+import type { Locale } from "@/lib/i18n";
 
 const freePlanFeatures = [
   "pricing.fullSkinsrestorerPlugin",
@@ -32,8 +33,22 @@ const supporterPlanFeatures = [
   "pricing.helpKeepProjectAlive",
 ] as const;
 
+const koFiUrl = "https://ko-fi.com/skinsrestorer";
+const nowPaymentsUrl =
+  "https://nowpayments.io/embeds/donation-widget?api_key=bae4c439-45fd-44b6-918d-b91054b8d6af";
+
+/** Format a whole-euro price with the locale's symbol position and spacing. */
+function formatEuros(amount: number, locale: Locale) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 function PricingPage() {
   const t = useT();
+  const locale = useLocale();
   return (
     <div className="px-4 pt-4 pb-6 w-full max-w-[1400px] mx-auto flex-1 md:pb-12">
       <section className="py-8 md:py-16">
@@ -64,7 +79,9 @@ function PricingPage() {
             </CardHeader>
             <CardContent className="flex-1">
               <div className="mb-6">
-                <span className="text-4xl font-bold tracking-tight">0€</span>
+                <span className="text-4xl font-bold tracking-tight">
+                  {formatEuros(0, locale)}
+                </span>
                 <span className="text-muted-foreground ml-1">
                   {t("common.month")}
                 </span>
@@ -114,7 +131,9 @@ function PricingPage() {
             </CardHeader>
             <CardContent className="flex-1">
               <div className="mb-6">
-                <span className="text-4xl font-bold tracking-tight">5€</span>
+                <span className="text-4xl font-bold tracking-tight">
+                  {formatEuros(5, locale)}
+                </span>
                 <span className="text-muted-foreground ml-1">
                   {t("common.month")}
                 </span>
@@ -131,9 +150,10 @@ function PricingPage() {
             <CardFooter>
               <Button
                 render={
-                  <a href="https://ko-fi.com/skinsrestorer/tiers">
+                  <a href={`${koFiUrl}/tiers`}>
                     <SiKofi aria-hidden className="size-4" />
                     {t("pricing.becomeSupporter")}
+                    <ArrowUpRight aria-hidden className="size-4" />
                   </a>
                 }
                 nativeButton={false}
@@ -145,10 +165,16 @@ function PricingPage() {
         </div>
 
         {/* Bottom note */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground max-w-[500px] mx-auto">
+        <div className="mt-12 mx-auto flex max-w-[500px] flex-col gap-2 text-center">
+          <h2 className="font-semibold">
+            {t("pricing.howToGetSupporterPerks")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
             {t("pricing.supporterPerksDeliveredThroughOur")}{" "}
-            <a href="/discord" className="underline hover:text-foreground">
+            <a
+              href="/discord"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
               {t("pricing.discordServer")}
             </a>
             {t("pricing.afterSubscribingKoFiYouLlReceive")}
@@ -190,12 +216,14 @@ function PricingPage() {
             </CardHeader>
             <CardContent className="flex-1">
               <iframe
-                src="https://ko-fi.com/skinsrestorer/?hidefeed=true&widget=true&embed=true&preview=true"
+                src={`${koFiUrl}/?hidefeed=true&widget=true&embed=true&preview=true`}
                 className="w-full border-none"
                 height="712"
+                loading="lazy"
                 title={t("pricing.koFiDonationWidgetSkinsrestorer")}
               />
             </CardContent>
+            <WidgetFallback href={koFiUrl} label={t("pricing.openKoFi")} />
           </Card>
 
           {/* NOWPayments Crypto Widget */}
@@ -213,17 +241,41 @@ function PricingPage() {
             </CardHeader>
             <CardContent className="flex-1 flex items-center justify-center">
               <iframe
-                src="https://nowpayments.io/embeds/donation-widget?api_key=bae4c439-45fd-44b6-918d-b91054b8d6af"
+                src={nowPaymentsUrl}
                 width="346"
                 height="623"
+                loading="lazy"
                 className="max-w-full border-none overflow-y-hidden"
                 title={t("pricing.nowpaymentsCryptoDonationWidget")}
               />
             </CardContent>
+            <WidgetFallback
+              href={nowPaymentsUrl}
+              label={t("pricing.openNowpayments")}
+            />
           </Card>
         </div>
       </section>
     </div>
+  );
+}
+
+/** A direct link for visitors whose browser or blocker hides the embed. */
+function WidgetFallback({ href, label }: { href: string; label: string }) {
+  const t = useT();
+  return (
+    <CardFooter className="justify-center">
+      <p className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground">
+        {t("pricing.widgetNotLoading")}
+        <a
+          href={href}
+          className="inline-flex items-center gap-0.5 font-medium text-foreground underline underline-offset-2"
+        >
+          {label}
+          <ArrowUpRight aria-hidden className="size-3.5" />
+        </a>
+      </p>
+    </CardFooter>
   );
 }
 

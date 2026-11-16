@@ -866,8 +866,18 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   });
 });
 
+/**
+ * Name a copy: "Harbor" becomes "Harbor copy", then "Harbor copy 2". The
+ * suffix stays when a long name is shortened, so a copy never takes the
+ * exact name of its source.
+ */
 export function copyName(name: string) {
-  return cleanSkinName(`${name} copy`);
+  const clean = cleanSkinName(name);
+  const match = /^(.*) copy(?: (\d+))?$/.exec(clean);
+  const base = match ? match[1] : clean;
+  const suffix = match ? ` copy ${Number(match[2] ?? 1) + 1}` : " copy";
+  const room = MAX_SKIN_NAME_LENGTH - suffix.length;
+  return `${base.slice(0, room).trimEnd()}${suffix}`;
 }
 
 export const skinLibraryLayer = (options: LibraryOptions) =>
