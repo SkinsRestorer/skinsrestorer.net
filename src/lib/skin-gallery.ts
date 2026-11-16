@@ -118,20 +118,43 @@ function normalizeSearch(text: string) {
     .toLowerCase();
 }
 
-/** Normalized names, kept per entry so each keystroke skips Unicode work. */
-const searchNames = new WeakMap<GallerySkin, string>();
+/** Letters and digits only, so "darkknight" finds "Dark Knight". */
+function compactSearch(text: string) {
+  return text.replace(/[^\p{L}\p{N}]/gu, "");
+}
 
-/** Match entries whose name contains every word, ignoring case and accents. */
+interface SearchName {
+  readonly words: string;
+  readonly compact: string;
+}
+
+/** Normalized names, kept per entry so each keystroke skips Unicode work. */
+const searchNames = new WeakMap<GallerySkin, SearchName>();
+
+/**
+ * Match entries whose name contains every word, ignoring case, accents,
+ * spaces, and punctuation inside a word.
+ */
 export function searchGallery(skins: readonly GallerySkin[], query: string) {
-  const words = normalizeSearch(query).trim().split(/\s+/).filter(Boolean);
+  const words = normalizeSearch(query)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => ({ word, compact: compactSearch(word) }));
   if (words.length === 0) return skins;
   return skins.filter((skin) => {
     let name = searchNames.get(skin);
     if (name === undefined) {
-      name = normalizeSearch(skin.name);
+      const normalized = normalizeSearch(skin.name);
+      name = { words: normalized, compact: compactSearch(normalized) };
       searchNames.set(skin, name);
     }
-    return words.every((word) => name.includes(word));
+    const { words: text, compact } = name;
+    return words.every(
+      (word) =>
+        text.includes(word.word) ||
+        (word.compact !== "" && compact.includes(word.compact)),
+    );
   });
 }
 

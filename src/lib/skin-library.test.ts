@@ -507,6 +507,10 @@ function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
   };
 }
 
+const recovered = {
+  name: (updatedAt: number) => `Borrador recuperado ${updatedAt}`,
+};
+
 async function legacyDraft(variant: SkinVariant = "slim") {
   const document = createTemplate("classic");
   const png = encodePngSync(document.pixels, 64, 64);
@@ -527,8 +531,8 @@ test("the old editor draft migrates once, even from two tabs", async () => {
   const second = memoryStorage();
   second.data.set(DRAFT_KEY, storage.data.get(DRAFT_KEY)!);
   const [first, other] = await Promise.all([
-    migrateLegacyDraft(tab(), storage),
-    migrateLegacyDraft(tab(), second),
+    migrateLegacyDraft(tab(), storage, recovered),
+    migrateLegacyDraft(tab(), second, recovered),
   ]);
   assert.deepEqual([first.status, other.status].sort(), ["migrated", "none"]);
   assert.equal(storage.data.has(DRAFT_KEY), false);
@@ -537,7 +541,7 @@ test("the old editor draft migrates once, even from two tabs", async () => {
   assert.equal(listing.skins.length, 1);
   assert.equal(listing.skins[0].source.kind, "migrated-draft");
   assert.equal(listing.skins[0].current.variant, "slim");
-  assert.match(listing.skins[0].name, /^Recovered draft/);
+  assert.equal(listing.skins[0].name, "Borrador recuperado 1000");
 });
 
 test("migration preserves a newer legacy draft written while the old one decodes", async () => {
@@ -557,12 +561,18 @@ test("migration preserves a newer legacy draft written while the old one decodes
     }
     return value;
   };
-  assert.equal((await migrateLegacyDraft(client, storage)).status, "migrated");
+  assert.equal(
+    (await migrateLegacyDraft(client, storage, recovered)).status,
+    "migrated",
+  );
   assert.equal(storage.getItem(DRAFT_KEY), after);
   let listing = await use(client, (library) => library.list);
   assert.equal(listing.skins.length, 1);
   assert.equal(listing.skins[0].current.variant, "classic");
-  assert.equal((await migrateLegacyDraft(client, storage)).status, "migrated");
+  assert.equal(
+    (await migrateLegacyDraft(client, storage, recovered)).status,
+    "migrated",
+  );
   assert.equal(storage.getItem(DRAFT_KEY), null);
   listing = await use(client, (library) => library.list);
   assert.equal(listing.skins.length, 2);
@@ -577,18 +587,28 @@ test("a failed migration keeps the old draft, and damaged drafts stay", async ()
   const storage = memoryStorage();
   storage.data.set(DRAFT_KEY, await legacyDraft());
   await failure(
-    migrateLegacyDraft(full.tab(quotaFactory(full.factory)), storage),
+    migrateLegacyDraft(
+      full.tab(quotaFactory(full.factory)),
+      storage,
+      recovered,
+    ),
   );
   assert.equal(storage.data.has(DRAFT_KEY), true);
 
   const { tab } = browser();
   const damaged = memoryStorage();
   damaged.data.set(DRAFT_KEY, "{not json");
-  assert.equal((await migrateLegacyDraft(tab(), damaged)).status, "corrupt");
+  assert.equal(
+    (await migrateLegacyDraft(tab(), damaged, recovered)).status,
+    "corrupt",
+  );
   assert.equal(damaged.data.get(DRAFT_KEY), "{not json");
   const newer = memoryStorage();
   newer.data.set(DRAFT_KEY, JSON.stringify({ version: 9 }));
-  assert.equal((await migrateLegacyDraft(tab(), newer)).status, "newer");
+  assert.equal(
+    (await migrateLegacyDraft(tab(), newer, recovered)).status,
+    "newer",
+  );
   assert.equal(newer.data.has(DRAFT_KEY), true);
 });
 

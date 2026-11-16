@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useLatestTask } from "./use-latest-task";
 
@@ -21,17 +21,21 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
   const verification = useLatestTask();
   const availableCapes = useLatestTask();
   const [keyStatus, setKeyStatus] = useState<CapeStatus>("idle");
-  const [supportedCapes, setSupportedCapes] = useState<MineSkinCape[]>([]);
+  const [publicCapes, setPublicCapes] = useState<MineSkinCape[]>([]);
+  /** The capes of the last key that passed its check. */
+  const [keyCapes, setKeyCapes] = useState<MineSkinCape[]>();
   /** The public cape list: loading shows placeholders, failed offers a retry. */
-  const [listStatus, setListStatus] = useState<"loading" | "ready" | "failed">(
-    "loading",
-  );
+  const [publicStatus, setPublicStatus] = useState<
+    "loading" | "ready" | "failed"
+  >("loading");
   const [listAttempt, setListAttempt] = useState(0);
-  /** A checked key's capes win over the public list, whichever comes last. */
-  const keyCapes = useRef(false);
 
-  // Axolotl applies capes without a key.
+  // Axolotl applies capes without a key, from the public list. Official uses
+  // the checked key's capes once the key passes.
   const status: CapeStatus = options.keyRequired ? keyStatus : "granted";
+  const fromKey = options.keyRequired ? keyCapes : undefined;
+  const supportedCapes = fromKey ?? publicCapes;
+  const listStatus = fromKey ? "ready" : publicStatus;
   const capeOptionsDisabled =
     status !== "granted" || supportedCapes.length === 0;
 
@@ -39,19 +43,20 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
     void availableCapes.run(
       (signal) => fetchMineSkinSupportedCapes(undefined, signal),
       (capes) => {
-        if (!keyCapes.current) setSupportedCapes(capes);
-        setListStatus("ready");
+        setPublicCapes(capes);
+        setPublicStatus("ready");
       },
       // The picker shows the failure next to a retry button.
-      () => setListStatus(keyCapes.current ? "ready" : "failed"),
+      () => setPublicStatus("failed"),
     );
     return () => availableCapes.cancel();
   }, [availableCapes, listAttempt]);
 
-  /** The key changed: its earlier check no longer applies. */
+  /** The key changed: its earlier check and capes no longer apply. */
   const reset = () => {
     verification.cancel();
     setKeyStatus("idle");
+    setKeyCapes(undefined);
   };
 
   /** Check the capes grant of this key, only when the user asks. */
@@ -70,9 +75,7 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
           return;
         }
         setKeyStatus("granted");
-        keyCapes.current = true;
-        setSupportedCapes(capes);
-        setListStatus("ready");
+        setKeyCapes(capes);
         if (capes.length === 0)
           toast.info(t("capes.noSupportedCapesCurrentlyAvailable"));
         else toast.success(t("capes.capeSupportEnabledApiKey"));
@@ -98,7 +101,7 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
     listStatus,
     /** Load the public cape list again after a failure. */
     retryList: () => {
-      setListStatus("loading");
+      setPublicStatus("loading");
       setListAttempt((attempt) => attempt + 1);
     },
     reset,

@@ -21,7 +21,7 @@ export default function RootComponent() {
   const { enabled: searchEnabled, setOpenSearch } = useSearchContext();
   return (
     <HomeLayout>
-      <title>{`${t("common.404PageNotFound")} - SR`}</title>
+      {/* The root route head sets the page title. */}
       <meta name="robots" content="noindex" />
       <div className="mx-auto flex w-full max-w-[1400px] flex-1 px-4 py-12">
         <div className="m-auto flex max-w-xl flex-col items-center gap-6 text-center">

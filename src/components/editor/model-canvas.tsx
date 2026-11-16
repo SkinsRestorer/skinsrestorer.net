@@ -3,7 +3,7 @@
 import { message, type Message } from "@/lib/messages";
 
 import { Box, RotateCcw, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SkinViewer, WalkingAnimation } from "skinview3d";
 import {
   DataTexture,
@@ -104,7 +104,11 @@ export function paintOverlay(target: Uint8Array, overlay: HoverOverlay) {
  * changes them (loadSkin would clear hat pixels on opaque skins).
  */
 export function ModelCanvas(
-  props: EditorSurfaceProps & { readonly frameClassName?: string },
+  props: EditorSurfaceProps & {
+    readonly frameClassName?: string;
+    /** Extra controls at the end of the view toolbar. */
+    readonly actions?: ReactNode;
+  },
 ) {
   const t = useT();
   const { store, interaction, settings } = props;
@@ -449,6 +453,7 @@ export function ModelCanvas(
         >
           {t("editor.walk")}
         </Toggle>
+        {props.actions}
       </div>
       <div
         ref={frameRef}

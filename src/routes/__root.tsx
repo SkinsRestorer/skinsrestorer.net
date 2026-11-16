@@ -133,9 +133,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             i18n={i18n}
             search={providerSearch}
           >
+            {/* First in the Tab order, so keyboard users reach the choice first. */}
+            <CookieConsentBanner />
             {children}
             <Toaster richColors />
-            <CookieConsentBanner />
           </RootProvider>
         </LocaleProvider>
         <Scripts />

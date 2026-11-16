@@ -99,70 +99,73 @@ const CookieConsentBanner = () => {
       ref={section}
       tabIndex={-1}
       aria-labelledby={titleId}
-      className="fixed inset-x-0 bottom-0 z-50 outline-none sm:right-auto sm:bottom-4 sm:left-4"
+      className="group fixed inset-x-0 bottom-0 z-50 outline-none sm:right-auto sm:bottom-4 sm:left-4"
     >
-      <Card className="m-3 shadow-lg sm:max-w-md">
-        <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
-          <CardTitle id={titleId} className="text-lg">
-            {t("consent.websiteAnalytics")}
-          </CardTitle>
-          {dismissible ? (
+      {/* Shows focus when the banner is reopened from Cookie settings. */}
+      <div className="m-3 rounded-xl group-focus-visible:ring-2 group-focus-visible:ring-ring sm:max-w-md">
+        <Card className="shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
+            <CardTitle id={titleId} className="text-lg">
+              {t("consent.websiteAnalytics")}
+            </CardTitle>
+            {dismissible ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={close}
+                aria-label={t("common.close")}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            ) : (
+              <Cookie aria-hidden="true" className="h-5 w-5" />
+            )}
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            <CardDescription>
+              {t("consent.weUseAnalyticsCookiesSeeWhichPages")}
+            </CardDescription>
+            {dismissible ? (
+              <p className="text-sm font-medium">
+                {consentState === "granted"
+                  ? t("consent.currentChoiceAllowed")
+                  : t("consent.currentChoiceDeclined")}
+              </p>
+            ) : null}
+            <p className="text-xs text-muted-foreground">
+              {t("consent.select")}{" "}
+              <span className="font-medium">{t("common.allowAnalytics")}</span>{" "}
+              {t("consent.enableTheseCookiesReadOur")}{" "}
+              <Link
+                href="/cookie-policy"
+                className="underline underline-offset-2"
+              >
+                {t("common.cookiePolicy")}
+              </Link>{" "}
+              {t("consent.details")}
+            </p>
+          </CardContent>
+          <CardFooter className="flex gap-2 pt-2">
             <Button
               type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={close}
-              aria-label={t("common.close")}
+              onClick={handleDeclineCookies}
+              variant={consentState === "denied" ? "default" : "secondary"}
+              className="flex-1"
             >
-              <X aria-hidden="true" />
+              {t("consent.decline")}
             </Button>
-          ) : (
-            <Cookie aria-hidden="true" className="h-5 w-5" />
-          )}
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          <CardDescription>
-            {t("consent.weUseAnalyticsCookiesSeeWhichPages")}
-          </CardDescription>
-          {dismissible ? (
-            <p className="text-sm font-medium">
-              {consentState === "granted"
-                ? t("consent.currentChoiceAllowed")
-                : t("consent.currentChoiceDeclined")}
-            </p>
-          ) : null}
-          <p className="text-xs text-muted-foreground">
-            {t("consent.select")}{" "}
-            <span className="font-medium">{t("common.allowAnalytics")}</span>{" "}
-            {t("consent.enableTheseCookiesReadOur")}{" "}
-            <Link
-              href="/cookie-policy"
-              className="underline underline-offset-2"
+            <Button
+              type="button"
+              onClick={handleAcceptCookies}
+              variant={consentState === "denied" ? "secondary" : "default"}
+              className="flex-1"
             >
-              {t("common.cookiePolicy")}
-            </Link>{" "}
-            {t("consent.details")}
-          </p>
-        </CardContent>
-        <CardFooter className="flex gap-2 pt-2">
-          <Button
-            type="button"
-            onClick={handleDeclineCookies}
-            variant={consentState === "denied" ? "default" : "secondary"}
-            className="flex-1"
-          >
-            {t("consent.decline")}
-          </Button>
-          <Button
-            type="button"
-            onClick={handleAcceptCookies}
-            variant={consentState === "denied" ? "secondary" : "default"}
-            className="flex-1"
-          >
-            {t("common.allowAnalytics")}
-          </Button>
-        </CardFooter>
-      </Card>
+              {t("common.allowAnalytics")}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </section>
   );
 };

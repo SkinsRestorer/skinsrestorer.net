@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSearchAPI } from "fumadocs-core/search/server";
-import { createDocsSearchClient, searchLanguages } from "./docs-search-client";
+import type { SortedResult } from "fumadocs-core/search";
+import {
+  createDocsSearchClient,
+  rankDocsResults,
+  searchLanguages,
+} from "./docs-search-client";
 import type { Locale } from "./i18n";
 
 const cases: { locale: Locale; title: string; query: string }[] = [
@@ -50,3 +55,79 @@ for (const { locale, title, query } of cases) {
     }
   });
 }
+
+function page(url: string, title: string, ...hits: SortedResult[]) {
+  return [{ id: url, url, type: "page" as const, content: title }, ...hits];
+}
+
+function hit(url: string, type: "heading" | "text", content: string) {
+  return { id: `${url}-${content}`, url, type, content };
+}
+
+const results = [
+  ...page(
+    "/docs/features",
+    "Use skins",
+    hit("/docs/features", "text", "Use a cape: copied capes."),
+  ),
+  ...page(
+    "/docs/concepts/skin-properties",
+    "Signed skin properties",
+    hit("/docs/concepts/skin-properties", "heading", "Model and cape"),
+  ),
+  ...page("/docs/features/capes", "Use skins with capes"),
+];
+
+const pageOrder = (list: SortedResult[]) =>
+  list.filter((result) => result.type === "page").map((result) => result.url);
+
+test("pages named after the query come first, then matching headings", () => {
+  assert.deepEqual(pageOrder(rankDocsResults(results, "cape")), [
+    "/docs/features/capes",
+    "/docs/concepts/skin-properties",
+    "/docs/features",
+  ]);
+});
+
+test("ranking keeps each page's hits with their page", () => {
+  const ranked = rankDocsResults(results, "cape");
+  assert.equal(ranked.length, results.length);
+  assert.equal(ranked[1].url, "/docs/concepts/skin-properties");
+  assert.equal(ranked[2].content, "Model and cape");
+});
+
+test("a plural query still matches a singular title", () => {
+  const list = [
+    ...page("/docs/configuration/options", "Configuration reference"),
+    ...page("/docs/troubleshooting/permissions", "Permission problems"),
+  ];
+  assert.deepEqual(pageOrder(rankDocsResults(list, "permissions")), [
+    "/docs/troubleshooting/permissions",
+    "/docs/configuration/options",
+  ]);
+});
+
+test("titles match without case or accent differences", () => {
+  const list = [
+    ...page("/ru/docs", "Документация"),
+    ...page("/ru/docs/installation", "Установка SkinsRestorer"),
+    ...page("/pt-BR/docs/configuration", "Configuração"),
+  ];
+  assert.deepEqual(pageOrder(rankDocsResults(list, "установ")), [
+    "/ru/docs/installation",
+    "/ru/docs",
+    "/pt-BR/docs/configuration",
+  ]);
+  assert.equal(
+    pageOrder(rankDocsResults(list, "CONFIGURACAO"))[0],
+    "/pt-BR/docs/configuration",
+  );
+});
+
+test("results without a title or heading match keep the engine order", () => {
+  assert.deepEqual(pageOrder(rankDocsResults(results, "signatures")), [
+    "/docs/features",
+    "/docs/concepts/skin-properties",
+    "/docs/features/capes",
+  ]);
+});

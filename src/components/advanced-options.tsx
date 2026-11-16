@@ -17,6 +17,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useT } from "@/lib/i18n-react";
 import type { UploadMethod } from "@/lib/studio-options";
 
+/** Labels wrap in the narrow options column instead of overflowing. */
+const wrappingToggle =
+  "h-auto min-h-8 w-full min-w-0 text-center whitespace-normal";
+
 /**
  * The upload method and the optional MineSkin key, closed by default. The
  * Studio owns the open state, so it stays open while the user edits the
@@ -77,11 +81,11 @@ export function AdvancedOptions(props: {
                       props.onMethodChange(value[0] as UploadMethod);
                   }}
                 >
-                  <ToggleGroupItem value="axolotl" className="w-full">
-                    {"Axolotl"}
+                  <ToggleGroupItem value="axolotl" className={wrappingToggle}>
+                    <span className="py-1">{"Axolotl"}</span>
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="mineskin" className="w-full">
-                    {t("common.official")}
+                  <ToggleGroupItem value="mineskin" className={wrappingToggle}>
+                    <span className="py-1">{t("common.official")}</span>
                   </ToggleGroupItem>
                 </ToggleGroup>
                 <FieldDescription id={descriptionId}>

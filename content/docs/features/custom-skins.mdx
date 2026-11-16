@@ -3,7 +3,7 @@ title: "Create a named custom skin"
 description: "Save a reusable server skin for commands, defaults, and the menu."
 docType: "how-to"
 appliesTo: "Server and proxy administrators"
-reviewed: "2026-11-09"
+reviewed: "2026-11-16"
 version: "15.12.6"
 icon: "Tag"
 ---
@@ -17,10 +17,10 @@ You need console access or `skinsrestorer.admincommand.createcustom`. On a netwo
 ## Create from a PNG
 
 1. Open [Generator](/generator).
-2. Select **Upload skin** and choose your PNG, or select a skin in **Library** or **Gallery**.
+2. Select **Upload skin** and choose your PNG, or select a skin in **Library** or **Gallery**. Under the command, the page explains that `/sr createcustom` saves the skin on the server under a name that players can use with `/skin set`.
 3. Choose **Classic** or **Slim** under **Model**.
 4. Select a supported cape under **Cape** if you need one.
-5. Optional: enter a short name under **Skin name**, such as `lobby`.
+5. Optional: enter a short name under **Skin name (optional)**, such as `lobby`. Use lowercase letters, numbers, and underscores.
 6. Optional: open **Advanced options** to choose the generation method.
 7. Select **Generate /sr createcustom**.
 8. Copy the command and run it in the server or proxy console.
@@ -57,6 +57,8 @@ To change the menu label, run `/sr setcustomname lobby Lobby skin`. The command 
 
 ## Existing skin files
 
-The generator can read supported existing skin storage files. Select **+** in the **Library**, then **Open .skin file**. The texture of the file opens as a new skin, so you can edit it or generate a command again. Do not hand-edit a texture value or signature.
+The generator can read supported existing skin storage files. When no skin is selected, select **Open .skin file** in the center of the page. You can also select **+** in the **Library**, then **Open .skin file**. The texture of the file opens as a new skin, so you can edit it or generate a command again. Do not hand-edit a texture value or signature.
+
+If the page shows **This skin file could not be opened**, read the reason below it. Choose a SkinsRestorer storage file, such as a `.customskin` file. The page reads only the texture URL in the file.
 
 Read [storage and backups](/docs/configuration/backups) before you remove stored data.

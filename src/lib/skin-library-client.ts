@@ -120,6 +120,10 @@ export type MigrationResult =
 export async function migrateLegacyDraft(
   client: LibraryClient,
   storage: KeyValueStorage | undefined,
+  options: {
+    /** The localized skin name, from the draft's last change time. */
+    readonly name: (updatedAt: number) => string;
+  },
 ): Promise<MigrationResult> {
   // Decode and identify the same snapshot, even if an older tab still writes
   // legacy drafts while the PNG is being decoded or the database opens.
@@ -135,7 +139,7 @@ export async function migrateLegacyDraft(
     return { status: draft.status };
   if (draft.status !== "found") return { status: "none" };
   const id = `draft-${await textHash(raw)}`;
-  const date = new Date(draft.updatedAt).toLocaleDateString();
+  const name = options.name(draft.updatedAt);
   const { created } = await client.run(
     Effect.gen(function* () {
       const library = yield* SkinLibrary;
@@ -150,7 +154,7 @@ export async function migrateLegacyDraft(
         id,
         createdAt: draft.updatedAt,
         skin: {
-          name: `Recovered draft (${date})`,
+          name,
           content,
           source: { kind: "migrated-draft" },
         },

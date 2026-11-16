@@ -63,6 +63,10 @@ test("localized shortcuts and retired documentation retain their locale", () => 
     destination: "/ru/docs/features/skin-upload.mdx",
     status: 308,
   });
+  assert.deepEqual(getSiteRedirect("/es/donate"), {
+    destination: "/es/pricing",
+    status: 307,
+  });
   assert.deepEqual(getSiteRedirect("/pt-BR/install"), {
     destination: "/pt-BR/docs/installation",
     status: 307,

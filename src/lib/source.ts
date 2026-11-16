@@ -22,9 +22,11 @@ export const source = loader(docs.toFumadocsSource(), {
   i18n: typeof i18n;
 }>;
 
+/** An untranslated page shares the English image, since its text is English. */
 export function getPageImage(page: InferPageType<typeof source>) {
+  const contentLocale = docFileInfo(page.path).locale;
   const segments = [
-    ...(page.locale && page.locale !== "en" ? [page.locale] : []),
+    ...(contentLocale === "en" ? [] : [contentLocale]),
     ...page.slugs,
     "image.png",
   ];

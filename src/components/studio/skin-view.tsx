@@ -37,7 +37,11 @@ export function SkinView(props: {
   const redrawRef = useRef(() => {});
   /** Increments when a viewer starts, so texture effects run again. */
   const [ready, setReady] = useState(0);
-  const [failed, setFailed] = useState(false);
+  /** WebGL is missing or its context was lost. */
+  const [noWebGl, setNoWebGl] = useState(false);
+  /** The skin URL whose image could not load. A new skin tries again. */
+  const [badSkin, setBadSkin] = useState<string | null>(null);
+  const failed = noWebGl || (badSkin !== null && badSkin === props.skinUrl);
   /** Whether the frame is on screen. The idle loop runs only while it is. */
   const [onScreen, setOnScreen] = useState(true);
   const reduceMotion = useReducedMotion() ?? false;
@@ -58,7 +62,7 @@ export function SkinView(props: {
         renderPaused: true,
       });
     } catch {
-      setFailed(true);
+      setNoWebGl(true);
       return;
     }
     current.controls.enablePan = false;
@@ -91,7 +95,7 @@ export function SkinView(props: {
     visibility.observe(frame);
     const lost = (event: Event) => {
       event.preventDefault();
-      setFailed(true);
+      setNoWebGl(true);
     };
     canvas.addEventListener("webglcontextlost", lost);
     return () => {
@@ -134,7 +138,7 @@ export function SkinView(props: {
       }),
       owner.signal,
     ).catch(() => {
-      if (!owner.signal.aborted) setFailed(true);
+      if (!owner.signal.aborted) setBadSkin(url);
     });
     return () => owner.abort();
   }, [ready, props.skinUrl, props.variant]);

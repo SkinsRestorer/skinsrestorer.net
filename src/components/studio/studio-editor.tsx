@@ -4,7 +4,15 @@ import type { Message } from "@/lib/messages";
 
 import { useHotkeys, type UseHotkeyDefinition } from "@tanstack/react-hotkeys";
 import { useBlocker } from "@tanstack/react-router";
-import { Download, Grid3x3, Maximize, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  Download,
+  Grid3x3,
+  Maximize,
+  Redo2,
+  Undo2,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import posthog from "posthog-js";
 import {
   useCallback,
@@ -135,6 +143,11 @@ export function StudioEditor(props: {
   const [status, setStatus] = useState<Message>("");
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   const textureFrame = useRef<HTMLDivElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  // The control that opened the editor unmounts: start keyboard users here.
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
   const modelId = useId();
   const exited = useRef(false);
   const draftsOff = work.drafts.kind === "off";
@@ -424,7 +437,11 @@ export function StudioEditor(props: {
         className="ph-no-capture flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground sm:p-4"
       >
         <div className="flex min-h-8 items-center gap-2">
-          <h2 className="truncate text-base font-semibold">
+          <h2
+            ref={heading}
+            tabIndex={-1}
+            className="truncate text-base font-semibold outline-none"
+          >
             {props.isNew
               ? t("common.newSkin")
               : t("studio.editingName", { name: work.target.name })}
@@ -591,6 +608,32 @@ export function StudioEditor(props: {
           onPainted={onPainted}
           onStatus={showStatus}
           frameClassName="min-h-56"
+          actions={
+            // On phones the texture toolbar is a screen away from the model,
+            // so the model gets its own Undo and Redo.
+            <span className="ml-auto flex gap-1 sm:hidden">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="pointer-coarse:size-9"
+                aria-label={t("common.undo")}
+                disabled={!snapshot.canUndo}
+                onClick={() => store.undo()}
+              >
+                <Undo2 />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="pointer-coarse:size-9"
+                aria-label={t("common.redo")}
+                disabled={!snapshot.canRedo}
+                onClick={() => store.redo()}
+              >
+                <Redo2 />
+              </Button>
+            </span>
+          }
         />
         <Button disabled={work.busy} onClick={() => void save()}>
           {props.isNew ? t("common.saveLibrary") : t("studio.saveChanges")}

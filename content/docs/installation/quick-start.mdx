@@ -3,22 +3,22 @@ title: "Check your first skin"
 description: "Check commands, persistence, and network switching after installation."
 docType: "tutorial"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-16"
 version: "15.12.6"
 icon: "CircleCheck"
 ---
 
-Run this check after your [platform installation](/docs/installation). It separates command access, skin fetching, and profile application.
+Run this check after your [platform installation](/docs/installation). Each step tests one part: that you can use the command, that the server can download the skin, and that other players see it.
 
 ## First change
 
 1. Join the server with a Java client.
-2. Run `/skin set xknat`.
+2. In the game chat, run `/skin set xknat`. `xknat` is the name of a Minecraft account with a custom skin.
 3. Wait for the success message.
-4. Ask another player to check your appearance.
+4. Ask another player to check your appearance. If you are alone, press `F5` to see your character from behind.
 5. Disconnect and join again.
 
-Your selected skin must remain after you reconnect. Your own client can briefly show an older skin, so use another player's view too.
+Your selected skin must remain after you reconnect. Your own client can briefly show an older skin, so use another player's view too when you can.
 
 ## Proxy network check
 
@@ -31,13 +31,13 @@ If it changes on one backend only, use [proxy troubleshooting](/docs/troubleshoo
 
 ## Return to your account skin
 
-Run `/skin clear`. This removes your saved selection. Account lookup and server default rules then determine your skin.
+Run `/skin clear`. This removes the skin that you selected. You then get the skin of your Minecraft account, or a [default skin](/docs/configuration/default-skins) if the server sets one.
 
 ## If a check fails
 
 | Result | Next step |
 | --- | --- |
-| Unknown command | Read the startup log and check the installed artifact |
+| Unknown command | Read the server console from the start for a SkinsRestorer error, and check that you installed the correct file for your platform |
 | Permission denied | [Check permissions](/docs/troubleshooting/permissions) |
 | Name or URL cannot load | [Check service connections](/docs/troubleshooting/firewall) |
 | Success message, unchanged skin | [Check profile application](/docs/troubleshooting/no-skin) |

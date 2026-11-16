@@ -61,6 +61,7 @@ export function StudioGallery(props: {
   const id = useId();
   const { state } = props;
   const list = useRef<HTMLUListElement>(null);
+  const search = useRef<HTMLInputElement>(null);
   const [focusedId, setFocusedId] = useState<string>();
   const skins =
     state.status === "ready" ? searchGallery(state.skins, props.query) : [];
@@ -102,6 +103,7 @@ export function StudioGallery(props: {
             <Search aria-hidden="true" />
           </InputGroupAddon>
           <InputGroupInput
+            ref={search}
             id={id}
             type="search"
             placeholder={t("gallery.search")}
@@ -116,7 +118,15 @@ export function StudioGallery(props: {
           <AlertDescription>
             {t("gallery.galleryCouldNotLoadedTryAgain")}
           </AlertDescription>
-          <Button size="sm" variant="outline" onClick={props.onRetry}>
+          {/* The alert unmounts on retry, so focus moves to the search. */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              props.onRetry();
+              search.current?.focus();
+            }}
+          >
             {t("common.tryAgain")}
           </Button>
         </Alert>
@@ -214,7 +224,11 @@ export function StudioGallery(props: {
               size="sm"
               variant="outline"
               className="self-start"
-              onClick={() => props.onQuery("")}
+              onClick={() => {
+                props.onQuery("");
+                // This button unmounts with the empty result. Keep focus nearby.
+                search.current?.focus();
+              }}
             >
               {t("gallery.clearSearch")}
             </Button>
@@ -225,31 +239,30 @@ export function StudioGallery(props: {
   );
 }
 
-const onVisible = new WeakMap<Element, () => void>();
+const onVisibility = new WeakMap<Element, (visible: boolean) => void>();
 let visibility: IntersectionObserver | undefined;
 
 /**
- * Call `show` once when `element` comes near the viewport. All thumbnails
- * share one observer: the gallery mounts dozens at once, and each observer
- * adds setup work to the frame that shows the gallery.
+ * Report when `element` comes near the viewport and when it leaves. All
+ * thumbnails share one observer: the gallery mounts dozens at once, and each
+ * observer adds setup work to the frame that shows the gallery.
  */
-function whenVisible(element: Element, show: () => void) {
+function watchVisibility(
+  element: Element,
+  onChange: (visible: boolean) => void,
+) {
   visibility ??= new IntersectionObserver(
     (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        visibility?.unobserve(entry.target);
-        onVisible.get(entry.target)?.();
-        onVisible.delete(entry.target);
-      }
+      for (const entry of entries)
+        onVisibility.get(entry.target)?.(entry.isIntersecting);
     },
     { rootMargin: "80px" },
   );
-  onVisible.set(element, show);
+  onVisibility.set(element, onChange);
   visibility.observe(element);
   return () => {
     visibility?.unobserve(element);
-    onVisible.delete(element);
+    onVisibility.delete(element);
   };
 }
 
@@ -267,27 +280,46 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    // Another entry with the same texture may have loaded it meanwhile.
+    const cached = thumbnails.get(skin.textureUrl);
+    if (cached) {
+      setPng(cached);
+      return;
+    }
     const element = frame.current;
-    if (!element || thumbnails.has(skin.textureUrl)) return;
-    const controller = new AbortController();
-    const stop = whenVisible(element, () => {
+    if (!element) return;
+    let controller: AbortController | undefined;
+    const stop = watchVisibility(element, (visible) => {
+      if (!visible) {
+        // Scrolled past before it loaded: free the download slot for the
+        // entries on screen now. It loads again when it comes back.
+        controller?.abort();
+        controller = undefined;
+        return;
+      }
+      if (controller) return;
+      const current = new AbortController();
+      controller = current;
       void runHttpEffect(
         loadTexturePreviewEffect(skin.textureUrl),
-        controller.signal,
+        current.signal,
       ).then(
         (blob) => {
-          if (controller.signal.aborted) return;
+          if (current.signal.aborted) return;
+          stop();
           thumbnails.set(skin.textureUrl, blob);
           setPng(blob);
         },
         () => {
-          if (!controller.signal.aborted) setFailed(true);
+          if (current.signal.aborted) return;
+          stop();
+          setFailed(true);
         },
       );
     });
     return () => {
       stop();
-      controller.abort();
+      controller?.abort();
     };
   }, [skin.textureUrl, attempt]);
   useEffect(() => {

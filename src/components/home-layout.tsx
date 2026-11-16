@@ -16,8 +16,8 @@ export function HomeLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <a
-        href="#nd-home-layout"
-        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-2 focus-visible:left-2 focus-visible:z-100 focus-visible:rounded-md focus-visible:bg-background focus-visible:px-3 focus-visible:py-2 focus-visible:text-sm focus-visible:ring-2 focus-visible:ring-ring"
+        href="#main-content"
+        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-2 focus-visible:left-2 focus-visible:z-100 focus-visible:rounded-md focus-visible:bg-background focus-visible:px-3 focus-visible:py-2 focus-visible:text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         {t("common.skipToContent")}
       </a>
@@ -51,7 +51,14 @@ export function HomeLayout({ children }: { children: ReactNode }) {
           ...(baseOptions.links || []),
         ]}
       >
-        {children}
+        {/* The skip link target. The header sits in the same <main>. */}
+        <div
+          id="main-content"
+          tabIndex={-1}
+          className="flex flex-1 flex-col outline-none"
+        >
+          {children}
+        </div>
         <SiteFooter />
       </FumadocsHomeLayout>
     </>

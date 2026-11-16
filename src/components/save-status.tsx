@@ -26,7 +26,6 @@ export function SaveStatus(props: {
       title={props.label}
       className={cn(
         "inline-flex min-w-0 items-center gap-1 text-xs text-muted-foreground",
-        props.state === "saved" && "text-chart-2",
         props.className,
       )}
     >
@@ -34,6 +33,8 @@ export function SaveStatus(props: {
         aria-hidden="true"
         className={cn(
           "size-3.5 shrink-0",
+          // Small green text fails contrast, so only the icon is green.
+          props.state === "saved" && "text-chart-2",
           props.state === "saving" && "animate-spin motion-reduce:animate-none",
         )}
       />

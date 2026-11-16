@@ -3,7 +3,7 @@ title: "An upload or generated command fails"
 description: "Separate image problems, generation queues, and server command failures."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-11-08"
+reviewed: "2026-11-16"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -22,14 +22,14 @@ If the preview shows arm gaps, switch between classic and slim. Read [the model 
 
 ## Generation fails or waits
 
-1. Read the error shown on the page.
+1. Read the error under **The skin was not uploaded**. The next line tells you what to try. Your skin and options stay as they were.
 2. Wait for an active queue job to finish.
 3. Check your API key if the error concerns authorization.
-4. Check the available cape list if the error concerns cape access.
+4. Check the available cape list if the error concerns cape access. If the list shows **Failed to load available capes**, select **Try again** below it.
 
 A selected cape in **Axolotl** mode uses the proxy route. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
 
-Do not repeatedly submit the same file while a job is pending.
+While a job is pending, the generate button shows **Generating…** and stays off. A job can take up to a minute. To stop waiting, select **Stop waiting** below the button, then generate again.
 
 If you change the file, model, cape, API key, or upload method, the page stops waiting for the previous result. Leaving the page also stops waiting. A job that the service already accepted can continue. The page does not submit that job again automatically.
 

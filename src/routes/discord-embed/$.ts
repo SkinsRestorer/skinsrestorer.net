@@ -20,7 +20,7 @@ export const Route = createFileRoute("/discord-embed/$")({
         if (!page) return new Response(null, { status: 404 });
         const component = createDiscordEmbed({
           title: page.data.title,
-          description: `${page.data.description ?? ""}\nSkinsRestorer ${page.data.version} · ${page.data.appliesTo}\nReviewed ${page.data.reviewed}`,
+          description: `${page.data.description ?? ""}\nSkinsRestorer ${page.data.version} · ${page.data.appliesTo}\n${translate(locale, "common.reviewed")} ${page.data.reviewed}`,
           url: new URL(page.url, "https://skinsrestorer.net").href,
           label: translate(locale, "common.readGuide"),
           images: [

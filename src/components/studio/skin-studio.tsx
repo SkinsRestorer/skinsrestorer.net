@@ -14,6 +14,7 @@ import {
   Check,
   Copy,
   Download,
+  FileArchive,
   FolderPlus,
   Images,
   Link2,
@@ -161,6 +162,10 @@ const intro: Record<
   },
 };
 
+/** A two-way choice whose labels may wrap instead of overflowing. */
+const wrappingToggle =
+  "h-auto min-h-8 w-full min-w-0 text-center whitespace-normal";
+
 const panel =
   "min-w-0 rounded-xl border bg-card p-3 text-card-foreground sm:p-4";
 
@@ -169,11 +174,12 @@ const QUERY_WRITE_MS = 400;
 
 /** One pixel store and library session for the whole Studio visit. */
 function useEditorSession() {
+  const t = useT();
   const [editor] = useState(() => {
     const store = new SkinEditorStore();
     // The server renders without a library; the browser opens it.
     const session = new EditorSession(store, browserLibrary());
-    session.start(createTemplate("classic"), { name: "New skin" });
+    session.start(createTemplate("classic"), { name: t("common.newSkin") });
     return { store, session };
   });
   useEffect(() => () => void editor.session.dispose(), [editor]);
@@ -237,6 +243,24 @@ export function SkinStudio(props: {
   const pngInput = useRef<HTMLInputElement>(null);
   const skinFileInput = useRef<HTMLInputElement>(null);
   const current = state.selection;
+  /** Where focus goes once the next view has rendered. */
+  const focusAfter = useRef<"selection" | "edit" | null>(null);
+  const selectionHeading = useRef<HTMLHeadingElement>(null);
+  const editButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const target =
+      focusAfter.current === "edit"
+        ? editButton.current
+        : focusAfter.current === "selection"
+          ? selectionHeading.current
+          : null;
+    if (mode.kind === "edit") return;
+    // Without an Edit skin button there is nothing to return to.
+    if (!target && focusAfter.current === "edit") focusAfter.current = null;
+    if (!target) return;
+    focusAfter.current = null;
+    target.focus();
+  }, [mode.kind, current?.token]);
 
   /**
    * Change the public URL state. A new selection adds a history entry;
@@ -369,6 +393,8 @@ export function SkinStudio(props: {
   };
 
   const closeEditor = () => {
+    // The editor unmounts with its focused control: return to Edit skin.
+    focusAfter.current = "edit";
     setMode({ kind: "view" });
     // A new session id, so kept drafts show as recoverable work.
     editor.session.start(createTemplate("classic"), {
@@ -588,11 +614,9 @@ export function SkinStudio(props: {
       dropSkinReference();
       importTexture(url);
     } catch (cause) {
-      toast.error(
-        t("studio.failedReverseSkinFileError", {
-          error: t.error(cause),
-        }),
-      );
+      toast.error(t("studio.skinFileCouldNotOpen"), {
+        description: `${t.error(cause)} ${t("studio.skinFileHint")}`,
+      });
     }
   };
 
@@ -630,6 +654,9 @@ export function SkinStudio(props: {
     if (fitting.length) {
       cancelImport();
       setDrawer(false);
+      // The button that opened the file picker can unmount with the empty
+      // view, so move focus to the new selection.
+      focusAfter.current = "selection";
       store.selectFiles(fitting.slice(0, 20));
       dropSkinReference();
     }
@@ -758,6 +785,7 @@ export function SkinStudio(props: {
   /** Wraps the MineSkin key field, for focus and its Enter key. */
   const keyField = useRef<HTMLDivElement>(null);
   const generateHintId = useId();
+  const purposeHintId = useId();
   const [focusKeyField, setFocusKeyField] = useState(false);
   // The "Open advanced options" link unmounts on click: move focus to the key.
   useEffect(() => {
@@ -1052,6 +1080,8 @@ export function SkinStudio(props: {
                   }
                   onEdit={editSelected}
                   onUseLatest={() => store.useLatest()}
+                  headingRef={selectionHeading}
+                  editButtonRef={editButton}
                   onKeep={
                     current.origin === "gallery" ? keepGallery : undefined
                   }
@@ -1084,6 +1114,15 @@ export function SkinStudio(props: {
                         <Images data-icon="inline-start" />
                         {t("common.browseGallery")}
                       </Button>
+                      {props.entry === "generator" && (
+                        <Button
+                          variant="outline"
+                          onClick={commands.openSkinFile}
+                        >
+                          <FileArchive data-icon="inline-start" />
+                          {t("library.openSkinFile")}
+                        </Button>
+                      )}
                     </div>
                   </Empty>
                 </div>
@@ -1116,39 +1155,57 @@ export function SkinStudio(props: {
                 }}
               >
                 <FieldGroup>
-                  {fixed ? (
-                    <h2 className="text-base font-semibold">
-                      {fixed === "createcustom"
-                        ? t("studio.createCustomSkin")
-                        : t("common.useServer")}
-                    </h2>
-                  ) : (
-                    <form.Field name="purpose">
-                      {(field) => (
-                        <ToggleGroup
-                          aria-label={t("studio.purpose")}
-                          variant="outline"
-                          spacing={0}
-                          className="grid w-full grid-cols-2"
-                          value={[field.state.value]}
-                          onValueChange={(value) => {
-                            if (value[0])
-                              field.handleChange(value[0] as StudioPurpose);
-                          }}
-                        >
-                          <ToggleGroupItem value="skin-url" className="w-full">
-                            {t("common.useServer")}
-                          </ToggleGroupItem>
-                          <ToggleGroupItem
-                            value="createcustom"
-                            className="w-full"
+                  <div className="flex flex-col gap-1.5">
+                    {fixed ? (
+                      <h2 className="text-base font-semibold">
+                        {fixed === "createcustom"
+                          ? t("studio.createCustomSkin")
+                          : t("common.useServer")}
+                      </h2>
+                    ) : (
+                      <form.Field name="purpose">
+                        {(field) => (
+                          <ToggleGroup
+                            aria-label={t("studio.purpose")}
+                            aria-describedby={purposeHintId}
+                            variant="outline"
+                            spacing={0}
+                            className="grid w-full grid-cols-2"
+                            value={[field.state.value]}
+                            onValueChange={(value) => {
+                              if (value[0])
+                                field.handleChange(value[0] as StudioPurpose);
+                            }}
                           >
-                            {t("studio.customSkin")}
-                          </ToggleGroupItem>
-                        </ToggleGroup>
+                            <ToggleGroupItem
+                              value="skin-url"
+                              className={wrappingToggle}
+                            >
+                              <span className="py-1">
+                                {t("common.useServer")}
+                              </span>
+                            </ToggleGroupItem>
+                            <ToggleGroupItem
+                              value="createcustom"
+                              className={wrappingToggle}
+                            >
+                              <span className="py-1">
+                                {t("studio.customSkin")}
+                              </span>
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+                        )}
+                      </form.Field>
+                    )}
+                    {/* Say what the command does before anything uploads. */}
+                    <FieldDescription id={purposeHintId}>
+                      {t(
+                        purpose === "createcustom"
+                          ? "studio.createcustomPurposeHint"
+                          : "studio.skinUrlPurposeHint",
                       )}
-                    </form.Field>
-                  )}
+                    </FieldDescription>
+                  </div>
 
                   {purpose === "createcustom" && (
                     <form.Field name="customName">
@@ -1278,7 +1335,8 @@ export function SkinStudio(props: {
                   <Button
                     ref={generateButton}
                     type="submit"
-                    className="w-full"
+                    // Long translations wrap in the narrow options column.
+                    className="h-auto min-h-9 w-full whitespace-normal"
                     disabled={
                       !input ||
                       !!pendingGallery ||
@@ -1495,6 +1553,8 @@ function SelectedSkinView(props: {
   onUseLatest: () => void;
   onKeep?: () => void;
   galleryLink?: string;
+  headingRef?: React.Ref<HTMLHeadingElement>;
+  editButtonRef?: React.Ref<HTMLButtonElement>;
 }) {
   const t = useT();
   const { selection } = props;
@@ -1508,7 +1568,11 @@ function SelectedSkinView(props: {
   return (
     <>
       <div className="ph-no-capture flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1">
-        <h2 className="min-w-0 truncate text-base font-semibold">
+        <h2
+          ref={props.headingRef}
+          tabIndex={-1}
+          className="min-w-0 truncate text-base font-semibold outline-none"
+        >
           {selection.name}
         </h2>
         {selection.status !== "invalid" &&
@@ -1555,6 +1619,7 @@ function SelectedSkinView(props: {
       )}
       <div className="flex flex-wrap justify-center gap-2">
         <Button
+          ref={props.editButtonRef}
           variant="outline"
           disabled={!editable}
           title={

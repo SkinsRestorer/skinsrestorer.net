@@ -3,7 +3,7 @@ title: "Enviar uma skin PNG"
 description: "Transforme um PNG em um comando /skin url e aplique no jogo."
 docType: "how-to"
 appliesTo: "Usuários do site e jogadores do Java Edition"
-reviewed: "2026-11-09"
+reviewed: "2026-11-16"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -25,10 +25,12 @@ Escolha o [modelo correto](/docs/features/skin-design). O site confere as dimens
 3. Confira a prévia e escolha **Clássico** (braços de 4 px) ou **Fino** (3 px).
 4. Se quiser uma capa, escolha uma da lista.
 5. Para mudar o método, abra **Opções avançadas**. **Axolotl** é o padrão. A outra opção é **Oficial**.
-6. Selecione **Gerar /skin url**.
-7. Copie o comando com o botão ao lado de **Comando** e cole no chat do Minecraft. Você também pode copiar a **URL da skin**. MineSkin retorna um link da textura quando disponível. Axolotl retorna um valor para comandos do Minecraft.
+6. Selecione **Gerar /skin url**. O botão mostra **Gerando…** enquanto o MineSkin cria a skin. Isso pode levar até um minuto.
+7. Quando aparecer **Seu comando está pronto**, copie o comando com o botão ao lado de **Comando** e cole no chat do Minecraft. Você também pode copiar a **URL da skin**. MineSkin retorna um link da textura quando disponível. Axolotl retorna um valor para comandos do Minecraft.
 
-Mudar a skin, o modelo, a capa ou o método remove o resultado anterior. Gere outro comando para as novas opções.
+Se não quiser esperar, selecione **Parar de esperar** abaixo do botão. A página ignora o resultado atrasado, e você pode gerar novamente.
+
+Com o comando pronto, o botão mostra **Comando pronto** e fica desativado. As mesmas opções geram o mesmo comando, então a página não envia a skin de novo. Mudar a skin, o modelo, a capa ou o método oculta o resultado anterior e ativa o botão outra vez. Gere outro comando para as novas opções.
 
 Mantenha as aspas da URL. O comando inclui o modelo escolhido. O resultado pode usar uma URL do MineSkin ou um valor `skinsrestorer-axolotl://`. Copie exatamente. Um valor Axolotl é usado no comando, não como link do navegador.
 
@@ -50,13 +52,15 @@ As skins da galeria ficam separadas. Leia [o guia da galeria](/docs/features/ski
 
 ## Chave de API e capas [#api-key-and-capes]
 
-**Axolotl** oferece capas compatíveis sem sua própria chave. **Oficial** usa uma chave do MineSkin e confere a permissão `capes`. O método e a chave ficam em **Opções avançadas**. A lista de capas fica sempre visível. Ao escolher uma capa, o modelo gira para mostrar as costas.
+**Axolotl** oferece capas compatíveis sem sua própria chave. **Oficial** usa uma chave do MineSkin e confere a permissão `capes`. O método e a chave ficam em **Opções avançadas**. A lista de capas fica sempre visível. Ao escolher uma capa, o modelo gira para mostrar as costas. Enquanto a lista carrega, aparece **Carregando capas…**. Se ela não carregar, selecione **Tentar novamente** abaixo da lista.
 
 Axolotl com uma capa selecionada usa o proxy. Envios sem capa e o método oficial usam o MineSkin diretamente. A chave do site e `api.mineskinAPIKey` do servidor são independentes. Consulte [MineSkin](/docs/integrations/mineskin).
 
 A lista contém apenas capas existentes compatíveis. Ela não aceita imagens de capa arbitrárias nem transfere a propriedade delas para sua conta.
 
 ## Se a geração falhar [#if-generation-fails]
+
+A página mostra **A skin não foi enviada** com o motivo. Sua skin e suas opções são mantidas. Com **Axolotl**, tente novamente ou mude para **Oficial** em **Opções avançadas**. Com **Oficial**, verifique sua chave de API do MineSkin em **Opções avançadas** e tente novamente. A página nunca reenvia sozinha um envio que falhou.
 
 - Imagem inválida: exporte novamente um PNG a partir de um modelo padrão.
 - Fila ou limite: espere a fila terminar antes de tentar novamente.

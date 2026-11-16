@@ -5,6 +5,15 @@ const github =
   import.meta.env.VITE_GITHUB_LINK ??
   "https://github.com/SkinsRestorer/SkinsRestorer";
 
+/**
+ * Turn a link to this site into a path, so a shortcut such as /es/donate keeps
+ * its locale even when the configured target is a full URL.
+ */
+function sitePath(href: string) {
+  const origin = "https://skinsrestorer.net";
+  return href.startsWith(`${origin}/`) ? href.slice(origin.length) : href;
+}
+
 const aliases: Record<string, string> = {
   "/discord":
     import.meta.env.VITE_DISCORD_LINK ?? "https://discord.com/invite/aKm3B52",
@@ -12,7 +21,7 @@ const aliases: Record<string, string> = {
   "/spigot":
     import.meta.env.VITE_SPIGOT_LINK ??
     "https://www.spigotmc.org/resources/skinsrestorer.2124",
-  "/donate": import.meta.env.VITE_DONATE_LINK ?? "/pricing",
+  "/donate": sitePath(import.meta.env.VITE_DONATE_LINK ?? "/pricing"),
   "/bstats":
     import.meta.env.VITE_BSTATS_LINK ??
     "https://bstats.org/plugin/bungeecord/SkinsRestorer/1686",

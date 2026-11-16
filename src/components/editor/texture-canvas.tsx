@@ -524,7 +524,12 @@ export function TextureCanvas(props: TextureCanvasProps) {
           ? describePixel(store.getSnapshot().variant, hover.x, hover.y, t)
           : focused
             ? describePixel(store.getSnapshot().variant, cursor.x, cursor.y, t)
-            : null}
+            : interaction === "paint" && (
+                // Touch has no hover, so this line explains the gestures.
+                <span className="hidden pointer-coarse:inline">
+                  {t("editor.oneFingerPaintsTwoFingersScroll")}
+                </span>
+              )}
       </p>
       <p className="sr-only" aria-live="polite">
         {announcement}

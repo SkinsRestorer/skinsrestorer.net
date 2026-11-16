@@ -286,9 +286,21 @@ export function StudioLibrary(props: {
         ))}
       </ul>
       {state.status === "unavailable" && (
-        <p className="text-xs text-muted-foreground">
-          {t.message(state.message)}
-        </p>
+        <div className="flex flex-col items-start gap-2">
+          <p className="text-xs text-muted-foreground">
+            {t.message(state.message)}
+          </p>
+          {state.reload && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              <RotateCcw data-icon="inline-start" />
+              {t("common.reloadPage")}
+            </Button>
+          )}
+        </div>
       )}
       {listing && listing.skins.length === 0 && (
         <div className="flex rounded-lg border border-dashed">

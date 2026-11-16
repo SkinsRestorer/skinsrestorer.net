@@ -13,28 +13,45 @@ import {
   type LibraryClient,
   type MigrationResult,
 } from "../skin-library-client";
-import type {
-  DamagedRecord,
-  LibraryListing,
-  StoredSkin,
+import {
+  SkinLibraryError,
+  type DamagedRecord,
+  type LibraryListing,
+  type StoredSkin,
 } from "../skin-library";
 import { useLatestTask } from "./use-latest-task";
-import { useNotificationT } from "@/lib/i18n-react";
+import { useLocale, useNotificationT } from "@/lib/i18n-react";
+import type { Translator } from "@/lib/messages";
 
 export type LibraryState =
   | { readonly status: "loading" }
   | { readonly status: "ready"; readonly listing: LibraryListing }
-  | { readonly status: "unavailable"; readonly message: Message };
+  | {
+      readonly status: "unavailable";
+      readonly message: Message;
+      /** Only a page reload can open the library again. */
+      readonly reload?: boolean;
+    };
 
 let migration: Promise<MigrationResult> | undefined;
 
 /** Move the old editor draft into the library once per page load. */
-function migrateOnce(client: LibraryClient) {
-  migration ??= migrateLegacyDraft(
-    client,
-    browserStorage("localStorage"),
-  ).catch((): MigrationResult => ({ status: "unavailable" }));
+function migrateOnce(client: LibraryClient, t: Translator, locale: string) {
+  migration ??= migrateLegacyDraft(client, browserStorage("localStorage"), {
+    name: (updatedAt) =>
+      t("library.recoveredDraftName", {
+        date: new Date(updatedAt).toLocaleDateString(locale),
+      }),
+  }).catch((): MigrationResult => ({ status: "unavailable" }));
   return migration;
+}
+
+/** Another tab upgraded or closed the database for this page. */
+function needsReload(cause: unknown) {
+  return (
+    cause instanceof SkinLibraryError &&
+    (cause.reason === "closed" || cause.reason === "newer")
+  );
 }
 
 export function skinChanged(skin: StoredSkin) {
@@ -60,6 +77,7 @@ export function downloadSkin(png: Blob, name: string) {
  */
 export function useSkinLibrary() {
   const t = useNotificationT();
+  const locale = useLocale();
   const [client, setClient] = useState<LibraryClient | undefined>();
   const [state, setState] = useState<LibraryState>({ status: "loading" });
   const [migrated, setMigrated] = useState<MigrationResult | undefined>();
@@ -77,14 +95,18 @@ export function useSkinLibrary() {
         ),
       (listing) => setState({ status: "ready", listing }),
       (cause) =>
-        setState({ status: "unavailable", message: errorMessage(cause) }),
+        setState({
+          status: "unavailable",
+          message: errorMessage(cause),
+          reload: needsReload(cause),
+        }),
     );
   }, [client, task]);
 
   useEffect(() => {
     if (!client) return;
     let active = true;
-    void migrateOnce(client).then((result) => {
+    void migrateOnce(client, t, locale).then((result) => {
       if (!active) return;
       setMigrated(result);
       reload();
@@ -94,6 +116,7 @@ export function useSkinLibrary() {
         setState({
           status: "unavailable",
           message: message("library.anotherTabUpdatedSkinsReloadPage"),
+          reload: true,
         });
       else reload();
     });
@@ -101,7 +124,7 @@ export function useSkinLibrary() {
       active = false;
       stop();
     };
-  }, [client, reload, t]);
+  }, [client, reload, t, locale]);
 
   const act = useCallback(
     async <A>(

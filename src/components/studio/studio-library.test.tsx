@@ -80,6 +80,20 @@ test("blocked storage shows its reason as visible text", () => {
   assert.doesNotMatch(html, /No skins yet/);
 });
 
+test("a library closed by another tab offers a page reload", () => {
+  const html = render({
+    status: "unavailable",
+    message: message("library.anotherTabUpdatedSkinsReloadPage"),
+    reload: true,
+  });
+  assert.match(html, /<button[^>]*>.*Reload page<\/button>/);
+  const blocked = render({
+    status: "unavailable",
+    message: message("library.browserDoesNotLetSiteKeepSkins"),
+  });
+  assert.doesNotMatch(blocked, /Reload page/);
+});
+
 test("a long skin name is truncated with the full name on hover", () => {
   const name = `Harbor ${"x".repeat(70)}`;
   const html = render({

@@ -3,7 +3,7 @@ title: "Upload a PNG skin"
 description: "Turn a PNG into a /skin url command and apply it in game."
 docType: "how-to"
 appliesTo: "Website users and Java server players"
-reviewed: "2026-11-09"
+reviewed: "2026-11-16"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -26,12 +26,14 @@ To fix or change the skin first, select **Edit skin** below the model. The [edit
 2. Select **Upload skin** and choose your PNG, or drop the PNG on the page. You can also select a skin in **Library** or **Gallery**.
 3. Check the 3D model and choose **Classic** (4 px arms) or **Slim** (3 px arms) under **Model**.
 4. If you want a cape, select one under **Cape**.
-5. Optional: open **Advanced options** to choose **Axolotl** or **Official** under **Upload method**. **Axolotl** is the default.
-6. Select **Generate /skin url**.
-7. Copy the command with the copy button next to **Command**.
+5. Optional: open **Advanced options** and select **Axolotl** or **Official** under **Upload method**. **Axolotl** is the default.
+6. Select **Generate /skin url**. The button shows **Generating…** while MineSkin makes the skin. This can take up to a minute.
+7. When **Your command is ready** shows, copy the command with the copy button next to **Command**.
 8. Paste the command into your Minecraft chat.
 
-If you change the skin, the model, the cape, or the method after you generate, the page removes the old command. Generate again to get a command for the new choices.
+To stop waiting for a slow upload, select **Stop waiting** below the button. The page ignores the late result, and you can generate again.
+
+After the command is ready, the button shows **Command ready** and stays off. The same choices give the same command, so the page does not upload again. If you change the skin, the model, the cape, or the method, the page hides the old command and turns the button on again. Generate again to get a command for the new choices.
 
 Keep the generated URL inside quotation marks. The command includes the model selected on the page. A result can use a MineSkin URL or an opaque `skinsrestorer-axolotl://` value.
 
@@ -55,7 +57,7 @@ Gallery skins stay separate. Read [the gallery guide](/docs/features/skin-editor
 
 ## API key and capes
 
-The **Axolotl** method offers supported capes without your own key. The **Official** method accepts a MineSkin key and checks its cape grants. Both settings are under **Advanced options**. The cape list is always visible. A selected cape turns the model to show its back.
+The **Axolotl** method offers supported capes without your own key. The **Official** method accepts a MineSkin key and checks its cape grants. Both settings are under **Advanced options**. The cape list is always visible. A selected cape turns the model to show its back. While the list loads, it shows **Loading capes…**. If it cannot load, select **Try again** below the list.
 
 A selected cape with **Axolotl** uses the proxy route. **Official** uploads and uploads without a selected cape use MineSkin directly.
 
@@ -64,6 +66,8 @@ The key field on the website and `api.mineskinAPIKey` on your server are separat
 The available list contains supported existing capes. It does not accept arbitrary cape images or transfer cape ownership to your account.
 
 ## If generation fails
+
+The page shows **The skin was not uploaded** with the reason. Your skin and options stay as they were. With **Axolotl**, try again, or switch to **Official** under **Advanced options**. With **Official**, check your MineSkin API key under **Advanced options**, then try again. The page never sends a failed upload again on its own.
 
 - **Invalid image:** Export a standard PNG skin template again.
 - **Queue or rate limit:** Wait for the queue to finish before you retry.

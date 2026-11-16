@@ -5,6 +5,7 @@ import { staticFunctionMiddleware } from "@tanstack/start-static-server-function
 import { Schema } from "effect";
 import Link from "fumadocs-core/link";
 import { useFumadocsLoader } from "fumadocs-core/source/client";
+import { Callout } from "fumadocs-ui/components/callout";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import {
   DocsBody,
@@ -35,6 +36,7 @@ import {
 import { useLocale, useT } from "@/lib/i18n-react";
 
 type ResolvedLink = { url: string; title: string; description?: string };
+type FooterLink = { url: string; name: string; description?: string };
 
 const serverLoader = createServerFn({ method: "GET" })
   .validator(
@@ -63,6 +65,35 @@ const serverLoader = createServerFn({ method: "GET" })
         };
       }
     }
+    const pageTree = source.getPageTree(locale);
+    // Sidebar shortcuts repeat pages from other sections. Count each page once,
+    // at its first position, so previous and next links agree in both
+    // directions. Shortcut URLs in meta files have no locale prefix.
+    const { flattenTree } = await import("fumadocs-core/page-tree");
+    const sequence = [
+      ...new Set(
+        flattenTree(pageTree.children)
+          .filter((item) => !item.external)
+          .map((item) => localizePath(item.url, locale)),
+      ),
+    ];
+    const pages = new Map(
+      source
+        .getPages(locale)
+        .map((entry) => [localizePath(entry.url, locale), entry]),
+    );
+    const position = sequence.indexOf(localizePath(page.url, locale));
+    const footerLink = (offset: number): FooterLink | undefined => {
+      const url = position === -1 ? undefined : sequence[position + offset];
+      const target = url === undefined ? undefined : pages.get(url);
+      return target
+        ? {
+            url: localizePath(target.url, locale),
+            name: target.data.title,
+            description: target.data.description,
+          }
+        : undefined;
+    };
     return {
       path: page.path,
       url: localizePath(page.url, locale),
@@ -72,8 +103,9 @@ const serverLoader = createServerFn({ method: "GET" })
       title: page.data.title,
       description: page.data.description,
       image: getPageImage(page).url,
-      pageTree: await source.serializePageTree(source.getPageTree(locale)),
+      pageTree: await source.serializePageTree(pageTree),
       links,
+      neighbours: { previous: footerLink(-1), next: footerLink(1) },
     };
   });
 
@@ -82,6 +114,7 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   url: string;
   links: Record<string, ResolvedLink>;
   contentLocale: Locale;
+  neighbours: { previous?: FooterLink; next?: FooterLink };
 }>({
   id: "docs-page",
   component({ default: MDX, toc, frontmatter }, page) {
@@ -92,7 +125,13 @@ const clientLoader = browserCollections.docs.createClientLoader<{
         toc={toc}
         full={frontmatter.full}
         tableOfContent={{ style: "clerk" }}
+        footer={{ items: page.neighbours }}
       >
+        {page.contentLocale !== locale && (
+          <Callout type="info" className="my-0">
+            {t("common.pageAvailableEnglish")}
+          </Callout>
+        )}
         <div className="flex flex-col gap-2">
           <DocsTitle lang={page.contentLocale}>{frontmatter.title}</DocsTitle>
           <DocsDescription lang={page.contentLocale} className="mb-2.5">
@@ -116,11 +155,6 @@ const clientLoader = browserCollections.docs.createClientLoader<{
             />
           </div>
         </div>
-        {page.contentLocale !== locale && (
-          <p className="text-sm text-fd-muted-foreground">
-            {t("common.pageAvailableEnglish")}
-          </p>
-        )}
         <DocsBody lang={page.contentLocale}>
           <MDX
             components={getMDXComponents({
@@ -201,6 +235,7 @@ function DocsRoute() {
         url={page.url}
         links={page.links}
         contentLocale={page.contentLocale}
+        neighbours={page.neighbours}
       />
     </DocsLayout>
   );
@@ -211,6 +246,7 @@ function DocsContent(props: {
   url: string;
   links: Record<string, ResolvedLink>;
   contentLocale: Locale;
+  neighbours: { previous?: FooterLink; next?: FooterLink };
 }) {
   return clientLoader.useContent(props.path, props);
 }

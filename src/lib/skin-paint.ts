@@ -260,8 +260,14 @@ export function readPixel(
   return [pixels[at], pixels[at + 1], pixels[at + 2], pixels[at + 3]];
 }
 
+/**
+ * Whether a pixel shows the same as `color`. Every clear pixel looks the
+ * same, whatever RGB it keeps. Imported PNG files often keep different RGB
+ * values under alpha 0, so a fill on a clear area must match them all.
+ */
 function samePixel(pixels: Uint8ClampedArray, index: number, color: Rgba) {
   const at = index * 4;
+  if (color[3] === 0) return pixels[at + 3] === 0;
   return (
     pixels[at] === color[0] &&
     pixels[at + 1] === color[1] &&
@@ -279,6 +285,8 @@ function samePixel(pixels: Uint8ClampedArray, index: number, color: Rgba) {
  * - Everywhere scope: every pixel with exactly the clicked RGBA on visible
  *   parts of the active layer. Mirror adds nothing here, because a mirrored
  *   pixel of another color is not the color being replaced.
+ *
+ * Both scopes treat every clear pixel as one color, whatever RGB it keeps.
  */
 export function fillTargets(
   pixels: Uint8ClampedArray,

@@ -19,7 +19,8 @@ import { getLatestRelease } from "@/lib/release-server";
 import styles from "./minecraft.module.css";
 import { CopyCommand, HomeFaq } from "./home-interactions";
 import { SkinStage } from "./skin-stage";
-import { useT } from "@/lib/i18n-react";
+import { useLocale, useT } from "@/lib/i18n-react";
+import { headingFontClassName, usesPixelHeadingFont } from "./heading-font";
 
 const githubLink = "https://github.com/SkinsRestorer/SkinsRestorer";
 const releasesLink = `${githubLink}/releases`;
@@ -274,12 +275,16 @@ function SectionHeading({
   children: ReactNode;
   action?: ReactNode;
 }) {
+  const locale = useLocale();
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="flex max-w-xl flex-col gap-2">
         <h2
           id={id}
-          className="font-(family-name:--font-geist-pixel-square) text-3xl leading-tight tracking-tight sm:text-4xl"
+          className={cn(
+            headingFontClassName(locale),
+            "text-3xl leading-tight tracking-tight sm:text-4xl",
+          )}
         >
           {title}
         </h2>
@@ -292,6 +297,7 @@ function SectionHeading({
 
 export default function IndexPage() {
   const t = useT();
+  const locale = useLocale();
   const faqItems = useFaqItems();
   return (
     <div
@@ -311,13 +317,20 @@ export default function IndexPage() {
           </p>
           <h1
             id="home-title"
-            className="font-(family-name:--font-geist-pixel-square) text-5xl leading-none tracking-tight text-balance sm:text-6xl xl:text-7xl"
+            className={cn(
+              headingFontClassName(locale),
+              usesPixelHeadingFont(locale) ? "leading-none" : "leading-tight",
+              "text-5xl tracking-tight text-balance sm:text-6xl xl:text-7xl",
+            )}
           >
             {t("home.playerSkinsMinecraftServer")}
           </h1>
-          <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">
-            {t("home.skinsrestorerFreePluginServerModShowsReal")}
-          </p>
+          <div className="flex max-w-lg flex-col gap-3 text-muted-foreground">
+            <p className="text-lg leading-relaxed">
+              {t("home.skinsrestorerFreePluginServerModShowsReal")}
+            </p>
+            <p className="text-sm">{t("home.worksWithPlatforms")}</p>
+          </div>
           <div className="flex flex-wrap gap-3">
             <Button
               render={
@@ -518,6 +531,19 @@ export default function IndexPage() {
         </div>
       </section>
 
+      <section aria-labelledby="faq-title" className="border-t">
+        <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:px-8">
+          <SectionHeading id="faq-title" title={t("home.questions")}>
+            {t("home.shortAnswers")}{" "}
+            <Link href="/docs" className={inlineLinkClassName}>
+              {t("home.documentation")}
+            </Link>{" "}
+            {t("home.hasDetails")}
+          </SectionHeading>
+          <HomeFaq items={faqItems} />
+        </div>
+      </section>
+
       <section aria-labelledby="community-title" className="border-t">
         <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start lg:px-8">
           <div className="flex flex-col items-start gap-6">
@@ -596,19 +622,6 @@ export default function IndexPage() {
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </a>
           </div>
-        </div>
-      </section>
-
-      <section aria-labelledby="faq-title" className="border-t">
-        <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:px-8">
-          <SectionHeading id="faq-title" title={t("home.questions")}>
-            {t("home.shortAnswers")}{" "}
-            <Link href="/docs" className={inlineLinkClassName}>
-              {t("home.documentation")}
-            </Link>{" "}
-            {t("home.hasDetails")}
-          </SectionHeading>
-          <HomeFaq items={faqItems} />
         </div>
       </section>
 

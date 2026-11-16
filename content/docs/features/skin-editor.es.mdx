@@ -3,7 +3,7 @@ title: "Estudio de skins"
 description: "Guarda skins en tu navegador, corrígelas y píntalas en 2D o 3D, y obtén un comando de SkinsRestorer."
 docType: "how-to"
 appliesTo: "Usuarios del sitio y jugadores de Java Edition"
-reviewed: "2026-11-09"
+reviewed: "2026-11-16"
 version: "15.12.6"
 icon: "Brush"
 ---
@@ -16,7 +16,7 @@ El [Estudio de skins](/studio) trabaja con skins de Java Edition en el navegador
 
 En un teléfono, la biblioteca se abre con el botón **Biblioteca** y las opciones están debajo del modelo.
 
-[Subir skin](/upload) y el [generador](/generator) abren el mismo estudio. Subir skin siempre crea un comando `/skin url`. El generador siempre crea un comando `/sr createcustom`. En la página del estudio, elige **Usar en un servidor** o **Skin personalizada**. El estudio no se conecta a tu servidor de Minecraft. Más detalles en [Privacidad](#privacy).
+[Subir skin](/upload) y el [generador](/generator) abren el mismo estudio. Subir skin siempre crea un comando `/skin url`. El generador siempre crea un comando `/sr createcustom`. En la página del estudio, elige **Usar en un servidor** o **Skin personalizada**. La línea debajo de la opción explica el comando: `/skin url` aplica la skin al jugador que lo ejecuta, y `/sr createcustom` guarda la skin en el servidor con un nombre que los jugadores pueden usar con `/skin set`. El estudio no se conecta a tu servidor de Minecraft. Más detalles en [Privacidad](#privacy).
 
 ## Añadir una skin [#add-a-skin]
 
@@ -24,16 +24,16 @@ Selecciona **+** en la biblioteca y elige una opción:
 
 - **Subir PNG**: una skin PNG de hasta 5 MB. También puedes soltar archivos PNG en el centro de la página.
 - **Crear skin**: una figura clásica o delgada simple que pintas y guardas.
-- **Abrir archivo .skin**: un archivo de almacenamiento de SkinsRestorer, como `.customskin`. El estudio lee la URL de textura del archivo y abre esa textura.
+- **Abrir archivo .skin**: un archivo de almacenamiento de SkinsRestorer, como `.customskin`. El estudio lee la URL de textura del archivo y abre esa textura. Si el archivo no sirve, el estudio muestra **No se pudo abrir el archivo de skin** con el motivo. En el [generador](/generator), **Abrir archivo .skin** también aparece en el centro cuando no hay una skin seleccionada.
 - **Abrir URL de textura**: un hash de textura o una URL `https://textures.minecraft.net/texture/…`.
 
-El estudio añade cada skin nueva a la biblioteca y la selecciona. Si la misma skin con el mismo modelo ya está en la biblioteca, usa esa skin. La skin seleccionada se muestra al instante y no se sube nada.
+Si la biblioteca está vacía, también muestra los botones **Subir PNG** y **Crear skin**. El estudio añade cada skin nueva a la biblioteca y la selecciona. Si la misma skin con el mismo modelo ya está en la biblioteca, usa esa skin. La skin seleccionada se muestra al instante y no se sube nada.
 
 Solo se aceptan enlaces de `textures.minecraft.net`. Para una skin de otro sitio, descarga el PNG y súbelo. El estudio no busca nombres de jugadores.
 
 ## Explorar la galería [#gallery]
 
-Selecciona **Galería** junto a **Biblioteca**, o **Explorar galería** si no hay una skin seleccionada. Busca por nombre y selecciona una skin para verla. La galería usa las [skins recomendadas oficiales](https://github.com/SkinsRestorer/cool-skins). Una visita normal no selecciona ninguna skin de forma automática. La dirección de la página guarda la skin de la galería y tu búsqueda, así que los botones Atrás y Adelante del navegador pasan por las skins de la galería que seleccionaste.
+Selecciona **Galería** junto a **Biblioteca**, o **Explorar galería** si no hay una skin seleccionada. Busca por nombre y selecciona una skin para verla. Si ninguna coincide, pulsa **Borrar búsqueda** para ver todas otra vez. Con el teclado, la cuadrícula de skins es una sola parada de `Tab`. Usa las flechas, `Home` y `End` para moverte entre skins, y `Enter` o `Space` para elegir una. La galería usa las [skins recomendadas oficiales](https://github.com/SkinsRestorer/cool-skins). Una visita normal no selecciona ninguna skin de forma automática. La dirección de la página guarda la skin de la galería y tu búsqueda, así que los botones Atrás y Adelante del navegador pasan por las skins de la galería que seleccionaste.
 
 Explorar y seleccionar skins de la galería no las añade a la biblioteca. Selecciona **Guardar en la biblioteca** debajo del modelo para guardar una copia. También puedes seleccionar **Editar skin** y luego **Guardar en la biblioteca** para guardar una copia editada. El original de la galería no cambia. Las opciones de comando, modelo, capa y opciones avanzadas funcionan como siempre.
 
@@ -41,7 +41,7 @@ Selecciona **Copiar enlace de la galería** para compartir la skin original. El 
 
 ## Obtener un comando [#get-a-command]
 
-Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. La [guía de subida](/docs/features/skin-upload) y las [skins personalizadas](/docs/features/custom-skins) explican cada comando.
+Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. La subida puede tardar hasta un minuto. Si no quieres esperar, pulsa **Dejar de esperar** debajo del botón. Cuando el comando está listo, el estudio muestra **Tu comando está listo** con el comando y un botón para copiarlo. Después, el botón de generar muestra **Comando listo** y queda desactivado hasta que cambies la skin o una opción. Si la subida falla, el estudio conserva tus opciones y te dice qué revisar antes de reintentar. La [guía de subida](/docs/features/skin-upload) y las [skins personalizadas](/docs/features/custom-skins) explican cada comando.
 
 ## Editar una skin [#edit-a-skin]
 
@@ -52,7 +52,7 @@ Selecciona **Editar skin** debajo del modelo. El centro muestra la textura y la 
 3. Elige un color debajo de la textura. Los ocho últimos colores con los que pintaste quedan debajo de la textura, también después de cerrar el editor o recargar la página. El navegador los guarda solo en este dispositivo.
 4. Pinta sobre la textura o sobre el modelo 3D.
 
-La capa base siempre es opaca en Java Edition. Por eso el lápiz pinta píxeles opacos en la capa base y el borrador solo funciona en la capa exterior. La capa exterior puede tener píxeles transparentes, por eso tiene un control de opacidad.
+La capa base siempre es opaca en Java Edition. Por eso el lápiz pinta píxeles opacos en la capa base y el borrador solo funciona en la capa exterior. Si eliges el borrador con la capa base activa, el estudio selecciona la capa exterior y te avisa. Si eliges la capa base con el borrador activo, el estudio selecciona el lápiz. La capa exterior puede tener píxeles transparentes, por eso tiene un control de opacidad.
 
 **Rellenar** tiene dos áreas. Elige una debajo de las herramientas o pulsa `G` otra vez:
 
@@ -65,13 +65,13 @@ En el modelo 3D, un trazo se queda en la cara donde empezó.
 
 **Tamaño** fija el ancho del pincel para el lápiz, el borrador y **Aclarar u oscurecer**, de 1 a 8 píxeles. El pincel es un cuadrado. Un tamaño impar queda centrado en el puntero. Un tamaño par llega un píxel más hacia arriba y a la izquierda. El pincel se queda en la cara bajo el puntero. La textura muestra el contorno del pincel. Con un ratón o un lápiz, el modelo 3D también marca los píxeles que la herramienta va a cambiar antes de hacer clic. La marca no forma parte de la skin. Una marca roja y un puntero bloqueado indican que un píxel de la capa exterior cubre la capa base en ese punto.
 
-**Espejo** (el botón de reflejo) también pinta el otro lado del modelo. El brazo izquierdo y el derecho se intercambian, y también las piernas. La cabeza y el cuerpo se reflejan sobre sí mismos. Espejo funciona con el lápiz, el borrador, **Aclarar u oscurecer** y **Rellenar** con **Cara**. **En todo** ya cambia cada píxel del color, así que el botón Espejo no aparece con esa opción. Solo cambia la capa activa y no cambia partes ocultas. Un contorno discontinuo en la textura y una marca más clara en el modelo 3D muestran los píxeles reflejados.
+**Simetría** (el botón de reflejo) también pinta el otro lado del modelo. El brazo izquierdo y el derecho se intercambian, y también las piernas. La cabeza y el cuerpo se reflejan sobre sí mismos. Simetría funciona con el lápiz, el borrador, **Aclarar u oscurecer** y **Rellenar** con **Cara**. **En todo** ya cambia cada píxel del color, así que el botón Simetría no aparece con esa opción. Solo cambia la capa activa y no cambia partes ocultas. Un contorno discontinuo en la textura y una marca más clara en el modelo 3D muestran los píxeles reflejados.
 
 Para trazar una línea recta con el lápiz, el borrador o **Aclarar u oscurecer**, mantén `Shift` y haz clic. La línea empieza donde terminó tu último trazo y usa el tamaño, el espejo y la intensidad actuales. Una línea se queda en una cara. Si haces clic en otra cara, o cambias de herramienta o de capa, el clic empieza un trazo nuevo. Después de deshacer, cambiar el modelo, rellenar o usar una acción de parte, la línea también empieza desde el siguiente trazo.
 
 Usa **Partes visibles** para ocultar una parte o una capa. Las herramientas no cambian las partes ocultas. Para pintar la capa base bajo un píxel exterior, oculta la capa exterior de esa parte.
 
-Cada trazo, línea, relleno, corrección o acción de parte es un paso de deshacer. Cambiar el modelo o convertir los brazos también es un paso.
+Cada trazo, línea, relleno, corrección o acción de parte es un paso de deshacer. Cambiar el modelo o convertir los brazos también es un paso. **Deshacer** y **Rehacer** están encima de la textura. Si no hay nada que deshacer o rehacer, el botón queda desactivado y al señalarlo muestra **Nada que deshacer** o **Nada que rehacer**.
 
 ### Voltear o copiar una parte [#flip-or-copy-a-part]
 
@@ -98,7 +98,7 @@ Los píxeles de brazo que el nuevo modelo no usa quedan transparentes. La cabeza
 
 ### Mover la vista [#move-the-view]
 
-Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un dedo pinta y un arrastre con el botón derecho gira el modelo. Dos dedos desplazan la textura o giran el modelo, y se quita el trazo que empezó el primer dedo. En una pantalla táctil, **Rellenar** y **Tomar color** actúan al levantar el dedo, así que un gesto con dos dedos nunca rellena por accidente.
+Selecciona el botón de la mano para desplazar la textura y girar el modelo con un dedo o el ratón. Selecciona el botón del pincel para volver a la herramienta. En modo de pintura, un dedo pinta y un arrastre con el botón derecho gira el modelo. Dos dedos desplazan la textura o giran el modelo, y se quita el trazo que empezó el primer dedo. Junta o separa dos dedos sobre la textura para acercarla o alejarla. También puedes usar los botones de zoom encima de la textura. **Ajustar** hace que toda la textura quepa en el espacio. En una pantalla táctil, **Rellenar** y **Tomar color** actúan al levantar el dedo, así que un gesto con dos dedos nunca rellena por accidente.
 
 ### Teclado [#keyboard]
 
@@ -174,6 +174,7 @@ El estudio, Subir skin y el generador comparten una biblioteca en este navegador
 - La biblioteca solo existe en este navegador y dispositivo. No se sincroniza con otros dispositivos ni cuentas.
 - Si borras los datos del sitio, o si el navegador elimina datos antiguos, la biblioteca se borra. Usa **Descargar PNG** para conservar una copia.
 - Selecciona una skin una vez para usarla. Cada skin tiene un menú con **Renombrar**, **Duplicar**, **Descargar PNG**, **Restaurar original** y **Eliminar**.
+- **Duplicar** añade una copia llamada "Nombre copy". Una copia de esa copia se llama "Nombre copy 2", luego "Nombre copy 3", y así sucesivamente.
 - Un punto en una skin indica que tiene cambios sin guardar en un borrador.
 - Después de eliminar una skin, selecciona **Deshacer** en el mensaje para recuperarla.
 - La marca junto a **Biblioteca** indica que el navegador guarda tus skins. Un disco tachado indica que no puede. Pasa el puntero por el icono para ver el motivo.

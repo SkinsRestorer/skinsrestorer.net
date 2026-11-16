@@ -277,7 +277,11 @@ export function SkinStage() {
             </motion.span>
             <span
               aria-hidden="true"
-              className="ml-px animate-pulse motion-reduce:animate-none"
+              className={
+                autoplay
+                  ? "ml-px animate-pulse motion-reduce:animate-none"
+                  : "ml-px"
+              }
             >
               _
             </span>

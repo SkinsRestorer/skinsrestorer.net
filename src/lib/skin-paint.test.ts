@@ -364,3 +364,37 @@ test("the 3D footprint matches the brush, face lock, mirror, and fill", () => {
     },
   );
 });
+
+test("fill treats clear pixels with different hidden RGB as one area", () => {
+  const pixels = new Uint8ClampedArray(SKIN_SIZE * SKIN_SIZE * 4);
+  const front = findRegion("classic", "head", "outer", "front");
+  // Imported files often keep varied RGB under alpha 0.
+  for (let y = front.y; y < front.y + front.height; y++)
+    for (let x = front.x; x < front.x + front.width; x++)
+      pixels.set([x * 3, y * 5, 7, 0], (y * SKIN_SIZE + x) * 4);
+  // One visible pixel stays outside the fill.
+  const solid = (front.y * SKIN_SIZE + front.x) * 4;
+  pixels.set([9, 9, 9, 255], solid);
+  const outer = settings({ layer: "outer", color: [200, 10, 10, 128] });
+
+  const face = fillTargets(pixels, "classic", outer, front.x + 3, front.y + 3)!;
+  assert.equal(face.source.length, front.width * front.height - 1);
+
+  const everywhere = fillTargets(
+    pixels,
+    "classic",
+    { ...outer, fillScope: "everywhere" },
+    front.x + 3,
+    front.y + 3,
+  )!;
+  // Every other outer pixel is clear [0, 0, 0, 0] and joins the fill too.
+  const outerPixels = skinRegions("classic")
+    .filter((region) => region.layer === "outer")
+    .reduce((sum, region) => sum + region.width * region.height, 0);
+  assert.equal(everywhere.source.length, outerPixels - 1);
+  assert.equal(everywhere.source.includes(solid / 4), false);
+
+  // A visible color still matches its exact RGBA only.
+  const exact = fillTargets(pixels, "classic", outer, front.x, front.y)!;
+  assert.deepEqual(exact.source, [solid / 4]);
+});

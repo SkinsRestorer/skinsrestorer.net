@@ -79,6 +79,17 @@ test("name search matches every word without case or accent differences", () => 
   assert.equal(searchGallery(accented, "CAFÉ").length, 1);
 });
 
+test("gallery search ignores spaces and punctuation inside names", () => {
+  const [skin] = parseGalleryCatalog(catalog(entry()));
+  const named = (name: string) => [{ ...skin, name }];
+  assert.equal(searchGallery(named("Dark Knight"), "darkknight").length, 1);
+  assert.equal(searchGallery(named("Dark Knight"), "dark-knight").length, 1);
+  assert.equal(searchGallery(named("Dark_Knight"), "dark knight").length, 1);
+  assert.equal(searchGallery(named("Spider-Man 2"), "spiderman2").length, 1);
+  assert.equal(searchGallery(named("Dark Knight"), "darkness").length, 0);
+  assert.equal(searchGallery(named("Dark Knight"), "-").length, 0);
+});
+
 test("gallery links preserve locale and fixed purpose without private library IDs", () => {
   assert.equal(
     galleryPermalink("forest-ranger", "en"),
