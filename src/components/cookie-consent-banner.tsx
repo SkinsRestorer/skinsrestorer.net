@@ -3,7 +3,7 @@
 import { Cookie } from "lucide-react";
 import Link from "fumadocs-core/link";
 import posthog from "posthog-js";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,35 +16,58 @@ import {
 } from "@/components/ui/card";
 import { useT } from "@/lib/i18n-react";
 
+const reopenListeners = new Set<() => void>();
+
+/** Show the consent banner again so visitors can change their choice. */
+function openCookieSettings() {
+  for (const listener of reopenListeners) listener();
+}
+
 const CookieConsentBanner = () => {
   const t = useT();
   const titleId = useId();
+  const section = useRef<HTMLElement>(null);
   const [consentState, setConsentState] = useState<
     ReturnType<typeof posthog.get_explicit_consent_status> | ""
   >("");
+  const [reopened, setReopened] = useState(false);
 
   useEffect(() => {
     setConsentState(posthog.get_explicit_consent_status());
+    const reopen = () => setReopened(true);
+    reopenListeners.add(reopen);
+    return () => {
+      reopenListeners.delete(reopen);
+    };
   }, []);
+
+  // Opened from the footer: move focus so keyboard users land on the choice.
+  useEffect(() => {
+    if (reopened) section.current?.focus();
+  }, [reopened]);
 
   const handleAcceptCookies = () => {
     posthog.opt_in_capturing();
     setConsentState("granted");
+    setReopened(false);
   };
 
   const handleDeclineCookies = () => {
     posthog.opt_out_capturing();
     setConsentState("denied");
+    setReopened(false);
   };
 
-  if (consentState !== "pending") {
+  if (consentState !== "pending" && !reopened) {
     return null;
   }
 
   return (
     <section
+      ref={section}
+      tabIndex={-1}
       aria-labelledby={titleId}
-      className="fixed inset-x-0 bottom-0 z-50 sm:right-auto sm:bottom-4 sm:left-4"
+      className="fixed inset-x-0 bottom-0 z-50 outline-none sm:right-auto sm:bottom-4 sm:left-4"
     >
       <Card className="m-3 shadow-lg sm:max-w-md">
         <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
@@ -92,4 +115,4 @@ const CookieConsentBanner = () => {
   );
 };
 
-export { CookieConsentBanner };
+export { CookieConsentBanner, openCookieSettings };

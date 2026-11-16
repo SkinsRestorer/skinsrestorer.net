@@ -1,4 +1,5 @@
 import Link from "fumadocs-core/link";
+import { openCookieSettings } from "@/components/cookie-consent-banner";
 import { useT } from "@/lib/i18n-react";
 
 export function SiteFooter() {
@@ -27,6 +28,13 @@ export function SiteFooter() {
           <Link href="/cookie-policy" className="hover:text-fd-foreground">
             {t("common.cookiePolicy")}
           </Link>
+          <button
+            type="button"
+            onClick={openCookieSettings}
+            className="hover:text-fd-foreground"
+          >
+            {t("footer.cookieSettings")}
+          </button>
         </nav>
         <a
           href="https://www.cloudflare.com"
