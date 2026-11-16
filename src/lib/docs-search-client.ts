@@ -11,7 +11,8 @@ export const searchLanguages: Record<Locale, Language> = {
   "pt-BR": "portuguese",
 };
 
-const maxPages = 12;
+/** Search shows at most this many pages, each with its matching sections. */
+export const maxSearchPages = 12;
 
 function words(value: string) {
   return value
@@ -66,7 +67,7 @@ export function rankDocsResults(
   return groups
     .map((group, index) => ({ group, index, tier: tier(group) }))
     .sort((a, b) => b.tier - a.tier || a.index - b.index)
-    .slice(0, maxPages)
+    .slice(0, maxSearchPages)
     .flatMap(({ group }) => group);
 }
 

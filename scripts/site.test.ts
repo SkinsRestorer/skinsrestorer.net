@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { readdirSync } from "node:fs";
 import { test } from "node:test";
-import { createDocsSearchClient } from "../src/lib/docs-search-client";
+import {
+  createDocsSearchClient,
+  maxSearchPages,
+} from "../src/lib/docs-search-client";
 import { isLocale } from "../src/lib/i18n";
+import { localizedSitePages } from "../src/lib/site-pages";
 import { fromJSON } from "seroval";
 
 // Run against `bun run preview` with `bun run test:site` after building.
@@ -127,7 +132,11 @@ test(
         /text\/markdown/,
         path,
       );
-      assert.match(await response.text(), /^# .+\nURL: \/docs/);
+      // Copied Markdown links absolutely, so it works outside the site.
+      assert.match(
+        await response.text(),
+        /^# .+\nURL: https:\/\/skinsrestorer\.net\/docs/,
+      );
       const head = await request(path, { method: "HEAD" });
       assert.equal(head.status, 200, `HEAD ${path}`);
       assert.equal(await head.text(), "");
@@ -143,7 +152,15 @@ test(
       /Sitemap: https:\/\/skinsrestorer.net\/sitemap.xml/,
     );
     const sitemap = await (await request("/sitemap.xml")).text();
-    assert.equal((sitemap.match(/<url>/g) ?? []).length, 104);
+    // One URL per site page and per docs file in its own locale, so adding
+    // a translation does not need a test change.
+    const docFiles = readdirSync("content/docs", { recursive: true }).filter(
+      (file) => String(file).endsWith(".mdx"),
+    ).length;
+    assert.equal(
+      (sitemap.match(/<url>/g) ?? []).length,
+      localizedSitePages.length + docFiles,
+    );
     assert.ok(sitemap.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"'));
     assert.ok(sitemap.includes('hreflang="x-default"'));
     assert.ok(
@@ -181,7 +198,10 @@ test(
       new URL("/api/search", baseUrl).href,
     );
     const results = await client.search("skin");
-    assert.ok(results.length > 0 && results.length <= 24);
+    const resultPages = new Set(
+      results.map((result) => result.url.split("#")[0]),
+    );
+    assert.ok(resultPages.size > 0 && resultPages.size <= maxSearchPages);
     assert.ok(results.every((result) => result.url.startsWith("/docs")));
     for (const [locale, query] of [
       ["ru", "скин"],
