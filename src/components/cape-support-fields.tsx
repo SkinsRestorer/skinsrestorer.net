@@ -190,7 +190,12 @@ export function CapePicker(props: {
               value={item.value}
               aria-label={item.label}
               title={item.label}
-              disabled={item.texture !== undefined && props.capeOptionsDisabled}
+              // Not `disabled`: a click must reach onCapeChange, which explains
+              // that capes need a checked API key.
+              aria-disabled={
+                (item.texture !== undefined && props.capeOptionsDisabled) ||
+                undefined
+              }
               className="h-14 w-full min-w-0"
             >
               {item.texture ? (

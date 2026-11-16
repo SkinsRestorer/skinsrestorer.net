@@ -919,6 +919,7 @@ export function SkinStudio(props: {
       current?.origin === "handoff" || current?.origin === "editor";
     const cape =
       chosen.capeUuid === NO_CAPE_VALUE ? undefined : chosen.capeUuid;
+    const started = performance.now();
     await generation.generate(exact, {
       file: exact.file,
       variant: exact.variant,
@@ -927,7 +928,17 @@ export function SkinStudio(props: {
       apiKey: chosen.apiKey || undefined,
       useCapeProxy: chosen.method === "axolotl" && cape !== undefined,
     });
-    if (fromEditor && generation.for(exact).status === "done")
+    const outcome = generation.for(exact).status;
+    // Measures the upload funnel; "idle" means the visitor stopped waiting.
+    posthog.capture("skin_command_generated", {
+      outcome: outcome === "idle" ? "stopped" : outcome,
+      command: purpose,
+      method: chosen.method,
+      cape: cape !== undefined,
+      page: props.entry,
+      duration_ms: Math.round(performance.now() - started),
+    });
+    if (fromEditor && outcome === "done")
       posthog.capture("editor_handoff_completed", {
         target: purpose === "createcustom" ? "generator" : "upload",
       });
