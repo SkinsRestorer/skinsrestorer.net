@@ -54,6 +54,22 @@ export function normalizeStudioOptions(
   };
 }
 
+/**
+ * How a generation reaches MineSkin. Official uploads with the visitor's key.
+ * Axolotl never sends a key: with a cape it uses the Axolotl proxy, and
+ * without one it uploads anonymously, even if a key was typed for Official.
+ */
+export function uploadRoute(options: NormalizedStudioOptions) {
+  const capeUuid =
+    options.capeUuid === NO_CAPE_VALUE ? undefined : options.capeUuid;
+  return {
+    capeUuid,
+    apiKey:
+      options.method === "mineskin" ? options.apiKey || undefined : undefined,
+    useCapeProxy: options.method === "axolotl" && capeUuid !== undefined,
+  };
+}
+
 export type StudioOptionErrors = Partial<
   Record<"customName" | "capeUuid", MessageKey>
 >;

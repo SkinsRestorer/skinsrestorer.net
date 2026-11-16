@@ -112,6 +112,7 @@ import {
   NO_CAPE_VALUE,
   normalizeStudioOptions,
   studioOptionErrors,
+  uploadRoute,
   type CapeStatus,
   type StudioOptions,
   type UploadMethod,
@@ -917,16 +918,13 @@ export function SkinStudio(props: {
     const exact: GenerationInput = { ...input, ...chosen, purpose };
     const fromEditor =
       current?.origin === "handoff" || current?.origin === "editor";
-    const cape =
-      chosen.capeUuid === NO_CAPE_VALUE ? undefined : chosen.capeUuid;
+    const route = uploadRoute(chosen);
     const started = performance.now();
     await generation.generate(exact, {
       file: exact.file,
       variant: exact.variant,
       name: exact.name || undefined,
-      capeUuid: cape,
-      apiKey: chosen.apiKey || undefined,
-      useCapeProxy: chosen.method === "axolotl" && cape !== undefined,
+      ...route,
     });
     const outcome = generation.for(exact).status;
     // Measures the upload funnel; "idle" means the visitor stopped waiting.
@@ -934,7 +932,7 @@ export function SkinStudio(props: {
       outcome: outcome === "idle" ? "stopped" : outcome,
       command: purpose,
       method: chosen.method,
-      cape: cape !== undefined,
+      cape: route.capeUuid !== undefined,
       page: props.entry,
       duration_ms: Math.round(performance.now() - started),
     });

@@ -5,6 +5,7 @@ import {
   NO_CAPE_VALUE,
   normalizeStudioOptions,
   studioOptionErrors,
+  uploadRoute,
   type StudioOptions,
 } from "./studio-options";
 
@@ -78,4 +79,31 @@ test("submitted values are trimmed without changing the form values", () => {
   // The fixed purpose decides: a name typed earlier is not sent with /skin url.
   assert.equal(normalizeStudioOptions(value, "skin-url").name, "");
   assert.equal(value.customName, "  lobby ");
+});
+
+test("only Official uploads send the API key", () => {
+  const route = (change: Partial<StudioOptions>) =>
+    uploadRoute(
+      normalizeStudioOptions(
+        options({ apiKey: " key ", ...change }),
+        "skin-url",
+      ),
+    );
+  assert.deepEqual(route({ method: "mineskin" }), {
+    capeUuid: undefined,
+    apiKey: "key",
+    useCapeProxy: false,
+  });
+  // A key typed for Official stays out of Axolotl uploads, with or without a cape.
+  assert.deepEqual(route({ method: "axolotl" }), {
+    capeUuid: undefined,
+    apiKey: undefined,
+    useCapeProxy: false,
+  });
+  assert.deepEqual(route({ method: "axolotl", capeUuid: "cape-id" }), {
+    capeUuid: "cape-id",
+    apiKey: undefined,
+    useCapeProxy: true,
+  });
+  assert.equal(route({ method: "mineskin", apiKey: "  " }).apiKey, undefined);
 });
