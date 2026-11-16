@@ -63,7 +63,11 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const propsRef = useAsRef(props);
   const maskCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
   const checkCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
-  const textureCache = useRef<HTMLCanvasElement>(null);
+  /** The skin at 1:1, uploaded again only when the pixels change. */
+  const textureCache = useRef<{
+    revision: number;
+    canvas: HTMLCanvasElement;
+  }>(null);
   /** Theme colors, read again only when the theme changes. */
   const colorCache = useRef<{
     revision: number;
@@ -185,20 +189,28 @@ export function TextureCanvas(props: TextureCanvasProps) {
     }
     ctx.drawImage(checkCache.current.canvas, 0, 0, canvas.width, canvas.height);
 
-    if (!textureCache.current) {
-      textureCache.current = document.createElement("canvas");
-      textureCache.current.width = SKIN_SIZE;
-      textureCache.current.height = SKIN_SIZE;
+    // A hover or cursor move redraws the view but leaves the pixels alone.
+    if (textureCache.current?.revision !== revision) {
+      const texture =
+        textureCache.current?.canvas ?? document.createElement("canvas");
+      texture.width = SKIN_SIZE;
+      texture.height = SKIN_SIZE;
+      texture
+        .getContext("2d")
+        ?.putImageData(
+          new ImageData(store.pixels.slice(), SKIN_SIZE, SKIN_SIZE),
+          0,
+          0,
+        );
+      textureCache.current = { revision, canvas: texture };
     }
-    const texture = textureCache.current;
-    texture
-      .getContext("2d")
-      ?.putImageData(
-        new ImageData(store.pixels.slice(), SKIN_SIZE, SKIN_SIZE),
-        0,
-        0,
-      );
-    ctx.drawImage(texture, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(
+      textureCache.current.canvas,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
 
     // Fade everything that the tool cannot change: unused pixels, the other
     // layer, and hidden parts. The active layer keeps full contrast.
@@ -436,6 +448,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
           if (
             startTool(propsRef.current, pixel.x, pixel.y, {
               line: event.shiftKey,
+              pick: event.altKey,
             }) === "stroke"
           )
             event.currentTarget.setPointerCapture(event.pointerId);
@@ -477,7 +490,14 @@ export function TextureCanvas(props: TextureCanvasProps) {
               return;
             }
           } else {
-            setHover(toPixel(event) ?? null);
+            // Most moves stay on the same pixel. A new object would redraw
+            // the whole canvas, which is large at high zoom.
+            const pixel = toPixel(event) ?? null;
+            setHover((current) =>
+              current?.x === pixel?.x && current?.y === pixel?.y
+                ? current
+                : pixel,
+            );
           }
           if (!store.getSnapshot().painting) return;
           const samples = event.nativeEvent.getCoalescedEvents?.() ?? [];

@@ -5,6 +5,7 @@ import { uploadMineSkinFile, type MineSkinCompletedResponse } from "./mineskin";
 import type { GenerationInput } from "./skin-selection";
 import {
   fixedPurpose,
+  defaultSkinName,
   generatedCommand,
   MAX_GALLERY_QUERY,
   readSkinFileTexture,
@@ -333,4 +334,23 @@ test("URL-only proxy results support explicit and default custom skin names", ()
       },
     );
   }
+});
+
+test("an empty custom name uses the filename default for every method", () => {
+  const chosen = input({
+    purpose: "createcustom",
+    method: "mineskin",
+    file: new File([], "Forest ranger.png"),
+  });
+  // MineSkin may return a deduplicated skin with another user's name.
+  const official = {
+    success: true,
+    skin: { ...response("abc", "https://minesk.in/abc").skin, name: "other" },
+  } as MineSkinCompletedResponse;
+  assert.equal(
+    generationResult(chosen, official).command,
+    '/sr createcustom forest_ranger "https://minesk.in/abc" classic',
+  );
+  assert.equal(defaultSkinName("Forest ranger.png"), "forest_ranger");
+  assert.equal(defaultSkinName("Скин.png"), "custom_skin");
 });

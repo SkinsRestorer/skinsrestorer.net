@@ -1,0 +1,45 @@
+---
+title: "Perguntas frequentes"
+description: "Respostas para dúvidas comuns sobre configuração, skins e armazenamento."
+docType: "reference"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "CircleQuestionMark"
+---
+
+## Preciso do modo offline? [#do-i-need-offline-mode]
+
+Não. O SkinsRestorer funciona com autenticação online e offline. Mantenha sua política de autenticação. Um backend atrás de um proxy tem requisitos de encaminhamento próprios.
+
+## Preciso de um banco de dados para uma rede? [#do-i-need-a-database-for-a-network]
+
+As skins comuns gerenciadas pelo proxy não exigem SQL. Um plugin de backend que usa a API no modo proxy precisa de armazenamento compartilhado em MySQL ou PostgreSQL.
+
+Leia [modo proxy](/docs/troubleshooting/proxy-mode) antes de mudar o armazenamento.
+
+## Por que o clear nem sempre mostra o Steve? [#why-does-clear-not-always-show-steve]
+
+O `/skin clear` remove a seleção salva. Depois, o resultado depende da busca da skin da conta e das regras de skins padrão.
+
+## Por que a imagem da URL não muda depois que eu a edito? [#why-does-the-url-image-not-change-after-i-edit-it]
+
+Uma skin gerada por URL é uma textura assinada e guardada em cache. Envie o PNG revisado e selecione o novo resultado. O `/skin update` atualiza os dados da skin da conta.
+
+## Posso usar uma imagem de capa personalizada? [#can-i-use-a-custom-cape-image]
+
+O site oferece algumas capas existentes pela rota de geração. Ele não aceita qualquer PNG de capa nem concede a posse de uma capa a uma conta.
+
+Leia [suporte a capas](/docs/features/capes).
+
+## Um status verde significa que todos os serviços funcionam? [#does-a-green-status-mean-all-services-work]
+
+Não. O `/sr status` verifica os serviços de UUID e perfis de contas. MineSkin, envios pelo site, recomendações e acesso ao banco de dados precisam das próprias verificações.
+
+## Onde está a referência completa? [#where-is-the-full-reference]
+
+Use [comandos e permissões](/docs/configuration/commands-permissions), [configuração](/docs/configuration/options) e [placeholders](/docs/integrations/placeholderapi).
+
+## O que devo enviar ao suporte? [#what-do-i-send-to-support]
+
+Envie a sua configuração, o comando exato, o erro completo, o relatório de diagnóstico e um log recente. Use [a lista para o suporte](/docs/troubleshooting/debugging).

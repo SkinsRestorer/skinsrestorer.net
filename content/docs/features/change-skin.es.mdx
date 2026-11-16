@@ -1,0 +1,54 @@
+---
+title: "Cambia o restablece tu skin"
+description: "Elige la skin de un jugador, actualízala o vuelve a la skin de tu cuenta."
+docType: "how-to"
+appliesTo: "Jugadores en un servidor con SkinsRestorer"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "UserRound"
+---
+
+Estos comandos se escriben en el chat del juego. Cambia `xknat` por el nombre de la cuenta de Minecraft cuya skin quieres.
+
+## Cambia tu skin [#change-your-skin]
+
+```text
+/skin set xknat
+```
+
+Espera el mensaje de éxito. Pide a otro jugador que revise tu aspecto. El servidor guarda tu selección para las próximas veces que entres.
+
+`/skin xknat` es un atajo. Para aplicar tu propio PNG, usa [la guía de subida](/docs/features/skin-upload).
+
+## Recupera la skin de tu cuenta [#restore-your-account-skin]
+
+```text
+/skin clear
+```
+
+Este comando quita tu selección guardada. Después, el servidor usa la skin de tu cuenta o la skin predeterminada que tenga configurada. No borra la skin original del almacenamiento.
+
+## Actualiza una skin copiada de una cuenta [#refresh-a-copied-account-skin]
+
+```text
+/skin update
+```
+
+Úsalo cuando la cuenta original cambie su skin o su capa. Las skins de URL son texturas generadas y guardadas en caché. Para cambiar una skin de URL, vuelve a subir la imagen corregida.
+
+## Deshaz un cambio [#undo-a-change]
+
+```text
+/skin undo
+```
+
+Deshacer usa el historial de skins guardado en el servidor. Si el historial está desactivado o vacío, no hay ninguna selección anterior que recuperar.
+
+## Si el comando falla [#if-the-command-fails]
+
+- **Permiso denegado:** Pide al administrador que revise el [acceso de jugadores](/docs/configuration/player-access).
+- **Tiempo de espera:** Espera el tiempo que se muestra. Repetir el intento no acelera la petición.
+- **No se puede cargar la skin:** Revisa el nombre de la cuenta y pide al administrador que revise las [conexiones con los servicios](/docs/troubleshooting/firewall).
+- **Éxito sin cambio visible:** Consulta [skin no visible](/docs/troubleshooting/no-skin).
+
+Continúa con [el menú de skins y los favoritos](/docs/features/skin-menu).

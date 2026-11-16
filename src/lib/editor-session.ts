@@ -9,9 +9,11 @@ import {
 } from "./skin-document";
 import type { SkinEditorStore } from "./skin-editor-store";
 import { withLibrary, type LibraryClient } from "./skin-library-client";
+import type { Locale } from "./i18n";
 import {
   copyName,
   prepareSkinContent,
+  skinFileName,
   SkinChangedError,
   SkinLibraryError,
   SkinNotFoundError,
@@ -40,6 +42,11 @@ export interface EditorSessionState {
   readonly drafts: DraftStatus;
   /** Unsaved work from earlier visits or other tabs that can be continued. */
   readonly recovery: readonly EditSession[];
+  /**
+   * Ids of recovery drafts whose skin was removed, for example in another
+   * tab. Continuing or saving such a draft creates a new skin.
+   */
+  readonly orphans: readonly string[];
 }
 
 export type SaveResult =
@@ -85,6 +92,8 @@ export class EditorSession {
       readonly id?: () => string;
       readonly now?: () => number;
       readonly saveDelayMs?: number;
+      /** The visitor's language, for copy names. English by default. */
+      readonly locale?: Locale;
     } = {},
   ) {
     this.base = store.document();
@@ -98,6 +107,7 @@ export class EditorSession {
         ? { kind: "idle" }
         : { kind: "off", message: message("library.draftsUnavailable") },
       recovery: [],
+      orphans: [],
     };
     this.autosave = new Debouncer<() => void>(() => void this.flush(), {
       wait: options.saveDelayMs ?? SAVE_DELAY_MS,
@@ -187,13 +197,18 @@ export class EditorSession {
           session.id !== this.state.sessionId &&
           (!filter || session.skinId === filter.skinId),
       );
-      this.set({ recovery });
+      const skins = new Set(listing.skins.map((skin) => skin.id));
+      const orphans = recovery
+        .filter((draft) => draft.skinId && !skins.has(draft.skinId))
+        .map((draft) => draft.id);
+      this.set({ recovery, orphans });
       return recovery;
     } catch (cause) {
       this.unavailable = true;
       this.set({
         drafts: { kind: "off", message: errorMessage(cause) },
         recovery: [],
+        orphans: [],
       });
       return [];
     }
@@ -207,13 +222,15 @@ export class EditorSession {
       new Uint8Array(await draft.png.arrayBuffer()),
     );
     let base: SkinDocument | undefined;
-    if (draft.skinId)
+    let owner = draft.skinId;
+    if (owner)
       try {
-        const skin = await library.run(
-          withLibrary((l) => l.get(draft.skinId!)),
-        );
+        const skin = await library.run(withLibrary((l) => l.get(owner!)));
         base = await documentOf(skin.current.png, skin.current.variant);
-      } catch {
+      } catch (cause) {
+        // The skin was removed after this draft was written. Continue it as
+        // new work, so saving creates a skin instead of failing.
+        if (cause instanceof SkinNotFoundError) owner = undefined;
         base = undefined;
       }
     const sessionId = this.newId();
@@ -223,6 +240,8 @@ export class EditorSession {
           l.continueSession(draft.id, {
             ...draft,
             id: sessionId,
+            skinId: owner,
+            baseRevision: owner ? draft.baseRevision : undefined,
             updatedAt: this.now(),
           }),
         ),
@@ -230,11 +249,9 @@ export class EditorSession {
     );
     this.start(
       { pixels: imported.document.pixels, variant: draft.variant },
-      {
-        skinId: draft.skinId,
-        baseRevision: draft.baseRevision,
-        name: draft.name,
-      },
+      owner
+        ? { skinId: owner, baseRevision: draft.baseRevision, name: draft.name }
+        : { name: draft.name },
       {
         sessionId,
         base: base ?? {
@@ -243,15 +260,42 @@ export class EditorSession {
         },
       },
     );
+    this.forget(draft.id);
+  }
+
+  /**
+   * Keep a draft as a new skin without opening it, for example when its skin
+   * was removed. The draft ends; the editor's own work does not change.
+   */
+  async saveDraftAsSkin(draft: EditSession) {
+    const library = this.library;
+    if (!library) return undefined;
+    const content = await Effect.runPromise(
+      prepareSkinContent(draft.png, draft.variant),
+    );
+    const skin = await this.enqueue(() =>
+      library.run(
+        withLibrary((l) =>
+          l.createFromSession({
+            sessionId: draft.id,
+            skin: { name: draft.name, content, source: { kind: "editor" } },
+          }),
+        ),
+      ),
+    );
+    this.forget(draft.id);
+    return skin;
+  }
+
+  private forget(id: string) {
     this.set({
-      recovery: this.state.recovery.filter((entry) => entry.id !== draft.id),
+      recovery: this.state.recovery.filter((entry) => entry.id !== id),
+      orphans: this.state.orphans.filter((entry) => entry !== id),
     });
   }
 
   async discardDraft(id: string) {
-    this.set({
-      recovery: this.state.recovery.filter((entry) => entry.id !== id),
-    });
+    this.forget(id);
     const library = this.library;
     if (!library) return;
     await this.enqueue(() =>
@@ -343,7 +387,7 @@ export class EditorSession {
   saveCopy(options: { readonly keep?: boolean } = {}) {
     return this.finish(async (content) => {
       const { target, sessionId } = this.state;
-      const name = copyName(target.name);
+      const name = copyName(target.name, this.options.locale);
       const library =
         options.keep === false || this.unavailable ? undefined : this.library;
       if (!library) return { content, skin: undefined, name };
@@ -409,7 +453,7 @@ export class EditorSession {
         this.markClean(revision, document);
         return {
           kind: "saved" as const,
-          file: new File([saved.content.png], `${saved.name}.png`, {
+          file: new File([saved.content.png], skinFileName(saved.name), {
             type: "image/png",
           }),
           name: saved.name,

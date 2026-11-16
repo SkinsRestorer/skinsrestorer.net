@@ -80,6 +80,18 @@ test("blocked storage shows its reason as visible text", () => {
   assert.doesNotMatch(html, /No skins yet/);
 });
 
+test("blocked storage shows a short status and its reason only once", () => {
+  const html = render({
+    status: "unavailable",
+    message: message("library.browserDoesNotLetSiteKeepSkins"),
+  });
+  assert.match(html, /<output[^>]*title="Not saving"/);
+  assert.equal(
+    html.match(/This browser does not let the site keep skins/g)?.length,
+    1,
+  );
+});
+
 test("a library closed by another tab offers a page reload", () => {
   const html = render({
     status: "unavailable",

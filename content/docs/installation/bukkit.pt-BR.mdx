@@ -1,0 +1,41 @@
+---
+title: "Instalar no Paper ou Spigot"
+description: "Instale o plugin em um servidor independente compatível com Bukkit."
+docType: "tutorial"
+appliesTo: "Paper, Spigot, Bukkit"
+reviewed: "2026-11-16"
+version: "15.12.6"
+icon: "Server"
+---
+
+Ao final deste guia, seu servidor vai carregar o SkinsRestorer e aceitar uma troca de skin.
+
+## Antes de começar [#before-you-start]
+
+Você precisa de acesso aos arquivos, acesso ao console e uma [versão do Java](/docs/installation/requirements) compatível. Se os jogadores se conectam por um proxy, use o guia do [Velocity](/docs/installation/velocity) ou do [BungeeCord](/docs/installation/bungeecord).
+
+## Instalar [#install]
+
+1. Pare o servidor.
+2. Baixe o JAR de servidor/proxy da [versão 15.12.6](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Remova JARs antigos do SkinsRestorer da pasta `plugins`. Mantenha a pasta de dados existente.
+4. Coloque o novo JAR em `plugins`.
+5. Inicie o servidor.
+6. Leia o console procurando erros do SkinsRestorer na inicialização.
+
+O plugin cria `plugins/SkinsRestorer/config.yml`. Mantenha os valores padrão neste primeiro teste. Não use o comando `/reload` do servidor inteiro para instalar ou atualizar plugins.
+
+## Confira a instalação [#check-the-installation]
+
+1. Entre no servidor com um cliente Java.
+2. No chat do jogo, execute `/skin set xknat`. `xknat` é o nome de uma conta do Minecraft com uma skin personalizada.
+3. Peça a outro jogador para conferir sua skin. Se estiver sozinho, pressione `F5` para ver seu personagem por trás.
+4. Desconecte, entre novamente e confira se a skin continua.
+
+Se o jogo disser que o comando é desconhecido, leia o console do servidor desde o início procurando um erro do SkinsRestorer. Confira também se `commands.disableSkinCommand` no `config.yml` está como `false`. Se o acesso for negado, leia [acesso dos jogadores](/docs/configuration/player-access).
+
+Se o comando funcionar mas a skin não mudar, consulte [skin não aparece](/docs/troubleshooting/no-skin).
+
+## Próximos passos [#next]
+
+[Envie seu próprio PNG](/docs/features/skin-upload) ou configure as [skins padrão](/docs/configuration/default-skins).

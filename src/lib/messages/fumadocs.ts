@@ -1,5 +1,5 @@
 import type { Translations } from "fumadocs-ui/i18n";
-import type { Locale } from "../i18n";
+import { localeNames, type Locale } from "../i18n";
 import { translate, type MessageKey } from ".";
 
 // Fumadocs qualifies message keys with their UI context.
@@ -7,7 +7,6 @@ const keys = {
   "Ask AI(AI chat button)": "common.askAi",
   "Back to Home(404 not found page)": "common.backHome",
   "Choose a language(language switcher)": "common.chooseLanguage",
-  "Choose a language(language switcher)(aria-label)": "common.chooseLanguage",
   "Close Banner(banner)(aria-label)": "common.closeBanner",
   "Close(image zoom)(aria-label)": "common.close",
   "Close Search(search dialog)(aria-label)": "common.closeSearch",
@@ -72,10 +71,15 @@ const keys = {
 } satisfies Partial<Record<keyof Translations, MessageKey>>;
 
 export function fumadocsMessages(locale: Locale): Partial<Translations> {
-  return Object.fromEntries(
-    Object.entries(keys).map(([externalKey, key]) => [
-      externalKey,
-      translate(locale, key),
-    ]),
-  );
+  return {
+    ...Object.fromEntries(
+      Object.entries(keys).map(([externalKey, key]) => [
+        externalKey,
+        translate(locale, key),
+      ]),
+    ),
+    // The language button shows the current language name. Start its
+    // accessible name with that text so voice control users can say it.
+    "Choose a language(language switcher)(aria-label)": `${localeNames[locale]}: ${translate(locale, "common.chooseLanguage")}`,
+  };
 }

@@ -1,0 +1,41 @@
+---
+title: "Требования и совместимость"
+description: "Подберите сборку SkinsRestorer, версию Minecraft и Java."
+docType: "reference"
+appliesTo: "Все платформы"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ClipboardCheck"
+---
+
+В каждом релизе есть три сборки: плагин для серверов и прокси, мод Fabric и мод NeoForge. Сборки модов рассчитаны на конкретные версии Minecraft.
+
+## Плагины для серверов и прокси [#server-and-proxy-plugins]
+
+Используйте сборку для серверов и прокси на серверах, совместимых с Bukkit, а также на BungeeCord и Velocity. Выберите версию Java, которая подходит и вашей платформе, и релизу плагина.
+
+Платформе может требоваться более новая Java, чем SkinsRestorer. Проверьте [требования Paper](https://docs.papermc.io/paper/getting-started/) или [требования Velocity](https://docs.papermc.io/velocity/getting-started/) для вашей версии.
+
+Форки и гибридные серверы для модов и плагинов могут менять работу с профилями игроков. Успешный запуск ещё не доказывает совместимость. Прежде чем сообщать о [конфликте с платформой](/docs/troubleshooting/incompatibility-list), воспроизведите проблему на оригинальной платформе.
+
+## Fabric и NeoForge 15.12.6 [#fabric-and-neoforge-15126]
+
+Исходный код этого релиза рассчитан на **Minecraft 26.3**. Метаданные Fabric требуют Java 25 или новее и Fabric Loader 0.16.0 или новее. Сборка использует Fabric Loader 0.19.5.
+
+Сборка NeoForge рассчитана на NeoForge 26.3.0.7-beta. Используйте загрузчик и версию Java, которые требует этот релиз Minecraft. Для более старого сервера Minecraft нужна соответствующая старая сборка мода SkinsRestorer.
+
+Эти значения взяты из [конфигурации сборки релиза](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties) и [метаданных Fabric](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/mod/fabric/src/main/resources/fabric.mod.json).
+
+## Клиенты и сети [#clients-and-networks]
+
+Игрокам не нужно устанавливать плагин Bukkit на клиент. Сервер сам передаёт свойства скина клиентам Java Edition. Моды скинов на клиенте могут заменять эти свойства.
+
+Прежде чем искать проблемы со скинами в сети с прокси, настройте правильное перенаправление UUID и профилей. Для Velocity используйте [официальное руководство по перенаправлению](https://docs.papermc.io/velocity/player-information-forwarding/).
+
+Клиенты Bedrock и сторонние системы отрисовки на клиенте могут обрабатывать скины по-своему. Не используйте их отображение как единственную проверку смены скина на сервере Java Edition.
+
+## Загрузка и зависимости [#downloads-and-dependencies]
+
+Используйте готовую сборку из релиза, а не `raw` JAR для разработки. Релиз Fabric уже включает Fabric API, Cloud и Fabric permissions API. Если загрузчик сообщает об отсутствующей зависимости, сначала проверьте версии сборки и загрузчика.
+
+Перейдите к [руководству по установке](/docs/installation).

@@ -1,0 +1,39 @@
+---
+title: "Um comando é negado"
+description: "Encontre a permissão efetiva e a plataforma responsável pelo comando."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ShieldAlert"
+---
+
+Um erro de permissão é diferente de um erro de rede. O `/sr status` não consegue diagnosticar a falta de permissão para um comando.
+
+## Encontre a permissão [#find-the-permission]
+
+1. Leia a mensagem de erro completa.
+2. Encontre o comando na [referência de comandos](/docs/configuration/commands-permissions).
+3. Confira a permissão efetiva do jogador no seu gerenciador de permissões.
+4. Confira permissões herdadas, negações explícitas e contextos por servidor.
+
+Para uma URL de skin, confira `skinsrestorer.command.set.url`. Para o histórico, confira `skinsrestorer.command.undo`. Para o menu, confira `skinsrestorer.command.gui`.
+
+## Confira a instância correta [#check-the-correct-instance]
+
+Em uma rede, conceder uma permissão em um backend pode deixar um comando do proxy negado. Aplique as permissões no proxy quando o proxy for responsável pelo `/skin`.
+
+Um servidor listado em `proxy.notAllowedCommandServers.list` pode bloquear comandos independentemente das permissões. A lista de bloqueio padrão contém `auth`.
+
+## Confira outras restrições [#check-additional-restrictions]
+
+- O acesso por skin exige `skinsrestorer.skin.<name>` quando está ativado.
+- Um comando permitido não ignora uma skin desativada ou uma restrição de URL.
+- Um tempo de espera é uma restrição de tempo, não uma permissão ausente.
+- Um comando desativado precisa de uma mudança de configuração e de um reinício, não de outra permissão.
+
+## Confira a correção [#check-the-fix]
+
+Use uma conta de jogador comum. Execute um comando permitido e um comando negado. O acesso de operador ou curingas amplos podem esconder uma configuração de grupos incorreta.
+
+Leia [acesso dos jogadores](/docs/configuration/player-access) para planejar as permissões, ou colete [diagnósticos](/docs/troubleshooting/debugging) se a permissão efetiva e o resultado do comando não baterem.

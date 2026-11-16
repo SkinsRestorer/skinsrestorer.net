@@ -1,0 +1,42 @@
+---
+title: "Isole conflitos com plugins e plataformas"
+description: "Descubra qual plugin, mod ou fork de servidor que altera perfis causa um problema."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Puzzle"
+---
+
+Plugins que alteram perfis, apelidos, a lista de jogadores (tab), o estado de login ou o estado do mundo podem substituir os dados da skin. O nome de um plugin, sozinho, não prova um conflito em todas as versões.
+
+## Reproduza em um servidor separado [#reproduce-on-a-separate-server]
+
+1. Faça uma cópia de segurança da configuração e dos dados.
+2. Crie um servidor de teste com a mesma versão do Minecraft.
+3. Instale apenas o SkinsRestorer em uma plataforma original compatível.
+4. Aplique uma skin conhecida e reconecte.
+5. Adicione um plugin ou mod suspeito.
+6. Repita o mesmo teste de skin.
+7. Continue até o problema voltar.
+
+Informe as versões testadas no seu relato. Não remova plugins de um servidor em produção só para fazer este teste.
+
+## Conflitos comuns [#common-overlap]
+
+- Um plugin ou script de skins pode aplicar outra textura depois do SkinsRestorer.
+- Um plugin de login pode restaurar o perfil da conta depois de uma seleção personalizada.
+- Um plugin de apelidos ou da lista de jogadores pode substituir o perfil visível do jogador.
+- Um mod de skin no cliente só altera a aparência nesse cliente.
+
+Confira a configuração atual da integração concorrente. Por exemplo, uma integração de login que encaminha a própria skin pode entrar em conflito com as skins escolhidas no servidor.
+
+## Forks e servidores híbridos [#forks-and-hybrid-servers]
+
+Um fork ou servidor híbrido de mods e plugins pode alterar as APIs de perfil e o comportamento de atualização. Reproduza o problema no Paper ou Spigot originais, ou na plataforma de mods correspondente, antes de relatar um bug do SkinsRestorer.
+
+Não suponha que uma lista antiga de incompatibilidades vale para todas as versões atuais. Informe as versões exatas e uma reprodução mínima.
+
+## Próximos passos [#next]
+
+Consulte [problemas com o launcher](/docs/troubleshooting/launcher-issues) para diferenças que só acontecem no cliente. Inclua a reprodução e os [diagnósticos](/docs/troubleshooting/debugging) em um relato de problema no servidor.

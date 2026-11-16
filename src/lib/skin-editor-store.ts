@@ -88,6 +88,19 @@ export class SkinEditorStore {
 
   getSnapshot = () => this.current;
 
+  private settled = this.current;
+
+  /**
+   * The snapshot without the pixel changes inside a stroke. It changes when
+   * a stroke starts and ends, but not on each pointer move, so views that do
+   * not draw the pixels skip a render for every stroke sample.
+   */
+  getSettledSnapshot = () => {
+    if (!this.current.painting || !this.settled.painting)
+      this.settled = this.current;
+    return this.settled;
+  };
+
   private emit(changedPixels: boolean) {
     this.current = {
       revision: this.current.revision + (changedPixels ? 1 : 0),

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Message } from "@/lib/messages";
+import type { Message, MessageKey } from "@/lib/messages";
 
 import { useHotkeys, type UseHotkeyDefinition } from "@tanstack/react-hotkeys";
 import { useBlocker } from "@tanstack/react-router";
@@ -32,7 +32,10 @@ import {
 } from "@/components/editor/editor-commands";
 import { ColorControls, toHex } from "@/components/editor/color-panel";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
-import type { EditorInteraction } from "@/components/editor/editor-types";
+import {
+  toolLabels,
+  type EditorInteraction,
+} from "@/components/editor/editor-types";
 import { LayerToggle, VisibleParts } from "@/components/editor/layers-panel";
 import { ModelCanvas } from "@/components/editor/model-canvas";
 import { PartActions } from "@/components/editor/part-actions";
@@ -113,10 +116,12 @@ export function StudioEditor(props: {
   const t = useT();
   const { store, session, onExit } = props;
   const exitHandler = useAsRef(onExit);
+  // The canvases follow each stroke sample themselves. The editor and its
+  // skin check update when a stroke starts and ends.
   const snapshot = useSyncExternalStore(
     store.subscribe,
-    store.getSnapshot,
-    store.getSnapshot,
+    store.getSettledSnapshot,
+    store.getSettledSnapshot,
   );
   const work = useSyncExternalStore(
     session.subscribe,
@@ -141,6 +146,8 @@ export function StudioEditor(props: {
   const [showGrid, setShowGrid] = useState(true);
   const [highlight, setHighlight] = useState<SkinIssueId | null>(null);
   const [status, setStatus] = useState<Message>("");
+  /** What a shortcut changed, for screen readers. The controls show it. */
+  const [shortcutNote, setShortcutNote] = useState("");
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   const textureFrame = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -251,10 +258,12 @@ export function StudioEditor(props: {
         return;
       }
       setColor(picked);
-      setTool("pencil");
+      // Alt picks with any tool and keeps it; the pick tool hands over to
+      // the pencil.
+      if (tool === "eyedropper") setTool("pencil");
       showStatus(t("studio.pickedColor", { color: toHex(picked) }));
     },
-    [showStatus, t],
+    [tool, showStatus, t],
   );
 
   const changeLayer = useCallback(
@@ -286,29 +295,59 @@ export function StudioEditor(props: {
       // Toggles need a new key press; holding a size or undo key repeats.
       options: { requireReset: !repeat },
     }));
-  const resize = (step: number) =>
-    setSize((current) =>
-      Math.max(BRUSH_SIZES.min, Math.min(BRUSH_SIZES.max, current + step)),
+  const announce = (setting: MessageKey, value: string) =>
+    setShortcutNote(t("editor.settingValue", { setting: t(setting), value }));
+  const resize = (step: number) => {
+    const next = Math.max(
+      BRUSH_SIZES.min,
+      Math.min(BRUSH_SIZES.max, size + step),
     );
+    setSize(next);
+    announce("editor.size", t("editor.sizePx", { size: next }));
+  };
+  const pointerAction = (next: EditorInteraction) => {
+    setInteraction(next);
+    announce(
+      "editor.pointerAction",
+      t(next === "paint" ? "editor.paint" : "editor.moveView"),
+    );
+  };
   useHotkeys(
     [
       ...toolCommands.flatMap((command) =>
         run(command, () => {
           // S on the active Shade tool switches between lighten and darken,
           // and G on the active Fill tool between face and everywhere.
-          if (command === "shade" && tool === "shade")
-            setShade((mode) => (mode === "lighten" ? "darken" : "lighten"));
-          else if (command === "fill" && tool === "fill")
-            setFillScope((scope) => (scope === "face" ? "everywhere" : "face"));
-          else changeTool(command);
+          if (command === "shade" && tool === "shade") {
+            const next = shade === "lighten" ? "darken" : "lighten";
+            setShade(next);
+            announce("common.shade", t(`editor.${next}`));
+          } else if (command === "fill" && tool === "fill") {
+            const next = fillScope === "face" ? "everywhere" : "face";
+            setFillScope(next);
+            announce("editor.fillArea", t(`editor.${next}`));
+          } else {
+            changeTool(command);
+            announce("editor.tool", t(toolLabels[command]));
+          }
         }),
       ),
-      ...run("mirror", () => setMirror((on) => !on)),
+      ...run("mirror", () => {
+        setMirror(!mirror);
+        announce("editor.mirror", t(mirror ? "editor.off" : "editor.on"));
+      }),
       ...run("smaller", () => resize(-1), true),
       ...run("larger", () => resize(1), true),
-      ...run("layer", () => changeLayer(layer === "base" ? "outer" : "base")),
-      ...run("paint", () => setInteraction("paint")),
-      ...run("move", () => setInteraction("move")),
+      ...run("layer", () => {
+        const next = layer === "base" ? "outer" : "base";
+        changeLayer(next);
+        announce(
+          "editor.activeLayer",
+          t(next === "base" ? "common.base" : "common.outer"),
+        );
+      }),
+      ...run("paint", () => pointerAction("paint")),
+      ...run("move", () => pointerAction("move")),
       ...run("undo", () => store.undo(), true),
       ...run("redo", () => store.redo(), true),
       ...editorShortcuts.close.map((hotkey): UseHotkeyDefinition => ({
@@ -347,7 +386,7 @@ export function StudioEditor(props: {
       const bytes = await exportSkinPng(store.pixels);
       downloadSkin(
         new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "image/png" }),
-        work.target.name,
+        props.isNew ? t("common.newSkin") : work.target.name,
       );
       posthog.capture("editor_exported_png");
     } catch (cause) {
@@ -566,6 +605,9 @@ export function StudioEditor(props: {
         >
           {t.message(status)}
         </output>
+        <p className="sr-only" aria-live="polite">
+          {shortcutNote}
+        </p>
         <div
           ref={textureFrame}
           className={cn(

@@ -202,12 +202,8 @@ export function StudioLibrary(props: {
           {t("common.library")}
         </h2>
         {state.status === "unavailable" ? (
-          <SaveStatus
-            state="unavailable"
-            label={t("studio.notSavedError", {
-              error: t.message(state.message),
-            })}
-          />
+          // The full reason shows once, below the list.
+          <SaveStatus state="unavailable" label={t("library.notSaving")} />
         ) : (
           <SaveStatus
             state="saved"

@@ -14,6 +14,7 @@ import {
   type MigrationResult,
 } from "../skin-library-client";
 import {
+  skinFileName,
   SkinLibraryError,
   type DamagedRecord,
   type LibraryListing,
@@ -65,7 +66,7 @@ export function downloadSkin(png: Blob, name: string) {
   const url = URL.createObjectURL(png);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${name}.png`;
+  link.download = skinFileName(name);
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
   posthog.capture("skin_library_action", { action: "download" });
@@ -148,12 +149,12 @@ export function useSkinLibrary() {
     rename: (id: string, name: string) =>
       act("rename", (c) => c.run(withLibrary((l) => l.rename(id, name)))),
     duplicate: (id: string) =>
-      act("duplicate", (c) => c.run(withLibrary((l) => l.duplicate(id)))).then(
-        (copy) => {
-          if (copy) toast(t("library.skinDuplicated", { name: copy.name }));
-          return copy;
-        },
-      ),
+      act("duplicate", (c) =>
+        c.run(withLibrary((l) => l.duplicate(id, locale))),
+      ).then((copy) => {
+        if (copy) toast(t("library.skinDuplicated", { name: copy.name }));
+        return copy;
+      }),
     remove: (id: string) =>
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed) => {

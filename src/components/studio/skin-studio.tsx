@@ -48,8 +48,7 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
-  FieldSet,
+  FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -100,7 +99,7 @@ import {
   readSkinFileTexture,
   skinSource,
   studioSearch,
-  suggestSkinName,
+  defaultSkinName,
   withGallerySkin,
   withoutSkinReference,
   type SkinSource,
@@ -172,13 +171,30 @@ const panel =
 /** Typed gallery search reaches the URL after this pause. */
 const QUERY_WRITE_MS = 400;
 
+/** SkinsRestorer storage files. The picker lists only these where it can. */
+const SKIN_FILE_ACCEPT = ".playerskin,.urlskin,.customskin,.legacyskin,.skin";
+
+/**
+ * iOS and iPadOS map `accept` to system file types. These extensions have
+ * none, so Safari greys out every file. There the picker lists all files,
+ * and opening checks the content instead.
+ */
+function skinFileAccept() {
+  const { userAgent, maxTouchPoints } = navigator;
+  const appleTouch =
+    /iPad|iPhone|iPod/.test(userAgent) ||
+    (/Macintosh/.test(userAgent) && maxTouchPoints > 1);
+  return appleTouch ? "" : SKIN_FILE_ACCEPT;
+}
+
 /** One pixel store and library session for the whole Studio visit. */
 function useEditorSession() {
   const t = useT();
+  const locale = useLocale();
   const [editor] = useState(() => {
     const store = new SkinEditorStore();
     // The server renders without a library; the browser opens it.
-    const session = new EditorSession(store, browserLibrary());
+    const session = new EditorSession(store, browserLibrary(), { locale });
     session.start(createTemplate("classic"), { name: t("common.newSkin") });
     return { store, session };
   });
@@ -223,7 +239,8 @@ export function SkinStudio(props: {
 
   // Fetch the 3D view early so it is ready when someone picks a skin.
   useEffect(() => {
-    void loadSkinView();
+    // A failed prefetch is retried when the view renders.
+    loadSkinView().catch(() => undefined);
   }, []);
   const importTask = useLatestTask();
   /** Only URL-owned reads are cancelled when their reference is removed. */
@@ -459,8 +476,15 @@ export function SkinStudio(props: {
 
   // ---- Public skin references from the URL ----
 
-  /** Download a trusted texture, keep it in the library, and select it. */
-  const importTexture = (reference: string, fromUrl = false) => {
+  /**
+   * Download a trusted texture, keep it in the library, and select it.
+   * `onOpened` runs only once the skin is selected.
+   */
+  const importTexture = (
+    reference: string,
+    fromUrl = false,
+    onOpened?: () => void,
+  ) => {
     cancelImport();
     urlImport.current = fromUrl;
     void importTask.run(
@@ -504,6 +528,7 @@ export function SkinStudio(props: {
             origin: "file",
             name,
           });
+        onOpened?.();
         posthog.capture("editor_opened", { source: "texture_url" });
       },
       (cause) => toast.error(t.error(cause)),
@@ -520,9 +545,11 @@ export function SkinStudio(props: {
         setPendingGallery(undefined);
         setDrawer(false);
         store.select(
+          // Named like library skins, so the default custom skin name
+          // follows the gallery name.
           new File(
             [result.bytes as Uint8Array<ArrayBuffer>],
-            `${skin.id}.png`,
+            `${skin.name}.png`,
             { type: "image/png" },
           ),
           {
@@ -609,12 +636,14 @@ export function SkinStudio(props: {
   const openSkinFile = async (file: File) => {
     try {
       const { url, legacy } = readSkinFileTexture(await file.text());
-      if (legacy)
-        toast.warning(t("studio.fallingBackLegacySkinFormat"), {
-          description: t("studio.pleaseUpdateSkinsrestorerSoonPossible"),
-        });
       dropSkinReference();
-      importTexture(url);
+      // Warn about the old format only once its skin actually opened.
+      importTexture(url, false, () => {
+        if (legacy)
+          toast.warning(t("studio.fallingBackLegacySkinFormat"), {
+            description: t("studio.pleaseUpdateSkinsrestorerSoonPossible"),
+          });
+      });
     } catch (cause) {
       toast.error(t("studio.skinFileCouldNotOpen"), {
         description: `${t.error(cause)} ${t("studio.skinFileHint")}`,
@@ -633,7 +662,12 @@ export function SkinStudio(props: {
       openEditor(true);
       posthog.capture("editor_opened", { source: "template" });
     },
-    openSkinFile: () => skinFileInput.current?.click(),
+    openSkinFile: () => {
+      const input = skinFileInput.current;
+      if (!input) return;
+      input.accept = skinFileAccept();
+      input.click();
+    },
     openTexture: () => setTextureDialog(true),
   };
 
@@ -798,6 +832,15 @@ export function SkinStudio(props: {
   const capes = useCapeAccess({ keyRequired: options.method === "mineskin" });
   purposeRef.current = purpose;
   capeStatusRef.current = capes.status;
+  // Axolotl shows the public capes and Official the checked key's capes.
+  // The lists can differ, so a method switch may hide the chosen cape:
+  // never send a cape the picker does not show.
+  const capeShown =
+    options.capeUuid === NO_CAPE_VALUE ||
+    capes.supportedCapes.some((cape) => cape.uuid === options.capeUuid);
+  useEffect(() => {
+    if (!capeShown) form.setFieldValue("capeUuid", NO_CAPE_VALUE);
+  }, [form, capeShown]);
   // A fixed purpose or a key check changes which checks apply.
   useEffect(() => {
     void form.validate("change");
@@ -1217,8 +1260,9 @@ export function SkinStudio(props: {
                           description={t("studio.skinNameHint")}
                           value={field.state.value}
                           placeholder={
-                            (current && suggestSkinName(current.name)) ||
-                            "cool_skin_name"
+                            current
+                              ? defaultSkinName(current.file.name)
+                              : "cool_skin_name"
                           }
                           errors={
                             field.state.meta.isTouched || submitted
@@ -1429,7 +1473,7 @@ export function SkinStudio(props: {
       <input
         ref={skinFileInput}
         type="file"
-        accept=".playerskin,.urlskin,.customskin,.legacyskin,.skin"
+        accept={SKIN_FILE_ACCEPT}
         hidden
         aria-label={t("studio.selectSkinFileReverse")}
         onChange={(event) => {
@@ -1479,7 +1523,11 @@ export function SkinStudio(props: {
   );
 }
 
-/** A labelled group of choices, such as the model or the cape. */
+/**
+ * A titled choice, such as the model or the cape. The toggle group inside
+ * is the only group and takes its name from the title, so screen readers
+ * do not announce the same name twice.
+ */
 function ChoiceSet(props: {
   label: string;
   errors?: readonly unknown[];
@@ -1487,13 +1535,11 @@ function ChoiceSet(props: {
 }) {
   const id = useId();
   return (
-    <FieldSet>
-      <FieldLegend id={id} variant="label">
-        {props.label}
-      </FieldLegend>
+    <div className="flex flex-col gap-2">
+      <FieldTitle id={id}>{props.label}</FieldTitle>
       {props.children(id)}
       <LocalizedFieldError errors={props.errors} />
-    </FieldSet>
+    </div>
   );
 }
 

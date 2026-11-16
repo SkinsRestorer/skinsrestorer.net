@@ -1,0 +1,42 @@
+---
+title: "Aísla conflictos con plugins y plataformas"
+description: "Encuentra qué plugin, mod o fork del servidor que cambia perfiles causa un problema."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Puzzle"
+---
+
+Los plugins que cambian perfiles, apodos, la lista de jugadores (tab), el estado de inicio de sesión o el estado del mundo pueden sustituir los datos de la skin. El nombre de un plugin no basta para demostrar un conflicto en todas sus versiones.
+
+## Reprodúcelo en un servidor aparte [#reproduce-on-a-separate-server]
+
+1. Haz una copia de seguridad de la configuración y los datos.
+2. Crea un servidor de pruebas con la misma versión de Minecraft.
+3. Instala solo SkinsRestorer en una plataforma original compatible.
+4. Aplica una skin conocida y reconéctate.
+5. Añade un plugin o mod sospechoso.
+6. Repite la misma prueba de skin.
+7. Sigue así hasta que el problema vuelva a aparecer.
+
+Indica las versiones probadas en tu informe. No quites plugins de un servidor en producción solo para hacer esta prueba.
+
+## Conflictos habituales [#common-overlap]
+
+- Un plugin o script de skins puede aplicar otra textura después de SkinsRestorer.
+- Un plugin de inicio de sesión puede restaurar el perfil de la cuenta después de una selección personalizada.
+- Un plugin de apodos o de la lista de jugadores puede sustituir el perfil visible del jugador.
+- Un mod de skins del cliente solo puede cambiar el aspecto en ese cliente.
+
+Revisa la configuración actual de la integración que compite. Por ejemplo, una integración de inicio de sesión que reenvía su propia skin puede entrar en conflicto con las skins elegidas en el servidor.
+
+## Forks y servidores híbridos [#forks-and-hybrid-servers]
+
+Un fork o un servidor híbrido de mods y plugins puede alterar las API de perfiles y la forma de actualizarlos. Reproduce el problema en Paper o Spigot originales, o en la plataforma de mods correspondiente, antes de informar de un error de SkinsRestorer.
+
+No des por hecho que una lista antigua de incompatibilidades se aplica a todas las versiones actuales. Indica las versiones exactas y una reproducción mínima.
+
+## Siguientes pasos [#next]
+
+Consulta [problemas del lanzador](/docs/troubleshooting/launcher-issues) si las diferencias solo ocurren en el cliente. Incluye la reproducción y los [diagnósticos](/docs/troubleshooting/debugging) en un informe de un problema del servidor.

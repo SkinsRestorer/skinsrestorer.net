@@ -3,6 +3,7 @@ import { afterEach, test } from "node:test";
 import { Effect } from "effect";
 import { IDBFactory } from "fake-indexeddb";
 import { EditorSession, documentOf } from "./editor-session";
+import type { Locale } from "./i18n";
 import { createTemplate, exportSkinPng, pixelOffset } from "./skin-document";
 import { SkinEditorStore } from "./skin-editor-store";
 import {
@@ -33,10 +34,14 @@ function tab(factory: IDBFactory) {
   return client;
 }
 
-function editor(library: LibraryClient | undefined, saveDelayMs = 0) {
+function editor(
+  library: LibraryClient | undefined,
+  saveDelayMs = 0,
+  locale?: Locale,
+) {
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));
-  const session = new EditorSession(store, library, { saveDelayMs });
+  const session = new EditorSession(store, library, { saveDelayMs, locale });
   disposers.push(() => session.dispose());
   return { store, session };
 }
@@ -333,6 +338,77 @@ test("a skin removed while editing can still be saved as a copy", async () => {
   const copy = await session.saveCopy();
   assert.equal(copy.kind, "saved");
   assert.equal((await list(tabA)).skins.length, 1);
+});
+
+test("save as copy names the copy in the visitor's language", async () => {
+  const library = tab(new IDBFactory());
+  const skin = await keptSkin(library);
+  const { store, session } = editor(library, 0, "ru");
+  await open(session, skin);
+  paint(store, 4);
+  const result = await session.saveCopy();
+  assert.equal(result.kind, "saved");
+  if (result.kind !== "saved") return;
+  assert.equal(result.name, "Harbor (копия)");
+  assert.equal(result.file.name, "Harbor (копия).png");
+});
+
+test("a draft written after another tab removed its skin can become a new skin", async () => {
+  const factory = new IDBFactory();
+  const tabA = tab(factory);
+  const tabB = tab(factory);
+  const skin = await keptSkin(tabA);
+  // Tab B removes the skin, then tab A's next autosave writes a draft for it.
+  const a = editor(tabA);
+  await open(a.session, skin);
+  await tabB.run(withLibrary((l) => l.remove(skin.id)));
+  paint(a.store, 6);
+  await a.session.flush();
+
+  const reloaded = editor(tab(factory));
+  const recovery = await reloaded.session.loadRecovery();
+  assert.equal(recovery.length, 1);
+  assert.deepEqual(reloaded.session.getSnapshot().orphans, [recovery[0].id]);
+  const saved = await reloaded.session.saveDraftAsSkin(recovery[0]);
+  assert.equal(saved?.name, "Harbor");
+  assert.notEqual(saved?.id, skin.id);
+  assert.deepEqual(reloaded.session.getSnapshot().recovery, []);
+  assert.deepEqual(reloaded.session.getSnapshot().orphans, []);
+  const listing = await list(tabA);
+  assert.deepEqual(
+    listing.skins.map((entry) => entry.id),
+    [saved?.id],
+  );
+  // The draft became the skin, so it is no longer offered for recovery.
+  assert.equal(listing.sessions.length, 0);
+});
+
+test("continuing a draft whose skin was removed saves it as a new skin", async () => {
+  const factory = new IDBFactory();
+  const tabA = tab(factory);
+  const skin = await keptSkin(tabA);
+  const a = editor(tabA);
+  await open(a.session, skin);
+  await tabA.run(withLibrary((l) => l.remove(skin.id)));
+  paint(a.store, 8);
+  await a.session.flush();
+
+  const library = tab(factory);
+  const b = editor(library);
+  const [draft] = await b.session.loadRecovery();
+  await b.session.continueDraft(draft);
+  assert.equal(b.session.getSnapshot().target.skinId, undefined);
+  assert.equal(b.session.getSnapshot().target.name, "Harbor");
+  // The continued draft no longer points at the removed skin.
+  const continued = (await list(library)).sessions.find(
+    (entry) => entry.id === b.session.getSnapshot().sessionId,
+  );
+  assert.equal(continued?.skinId, undefined);
+  const result = await b.session.save();
+  assert.equal(result.kind, "saved");
+  if (result.kind !== "saved") return;
+  assert.notEqual(result.skin?.id, skin.id);
+  assert.equal(result.skin?.name, "Harbor");
 });
 
 test("without a library, saving returns the edited PNG for the form only", async () => {

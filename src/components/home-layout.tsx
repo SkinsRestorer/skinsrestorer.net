@@ -1,10 +1,32 @@
 import { useRouterState } from "@tanstack/react-router";
 import { HomeLayout as FumadocsHomeLayout } from "fumadocs-ui/layouts/home";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { getBaseOptions } from "@/lib/layout-options";
 import { useLocale, useT } from "@/lib/i18n-react";
 import { localizeHref, splitLocalePath } from "@/lib/i18n";
 import { SiteFooter } from "@/components/site-footer";
+import { cn } from "@/lib/utils";
+
+// Fumadocs renders its home container as <main>, which would put the header
+// and footer inside the main landmark. A plain wrapper keeps the same id and
+// layout classes so the header and footer stay top-level landmarks.
+function LayoutContainer({
+  className,
+  ...props
+}: Omit<ComponentProps<"main">, "ref">) {
+  return (
+    <div
+      id="nd-home-layout"
+      {...props}
+      className={cn(
+        "flex flex-1 flex-col [--fd-layout-width:1400px]",
+        className,
+      )}
+    />
+  );
+}
+
+const slots = { container: LayoutContainer };
 
 export function HomeLayout({ children }: { children: ReactNode }) {
   const locale = useLocale();
@@ -23,6 +45,7 @@ export function HomeLayout({ children }: { children: ReactNode }) {
       </a>
       <FumadocsHomeLayout
         {...baseOptions}
+        slots={slots}
         i18n={
           !["/privacy-policy", "/terms-of-service", "/cookie-policy"].includes(
             path,
@@ -51,14 +74,13 @@ export function HomeLayout({ children }: { children: ReactNode }) {
           ...(baseOptions.links || []),
         ]}
       >
-        {/* The skip link target. The header sits in the same <main>. */}
-        <div
+        <main
           id="main-content"
           tabIndex={-1}
           className="flex flex-1 flex-col outline-none"
         >
           {children}
-        </div>
+        </main>
         <SiteFooter />
       </FumadocsHomeLayout>
     </>

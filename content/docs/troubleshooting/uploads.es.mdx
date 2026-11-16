@@ -1,0 +1,48 @@
+---
+title: "Falla una subida o un comando generado"
+description: "Distingue los problemas de imagen, las colas de generación y los fallos de comandos en el servidor."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-11-16"
+version: "15.12.6"
+icon: "Upload"
+---
+
+La web genera un comando. Después, tu servidor ejecuta ese comando. Averigua qué etapa falla antes de volver a intentarlo.
+
+## La web rechaza el archivo [#the-website-rejects-the-file]
+
+Usa una plantilla de skin en PNG. El límite de archivo de la web es de 5 MB. Una imagen de skin debe ser cuadrada o el doble de ancha que de alta. Los tamaños estándar son 64×64 y 64×32. Las versiones escaladas de estas proporciones también pasan la comprobación de la vista previa.
+
+Si la página indica otras dimensiones, exporta la imagen con un editor de skins. Cambiar el nombre de una captura de pantalla no la convierte en una skin.
+
+Si la vista previa 3D no está disponible, puedes subir o generar tu skin igualmente. La vista previa necesita que tu navegador admita WebGL.
+
+Si la vista previa muestra huecos en los brazos, cambia entre **Clásica** y **Delgada**. Lee [la guía de modelos](/docs/features/skin-design).
+
+## La generación falla o se queda esperando [#generation-fails-or-waits]
+
+1. Lee el error debajo de **La skin no se subió**. La línea siguiente te dice qué probar. Tu skin y tus opciones se mantienen.
+2. Espera a que termine el trabajo activo de la cola.
+3. Revisa tu clave de API si el error tiene que ver con la autorización.
+4. Revisa la lista de capas disponibles si el error tiene que ver con el acceso a capas. Si la lista muestra **No se pudieron cargar las capas**, pulsa **Reintentar** debajo de ella.
+
+Una capa seleccionada en el modo **Axolotl** usa la ruta del proxy. Las subidas sin capa y el modo **Oficial** usan MineSkin directamente. Estas rutas pueden fallar por separado.
+
+Mientras un trabajo está pendiente, el botón de generar muestra **Generando…** y queda desactivado. Un trabajo puede tardar hasta un minuto. Para dejar de esperar, pulsa **Dejar de esperar** debajo del botón y vuelve a generar.
+
+Si cambias el archivo, el modelo, la capa, la clave de API o el método de subida, la página deja de esperar el resultado anterior. Salir de la página también deja de esperar. Un trabajo que el servicio ya aceptó puede continuar. La página no vuelve a enviar ese trabajo automáticamente.
+
+## Falla el comando generado [#the-generated-command-fails]
+
+Mantén la URL entre comillas y el valor del modelo generado sin cambios. Un resultado opaco `skinsrestorer-axolotl://` es una entrada válida para el comando, no un enlace para el navegador. Ejecuta un resultado `/skin url` en el chat del juego para tu propio jugador.
+
+Un resultado `/sr createcustom` necesita acceso de administración en el servidor o proxy que gestiona el almacenamiento. Crea una skin con nombre, no la asigna a un jugador.
+
+Revisa `skinsrestorer.command.set.url` y las [restricciones de URL](/docs/configuration/restrict-skins). Si la generación funcionó pero el servidor no puede cargar el resultado, revisa las [conexiones con los servicios](/docs/troubleshooting/firewall).
+
+## Informa de un problema [#report-a-problem]
+
+Incluye la etapa, el texto del error, el modelo, si elegiste una capa y si usaste una clave de API. No incluyas la clave.
+
+Usa los [diagnósticos para el soporte](/docs/troubleshooting/debugging) si el error ocurre en el servidor.

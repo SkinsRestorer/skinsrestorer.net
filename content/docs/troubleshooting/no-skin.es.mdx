@@ -1,0 +1,39 @@
+---
+title: "No se ve el cambio de skin"
+description: "Distingue los problemas de descarga, de aplicación del perfil y de renderizado en el cliente."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "EyeOff"
+---
+
+Usa esta guía cuando un comando indica éxito pero el jugador sigue con el mismo aspecto.
+
+## Compara dos puntos de vista [#compare-two-views]
+
+1. Ejecuta `/skin set xknat` con un cliente de Java.
+2. Pide a otro jugador que revise el resultado.
+3. Desconéctate y vuelve a entrar.
+4. Vuelve a comparar lo que ve cada uno.
+
+Si otro jugador ve la skin nueva, el servidor la aplicó. Revisa los [mods de skins y la configuración del lanzador](/docs/troubleshooting/launcher-issues) del cliente afectado.
+
+## Revisa los datos seleccionados [#inspect-the-selected-data]
+
+Ejecuta `/sr info player <playerName>` en la instancia que gestiona el almacenamiento. Revisa la textura y la skin seleccionada. En una red, usa la consola del proxy para los comandos de administración habituales.
+
+Si una textura no se puede cargar, lee [conexiones con los servicios](/docs/troubleshooting/firewall). Si la selección guardada es correcta, sigue con la aplicación del perfil.
+
+## Revisa cómo se aplica [#check-the-application-path]
+
+- **Proxy:** Revisa el reenvío e instala SkinsRestorer en todos los backends. Consulta [problemas del modo proxy](/docs/troubleshooting/proxy-mode).
+- **Solo al entrar:** Revisa `advanced.disableOnJoinSkins` y el comportamiento del modo online. Consulta [la skin se restablece](/docs/troubleshooting/skin-resets).
+- **Paquete de recursos:** Mantén `server.resourcePackFix` activado salvo que otra integración se encargue de actualizar el perfil.
+- **Un plugin o mundo concreto:** Reproduce el problema en un servidor de pruebas aparte sin otros plugins que modifiquen perfiles.
+
+No actives `advanced.teleportRefresh` como primera solución. Teletransporta a los jugadores lejos y de vuelta durante la actualización.
+
+## Si sigue sin cambiar [#still-unchanged]
+
+Recopila un [informe de diagnóstico y un registro reciente](/docs/troubleshooting/debugging). Indica en qué cliente se ve el problema y si cambia al reconectarte.

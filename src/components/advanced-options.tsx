@@ -10,8 +10,7 @@ import {
 import {
   FieldDescription,
   FieldGroup,
-  FieldLegend,
-  FieldSet,
+  FieldTitle,
 } from "@/components/ui/field";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useT } from "@/lib/i18n-react";
@@ -37,7 +36,7 @@ export function AdvancedOptions(props: {
 }) {
   const t = useT();
   const id = useId();
-  const legendId = `${id}-legend`;
+  const titleId = `${id}-title`;
   const descriptionId = `${id}-description`;
   return (
     <div className="border-t">
@@ -64,13 +63,12 @@ export function AdvancedOptions(props: {
         <CollapsibleContent>
           <div className="pb-1">
             <FieldGroup>
-              <FieldSet>
-                <FieldLegend id={legendId} variant="label">
-                  {t("common.uploadMethod")}
-                </FieldLegend>
+              {/* The toggle group is the only group, named by this title. */}
+              <div className="flex flex-col gap-2">
+                <FieldTitle id={titleId}>{t("common.uploadMethod")}</FieldTitle>
                 {/* A form choice, not navigation: a toggle group, not tabs. */}
                 <ToggleGroup
-                  aria-labelledby={legendId}
+                  aria-labelledby={titleId}
                   aria-describedby={descriptionId}
                   variant="outline"
                   spacing={0}
@@ -93,7 +91,7 @@ export function AdvancedOptions(props: {
                     ? t("common.useSkinsrestorerAxolotlProxyUploadSkinsCape")
                     : t("common.provideMineskinApiKeyUploadSkinsDirectly")}
                 </FieldDescription>
-              </FieldSet>
+              </div>
               {props.method === "mineskin" && props.officialFields}
             </FieldGroup>
           </div>

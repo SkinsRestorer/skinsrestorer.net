@@ -7,6 +7,7 @@ import Link from "fumadocs-core/link";
 import { useFumadocsLoader } from "fumadocs-core/source/client";
 import { Callout } from "fumadocs-ui/components/callout";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { useSidebar } from "fumadocs-ui/layouts/docs/slots/sidebar";
 import {
   DocsBody,
   DocsDescription,
@@ -25,6 +26,7 @@ import {
 import { getBaseOptions } from "@/lib/layout-options";
 import { getPageHead } from "@/lib/seo";
 import { getMDXComponents } from "@/mdx-components";
+import { useEffect, type KeyboardEvent } from "react";
 
 import {
   docFileInfo,
@@ -124,7 +126,24 @@ const clientLoader = browserCollections.docs.createClientLoader<{
       <DocsPage
         toc={toc}
         full={frontmatter.full}
-        tableOfContent={{ style: "clerk" }}
+        // The skip link targets this article, so it must accept focus.
+        tabIndex={-1}
+        className="outline-none"
+        tableOfContent={{
+          style: "clerk",
+          container: { role: "navigation", "aria-labelledby": "toc-title" },
+        }}
+        tableOfContentPopover={{
+          container: {
+            role: "navigation",
+            "aria-label": t("common.page"),
+            onKeyDown: closeTocPopoverOnEscape,
+          },
+          trigger: {
+            className:
+              "focus-visible:ring-2 focus-visible:ring-fd-ring focus-visible:ring-inset",
+          },
+        }}
         footer={{ items: page.neighbours }}
       >
         {page.contentLocale !== locale && (
@@ -188,6 +207,18 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   },
 });
 
+// The mobile table of contents is a disclosure without Escape handling.
+function closeTocPopoverOnEscape(event: KeyboardEvent<HTMLDivElement>) {
+  if (event.key !== "Escape") return;
+  const trigger = event.currentTarget.querySelector<HTMLElement>(
+    "[data-toc-popover-trigger][aria-expanded='true']",
+  );
+  if (!trigger) return;
+  event.preventDefault();
+  trigger.click();
+  trigger.focus();
+}
+
 export const Route = createFileRoute("/{-$lang}/docs/$")({
   loader: async ({ params }) => {
     const page = await serverLoader({
@@ -224,12 +255,14 @@ function DocsRoute() {
     <DocsLayout
       tree={page.pageTree}
       {...getBaseOptions(locale)}
+      containerProps={{ className: skipLinkClassName }}
       sidebar={{
         footer: (
           <CookieSettingsButton className="self-start px-1 pt-2 text-xs text-fd-muted-foreground hover:text-fd-foreground" />
         ),
       }}
     >
+      <SidebarDrawerFocus />
       <DocsContent
         path={page.path}
         url={page.url}
@@ -239,6 +272,87 @@ function DocsRoute() {
       />
     </DocsLayout>
   );
+}
+
+// Fumadocs renders an sr-only "Skip to content" link to #nd-page as the
+// first child of the layout container. Show it on focus, like the home page.
+const skipLinkClassName = [
+  "[&>a[href='#nd-page']:focus-visible]:not-sr-only",
+  "[&>a[href='#nd-page']:focus-visible]:fixed",
+  "[&>a[href='#nd-page']:focus-visible]:top-2",
+  "[&>a[href='#nd-page']:focus-visible]:left-2",
+  "[&>a[href='#nd-page']:focus-visible]:z-100",
+  "[&>a[href='#nd-page']:focus-visible]:rounded-md",
+  "[&>a[href='#nd-page']:focus-visible]:bg-background",
+  "[&>a[href='#nd-page']:focus-visible]:px-3",
+  "[&>a[href='#nd-page']:focus-visible]:py-2",
+  "[&>a[href='#nd-page']:focus-visible]:text-sm",
+  "[&>a[href='#nd-page']:focus-visible]:text-foreground",
+  "[&>a[href='#nd-page']:focus-visible]:ring-2",
+  "[&>a[href='#nd-page']:focus-visible]:ring-ring",
+  "[&>a[href='#nd-page']:focus-visible]:outline-none",
+].join(" ");
+
+const focusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+// The mobile sidebar drawer closes on Escape but leaves focus management to
+// the page. While it is open, keep Tab inside it, then return focus to the
+// control that opened it.
+function SidebarDrawerFocus() {
+  const { open, mode } = useSidebar();
+  useEffect(() => {
+    if (!open || mode !== "drawer") return;
+    const drawer = document.getElementById("nd-sidebar-mobile");
+    if (!drawer) return;
+    const active = document.activeElement;
+    const opener =
+      active instanceof HTMLElement && !drawer.contains(active)
+        ? active
+        : document.querySelector<HTMLElement>(
+            "[aria-controls='nd-sidebar-mobile']",
+          );
+    const focusable = () =>
+      [...drawer.querySelectorAll<HTMLElement>(focusableSelector)].filter(
+        (element) =>
+          !element.closest("[inert]") && element.getClientRects().length > 0,
+      );
+    focusable()[0]?.focus();
+
+    const trapTab = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      const first = items[0];
+      const last = items.at(-1);
+      if (!first || !last) return;
+      const current = document.activeElement;
+      if (!drawer.contains(current)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && current === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && current === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", trapTab);
+    return () => {
+      document.removeEventListener("keydown", trapTab);
+      const current = document.activeElement;
+      if (!current || current === document.body || drawer.contains(current)) {
+        opener?.focus({ preventScroll: true });
+      }
+    };
+  }, [open, mode]);
+  return null;
 }
 
 function DocsContent(props: {

@@ -1,0 +1,47 @@
+---
+title: "Recopila diagnósticos para el soporte"
+description: "Reúne tu configuración, un informe de diagnóstico y el registro alrededor de un comando que falla."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Bug"
+---
+
+Un informe útil permite que otra persona reproduzca el mismo resultado. Recopila las pruebas en la instancia donde ocurre el fallo.
+
+## Anota cómo reproducirlo [#record-the-reproduction]
+
+Incluye:
+
+- Las versiones de SkinsRestorer, del servidor o proxy, de Minecraft y de Java.
+- Si es un servidor independiente o una red con proxy, incluido el backend afectado.
+- El comando o la operación de la API exactos.
+- El error completo y el resultado esperado.
+- Si reconectarte o cambiar de servidor cambia el resultado.
+- Los plugins y mods relevantes y el tipo de almacenamiento.
+
+## Crea un informe de diagnóstico [#create-a-diagnostic-report]
+
+Ejecuta `/sr dump` desde la consola de la instancia afectada. El comando sube un informe de diagnóstico y devuelve un enlace.
+
+El informe contiene la configuración, información de la plataforma y los plugins, y detalles del entorno. Excluye la configuración de la base de datos y la clave de API de MineSkin. No incluye el registro reciente de la consola.
+
+Revisa el informe antes de compartirlo. Otros detalles de configuración o del entorno pueden identificar tu instalación. No publiques credenciales que no tengan relación.
+
+## Guarda los registros recientes [#capture-recent-logs]
+
+1. Activa `dev.debug: true` en la configuración activa.
+2. Ejecuta `/sr reload`, o reinicia si la recarga no está disponible.
+3. Reproduce el problema una vez.
+4. Copia el registro desde antes del comando hasta el final del error.
+5. Vuelve a poner `dev.debug` en `false`.
+6. Aplica otra vez el cambio de configuración.
+
+Incluye la excepción completa, no solo la última línea. Si el error ocurre al arrancar, incluye también el registro de arranque.
+
+## Pide ayuda [#ask-for-help]
+
+Usa el [soporte de SkinsRestorer](/discord) con el enlace del informe, el registro reciente y los pasos para reproducirlo. Si el error se puede reproducir, abre una [incidencia](https://github.com/SkinsRestorer/SkinsRestorer/issues).
+
+Para corregir la documentación, usa el enlace de edición en GitHub o el formulario de comentarios de la página. Indica la página, el paso y el resultado que no coincide.

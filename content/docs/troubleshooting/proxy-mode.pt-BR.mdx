@@ -1,0 +1,48 @@
+---
+title: "Modo proxy e API do backend"
+description: "Resolva os avisos de modo sem adicionar um banco de dados desnecessário."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+Um backend em modo proxy recebe as skins do proxy. Isso é diferente de expor a API Java para os plugins desse backend.
+
+## Skins comuns gerenciadas pelo proxy [#ordinary-proxy-managed-skins]
+
+Instale o SkinsRestorer no proxy e em todos os backends. Configure o encaminhamento de perfis. Mantenha `server.proxyMode.detection` como `AUTO` em cada backend.
+
+Você não precisa de MySQL ou PostgreSQL só porque tem vários backends. O proxy pode cuidar do armazenamento em arquivos e encaminhar as skins normalmente.
+
+Se nenhum plugin dos backends chama a API, você pode desativar o acesso à API nos backends:
+
+```yaml title="Backend config.yml (SkinsRestorer excerpt)"
+server:
+  proxyMode:
+    detection: AUTO
+    api: false
+```
+
+Reinicie o backend e conclua o [teste de troca de servidor](/docs/installation/quick-start).
+
+## Um plugin do backend precisa da API [#a-backend-plugin-needs-the-api]
+
+Defina `server.proxyMode.api: true`. Configure o proxy e cada backend com a API ativada com o mesmo banco de dados MySQL ou PostgreSQL e o mesmo prefixo de tabelas.
+
+O armazenamento em arquivos não suporta esse modo de API no backend. O provedor pode continuar indisponível mesmo quando as skins encaminhadas comuns funcionam.
+
+Siga [o guia da API no backend](/docs/development/proxy-api) e depois confira os logs de inicialização do banco de dados.
+
+## A detecção automática falha [#automatic-detection-fails]
+
+Primeiro corrija a configuração de encaminhamento da plataforma. Se a detecção ainda falhar em um backend que você sabe estar atrás de um proxy, defina `server.proxyMode.detection: ENABLED` nele e reinicie.
+
+Use `DISABLED` apenas em um servidor realmente independente ou em uma instalação independente intencional. Forçar um backend para o modo independente pode fazer duas instâncias disputarem as skins.
+
+## Onde executar os diagnósticos [#where-to-run-diagnostics]
+
+Backends em modo proxy oferecem `/sr status` e `/sr dump` para diagnósticos locais. Execute a administração do armazenamento e os comandos de skin comuns no proxy.
+
+Para configurar o encaminhamento, use o guia do [Velocity](/docs/installation/velocity) ou do [BungeeCord](/docs/installation/bungeecord). Para entender a arquitetura, leia [o papel do proxy](/docs/concepts/proxy).

@@ -1,0 +1,41 @@
+---
+title: "Requisitos e compatibilidade"
+description: "Escolha o arquivo do SkinsRestorer, a versão do Minecraft e o Java corretos."
+docType: "reference"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ClipboardCheck"
+---
+
+Cada versão publica três arquivos: um plugin de servidor/proxy, um mod para Fabric e um mod para NeoForge. As builds dos mods são feitas para versões específicas do Minecraft.
+
+## Plugins de servidor e proxy [#server-and-proxy-plugins]
+
+Use o arquivo de servidor/proxy em servidores compatíveis com Bukkit, BungeeCord e Velocity. Escolha uma versão do Java que atenda à sua plataforma e à versão do plugin.
+
+A plataforma pode exigir um Java mais novo do que o SkinsRestorer. Leia os [requisitos do Paper](https://docs.papermc.io/paper/getting-started/) ou os [requisitos do Velocity](https://docs.papermc.io/velocity/getting-started/) para a sua versão exata.
+
+Forks e servidores híbridos de mods e plugins podem mudar o comportamento dos perfis. Iniciar sem erros não prova que o servidor é compatível. Reproduza o problema na plataforma original antes de relatar um [conflito de plataforma](/docs/troubleshooting/incompatibility-list).
+
+## Fabric e NeoForge 15.12.6 [#fabric-and-neoforge-15126]
+
+O código desta versão é para o **Minecraft 26.3**. Os metadados do Fabric exigem Java 25 ou mais recente e Fabric Loader 0.16.0 ou mais recente. A build usa o Fabric Loader 0.19.5.
+
+A build do NeoForge é para o NeoForge 26.3.0.7-beta. Use o loader e o Java exigidos por essa versão do Minecraft. Um servidor com uma versão mais antiga do Minecraft precisa de um mod do SkinsRestorer mais antigo e correspondente.
+
+Esses valores vêm da [configuração de build da versão](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties) e dos [metadados do Fabric](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/mod/fabric/src/main/resources/fabric.mod.json).
+
+## Clientes e redes [#clients-and-networks]
+
+Os jogadores não precisam do plugin Bukkit no cliente. O servidor envia as propriedades da skin para os clientes Java. Mods de skin no cliente podem substituir essas propriedades.
+
+Uma rede com proxy precisa de um encaminhamento correto de UUID e perfis antes de você investigar problemas de skin. No Velocity, use o [guia oficial de encaminhamento](https://docs.papermc.io/velocity/player-information-forwarding/).
+
+Clientes Bedrock e renderizadores personalizados podem tratar skins de outra forma. Não use apenas a aparência neles para conferir uma troca de skin em um servidor Java.
+
+## Downloads e dependências [#downloads-and-dependencies]
+
+Use o arquivo empacotado da versão, e não um JAR de desenvolvimento `raw`. A versão para Fabric inclui a Fabric API, o Cloud e a API de permissões do Fabric. Se o loader indicar uma dependência ausente, confira primeiro as versões do arquivo e do loader.
+
+Continue com [o seu guia de instalação](/docs/installation).

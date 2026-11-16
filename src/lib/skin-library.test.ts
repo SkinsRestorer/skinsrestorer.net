@@ -18,6 +18,7 @@ import {
   SkinLibraryError,
   SkinNotFoundError,
   copyName,
+  skinFileName,
   MAX_SKIN_NAME_LENGTH,
   skinLibraryLayer,
   type LibraryChannel,
@@ -681,4 +682,48 @@ test("copy names count up and keep their suffix when a long name is shortened", 
   assert.equal(copy.length, MAX_SKIN_NAME_LENGTH);
   assert.ok(copy.endsWith(" copy"));
   assert.ok(copyName(copy).endsWith(" copy 2"));
+});
+
+test("copy names use the visitor's language and count on from any language", () => {
+  assert.equal(copyName("Harbor", "es"), "Harbor (copia)");
+  assert.equal(copyName("Harbor (copia)", "es"), "Harbor (copia 2)");
+  assert.equal(copyName("Harbor (копия 4)", "ru"), "Harbor (копия 5)");
+  // A copy made in another language keeps one suffix, in this language.
+  assert.equal(copyName("Harbor copy", "pt-BR"), "Harbor (cópia 2)");
+  assert.equal(copyName("Harbor (copia 2)", "en"), "Harbor copy 3");
+  // A name that only looks like a pattern piece stays whole.
+  assert.equal(copyName("copy", "en"), "copy copy");
+  assert.equal(copyName("$& copy", "en"), "$& copy 2");
+  const long = "é".repeat(MAX_SKIN_NAME_LENGTH);
+  const copy = copyName(long, "ru");
+  assert.equal(copy.length, MAX_SKIN_NAME_LENGTH);
+  assert.ok(copy.endsWith(" (копия)"));
+  assert.ok(copyName(copy, "ru").endsWith(" (копия 2)"));
+  const emoji = copyName("🙂".repeat(40));
+  assert.ok(emoji.length <= MAX_SKIN_NAME_LENGTH);
+  assert.ok(emoji.isWellFormed());
+});
+
+test("duplicate names the copy in the requested language", async () => {
+  const { tab } = browser();
+  const client = tab();
+  const first = await addSkin(client, await prepare(await skinPng(1)));
+  const copy = await use(client, (library) =>
+    library.duplicate(first.skin.id, "es"),
+  );
+  assert.equal(copy.name, "Harbor (copia)");
+});
+
+test("download names drop characters that file systems reject", () => {
+  assert.equal(skinFileName("Harbor"), "Harbor.png");
+  assert.equal(skinFileName('a:b*c?"d<e>f|g/h\\i'), "a_b_c__d_e_f_g_h_i.png");
+  assert.equal(skinFileName("Гавань 港口 ñ"), "Гавань 港口 ñ.png");
+  assert.equal(skinFileName("Harbor. . "), "Harbor.png");
+  assert.equal(skinFileName("CON"), "CON_.png");
+  assert.equal(skinFileName("lpt1.txt"), "lpt1.txt_.png");
+  assert.equal(skinFileName("console"), "console.png");
+  assert.equal(skinFileName("a\u202egnp.exe"), "agnp.exe.png");
+  assert.equal(skinFileName("tab\tname\n"), "tabname.png");
+  assert.equal(skinFileName("..."), "skin.png");
+  assert.equal(skinFileName("  "), "skin.png");
 });

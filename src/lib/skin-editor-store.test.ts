@@ -53,6 +53,26 @@ test("a fast stroke paints every pixel between samples and is one undo step", ()
   assert.deepEqual(pixel(store, 12, 12), [200, 10, 10, 255]);
 });
 
+test("the settled snapshot changes when a stroke starts and ends, not on each move", () => {
+  const store = setup();
+  const idle = store.getSettledSnapshot();
+  assert.equal(idle, store.getSnapshot());
+  store.beginStroke("pencil", settings(), 8, 8);
+  const started = store.getSettledSnapshot();
+  assert.notEqual(started, idle);
+  assert.equal(started.painting, true);
+  store.strokeTo(12, 8);
+  store.strokeTo(12, 12);
+  assert.ok(store.getSnapshot().revision > started.revision);
+  assert.equal(store.getSettledSnapshot(), started);
+  store.endStroke();
+  const ended = store.getSettledSnapshot();
+  assert.equal(ended, store.getSnapshot());
+  assert.equal(ended.painting, false);
+  assert.equal(ended.revision, store.getSnapshot().revision);
+  assert.equal(ended.canUndo, true);
+});
+
 test("base strokes are opaque; outer strokes keep alpha; the eraser only clears the outer layer", () => {
   const store = setup();
   store.beginStroke("pencil", settings({ layer: "outer" }), 40, 8);

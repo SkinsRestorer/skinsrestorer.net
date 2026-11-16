@@ -1,0 +1,39 @@
+---
+title: "Se deniega un comando"
+description: "Encuentra el permiso efectivo y la plataforma que gestiona el comando."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "ShieldAlert"
+---
+
+Un error de permisos es distinto de un error de red. `/sr status` no puede diagnosticar que falte el permiso de un comando.
+
+## Encuentra el permiso [#find-the-permission]
+
+1. Lee el mensaje de error completo.
+2. Busca el comando en la [referencia de comandos](/docs/configuration/commands-permissions).
+3. Revisa el permiso efectivo del jugador con tu gestor de permisos.
+4. Revisa los permisos heredados, las denegaciones explícitas y los contextos por servidor.
+
+Para una URL de skin, revisa `skinsrestorer.command.set.url`. Para el historial, revisa `skinsrestorer.command.undo`. Para el menú, revisa `skinsrestorer.command.gui`.
+
+## Revisa la instancia correcta [#check-the-correct-instance]
+
+En una red, dar un permiso en un backend puede dejar denegado un comando del proxy. Da los permisos en el proxy cuando el proxy gestiona `/skin`.
+
+Un servidor incluido en `proxy.notAllowedCommandServers.list` puede bloquear comandos sin importar los permisos. La lista de bloqueo predeterminada contiene `auth`.
+
+## Revisa otras restricciones [#check-additional-restrictions]
+
+- El acceso por skin necesita `skinsrestorer.skin.<name>` cuando está activado.
+- Un comando permitido no se salta una skin desactivada ni una restricción de URL.
+- Un tiempo de espera es una restricción de tiempo, no un permiso que falta.
+- Un comando desactivado necesita un cambio de configuración y un reinicio, no otro permiso.
+
+## Comprueba la solución [#check-the-fix]
+
+Usa una cuenta de jugador normal. Ejecuta un comando permitido y uno denegado. El acceso de operador o los comodines amplios pueden ocultar una configuración de grupos incorrecta.
+
+Lee [acceso de jugadores](/docs/configuration/player-access) para planificar los permisos, o recopila [diagnósticos](/docs/troubleshooting/debugging) si el permiso efectivo no coincide con el resultado del comando.

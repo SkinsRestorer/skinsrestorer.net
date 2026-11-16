@@ -6,8 +6,8 @@ import type {
 } from "./mineskin";
 import { sameGenerationInput, type GenerationInput } from "./skin-selection";
 import {
+  defaultSkinName,
   generatedCommand,
-  suggestSkinName,
   textureUrlFromValue,
   type StudioPurpose,
 } from "./studio";
@@ -49,19 +49,17 @@ export function generationResult(
     "uuid" in skin
       ? {
           url: skin.url || `https://minesk.in/${skin.uuid}`,
-          name: skin.name || skin.uuid,
           textureUrl: textureUrlFromValue(skin.texture.data.value),
         }
-      : {
-          url: skin.url,
-          name: suggestSkinName(input.file.name) || "custom_skin",
-          textureUrl: null,
-        };
+      : { url: skin.url, textureUrl: null };
+  // The server-side name never depends on MineSkin: an empty field uses the
+  // same default for every method, the one the field shows as placeholder.
+  const name = input.name || defaultSkinName(input.file.name);
   return {
     url: result.url,
     command: generatedCommand(
       input.purpose as StudioPurpose,
-      { url: result.url, name: input.name || result.name },
+      { url: result.url, name },
       input.variant,
     ),
     textureUrl: result.textureUrl,

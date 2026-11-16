@@ -1,0 +1,64 @@
+---
+title: "Crie uma skin personalizada com nome"
+description: "Salve uma skin do servidor reutilizável para comandos, skins padrão e o menu."
+docType: "how-to"
+appliesTo: "Administradores de servidores e proxies"
+reviewed: "2026-11-16"
+version: "15.12.6"
+icon: "Tag"
+---
+
+Uma skin personalizada dá a uma textura assinada um nome do próprio servidor, como `lobby`. Depois, os jogadores podem usar `/skin set lobby`.
+
+## Antes de começar [#before-you-start]
+
+Você precisa de acesso ao console ou da permissão `skinsrestorer.admincommand.createcustom`. Em uma rede, crie a skin pelo proxy responsável pelo armazenamento de skins.
+
+## Criar a partir de um PNG [#create-from-a-png]
+
+1. Abra o [gerador](/generator).
+2. Selecione **Enviar skin** e escolha seu PNG, ou escolha uma skin na **Biblioteca** ou na **Galeria**. Abaixo do comando, a página explica que `/sr createcustom` salva a skin no servidor com um nome que os jogadores podem usar com `/skin set`.
+3. Escolha **Clássico** ou **Fino** em **Modelo**.
+4. Se precisar de uma capa, selecione uma compatível em **Capa**.
+5. Opcional: digite um nome curto em **Nome da skin (opcional)**, como `lobby`. Use letras minúsculas, números e sublinhados.
+6. Opcional: abra **Opções avançadas** para escolher o método de geração.
+7. Selecione **Gerar /sr createcustom**.
+8. Copie o comando e execute-o no console do servidor ou do proxy.
+
+O gerador retorna um comando. Ele não baixa um arquivo de armazenamento nem instala a skin no seu servidor.
+
+Sem um nome, o comando usa o nome do MineSkin quando disponível. O Axolotl não retorna nome, então o Studio usa o nome do arquivo PNG ou `custom_skin`.
+
+O gerador é o [Skin Studio](/docs/features/skin-editor) com o comando `/sr createcustom` selecionado. Para alterar a skin antes, selecione **Editar skin**. Leia [editar pelo envio ou pelo gerador](/docs/features/skin-editor#edit-from-upload-or-generator).
+
+## Criar a partir de um nome de jogador ou URL [#create-from-a-player-name-or-url]
+
+```text
+/sr createcustom lobby xknat
+```
+
+Para a URL de uma imagem, mantenha a URL entre aspas e informe o modelo:
+
+```text title="Replace the example URL with a real skin PNG"
+/sr createcustom lobby "https://example.com/lobby.png" classic
+```
+
+Criar uma skin com um nome que já existe atualiza essa skin personalizada. Faça uma cópia de segurança das skins personalizadas importantes antes de substituí-las.
+
+## Conferir e reutilizar [#check-and-reuse]
+
+1. Execute `/skin set lobby` no jogo.
+2. Peça a outro jogador para conferir a aparência.
+3. Execute `/sr info skin lobby` para conferir a textura salva.
+
+Use `lobby` em uma [lista de skins padrão](/docs/configuration/default-skins) ou na [lista personalizada do menu](/docs/configuration/skin-menu).
+
+Para mudar o nome exibido no menu, execute `/sr setcustomname lobby Lobby skin`. O comando usa a mesma permissão que `createcustom`.
+
+## Arquivos de skin existentes [#existing-skin-files]
+
+O gerador consegue ler arquivos de armazenamento de skins existentes compatíveis. Quando nenhuma skin está selecionada, selecione **Abrir arquivo .skin** no centro da página. Você também pode selecionar **+** na **Biblioteca** e depois **Abrir arquivo .skin**. A textura do arquivo abre como uma nova skin, então você pode editá-la ou gerar um comando de novo. Não edite à mão o valor de uma textura nem a assinatura.
+
+Se a página mostrar **Não foi possível abrir o arquivo de skin**, leia o motivo logo abaixo. Escolha um arquivo de armazenamento do SkinsRestorer, como um arquivo `.customskin`. A página lê apenas a URL da textura do arquivo.
+
+Leia [armazenamento e cópias de segurança](/docs/configuration/backups) antes de remover dados salvos.

@@ -1,0 +1,44 @@
+---
+title: "La skin se restablece al entrar o cambiar de servidor"
+description: "Revisa la persistencia, el comportamiento al entrar, los paquetes de recursos y el reenvío de perfiles."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "RotateCcw"
+---
+
+Saber qué evento restablece la skin es una pista útil. Anota si ocurre al reconectarte, al cambiar de backend, al cambiar de mundo o al cargar un paquete de recursos.
+
+## Revisa primero la persistencia [#check-persistence-first]
+
+1. Elige una skin con `/skin set xknat`.
+2. Revisa `/sr info player <playerName>` en la instancia que gestiona el almacenamiento.
+3. Reconéctate.
+4. Vuelve a revisar el registro del jugador.
+
+Si una integración solo llama a `applySkin(player, property)`, cambia el aspecto actual sin guardar la selección. Lee [cambios persistentes y temporales](/docs/development/storage).
+
+## Después de reconectarte [#after-a-reconnect]
+
+Revisa `advanced.disableOnJoinSkins`. Si está activado, impide que la skin se aplique automáticamente al entrar.
+
+En un servidor con modo online, `login.alwaysApplyPremium` controla si las skins guardadas se aplican a los jugadores con cuenta autenticada. Si esa es la política que quieres, actívalo y repite la prueba.
+
+Las reglas de skins predeterminadas y las selecciones guardadas también influyen en el resultado. `/skin clear` quita a propósito la selección guardada.
+
+## Después de cambiar de backend [#after-a-backend-switch]
+
+Revisa la skin seleccionada en el proxy y la configuración de reenvío de cada backend. No dejes que cada backend gestione por su cuenta los comandos de skin y las selecciones de los jugadores.
+
+El UUID de un mismo jugador debe ser igual en el proxy y en los backends. Configurar una base de datos compartida no corrige un reenvío incorrecto.
+
+## Después de un paquete de recursos o un cambio de mundo [#after-a-resource-pack-or-world-change]
+
+Mantén `server.resourcePackFix` activado salvo que otra integración se encargue de la actualización. Revisa los plugins que sustituyen perfiles, apodos o el estado del mundo.
+
+Reproduce el problema en un servidor aparte que solo tenga SkinsRestorer. Después añade los plugins sospechosos de uno en uno.
+
+## Siguientes pasos [#next]
+
+Consulta [problemas del modo proxy](/docs/troubleshooting/proxy-mode) si la skin solo se restablece en la red, o [aislar conflictos](/docs/troubleshooting/incompatibility-list) si ocurre con un plugin concreto.

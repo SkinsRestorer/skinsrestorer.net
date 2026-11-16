@@ -1,0 +1,41 @@
+---
+title: "Instalar en Fabric"
+description: "Instala el mod de Fabric y comprueba un cambio de skin en el servidor."
+docType: "tutorial"
+appliesTo: "Servidores Fabric"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Boxes"
+---
+
+Esta guía trata de un servidor Fabric independiente. Un backend detrás de un proxy también necesita un reenvío de perfiles compatible y el modo proxy.
+
+## Antes de empezar [#before-you-start]
+
+Descarga el mod que corresponde a tu versión de Minecraft. SkinsRestorer 15.12.6 es para Minecraft 26.3. Lee los [requisitos](/docs/installation/requirements) antes de actualizar un modpack existente.
+
+La versión empaquetada de Fabric incluye Fabric API, Cloud y la API de permisos. No uses el JAR de desarrollo `raw`.
+
+## Instalar [#install]
+
+1. Detén el servidor.
+2. Descarga el archivo de Fabric de la [versión oficial](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Quita los JAR antiguos del mod SkinsRestorer de `mods`. Conserva la configuración y los datos.
+4. Pon el JAR nuevo del mod en `mods`.
+5. Inicia el servidor.
+6. Revisa el registro para buscar errores de dependencias del loader y errores de SkinsRestorer al arrancar.
+
+Usa la ubicación de configuración que indica el mod. No copies un JAR del plugin de Bukkit en `mods`.
+
+## Comprueba [#check]
+
+1. Conéctate al servidor.
+2. Ejecuta `/skin set xknat`.
+3. Pide a otro jugador que revise tu skin.
+4. Reconéctate y comprueba que la selección se mantiene.
+
+Si se deniega el acceso, configura los permisos de la plataforma o lee [acceso de jugadores](/docs/configuration/player-access). Si el loader rechaza el mod, compara las versiones de Minecraft, Java y el loader con los requisitos del archivo.
+
+## Siguientes pasos [#next]
+
+Completa la [prueba de primera skin](/docs/installation/quick-start) y después [sube un PNG](/docs/features/skin-upload).

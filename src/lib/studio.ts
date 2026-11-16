@@ -124,6 +124,15 @@ export function suggestSkinName(name: string) {
     .replace(/^_+|_+$/g, "");
 }
 
+/**
+ * The /sr createcustom name when the name field is empty: the suggestion
+ * from the PNG filename, which for a library skin is its library name.
+ * The field shows it as the placeholder, so the command matches it.
+ */
+export function defaultSkinName(fileName: string) {
+  return suggestSkinName(fileName) || "custom_skin";
+}
+
 export function generatedCommand(
   purpose: StudioPurpose,
   result: { readonly url: string; readonly name: string },

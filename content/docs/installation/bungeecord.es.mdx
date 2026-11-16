@@ -1,0 +1,56 @@
+---
+title: "Instalar en una red BungeeCord"
+description: "Reenvía los perfiles de los jugadores e instala SkinsRestorer en el proxy y en los backends."
+docType: "tutorial"
+appliesTo: "Redes BungeeCord"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+SkinsRestorer se ejecuta en BungeeCord y en cada backend. El proxy gestiona los comandos de skin y envía el perfil elegido a los backends.
+
+## Antes de empezar [#before-you-start]
+
+Necesitas acceso al proxy y a todos los backends. El reenvío legacy exige proteger los backends. Lee [seguridad de los backends](/docs/troubleshooting/firewall#protect-proxy-backends) antes de abrir la red a los jugadores.
+
+## Configura el reenvío [#configure-forwarding]
+
+1. Detén el proxy y los backends.
+2. Activa el reenvío de IP en la configuración del proxy.
+3. Activa el reenvío de BungeeCord en cada backend Bukkit.
+4. Desactiva la autenticación de cuentas en los backends.
+
+```yaml title="BungeeCord config.yml (excerpt)"
+ip_forward: true
+```
+
+```yaml title="Backend spigot.yml (excerpt)"
+settings:
+  bungeecord: true
+```
+
+```properties title="Backend server.properties (excerpt)"
+online-mode=false
+```
+
+La política de autenticación del proxy es independiente de la configuración de los backends. No desactives la autenticación del proxy solo para usar skins.
+
+## Instalar [#install]
+
+1. Pon el JAR de servidor/proxy de SkinsRestorer en la carpeta `plugins` del proxy.
+2. Instala la misma versión en todos los backends.
+3. Inicia los backends y el proxy.
+4. Revisa todos los registros de arranque.
+
+Un backend con mods necesita el mod correspondiente y compatibilidad con el reenvío. Deja `server.proxyMode.detection` en `AUTO` en los backends salvo que la detección falle.
+
+## Comprueba [#check]
+
+Completa la [prueba de primera skin](/docs/installation/quick-start), incluido un cambio entre backends. Da los permisos de los comandos en BungeeCord o en su plugin de permisos del proxy.
+
+Las skins normales gestionadas por el proxy no necesitan almacenamiento SQL. Las integraciones con la API en los backends necesitan [almacenamiento compartido](/docs/development/proxy-api).
+
+## Si falla [#if-it-fails]
+
+Si solo un backend muestra la skin, compara su configuración de reenvío y la versión instalada con las de un backend que funcione. Consulta [problemas del modo proxy](/docs/troubleshooting/proxy-mode) si ves avisos de modo o comandos duplicados.

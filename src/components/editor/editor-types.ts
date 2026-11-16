@@ -15,7 +15,7 @@ export interface EditorSurfaceProps {
   readonly tool: PaintTool;
   readonly settings: PaintSettings;
   readonly interaction: EditorInteraction;
-  /** Called when the eyedropper picks a color. */
+  /** Called when the eyedropper, or Alt with any tool, picks a color. */
   readonly onPick: (color: Rgba) => void;
   /** Called after a tool changes pixels with the color it used. */
   readonly onPainted: () => void;
@@ -49,15 +49,21 @@ export function usesBrush(tool: PaintTool) {
  * continues and ends; fill and pick finish at once. With `line` (Shift), a
  * brush tool draws a straight line from the end of its last stroke on the
  * same face and finishes at once. Without a line to draw, it starts a stroke.
+ * With `pick` (Alt), any tool picks the color instead and stays selected.
  */
 export function startTool(
   props: EditorSurfaceProps,
   x: number,
   y: number,
-  options: { surfaceLock?: boolean; pickColor?: Rgba; line?: boolean } = {},
+  options: {
+    surfaceLock?: boolean;
+    pickColor?: Rgba;
+    line?: boolean;
+    pick?: boolean;
+  } = {},
 ): "stroke" | "done" | "blocked" {
   const { store, tool, settings } = props;
-  if (tool === "eyedropper") {
+  if (tool === "eyedropper" || options.pick) {
     props.onPick(options.pickColor ?? store.colorAt(x, y));
     return "done";
   }

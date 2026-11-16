@@ -33,6 +33,7 @@ import { translate } from "@/lib/messages";
 import { siteTitleKey } from "@/lib/seo";
 import { getSiteRedirect } from "@/lib/site-redirects";
 import "@/lib/analytics";
+import "@/lib/stale-chunks";
 import appCss from "../style.css?url";
 import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
 import geistCyrillic from "@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2?url";

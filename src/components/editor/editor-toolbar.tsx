@@ -82,7 +82,9 @@ export function EditorToolbar(props: {
           const hint =
             tool === "eraser" && props.layer === "base"
               ? t("editor.toolWorksOuterLayerOnlyBaseLayer", { tool: label })
-              : label;
+              : tool === "eyedropper"
+                ? t("editor.altClickPicksAnyTool", { tool: label })
+                : label;
           return (
             <HintTrigger
               key={tool}

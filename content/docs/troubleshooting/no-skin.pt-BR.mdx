@@ -1,0 +1,39 @@
+---
+title: "A troca de skin não aparece"
+description: "Separe problemas de download, de aplicação do perfil e de renderização no cliente."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "EyeOff"
+---
+
+Use este guia quando um comando informa sucesso, mas a aparência do jogador continua igual.
+
+## Compare duas visões [#compare-two-views]
+
+1. Execute `/skin set xknat` com um cliente Java.
+2. Peça a outro jogador para conferir o resultado.
+3. Desconecte e entre novamente.
+4. Compare as duas visões outra vez.
+
+Se outro jogador vê a nova skin, o servidor a aplicou. Confira os [mods de skin e a configuração do launcher](/docs/troubleshooting/launcher-issues) do cliente afetado.
+
+## Confira os dados selecionados [#inspect-the-selected-data]
+
+Execute `/sr info player <playerName>` na instância responsável pelo armazenamento. Confira a textura e a skin selecionada. Em uma rede, use o console do proxy para os comandos administrativos comuns.
+
+Se uma textura não carregar, leia [conexões com os serviços](/docs/troubleshooting/firewall). Se a seleção salva estiver correta, continue com a aplicação do perfil.
+
+## Confira como a skin é aplicada [#check-the-application-path]
+
+- **Proxy:** Confira o encaminhamento e instale o SkinsRestorer em todos os backends. Consulte [problemas no modo proxy](/docs/troubleshooting/proxy-mode).
+- **Só ao entrar:** Confira `advanced.disableOnJoinSkins` e o comportamento do modo online. Consulte [a skin é redefinida](/docs/troubleshooting/skin-resets).
+- **Pacote de recursos:** Mantenha `server.resourcePackFix` ativado, a menos que outra integração cuide da atualização do perfil.
+- **Plugin ou mundo específico:** Reproduza o problema em um servidor de teste separado, sem outros plugins que alterem perfis.
+
+Não ative `advanced.teleportRefresh` como primeira solução. Ele teleporta os jogadores para longe e de volta durante a atualização.
+
+## Ainda sem mudança [#still-unchanged]
+
+Colete um [relatório de diagnóstico e um log recente](/docs/troubleshooting/debugging). Informe em qual cliente o problema aparece e se reconectar muda algo.

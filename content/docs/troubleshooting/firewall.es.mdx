@@ -1,0 +1,52 @@
+---
+title: "Soluciona las conexiones con los servicios"
+description: "Diagnostica DNS, HTTPS, límites de peticiones y peticiones salientes bloqueadas."
+docType: "how-to"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Globe"
+---
+
+La búsqueda de una skin puede fallar por DNS, TLS, HTTPS bloqueado, un error del servicio externo o los límites de peticiones. Anota el error real antes de cambiar las reglas del firewall.
+
+## Acota el servicio [#narrow-down-the-service]
+
+1. Ejecuta `/sr status` en la instancia afectada.
+2. Prueba con un nombre de jugador conocido.
+3. Si el problema es la generación desde URL, prueba con una URL de skin válida.
+4. Guarda el error de la consola que corresponda.
+
+`/sr status` comprueba los servicios de UUID y perfiles de cuentas. No comprueba todas las rutas de MineSkin, las recomendaciones, las subidas desde la web ni tu base de datos.
+
+Si los nombres de cuenta funcionan pero las URL fallan, investiga el servicio de generación desde URL y la clave. Un estado en verde no demuestra que la generación desde URL funcione.
+
+## Revisa la configuración local [#check-local-configuration]
+
+Mantén `advanced.noConnections: false` para el funcionamiento online normal. El valor true impide nuevas búsquedas externas, la generación desde URL y la búsqueda de actualizaciones.
+
+Si el error tiene que ver con TLS, revisa el reloj de la máquina y el almacén de certificados de confianza de Java. No desactives la validación de certificados para ocultar un problema de TLS.
+
+## Acceso saliente [#outbound-access]
+
+El servidor necesita resolución DNS y HTTPS saliente por el puerto 443. Permite el tráfico de respuesta de las conexiones establecidas. Los servicios de skins no necesitan abrir ningún puerto de entrada nuevo en el servidor.
+
+Usa [la referencia de red](/docs/reference/network) para identificar el host de la función que falla. Los hosts de la API y las redirecciones de descarga pueden cambiar entre versiones.
+
+Pide a tu proveedor de hosting que compruebe las conexiones desde el entorno real del servidor de Minecraft. Que una petición funcione desde tu portátil no demuestra que el servidor tenga acceso.
+
+## Límites de peticiones [#rate-limits]
+
+Espera antes de repetir los intentos. Mantén las duraciones de caché normales. Reducir `storage.skinExpiresAfter` o `storage.uuidExpiresAfter` aumenta el número de peticiones.
+
+`api.mojangBatchWindowSeconds` controla la agrupación de peticiones a Mojang. No aumenta los límites de subida de MineSkin.
+
+## Protege los backends del proxy [#protect-proxy-backends]
+
+La protección de los backends es una regla de entrada aparte. Permite conexiones solo desde tu proxy o desde una red de confianza. El reenvío legacy no puede autenticar una conexión directa cualquiera.
+
+Usa la [guía de seguridad de backends de PaperMC](https://docs.papermc.io/velocity/security/). Mantén la autenticación del proxy público coherente con la política de tu servidor.
+
+## Siguientes pasos [#next]
+
+Lee [integración con MineSkin](/docs/integrations/mineskin) para los errores de generación desde URL. Si la causa sigue sin estar clara, recopila [diagnósticos para el soporte](/docs/troubleshooting/debugging).

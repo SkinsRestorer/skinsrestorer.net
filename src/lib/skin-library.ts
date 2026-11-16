@@ -1,4 +1,6 @@
+import type { Locale } from "./i18n";
 import {
+  catalogs,
   messageFields,
   errorMessage,
   message,
@@ -311,9 +313,13 @@ export class SkinLibrary extends Context.Service<
       { readonly skin: StoredSkin; readonly previous: SkinContent },
       SkinLibraryError | SkinNotFoundError
     >;
-    /** Always a new skin, even when the pixels are the same. */
+    /**
+     * Always a new skin, even when the pixels are the same. `locale` names
+     * the copy.
+     */
     readonly duplicate: (
       id: string,
+      locale?: Locale,
     ) => Effect.Effect<StoredSkin, SkinLibraryError | SkinNotFoundError>;
     /** Remove a skin and its sessions in one transaction. */
     readonly remove: (
@@ -708,7 +714,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         };
       }).pipe(Effect.map((skin) => ({ skin, previous: previous! })));
     },
-    duplicate: (id) =>
+    duplicate: (id, locale) =>
       write<StoredSkin, SkinNotFoundError | SkinLibraryError>(
         [SKINS],
         (tx, fail) => {
@@ -720,7 +726,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
             if (skin._tag === "None") return fail(libraryError("damaged"));
             result = create(
               {
-                name: copyName(skin.value.name),
+                name: copyName(skin.value.name, locale),
                 content: skin.value.current,
                 source: { kind: "copy", copiedFrom: id },
               },
@@ -866,18 +872,88 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   });
 });
 
+/** The two copy name patterns of one language, with `{name}` and `{number}`. */
+interface CopyPattern {
+  readonly first: string;
+  readonly numbered: string;
+}
+
+function copyPattern(locale: Locale): CopyPattern {
+  return {
+    first: catalogs[locale]["library.copyName"],
+    numbered: catalogs[locale]["library.copyNameNumbered"],
+  };
+}
+
+const escapeRegExp = (text: string) =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Read "Harbor copy 2" as base "Harbor" and number 2, or undefined. */
+function parseCopyName(name: string, pattern: CopyPattern) {
+  for (const [template, numbered] of [
+    [pattern.numbered, true],
+    [pattern.first, false],
+  ] as const) {
+    const source = escapeRegExp(template)
+      .replace("\\{name\\}", "(?<name>.+?)")
+      .replace("\\{number\\}", "(?<number>\\d+)");
+    const groups = new RegExp(`^${source}$`, "u").exec(name)?.groups;
+    if (groups?.name)
+      return {
+        base: groups.name,
+        number: numbered ? Number(groups.number) : 1,
+      };
+  }
+  return undefined;
+}
+
 /**
- * Name a copy: "Harbor" becomes "Harbor copy", then "Harbor copy 2". The
- * suffix stays when a long name is shortened, so a copy never takes the
- * exact name of its source.
+ * Name a copy in the visitor's language: "Harbor" becomes "Harbor copy",
+ * then "Harbor copy 2". A copy name from another language counts on in this
+ * one. The suffix stays when a long name is shortened, so a copy never takes
+ * the exact name of its source.
  */
-export function copyName(name: string) {
+export function copyName(name: string, locale: Locale = "en") {
   const clean = cleanSkinName(name);
-  const match = /^(.*) copy(?: (\d+))?$/.exec(clean);
-  const base = match ? match[1] : clean;
-  const suffix = match ? ` copy ${Number(match[2] ?? 1) + 1}` : " copy";
-  const room = MAX_SKIN_NAME_LENGTH - suffix.length;
-  return `${base.slice(0, room).trimEnd()}${suffix}`;
+  const pattern = copyPattern(locale);
+  const parsed =
+    parseCopyName(clean, pattern) ??
+    (Object.keys(catalogs) as Locale[])
+      .filter((other) => other !== locale)
+      .map((other) => parseCopyName(clean, copyPattern(other)))
+      .find((match) => match !== undefined);
+  const base = parsed?.base ?? clean;
+  const template = parsed ? pattern.numbered : pattern.first;
+  const number = String((parsed?.number ?? 0) + 1);
+  const fill = (value: string) =>
+    template.replace("{name}", () => value).replace("{number}", number);
+  const room = MAX_SKIN_NAME_LENGTH - fill("").length;
+  // Do not cut a character that takes two UTF-16 units in half.
+  const cut = base.slice(0, room).replace(/[\ud800-\udbff]$/, "");
+  return fill(cut.trimEnd());
+}
+
+/** Names Windows reserves for devices, with or without an extension. */
+const RESERVED_FILE_NAME =
+  /^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³])(\..*)?$/iu;
+
+/**
+ * A download file name for a skin. Characters that Windows, macOS, or Linux
+ * reject become "_", and names Windows reserves get a "_" suffix. Letters in
+ * any script stay as they are.
+ */
+export function skinFileName(name: string) {
+  const clean = name
+    .normalize("NFC")
+    // Control characters and text direction overrides can disguise a name.
+    .replace(/[\p{Cc}\u202a-\u202e\u2066-\u2069]/gu, "")
+    .replace(/[<>:"/\\|?*]/g, "_")
+    .replace(/\s+/g, " ")
+    .trim()
+    // Windows drops trailing dots and spaces.
+    .replace(/[. ]+$/, "");
+  const safe = RESERVED_FILE_NAME.test(clean) ? `${clean}_` : clean;
+  return `${safe || "skin"}.png`;
 }
 
 export const skinLibraryLayer = (options: LibraryOptions) =>

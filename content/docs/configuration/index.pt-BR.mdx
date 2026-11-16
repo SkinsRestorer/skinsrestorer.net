@@ -1,0 +1,37 @@
+---
+title: "Gerencie seu servidor"
+description: "Controle o acesso dos jogadores, as skins padrão, o armazenamento, as mensagens e as atualizações."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Settings"
+---
+
+Comece pelo comportamento que você quer mudar. Os guias usam trechos da configuração, e não arquivos completos para substituir.
+
+## Tarefas comuns [#common-tasks]
+
+- [Conceda acesso aos jogadores](/docs/configuration/player-access).
+- [Defina skins padrão](/docs/configuration/default-skins).
+- [Crie skins personalizadas com nome](/docs/features/custom-skins).
+- [Restrinja skins e URLs](/docs/configuration/restrict-skins).
+- [Configure o menu de skins](/docs/configuration/skin-menu).
+- [Altere mensagens e traduções](/docs/configuration/locale-translations).
+- [Configure um armazenamento SQL compartilhado](/docs/configuration/database).
+- [Atualize o SkinsRestorer](/docs/configuration/auto-update).
+- [Faça cópias de segurança dos dados de skins](/docs/configuration/backups).
+
+## Altere a configuração com segurança [#change-configuration-safely]
+
+1. Faça uma cópia de segurança do arquivo de configuração ativo.
+2. Edite a seção existente no `config.yml`.
+3. Mantenha a indentação do YAML consistente.
+4. Aplique a mudança com `/sr reload` ou com um reinício, conforme o guia indicar.
+5. Repita a tarefa que essa configuração controla.
+
+Não cole uma segunda cópia da mesma seção de nível superior. Um interpretador de YAML pode substituir uma das cópias sem avisar.
+
+Em servidores Bukkit, o arquivo é `plugins/SkinsRestorer/config.yml`. Em outras plataformas, use a pasta de dados informada na inicialização.
+
+A [referência de configuração](/docs/configuration/options) lista as chaves exatas e os valores padrão. O registro de comandos, as mudanças de armazenamento e o encaminhamento da plataforma exigem um reinício.

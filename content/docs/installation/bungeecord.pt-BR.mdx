@@ -1,0 +1,56 @@
+---
+title: "Instalar em uma rede BungeeCord"
+description: "Encaminhe os perfis dos jogadores e instale o SkinsRestorer no proxy e nos backends."
+docType: "tutorial"
+appliesTo: "Redes BungeeCord"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+O SkinsRestorer funciona no BungeeCord e em cada backend. O proxy gerencia os comandos de skin e envia o perfil escolhido para os backends.
+
+## Antes de começar [#before-you-start]
+
+Você precisa de acesso ao proxy e a todos os backends. O encaminhamento legacy exige proteção dos backends. Leia [segurança dos backends](/docs/troubleshooting/firewall#protect-proxy-backends) antes de abrir a rede para os jogadores.
+
+## Configure o encaminhamento [#configure-forwarding]
+
+1. Pare o proxy e os backends.
+2. Ative o encaminhamento de IP na configuração do proxy.
+3. Ative o encaminhamento do BungeeCord em cada backend Bukkit.
+4. Desative a autenticação de contas nos backends.
+
+```yaml title="BungeeCord config.yml (excerpt)"
+ip_forward: true
+```
+
+```yaml title="Backend spigot.yml (excerpt)"
+settings:
+  bungeecord: true
+```
+
+```properties title="Backend server.properties (excerpt)"
+online-mode=false
+```
+
+A política de autenticação do proxy é separada da configuração dos backends. Não desative a autenticação do proxy só para usar skins.
+
+## Instalar [#install]
+
+1. Coloque o JAR de servidor/proxy do SkinsRestorer na pasta `plugins` do proxy.
+2. Instale a mesma versão em todos os backends.
+3. Inicie os backends e o proxy.
+4. Leia todos os logs de inicialização.
+
+Um backend com mods precisa do mod correspondente e de suporte compatível a encaminhamento. Mantenha `server.proxyMode.detection` como `AUTO` nos backends, a menos que a detecção falhe.
+
+## Confira [#check]
+
+Conclua o [teste da primeira skin](/docs/installation/quick-start), incluindo uma troca entre backends. Conceda as permissões dos comandos no BungeeCord ou no plugin de permissões do proxy.
+
+As skins comuns gerenciadas pelo proxy não exigem armazenamento SQL. Integrações com a API nos backends precisam de [armazenamento compartilhado](/docs/development/proxy-api).
+
+## Se falhar [#if-it-fails]
+
+Se apenas um backend mostrar a skin, compare a configuração de encaminhamento e a versão instalada dele com as de um backend que funciona. Consulte [problemas no modo proxy](/docs/troubleshooting/proxy-mode) para avisos de modo e comandos duplicados.

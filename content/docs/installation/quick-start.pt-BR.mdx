@@ -1,0 +1,46 @@
+---
+title: "Teste sua primeira skin"
+description: "Confira comandos, persistência e troca de servidor depois da instalação."
+docType: "tutorial"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-11-16"
+version: "15.12.6"
+icon: "CircleCheck"
+---
+
+Faça este teste depois da [instalação na sua plataforma](/docs/installation). Cada etapa testa uma parte: se você pode usar o comando, se o servidor consegue baixar a skin e se os outros jogadores a veem.
+
+## Primeira troca [#first-change]
+
+1. Entre no servidor com um cliente Java.
+2. No chat do jogo, execute `/skin set xknat`. `xknat` é o nome de uma conta do Minecraft com uma skin personalizada.
+3. Aguarde a mensagem de sucesso.
+4. Peça a outro jogador para conferir sua aparência. Se estiver sozinho, pressione `F5` para ver seu personagem por trás.
+5. Desconecte e entre novamente.
+
+A skin escolhida precisa continuar depois que você reconectar. Seu próprio cliente pode mostrar uma skin antiga por um instante, então peça também para outro jogador conferir sempre que puder.
+
+## Teste em uma rede com proxy [#proxy-network-check]
+
+1. Conecte-se pelo endereço do proxy.
+2. Troque sua skin no primeiro servidor backend.
+3. Mude para um segundo servidor backend.
+4. Confira sua skin de novo.
+
+Se ela mudar em apenas um backend, consulte [problemas no modo proxy](/docs/troubleshooting/proxy-mode). Não adicione um banco de dados só porque a rede tem vários servidores.
+
+## Volte para a skin da sua conta [#return-to-your-account-skin]
+
+Execute `/skin clear`. Isso remove a skin que você escolheu. Você volta a ter a skin da sua conta do Minecraft, ou uma [skin padrão](/docs/configuration/default-skins) se o servidor definir uma.
+
+## Se um teste falhar [#if-a-check-fails]
+
+| Resultado | Próximo passo |
+| --- | --- |
+| Comando desconhecido | Leia o console do servidor desde o início procurando um erro do SkinsRestorer e confira se instalou o arquivo correto para sua plataforma |
+| Permissão negada | [Confira as permissões](/docs/troubleshooting/permissions) |
+| Não foi possível carregar o nome ou a URL | [Confira as conexões com os serviços](/docs/troubleshooting/firewall) |
+| Mensagem de sucesso, mas a skin não muda | [Confira a aplicação do perfil](/docs/troubleshooting/no-skin) |
+| A seleção some depois de reconectar | [Confira a entrada e o comportamento do proxy](/docs/troubleshooting/skin-resets) |
+
+Depois que esses testes passarem, leia [trocar ou redefinir uma skin](/docs/features/change-skin).

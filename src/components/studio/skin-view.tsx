@@ -19,7 +19,7 @@ const BACK = Math.PI + 0.5;
 /**
  * The interactive 3D view of the selected skin. Drag or use the arrow keys to
  * turn it. Choosing a cape turns the model to show its back. Without WebGL,
- * or after a lost context, it shows `fallback` instead.
+ * or while the context is lost, it shows `fallback` instead.
  */
 export function SkinView(props: {
   skinUrl: string | null;
@@ -37,11 +37,14 @@ export function SkinView(props: {
   const redrawRef = useRef(() => {});
   /** Increments when a viewer starts, so texture effects run again. */
   const [ready, setReady] = useState(0);
-  /** WebGL is missing or its context was lost. */
+  /** WebGL is missing. */
   const [noWebGl, setNoWebGl] = useState(false);
+  /** The browser took the WebGL context away. It can give it back. */
+  const [contextLost, setContextLost] = useState(false);
   /** The skin URL whose image could not load. A new skin tries again. */
   const [badSkin, setBadSkin] = useState<string | null>(null);
-  const failed = noWebGl || (badSkin !== null && badSkin === props.skinUrl);
+  const failed =
+    noWebGl || contextLost || (badSkin !== null && badSkin === props.skinUrl);
   /** Whether the frame is on screen. The idle loop runs only while it is. */
   const [onScreen, setOnScreen] = useState(true);
   const reduceMotion = useReducedMotion() ?? false;
@@ -93,13 +96,21 @@ export function SkinView(props: {
       setOnScreen(entry?.isIntersecting ?? true),
     );
     visibility.observe(frame);
+    // Preventing the default lets the browser restore the context. three.js
+    // uploads the textures again, and the viewer restarts its own loop.
     const lost = (event: Event) => {
       event.preventDefault();
-      setNoWebGl(true);
+      setContextLost(true);
+    };
+    const restored = () => {
+      setContextLost(false);
+      redraw();
     };
     canvas.addEventListener("webglcontextlost", lost);
+    canvas.addEventListener("webglcontextrestored", restored);
     return () => {
       canvas.removeEventListener("webglcontextlost", lost);
+      canvas.removeEventListener("webglcontextrestored", restored);
       cancelAnimationFrame(frameRequest);
       redrawRef.current = () => {};
       current.controls.removeEventListener("change", redraw);
@@ -111,13 +122,22 @@ export function SkinView(props: {
     };
   }, []);
 
-  // The idle sway stops when the user asks for less motion. Without it, or
-  // off screen, the loop pauses and the view draws only when it changes.
+  // The idle sway stops when the user asks for less motion. Setting an
+  // animation restarts it and resets the pose, so only a change in the motion
+  // setting replaces it.
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
-    viewer.animation = reduceMotion ? null : new IdleAnimation();
-    if (reduceMotion) viewer.playerObject.resetJoints();
+    if (reduceMotion) viewer.animation = null;
+    else if (!viewer.animation) viewer.animation = new IdleAnimation();
+    redrawRef.current();
+  }, [ready, reduceMotion]);
+
+  // Without the sway, or off screen, the loop pauses and the view draws only
+  // when it changes. Pausing keeps the sway where it was.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
     viewer.renderPaused = reduceMotion || !onScreen;
     redrawRef.current();
   }, [ready, reduceMotion, onScreen]);
@@ -132,9 +152,11 @@ export function SkinView(props: {
     const model = props.variant === "slim" ? "slim" : "default";
     runSkinEffect(
       withSkinImageEffect(url, (image) => {
-        if (viewer.disposed) return;
+        if (viewer.disposed || owner.signal.aborted) return;
         viewer.loadSkin(image, { model });
         redrawRef.current();
+        // A skin that failed before can load on a later try.
+        setBadSkin((bad) => (bad === url ? null : bad));
       }),
       owner.signal,
     ).catch(() => {

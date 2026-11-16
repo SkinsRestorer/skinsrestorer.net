@@ -1,0 +1,41 @@
+---
+title: "Установка на Paper или Spigot"
+description: "Установите плагин на отдельный сервер, совместимый с Bukkit."
+docType: "tutorial"
+appliesTo: "Paper, Spigot, Bukkit"
+reviewed: "2026-11-16"
+version: "15.12.6"
+icon: "Server"
+---
+
+После этого руководства ваш сервер будет загружать SkinsRestorer и менять скины.
+
+## Перед началом [#before-you-start]
+
+Нужны доступ к файлам и консоли сервера, а также поддерживаемая [версия Java](/docs/installation/requirements). Если игроки подключаются через прокси, используйте руководство для [Velocity](/docs/installation/velocity) или [BungeeCord](/docs/installation/bungeecord).
+
+## Установка [#install]
+
+1. Остановите сервер.
+2. Скачайте JAR для серверов и прокси из [релиза 15.12.6](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Удалите старые JAR-файлы SkinsRestorer из `plugins`. Папку с данными оставьте.
+4. Положите новый JAR в `plugins`.
+5. Запустите сервер.
+6. Проверьте консоль на ошибки запуска SkinsRestorer.
+
+Плагин создаст `plugins/SkinsRestorer/config.yml`. Для первой проверки оставьте настройки по умолчанию. Не используйте общую команду `/reload` для установки или обновления плагинов.
+
+## Проверка установки [#check-the-installation]
+
+1. Зайдите на сервер с клиента Java Edition.
+2. Выполните в чате игры `/skin set xknat`. Здесь `xknat` означает имя аккаунта Minecraft со своим скином.
+3. Попросите другого игрока посмотреть на ваш скин. Если вы на сервере одни, нажмите `F5`, чтобы увидеть персонажа со спины.
+4. Отключитесь, зайдите снова и убедитесь, что скин сохранился.
+
+Если игра пишет, что команда неизвестна, найдите ошибку SkinsRestorer в консоли сервера с самого начала запуска. Также проверьте, что `commands.disableSkinCommand` в `config.yml` равно `false`. Если доступ запрещён, прочитайте раздел [доступ игроков](/docs/configuration/player-access).
+
+Если команда выполнилась, но скин не изменился, откройте руководство [скин не отображается](/docs/troubleshooting/no-skin).
+
+## Дальше [#next]
+
+[Загрузите свой PNG-скин](/docs/features/skin-upload) или настройте [скины по умолчанию](/docs/configuration/default-skins).

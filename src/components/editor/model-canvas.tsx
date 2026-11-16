@@ -135,10 +135,14 @@ export function ModelCanvas(
   const painting = interaction === "paint" && !animate;
   const paintingRef = useAsRef(painting);
 
-  /** The pixel under the pointer on the active layer, if nothing covers it. */
+  /**
+   * The pixel under the pointer on the active layer, if nothing covers it.
+   * To pick a color, the pixel the eye sees on any layer.
+   */
   const pick = (
     clientX: number,
     clientY: number,
+    picking = propsRef.current.tool === "eyedropper",
   ): PaintTarget | Covered | undefined => {
     const viewer = viewerRef.current;
     const canvas = canvasRef.current;
@@ -172,8 +176,8 @@ export function ModelCanvas(
       );
       if (!pixel) continue;
       const color = readPixel(store.pixels, pixel.x, pixel.y);
-      const { tool, settings: current } = propsRef.current;
-      if (tool === "eyedropper") {
+      const { settings: current } = propsRef.current;
+      if (picking) {
         // Pick what the eye sees: skip clear outer pixels.
         if (owner.layer === "outer" && color[3] === 0) continue;
         return { x: pixel.x, y: pixel.y, color };
@@ -508,7 +512,11 @@ export function ModelCanvas(
               store.cancelStroke();
               return;
             }
-            const target = pick(event.clientX, event.clientY);
+            const target = pick(
+              event.clientX,
+              event.clientY,
+              event.altKey || propsRef.current.tool === "eyedropper",
+            );
             if (target && "covered" in target) {
               propsRef.current.onStatus(coverMessage());
               return;
@@ -528,6 +536,7 @@ export function ModelCanvas(
               surfaceLock: true,
               pickColor: target.color,
               line: event.shiftKey,
+              pick: event.altKey,
             });
             if (result === "stroke")
               event.currentTarget.setPointerCapture(event.pointerId);

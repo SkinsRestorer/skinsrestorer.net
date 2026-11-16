@@ -1,0 +1,41 @@
+---
+title: "Instalar en Paper o Spigot"
+description: "Instala el plugin en un servidor independiente compatible con Bukkit."
+docType: "tutorial"
+appliesTo: "Paper, Spigot, Bukkit"
+reviewed: "2026-11-16"
+version: "15.12.6"
+icon: "Server"
+---
+
+Al terminar esta guía, tu servidor cargará SkinsRestorer y aceptará un cambio de skin.
+
+## Antes de empezar [#before-you-start]
+
+Necesitas acceso a los archivos, acceso a la consola y una [versión de Java](/docs/installation/requirements) compatible. Si los jugadores se conectan a través de un proxy, usa la guía de [Velocity](/docs/installation/velocity) o de [BungeeCord](/docs/installation/bungeecord).
+
+## Instalar [#install]
+
+1. Detén el servidor.
+2. Descarga el JAR de servidor/proxy de la [versión 15.12.6](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+3. Quita los JAR antiguos de SkinsRestorer de `plugins`. Conserva la carpeta de datos existente.
+4. Pon el JAR nuevo en `plugins`.
+5. Inicia el servidor.
+6. Revisa la consola para buscar errores de SkinsRestorer al arrancar.
+
+El plugin crea `plugins/SkinsRestorer/config.yml`. Deja los valores predeterminados para esta primera prueba. No uses el comando `/reload` de todo el servidor para instalar o actualizar plugins.
+
+## Comprueba la instalación [#check-the-installation]
+
+1. Conéctate al servidor con un cliente de Java.
+2. En el chat del juego, ejecuta `/skin set xknat`. `xknat` es el nombre de una cuenta de Minecraft con una skin personalizada.
+3. Pide a otro jugador que revise tu skin. Si estás solo, pulsa `F5` para ver tu personaje desde atrás.
+4. Desconéctate, vuelve a entrar y comprueba que la skin se mantiene.
+
+Si el juego dice que el comando es desconocido, lee la consola del servidor desde el principio para buscar un error de SkinsRestorer. Comprueba también que `commands.disableSkinCommand` en `config.yml` sea `false`. Si se deniega el acceso, lee [acceso de jugadores](/docs/configuration/player-access).
+
+Si el comando funciona pero la skin no cambia, consulta [skin no visible](/docs/troubleshooting/no-skin).
+
+## Siguientes pasos [#next]
+
+[Sube tu propio PNG](/docs/features/skin-upload) o configura las [skins predeterminadas](/docs/configuration/default-skins).

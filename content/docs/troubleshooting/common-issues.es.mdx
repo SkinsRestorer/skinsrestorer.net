@@ -1,0 +1,45 @@
+---
+title: "Preguntas frecuentes"
+description: "Respuestas a preguntas habituales sobre la configuración, las skins y el almacenamiento."
+docType: "reference"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "CircleQuestionMark"
+---
+
+## ¿Necesito el modo offline? [#do-i-need-offline-mode]
+
+No. SkinsRestorer funciona con autenticación online y offline. Mantén tu política de autenticación. Un backend detrás de un proxy tiene sus propios requisitos de reenvío.
+
+## ¿Necesito una base de datos para una red? [#do-i-need-a-database-for-a-network]
+
+Las skins normales gestionadas por el proxy no necesitan SQL. Un plugin de backend que usa la API en modo proxy necesita almacenamiento compartido en MySQL o PostgreSQL.
+
+Lee [modo proxy](/docs/troubleshooting/proxy-mode) antes de cambiar el almacenamiento.
+
+## ¿Por qué clear no siempre muestra a Steve? [#why-does-clear-not-always-show-steve]
+
+`/skin clear` quita la selección guardada. Después, el resultado depende de la búsqueda de la skin de la cuenta y de las reglas de skins predeterminadas.
+
+## ¿Por qué no cambia la imagen de la URL después de editarla? [#why-does-the-url-image-not-change-after-i-edit-it]
+
+Una skin generada desde URL es una textura firmada y guardada en caché. Sube el PNG corregido y elige el nuevo resultado. `/skin update` actualiza los datos de la skin de la cuenta.
+
+## ¿Puedo usar una imagen de capa personalizada? [#can-i-use-a-custom-cape-image]
+
+La web admite algunas capas existentes a través de su ruta de generación. No acepta cualquier PNG de capa ni da la propiedad de una capa a una cuenta.
+
+Lee [compatibilidad con capas](/docs/features/capes).
+
+## ¿Un estado en verde significa que todos los servicios funcionan? [#does-a-green-status-mean-all-services-work]
+
+No. `/sr status` comprueba los servicios de UUID y perfiles de cuentas. MineSkin, las subidas desde la web, las recomendaciones y el acceso a la base de datos necesitan sus propias comprobaciones.
+
+## ¿Dónde está la referencia completa? [#where-is-the-full-reference]
+
+Usa [comandos y permisos](/docs/configuration/commands-permissions), [configuración](/docs/configuration/options) y [placeholders](/docs/integrations/placeholderapi).
+
+## ¿Qué envío al soporte? [#what-do-i-send-to-support]
+
+Envía tu configuración, el comando exacto, el error completo, el informe de diagnóstico y un registro reciente. Usa [la lista para el soporte](/docs/troubleshooting/debugging).

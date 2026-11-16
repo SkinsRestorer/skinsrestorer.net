@@ -1,0 +1,65 @@
+---
+title: "Instalar em uma rede Velocity"
+description: "Configure o encaminhamento e instale o SkinsRestorer no proxy e nos backends."
+docType: "tutorial"
+appliesTo: "Velocity com backends Paper"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Network"
+---
+
+Este guia cobre o Velocity com backends Paper. Para um backend com mods, configure o suporte a encaminhamento seguindo o [guia de compatibilidade do Velocity](https://docs.papermc.io/velocity/server-compatibility/).
+
+## Antes de começar [#before-you-start]
+
+Você precisa de acesso ao proxy e a todos os backends. Os jogadores devem se conectar pelo proxy. As portas dos backends só devem aceitar conexões de origens confiáveis.
+
+O encaminhamento moderno exige versões do Minecraft e backends compatíveis. Leia as [instruções oficiais de encaminhamento](https://docs.papermc.io/velocity/player-information-forwarding/) antes de escolher outro modo.
+
+## Configure o encaminhamento moderno [#configure-modern-forwarding]
+
+1. Pare o proxy e os backends.
+2. Defina `player-info-forwarding-mode` como `modern` no `velocity.toml`.
+3. Leia o arquivo `forwarding.secret` do proxy.
+4. Configure cada backend Paper com esse mesmo segredo.
+
+```toml title="velocity.toml (excerpt)"
+player-info-forwarding-mode = "modern"
+```
+
+```properties title="Backend server.properties (excerpt)"
+online-mode=false
+```
+
+```yaml title="Backend config/paper-global.yml (Paper 1.19+ excerpt)"
+proxies:
+  velocity:
+    enabled: true
+    online-mode: true
+    secret: "YOUR_FORWARDING_SECRET"
+```
+
+Defina `proxies.velocity.online-mode` com o mesmo valor de `online-mode` do proxy. O valor `true` acima considera um proxy com autenticação. Mantenha `settings.bungeecord` desativado no `spigot.yml` ao usar o encaminhamento moderno.
+
+O Paper 1.18.2 e versões anteriores usam `settings.velocity-support` no `paper.yml`. Para essas versões, siga o guia da plataforma.
+
+## Instale o SkinsRestorer [#install-skinsrestorer]
+
+1. Coloque o JAR de servidor/proxy do SkinsRestorer na pasta `plugins` do proxy.
+2. Coloque a mesma versão na pasta `plugins` de cada backend Bukkit.
+3. Inicie os backends e o proxy.
+4. Leia todos os logs de inicialização procurando erros de encaminhamento ou do SkinsRestorer.
+
+Para backends Fabric ou NeoForge, instale o mod correspondente em vez de um JAR Bukkit.
+
+Mantenha `server.proxyMode.detection: AUTO` nos backends, a menos que a detecção falhe. Com o encaminhamento correto, o SkinsRestorer normalmente detecta o proxy sozinho.
+
+## Confira [#check]
+
+Conclua o [teste da primeira skin e da troca de servidor](/docs/installation/quick-start). Os comandos de skin usam as permissões do proxy, então conceda o acesso no proxy.
+
+O armazenamento em arquivos padrão é suficiente para as skins comuns gerenciadas pelo proxy. Um plugin de backend que chama a API precisa de [armazenamento compartilhado em MySQL ou PostgreSQL](/docs/development/proxy-api).
+
+## Se falhar [#if-it-fails]
+
+Um segredo de encaminhamento inválido é um problema de conexão. Corrija-o antes de mudar a configuração de skins. Para avisos sobre o modo dos backends ou comandos que funcionam em apenas um servidor, consulte [problemas no modo proxy](/docs/troubleshooting/proxy-mode).

@@ -1,0 +1,133 @@
+---
+title: "Comandos y permisos"
+description: "Formas exactas de los comandos, alias, nodos de permisos y grupos incluidos."
+docType: "reference"
+appliesTo: "Todas las plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Terminal"
+---
+
+`<argument>` es obligatorio. `[argument]` es opcional. `a|b` indica alias. Pon las URL y los argumentos de varias palabras entre comillas.
+
+Ejecuta en el juego los comandos que solo pueden usar jugadores. En la consola, escribe los comandos sin la barra inicial. La disponibilidad depende de la plataforma y del modo proxy.
+
+## Comandos [#commands]
+
+### Comandos de jugador [#player-commands]
+
+| Sintaxis | Permiso |
+| --- | --- |
+| `/skin` | `skinsrestorer.command` |
+| `/skin help [query]` | `skinsrestorer.command` |
+| `/skin <skinName>` | `skinsrestorer.command.set` |
+| `/skin <skinName> <selector>` | `skinsrestorer.command.set.other` |
+| `/skin clear\|reset` | `skinsrestorer.command.clear` |
+| `/skin clear\|reset <selector>` | `skinsrestorer.command.clear.other` |
+| `/skin random` | `skinsrestorer.command.random` |
+| `/skin random <selector>` | `skinsrestorer.command.random.other` |
+| `/skin search <searchString>` | `skinsrestorer.command.search` |
+| `/skin edit` | `skinsrestorer.command.edit` |
+| `/skin upload` | `skinsrestorer.command.set.url` |
+| `/skin update\|refresh` | `skinsrestorer.command.update` |
+| `/skin update\|refresh <selector>` | `skinsrestorer.command.update.other` |
+| `/skin set\|select <skinName>` | `skinsrestorer.command.set` |
+| `/skin set\|select <skinName> <selector>` | `skinsrestorer.command.set.other` |
+| `/skin set\|select <skinName> <selector> <skinVariant>` | `skinsrestorer.command.set.other` |
+| `/skin url <url> [skinVariant]` | `skinsrestorer.command.set.url` |
+| `/skin undo\|revert` | `skinsrestorer.command.undo` |
+| `/skin undo\|revert <selector>` | `skinsrestorer.command.undo.other` |
+| `/skin history` | `skinsrestorer.command.undo` |
+| `/skin history <selector>` | `skinsrestorer.command.undo.other` |
+| `/skin favourite` | `skinsrestorer.command.favourite` |
+| `/skin favourite <selector>` | `skinsrestorer.command.favourite.other` |
+| `/skin favourites` | `skinsrestorer.command.favourite` |
+| `/skin favourites <selector>` | `skinsrestorer.command.favourite.other` |
+| `/skin menu\|gui` | `skinsrestorer.command.gui` |
+| `/skin notification ignore-cracked-client` | Sin permiso de comando explícito |
+
+### Comando del menú [#menu-command]
+
+| Sintaxis | Permiso |
+| --- | --- |
+| `/skins` | `skinsrestorer.command.gui` |
+
+### Comandos de cabezas [#skull-commands]
+
+| Sintaxis | Permiso |
+| --- | --- |
+| `/skull` | `skinsrestorer.command.skull` |
+| `/skull help [query]` | `skinsrestorer.command.skull` |
+| `/skull <skinName>` | `skinsrestorer.admincommand.skull.get` |
+| `/skull <skinName> <selector>` | `skinsrestorer.admincommand.skull.get.other` |
+| `/skull random` | `skinsrestorer.admincommand.skull.random` |
+| `/skull random <selector>` | `skinsrestorer.admincommand.skull.random.other` |
+| `/skull get\|give <skinName>` | `skinsrestorer.admincommand.skull.get` |
+| `/skull get\|give <skinName> <selector>` | `skinsrestorer.admincommand.skull.get.other` |
+| `/skull get\|give <skinName> <selector> <skinVariant>` | `skinsrestorer.admincommand.skull.get.other` |
+| `/skull url <url> [skinVariant]` | `skinsrestorer.admincommand.skull.get.url` |
+
+### Comandos de administración [#admin-commands]
+
+| Sintaxis | Permiso |
+| --- | --- |
+| `/sr` | `skinsrestorer.admincommand` |
+| `/sr help [query]` | `skinsrestorer.admincommand` |
+| `/sr reload` | `skinsrestorer.admincommand.reload` |
+| `/sr docs permissions` | `skinsrestorer.admincommand` |
+| `/sr status` | `skinsrestorer.admincommand.status` |
+| `/sr drop\|remove player <target>` | `skinsrestorer.admincommand.drop` |
+| `/sr drop\|remove skin <target>` | `skinsrestorer.admincommand.drop` |
+| `/sr info\|props\|lookup player <input>` | `skinsrestorer.admincommand.info` |
+| `/sr info\|props\|lookup skin <input>` | `skinsrestorer.admincommand.info` |
+| `/sr applyskin <selector>` | `skinsrestorer.admincommand.applyskin` |
+| `/sr createcustom <skinName> <skinInput>` | `skinsrestorer.admincommand.createcustom` |
+| `/sr createcustom <skinName> <skinInput> <skinVariant>` | `skinsrestorer.admincommand.createcustom` |
+| `/sr setcustomname <skinName> <displayName>` | `skinsrestorer.admincommand.createcustom` |
+| `/sr purgeolddata <days>` | `skinsrestorer.admincommand.purgeolddata` |
+| `/sr dump` | `skinsrestorer.admincommand.dump` |
+
+## Permisos especiales [#special-permissions]
+
+| Permiso | Uso |
+| --- | --- |
+| `skinsrestorer.player` | Grupo de jugador incluido: comandos habituales sobre uno mismo y el menú |
+| `skinsrestorer.command.*` | Otra forma de dar el grupo de jugador incluido |
+| `skinsrestorer.admin` | Grupo de administrador incluido: contiene el grupo de jugador y las acciones sobre otros jugadores |
+| `skinsrestorer.admincommand.*` | Otra forma de dar el grupo de administrador incluido |
+| `skinsrestorer.bypasscooldown` | Ignora los tiempos de espera de los comandos |
+| `skinsrestorer.bypassdisabled` | Ignora los nombres de skin bloqueados |
+| `skinsrestorer.ownskin` | Permite elegir el nombre de tu propia cuenta cuando los permisos por skin están activados |
+| `skinsrestorer.skin.<name>` | Permite elegir una skin concreta |
+
+El grupo de administrador incluido no contiene `reload`, `dump` ni `purgeolddata`. Da esos nodos de forma explícita cuando los necesites. Cada plugin de permisos puede interpretar los comodines de forma distinta.
+
+Los comandos también pueden necesitar acceso a su comando principal. Los nodos raíz son `skinsrestorer.command`, `skinsrestorer.admincommand` y `skinsrestorer.command.skull`.
+
+Usa [acceso de jugadores](/docs/configuration/player-access) para configurar los grupos. Usa [restricciones de skins](/docs/configuration/restrict-skins) para los nombres bloqueados, los prefijos de URL, el acceso por skin y el consentimiento obligatorio.
+
+## Selectores de objetivo y acciones de administración [#target-selectors-and-administrative-behavior]
+
+Un `<selector>` identifica al jugador o jugadores objetivo con el analizador de selectores de la plataforma. Prueba primero con un nombre de jugador explícito. La compatibilidad con selectores puede depender de la plataforma.
+
+`/skin set <skinName> <selector>` cambia la selección guardada del objetivo. `/sr applyskin <selector>` vuelve a aplicar la skin que corresponde al objetivo. Esta versión no tiene los comandos `setskinall` ni `applyskinall`.
+
+`/sr createcustom` guarda una skin con nombre. `/sr setcustomname` cambia el nombre que se muestra y usa el mismo permiso. `drop` y `purgeolddata` borran datos guardados, así que [haz una copia de seguridad antes](/docs/configuration/backups).
+
+`/skin favourite` añade o quita la selección actual de favoritos. `history` usa el permiso `undo`. `search`, `edit` y `upload` dan enlaces para el navegador; no guardan por sí mismos una imagen editada.
+
+`/sr status` comprueba los servicios de cuentas. `/sr dump` sube un informe de diagnóstico. Lee [recopilar diagnósticos](/docs/troubleshooting/debugging) para saber qué incluye cada uno.
+
+## Modo proxy [#proxy-mode]
+
+Ejecuta los comandos normales de jugador y la administración del almacenamiento a través del proxy. Los backends en modo proxy ofrecen `/sr status` y `/sr dump` locales. Es normal que otros comandos no estén disponibles en ellos.
+
+## Tiempos de espera [#cooldowns]
+
+Los cambios de skin y las peticiones de cabezas tienen cada uno un tiempo de espera predeterminado de 30 segundos. Tras un error, el tiempo de espera predeterminado es de 5 segundos. `skinsrestorer.bypasscooldown` ignora estos tiempos de espera.
+
+Usa la [configuración de comandos](/docs/reference/commands) para cambiar las duraciones.
+
+## Fuente [#source]
+
+La sintaxis y los nodos anteriores salen de las [definiciones de comandos de 15.12.6](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/shared/src/main/java/net/skinsrestorer/shared/commands) y de los [grupos de permisos](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/subjects/permissions/PermissionGroup.java).

@@ -1,0 +1,54 @@
+---
+title: "Troque ou redefina sua skin"
+description: "Escolha a skin de um jogador, atualize-a ou volte para a skin da sua conta."
+docType: "how-to"
+appliesTo: "Jogadores em um servidor com SkinsRestorer"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "UserRound"
+---
+
+Esses comandos são digitados no chat do jogo. Troque `xknat` pelo nome da conta do Minecraft cuja skin você quer.
+
+## Troque sua skin [#change-your-skin]
+
+```text
+/skin set xknat
+```
+
+Aguarde a mensagem de sucesso. Peça a outro jogador para conferir sua aparência. O servidor salva sua seleção para as próximas vezes que você entrar.
+
+`/skin xknat` é um atalho. Para aplicar seu próprio PNG, use [o guia de envio](/docs/features/skin-upload).
+
+## Recupere a skin da sua conta [#restore-your-account-skin]
+
+```text
+/skin clear
+```
+
+Este comando remove sua seleção salva. Depois, o servidor usa a skin da sua conta ou a skin padrão configurada. Ele não apaga a skin original do armazenamento.
+
+## Atualize uma skin copiada de uma conta [#refresh-a-copied-account-skin]
+
+```text
+/skin update
+```
+
+Use depois que a conta original mudar a skin ou a capa. Skins de URL são texturas geradas e guardadas em cache. Para mudar uma skin de URL, envie a imagem revisada de novo.
+
+## Desfaça uma troca [#undo-a-change]
+
+```text
+/skin undo
+```
+
+Desfazer usa o histórico de skins salvo no servidor. Se o histórico estiver desativado ou vazio, não há seleção anterior para recuperar.
+
+## Se o comando falhar [#if-the-command-fails]
+
+- **Permissão negada:** Peça ao administrador para conferir o [acesso dos jogadores](/docs/configuration/player-access).
+- **Tempo de espera:** Aguarde o tempo exibido. Tentar várias vezes não acelera o pedido.
+- **A skin não carrega:** Confira o nome da conta e peça ao administrador para conferir as [conexões com os serviços](/docs/troubleshooting/firewall).
+- **Sucesso sem mudança visível:** Consulte [skin não aparece](/docs/troubleshooting/no-skin).
+
+Continue com [o menu de skins e os favoritos](/docs/features/skin-menu).

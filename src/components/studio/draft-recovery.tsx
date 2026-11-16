@@ -8,6 +8,7 @@ import {
   Item,
   ItemActions,
   ItemContent,
+  ItemDescription,
   ItemGroup,
   ItemTitle,
 } from "@/components/ui/item";
@@ -41,6 +42,11 @@ export function DraftRecovery(props: {
                       <CustomTimeAgo date={draft.updatedAt} />
                     </span>
                   </ItemTitle>
+                  {work.orphans.includes(draft.id) && (
+                    <ItemDescription>
+                      {t("studio.draftSkinRemoved")}
+                    </ItemDescription>
+                  )}
                 </ItemContent>
                 <ItemActions>
                   <Button
@@ -57,6 +63,19 @@ export function DraftRecovery(props: {
                   >
                     {t("studio.continue")}
                   </Button>
+                  {work.orphans.includes(draft.id) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        void props.session
+                          .saveDraftAsSkin(draft)
+                          .catch((cause) => toast.error(t.error(cause)))
+                      }
+                    >
+                      {t("studio.saveAsNewSkin")}
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"

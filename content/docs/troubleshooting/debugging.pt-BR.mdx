@@ -1,0 +1,47 @@
+---
+title: "Colete diagnósticos para o suporte"
+description: "Reúna a sua configuração, um relatório de diagnóstico e o log em torno de um comando que falhou."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Bug"
+---
+
+Um relato útil permite que outra pessoa reproduza o mesmo resultado. Colete as evidências na instância em que a falha acontece.
+
+## Anote como reproduzir [#record-the-reproduction]
+
+Inclua:
+
+- As versões do SkinsRestorer, do servidor ou proxy, do Minecraft e do Java.
+- Se é um servidor independente ou uma rede com proxy, incluindo o backend afetado.
+- O comando ou a operação de API exatos.
+- O erro completo e o resultado esperado.
+- Se reconectar ou trocar de servidor muda o resultado.
+- Os plugins e mods relevantes e o tipo de armazenamento.
+
+## Crie um relatório de diagnóstico [#create-a-diagnostic-report]
+
+Execute `/sr dump` no console da instância afetada. O comando envia um relatório de diagnóstico e retorna um link.
+
+O relatório contém a configuração, informações da plataforma e dos plugins e detalhes do ambiente. Ele exclui a configuração do banco de dados e a chave de API do MineSkin. Ele não inclui o log recente do console.
+
+Revise o relatório antes de compartilhá-lo. Outros detalhes de configuração ou do ambiente podem identificar a sua instalação. Não publique credenciais sem relação com o problema.
+
+## Capture os logs recentes [#capture-recent-logs]
+
+1. Ative `dev.debug: true` na configuração ativa.
+2. Execute `/sr reload`, ou reinicie se o reload não estiver disponível.
+3. Reproduza o problema uma vez.
+4. Copie o log desde antes do comando até o fim do erro.
+5. Volte `dev.debug` para `false`.
+6. Aplique a mudança de configuração outra vez.
+
+Inclua a exceção completa, e não apenas a última linha. Para um erro na inicialização, inclua também o log de inicialização.
+
+## Peça ajuda [#ask-for-help]
+
+Use o [suporte do SkinsRestorer](/discord) com o link do relatório, o log recente e os passos para reproduzir. Para um bug reproduzível, abra uma [issue](https://github.com/SkinsRestorer/SkinsRestorer/issues).
+
+Para corrigir a documentação, use o link de edição no GitHub ou o formulário de feedback da página. Informe a página, a etapa e o resultado diferente.

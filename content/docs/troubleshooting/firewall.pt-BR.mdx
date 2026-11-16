@@ -1,0 +1,52 @@
+---
+title: "Corrija as conexões com os serviços"
+description: "Diagnostique DNS, HTTPS, limites de requisições e requisições de saída bloqueadas."
+docType: "how-to"
+appliesTo: "Todas as plataformas"
+reviewed: "2026-10-01"
+version: "15.12.6"
+icon: "Globe"
+---
+
+A busca de uma skin pode falhar por causa de DNS, TLS, HTTPS bloqueado, um erro do serviço externo ou limites de requisições. Anote o erro real antes de mudar as regras do firewall.
+
+## Restrinja o serviço [#narrow-down-the-service]
+
+1. Execute `/sr status` na instância afetada.
+2. Teste um nome de jogador conhecido.
+3. Se o problema for a geração por URL, teste uma URL de skin válida.
+4. Salve o erro correspondente do console.
+
+O `/sr status` verifica os serviços de UUID e perfis de contas. Ele não verifica todas as rotas do MineSkin, as recomendações, os envios pelo site nem o seu banco de dados.
+
+Se os nomes de contas funcionam mas as URLs falham, investigue o serviço de geração por URL e a chave. Um status verde não prova que a geração por URL funciona.
+
+## Confira a configuração local [#check-local-configuration]
+
+Mantenha `advanced.noConnections: false` para o funcionamento online normal. O valor true impede novas buscas externas, a geração por URL e a verificação de atualizações.
+
+Se o erro for de TLS, confira o relógio da máquina e o repositório de certificados confiáveis do Java. Não desative a validação de certificados para esconder um problema de TLS.
+
+## Acesso de saída [#outbound-access]
+
+O servidor precisa de resolução DNS e de HTTPS de saída na porta 443. Permita o tráfego de resposta das conexões estabelecidas. Os serviços de skin não precisam de uma nova porta de entrada no servidor.
+
+Use [a referência de rede](/docs/reference/network) para identificar o host do recurso que falhou. Os hosts da API e os redirecionamentos de download podem mudar entre versões.
+
+Peça à sua hospedagem para testar as conexões a partir do ambiente real do servidor de Minecraft. Uma requisição que funciona no seu notebook não prova que o servidor tem acesso.
+
+## Limites de requisições [#rate-limits]
+
+Espere antes de tentar de novo. Mantenha as durações normais de cache. Reduzir `storage.skinExpiresAfter` ou `storage.uuidExpiresAfter` aumenta o número de requisições.
+
+`api.mojangBatchWindowSeconds` controla o agrupamento de requisições à Mojang. Ele não aumenta os limites de envio do MineSkin.
+
+## Proteja os backends do proxy [#protect-proxy-backends]
+
+A proteção dos backends é uma regra de entrada separada. Permita conexões apenas do seu proxy ou de uma rede confiável. O encaminhamento legacy não consegue autenticar uma conexão direta qualquer.
+
+Use o [guia de segurança de backends do PaperMC](https://docs.papermc.io/velocity/security/). Mantenha a autenticação do proxy público de acordo com a política do seu servidor.
+
+## Próximos passos [#next]
+
+Leia [integração com o MineSkin](/docs/integrations/mineskin) para erros de geração por URL. Se a causa continuar incerta, colete [diagnósticos para o suporte](/docs/troubleshooting/debugging).
