@@ -274,15 +274,32 @@
 /*
  * Arial scaled to Geist metrics. Text keeps its line breaks and height when
  * Geist replaces it, so the swap does not shift the layout.
- * Values come from Geist's hhea metrics and its weighted average advance.
+ * size-adjust is Geist's width over Arial's on the site's own docs and
+ * Studio text (183 paragraphs); the overrides are Geist's ascent (1.005 em)
+ * and descent (0.295 em) divided by it.
  */
 @font-face {
   font-family: "Geist Fallback";
   src:
     local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo");
-  size-adjust: 105.17%;
-  ascent-override: 95.56%;
-  descent-override: 28.05%;
+  size-adjust: 102.42%;
+  ascent-override: 98.13%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
+
+/*
+ * Arial scaled to the pixel heading font, measured on the home headings in
+ * en, es, and pt-BR (108.06% wider on average). Plain monospace is about 21%
+ * wider, so headings wrapped differently until the font arrived.
+ */
+@font-face {
+  font-family: "Geist Pixel Fallback";
+  src:
+    local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo");
+  size-adjust: 108.06%;
+  ascent-override: 93%;
+  descent-override: 27.3%;
   line-gap-override: 0%;
 }
 
@@ -297,7 +314,8 @@
 :root {
   --font-geist-sans: "Geist Variable", "Geist Fallback", sans-serif;
   --font-geist-mono: "Geist Mono Variable", monospace;
-  --font-geist-pixel-square: "Geist Pixel Square", monospace;
+  --font-geist-pixel-square:
+    "Geist Pixel Square", "Geist Pixel Fallback", monospace;
 }
 
 /*
