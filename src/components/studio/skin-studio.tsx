@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import posthog from "posthog-js";
-import { useEffect, useId, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdvancedOptions } from "@/components/advanced-options";
 import { CapePicker, MineSkinKeyField } from "@/components/cape-support-fields";
@@ -51,6 +51,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   InputGroup,
   InputGroupAddon,
@@ -119,9 +120,20 @@ import type { GenerationResult } from "@/lib/studio-generation";
 import { useLocale, useNotificationT, useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
 import { SkinThumbnail } from "./skin-thumbnail";
-import { SkinView } from "./skin-view";
+import { DraftRecovery } from "./draft-recovery";
 import { StudioGallery } from "./studio-gallery";
-import { DraftRecovery, StudioEditor } from "./studio-editor";
+
+// The 3D view and the editor bring in three.js. Load them after hydration
+// so the upload form works sooner.
+const loadSkinView = () => import("./skin-view");
+const SkinView = lazy(() =>
+  loadSkinView().then((module) => ({ default: module.SkinView })),
+);
+const StudioEditor = lazy(() =>
+  import("./studio-editor").then((module) => ({
+    default: module.StudioEditor,
+  })),
+);
 import {
   AddSkinMenu,
   StudioLibrary,
@@ -202,6 +214,11 @@ export function SkinStudio(props: {
   const library = useSkinLibrary();
   const editor = useEditorSession();
   const generation = useStudioGeneration();
+
+  // Fetch the 3D view early so it is ready when someone picks a skin.
+  useEffect(() => {
+    void loadSkinView();
+  }, []);
   const importTask = useLatestTask();
   /** Only URL-owned reads are cancelled when their reference is removed. */
   const urlImport = useRef(false);
@@ -926,13 +943,15 @@ export function SkinStudio(props: {
         </aside>
 
         {mode.kind === "edit" ? (
-          <StudioEditor
-            store={editor.store}
-            session={editor.session}
-            isNew={mode.isNew}
-            onSaved={saved}
-            onExit={() => exitEdit()}
-          />
+          <Suspense fallback={<Skeleton className="h-[480px]" />}>
+            <StudioEditor
+              store={editor.store}
+              session={editor.session}
+              isNew={mode.isNew}
+              onSaved={saved}
+              onExit={() => exitEdit()}
+            />
+          </Suspense>
         ) : (
           <>
             <section
@@ -1452,23 +1471,25 @@ function SelectedSkinView(props: {
           </AlertDescription>
         </Alert>
       ) : (
-        <SkinView
-          skinUrl={props.previewUrl}
-          capeUrl={props.capeUrl}
-          variant={props.variant}
-          label={t("studio.name3dViewDragUseArrowKeys", {
-            name: selection.name,
-          })}
-          fallback={
-            selection.status === "ready" && (
-              <SkinThumbnail
-                png={selection.file}
-                variant={props.variant}
-                className="h-40 w-20"
-              />
-            )
-          }
-        />
+        <Suspense fallback={<Skeleton className="h-[300px] sm:h-[360px]" />}>
+          <SkinView
+            skinUrl={props.previewUrl}
+            capeUrl={props.capeUrl}
+            variant={props.variant}
+            label={t("studio.name3dViewDragUseArrowKeys", {
+              name: selection.name,
+            })}
+            fallback={
+              selection.status === "ready" && (
+                <SkinThumbnail
+                  png={selection.file}
+                  variant={props.variant}
+                  className="h-40 w-20"
+                />
+              )
+            }
+          />
+        </Suspense>
       )}
       <div className="flex flex-wrap justify-center gap-2">
         <Button
