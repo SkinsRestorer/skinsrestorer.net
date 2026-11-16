@@ -115,4 +115,14 @@ const CookieConsentBanner = () => {
   );
 };
 
-export { CookieConsentBanner, openCookieSettings };
+/** Reopen the consent banner from the site footer or the docs sidebar. */
+function CookieSettingsButton({ className }: { className?: string }) {
+  const t = useT();
+  return (
+    <button type="button" onClick={openCookieSettings} className={className}>
+      {t("footer.cookieSettings")}
+    </button>
+  );
+}
+
+export { CookieConsentBanner, CookieSettingsButton };

@@ -12,6 +12,7 @@ import {
   DocsPage,
   DocsTitle,
 } from "fumadocs-ui/page";
+import { CookieSettingsButton } from "@/components/cookie-consent-banner";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Feedback } from "@/components/feedback";
 import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
@@ -187,7 +188,15 @@ function DocsRoute() {
   const page = useFumadocsLoader(Route.useLoaderData());
   const locale = useLocale();
   return (
-    <DocsLayout tree={page.pageTree} {...getBaseOptions(locale)}>
+    <DocsLayout
+      tree={page.pageTree}
+      {...getBaseOptions(locale)}
+      sidebar={{
+        footer: (
+          <CookieSettingsButton className="self-start px-1 pt-2 text-xs text-fd-muted-foreground hover:text-fd-foreground" />
+        ),
+      }}
+    >
       <DocsContent
         path={page.path}
         url={page.url}
