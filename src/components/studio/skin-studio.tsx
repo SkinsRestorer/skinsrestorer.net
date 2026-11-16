@@ -245,22 +245,24 @@ export function SkinStudio(props: {
   const current = state.selection;
   /** Where focus goes once the next view has rendered. */
   const focusAfter = useRef<"selection" | "edit" | null>(null);
-  const selectionHeading = useRef<HTMLHeadingElement>(null);
-  const editButton = useRef<HTMLButtonElement>(null);
+  const focusIds = useId();
+  const selectionHeadingId = `${focusIds}-selection`;
+  const editButtonId = `${focusIds}-edit`;
   useEffect(() => {
-    const target =
+    const id =
       focusAfter.current === "edit"
-        ? editButton.current
+        ? editButtonId
         : focusAfter.current === "selection"
-          ? selectionHeading.current
-          : null;
+          ? selectionHeadingId
+          : undefined;
+    const target = id ? document.getElementById(id) : null;
     if (mode.kind === "edit") return;
     // Without an Edit skin button there is nothing to return to.
     if (!target && focusAfter.current === "edit") focusAfter.current = null;
     if (!target) return;
     focusAfter.current = null;
     target.focus();
-  }, [mode.kind, current?.token]);
+  }, [mode.kind, current?.token, editButtonId, selectionHeadingId]);
 
   /**
    * Change the public URL state. A new selection adds a history entry;
@@ -1080,8 +1082,8 @@ export function SkinStudio(props: {
                   }
                   onEdit={editSelected}
                   onUseLatest={() => store.useLatest()}
-                  headingRef={selectionHeading}
-                  editButtonRef={editButton}
+                  headingId={selectionHeadingId}
+                  editButtonId={editButtonId}
                   onKeep={
                     current.origin === "gallery" ? keepGallery : undefined
                   }
@@ -1553,8 +1555,9 @@ function SelectedSkinView(props: {
   onUseLatest: () => void;
   onKeep?: () => void;
   galleryLink?: string;
-  headingRef?: React.Ref<HTMLHeadingElement>;
-  editButtonRef?: React.Ref<HTMLButtonElement>;
+  /** Element ids, so the Studio can move focus here after a view change. */
+  headingId?: string;
+  editButtonId?: string;
 }) {
   const t = useT();
   const { selection } = props;
@@ -1569,7 +1572,7 @@ function SelectedSkinView(props: {
     <>
       <div className="ph-no-capture flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1">
         <h2
-          ref={props.headingRef}
+          id={props.headingId}
           tabIndex={-1}
           className="min-w-0 truncate text-base font-semibold outline-none"
         >
@@ -1619,7 +1622,7 @@ function SelectedSkinView(props: {
       )}
       <div className="flex flex-wrap justify-center gap-2">
         <Button
-          ref={props.editButtonRef}
+          id={props.editButtonId}
           variant="outline"
           disabled={!editable}
           title={

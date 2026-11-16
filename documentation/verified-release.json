@@ -921,7 +921,7 @@
     "src/lib/skin-library.ts": "3c5a73cd0d3d265737910f950540bb71f60a3fc19e1b282d6c5799644643ab72",
     "src/lib/skin-library-client.ts": "f4b0ae64294e58cd60465c80fb7bf1b2f355626fc15dec13e75c2b5257157c52",
     "src/lib/editor-session.ts": "26847ea52b652b8404ee5feb3ac4a2c2b1fcce777c5891d7ec03cd865406b7b3",
-    "src/components/studio/skin-studio.tsx": "7a0b5d05b0c9888f94f27a24abe3985a9565140c6d1b702a9837f88722f028c3",
+    "src/components/studio/skin-studio.tsx": "9f8864ebd958c1e991c25246c585fb3b45814e4512faba511b5cd68f9d51f879",
     "src/components/studio/studio-library.tsx": "c9cbcedac9a6bc19fe1419b3695465f8565e472da3b73f1b988724305c9972ac",
     "src/components/studio/studio-editor.tsx": "4284a8d79cb1a9ce39cb8d9d28415d6f2454eb5e5df1004dc13770deb985466d",
     "src/components/studio/draft-recovery.tsx": "ae53299ef0d2782c966bef923cfc1bfd3779bdda7555dfb278cb7bb89dc968ef",
