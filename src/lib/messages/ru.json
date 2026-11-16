@@ -114,6 +114,8 @@
   "common.installationGuide": "Руководство по установке",
   "common.invalidSkinNameSkinNameCanOnly": "Имя скина может содержать только строчные латинские буквы, цифры и подчёркивания (a-z0-9_).",
   "common.language": "Язык",
+  "common.languageSuggestion": "Эта страница доступна на русском языке.",
+  "common.languageSuggestionAction": "Открыть на русском",
   "common.lastUpdated": "Обновлено",
   "common.layoutTab": "Раздел",
   "common.leaveWithoutSavingDraftsOffSoChanges": "Выйти без сохранения? Черновики отключены. Изменения будут потеряны.",

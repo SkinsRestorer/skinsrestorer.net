@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-router";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { LanguageSuggestion } from "@/components/language-suggestion";
 import { ContentImage } from "@/components/content-image";
 import NotFound from "@/components/not-found";
 import { Toaster } from "@/components/ui/sonner";
@@ -137,7 +138,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             {/* First in the Tab order, so keyboard users reach the choice first. */}
             <CookieConsentBanner />
             {children}
-            <Toaster richColors />
+            {/* Top toasts start below the 56 px site header. */}
+            <Toaster
+              richColors
+              offset={{ top: 72 }}
+              mobileOffset={{ top: 64 }}
+            />
+            <LanguageSuggestion />
           </RootProvider>
         </LocaleProvider>
         <Scripts />

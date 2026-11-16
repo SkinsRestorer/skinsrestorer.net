@@ -114,6 +114,8 @@
   "common.installationGuide": "Guía de instalación",
   "common.invalidSkinNameSkinNameCanOnly": "El nombre solo admite letras minúsculas, números y guiones bajos (a-z0-9_).",
   "common.language": "Idioma",
+  "common.languageSuggestion": "Esta página está disponible en español.",
+  "common.languageSuggestionAction": "Ver en español",
   "common.lastUpdated": "Última actualización",
   "common.layoutTab": "Sección",
   "common.leaveWithoutSavingDraftsOffSoChanges": "¿Salir sin guardar? Los borradores están desactivados y se perderán los cambios.",

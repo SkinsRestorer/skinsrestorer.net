@@ -114,6 +114,8 @@
   "common.installationGuide": "Installation guide",
   "common.invalidSkinNameSkinNameCanOnly": "Invalid skin name. Skin name can only contain lowercase letters, numbers and underscores. (a-z0-9_)",
   "common.language": "Language",
+  "common.languageSuggestion": "This page is available in English.",
+  "common.languageSuggestionAction": "View in English",
   "common.lastUpdated": "Last updated on",
   "common.layoutTab": "Layout tab",
   "common.leaveWithoutSavingDraftsOffSoChanges": "Leave without saving? Drafts are off, so your changes will be lost.",

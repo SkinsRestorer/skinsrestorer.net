@@ -114,6 +114,8 @@
   "common.installationGuide": "Guia de instalação",
   "common.invalidSkinNameSkinNameCanOnly": "O nome só aceita letras minúsculas, números e sublinhados (a-z0-9_).",
   "common.language": "Idioma",
+  "common.languageSuggestion": "Esta página está disponível em português.",
+  "common.languageSuggestionAction": "Ver em português",
   "common.lastUpdated": "Última atualização",
   "common.layoutTab": "Seção",
   "common.leaveWithoutSavingDraftsOffSoChanges": "Sair sem salvar? Os rascunhos estão desativados e as alterações serão perdidas.",
