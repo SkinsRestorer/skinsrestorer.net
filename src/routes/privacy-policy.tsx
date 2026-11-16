@@ -9,7 +9,7 @@ function PrivacyPolicyPage() {
       <article className="prose mx-auto max-w-prose">
         <h1>Privacy Policy</h1>
         <p>
-          <strong>Last updated:</strong> March 21, 2026
+          <strong>Last updated:</strong> November 16, 2026
         </p>
 
         <p>
@@ -81,7 +81,7 @@ function PrivacyPolicyPage() {
           the site:
         </p>
         <ul>
-          <li>Vercel for hosting, delivery, and request handling</li>
+          <li>Cloudflare for hosting, delivery, and request handling</li>
           <li>PostHog for product analytics when you consent</li>
           <li>Ahrefs for SEO and traffic analytics</li>
           <li>
