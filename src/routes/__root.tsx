@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { lazy, useMemo } from "react";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import {
@@ -8,8 +8,8 @@ import {
   Scripts,
   redirect,
   Link,
+  useRouter,
   useRouterState,
-  useNavigate,
   isNotFound,
   rootRouteId,
 } from "@tanstack/react-router";
@@ -75,10 +75,34 @@ export const Route = createRootRoute({
   errorComponent: ErrorPage,
 });
 
+const localeOptions = locales.map((code) => ({
+  locale: code,
+  name: localeNames[code],
+}));
+
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const location = useRouterState({ select: (state) => state.location });
-  const navigate = useNavigate();
-  const locale = splitLocalePath(location.pathname).locale;
+  // Select only the locale. Search changes, such as opening the Studio
+  // gallery, would otherwise re-render the whole document.
+  const locale = useRouterState({
+    select: (state) => splitLocalePath(state.location.pathname).locale,
+  });
+  const router = useRouter();
+  const i18n = useMemo(
+    () => ({
+      locale,
+      locales: localeOptions,
+      translations: fumadocsMessages(locale),
+      onLocaleChange: (next: string) => {
+        if (!isLocale(next)) return;
+        const { href } = router.state.location;
+        // English-only pages, such as legal text, have no localized URL.
+        void router.navigate({
+          href: localizePath(hasLocalizedPages(href) ? href : "/", next),
+        });
+      },
+    }),
+    [locale, router],
+  );
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
@@ -95,26 +119,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       >
         <LocaleProvider locale={locale}>
           <RootProvider
-            components={{ Image: ContentImage, Link: LocaleLink }}
-            i18n={{
-              locale,
-              locales: locales.map((code) => ({
-                locale: code,
-                name: localeNames[code],
-              })),
-              translations: fumadocsMessages(locale),
-              onLocaleChange: (next) => {
-                if (!isLocale(next)) return;
-                // English-only pages, such as legal text, have no localized URL.
-                void navigate({
-                  href: localizePath(
-                    hasLocalizedPages(location.href) ? location.href : "/",
-                    next,
-                  ),
-                });
-              },
-            }}
-            search={{ SearchDialog: LocalizedSearchDialog }}
+            components={providerComponents}
+            i18n={i18n}
+            search={providerSearch}
           >
             {children}
             <Toaster richColors />
@@ -126,6 +133,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+
+const providerComponents = { Image: ContentImage, Link: LocaleLink };
+const providerSearch = { SearchDialog: LocalizedSearchDialog };
 
 function getFallbackTitle(
   matches: readonly { routeId: string; pathname: string; error: unknown }[],
