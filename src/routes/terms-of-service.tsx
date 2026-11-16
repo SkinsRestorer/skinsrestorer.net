@@ -9,7 +9,7 @@ function TermsOfServicePage() {
       <article className="prose mx-auto max-w-prose">
         <h1>Terms of Service</h1>
         <p>
-          <strong>Last updated:</strong> March 21, 2026
+          <strong>Last updated:</strong> November 16, 2026
         </p>
 
         <p>
@@ -65,10 +65,10 @@ function TermsOfServicePage() {
         <h2>5. Third-party services</h2>
         <p>
           This site depends on or links to third-party services including
-          MineSkin, SkinsRestorer Axolotl, GitHub, Discord, Modrinth, Vercel,
-          PostHog, and Ahrefs. Those services operate under their own terms and
-          privacy policies, and we are not responsible for their content,
-          uptime, or practices.
+          MineSkin, SkinsRestorer Axolotl, GitHub, Discord, Modrinth,
+          Cloudflare, PostHog, and Ahrefs. Those services operate under their
+          own terms and privacy policies, and we are not responsible for their
+          content, uptime, or practices.
         </p>
 
         <h2>6. Intellectual property</h2>
