@@ -178,7 +178,7 @@ export async function readHandoff(
     await importSkinPng(bytes);
     return {
       id,
-      file: new File([bytes as Uint8Array<ArrayBuffer>], "edited-skin.png", {
+      file: new File([bytes], "edited-skin.png", {
         type: "image/png",
       }),
       variant: record.value.variant,

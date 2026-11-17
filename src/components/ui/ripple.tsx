@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, CSSProperties } from "react";
+import React, { ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -32,22 +32,20 @@ export const Ripple = React.memo(function Ripple({
         return (
           <div
             key={i}
-            className={`animate-ripple bg-foreground/25 absolute rounded-full border shadow-xl`}
-            style={
-              {
-                "--i": i,
-                width: `${size}px`,
-                height: `${size}px`,
-                opacity,
-                animationDelay,
-                borderStyle,
-                borderWidth: "1px",
-                borderColor: `var(--foreground)`,
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%) scale(1)",
-              } as CSSProperties
-            }
+            className={`absolute animate-ripple rounded-full border bg-foreground/25 shadow-xl`}
+            style={{
+              "--i": i,
+              width: `${size}px`,
+              height: `${size}px`,
+              opacity,
+              animationDelay,
+              borderStyle,
+              borderWidth: "1px",
+              borderColor: `var(--foreground)`,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) scale(1)",
+            }}
           />
         );
       })}

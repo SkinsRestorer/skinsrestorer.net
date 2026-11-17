@@ -254,7 +254,7 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
   }
   const model = variant ?? detected;
   return {
-    png: new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "image/png" }),
+    png: new Blob([bytes], { type: "image/png" }),
     hash,
     pixelKey,
     key: `${pixelKey}:${model}`,
@@ -548,6 +548,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   const changed = Effect.sync(() => {
     emit({ type: "changed" });
     try {
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- BroadcastChannel has no target origin.
       channel?.postMessage({ type: "changed" });
     } catch {
       // Other tabs refresh when they next read the list.
@@ -661,7 +662,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
               .flatMap((decoded) =>
                 decoded._tag === "Some" ? [decoded.value] : [],
               )
-              .sort((a, b) => b.lastUsedAt - a.lastUsedAt)[0];
+              .toSorted((a, b) => b.lastUsedAt - a.lastUsedAt)[0];
             if (!match) return insert();
             const used = { ...match, lastUsedAt: at };
             store.put(used);

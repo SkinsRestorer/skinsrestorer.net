@@ -9,7 +9,7 @@ import {
   Upload,
   WandSparkles,
 } from "lucide-react";
-import Link from "fumadocs-core/link";
+import { Link } from "fumadocs-core/link";
 import { type ReactNode, useEffect, useState } from "react";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Image } from "@/components/image";
@@ -54,7 +54,7 @@ function LatestRelease() {
   return (
     <a href={data?.html_url ?? latestReleaseLink} className={linkClassName}>
       {t("home.latestRelease")}
-      <span className="inline-block min-w-[8ch] font-mono text-xs tabular-nums text-muted-foreground">
+      <span className="inline-block min-w-[8ch] font-mono text-xs text-muted-foreground tabular-nums">
         {data?.tag_name}
       </span>
       <ArrowUpRight aria-hidden="true" className="size-3.5" />

@@ -144,7 +144,7 @@ export function ToolOptions(props: {
               }
             />
           </div>
-          <span className="min-w-8 whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+          <span className="min-w-8 text-xs whitespace-nowrap text-muted-foreground tabular-nums">
             {t("editor.sizePx", { size: props.size })}
           </span>
         </div>

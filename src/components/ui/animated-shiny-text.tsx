@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, CSSProperties, FC } from "react";
+import { ComponentPropsWithoutRef, FC } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -14,11 +14,9 @@ export const AnimatedShinyText: FC<AnimatedShinyTextProps> = ({
 }) => {
   return (
     <span
-      style={
-        {
-          "--shiny-width": `${shimmerWidth}px`,
-        } as CSSProperties
-      }
+      style={{
+        "--shiny-width": `${shimmerWidth}px`,
+      }}
       className={cn(
         "mx-auto max-w-md text-neutral-600/70 dark:text-neutral-400/70",
 

@@ -172,7 +172,7 @@ export function SkinStage() {
         >
           <motion.div
             key={cleared ? "cleared" : lastSkinChange?.id}
-            className="relative h-full aspect-[640/760]"
+            className="relative aspect-[640/760] h-full"
             initial={
               animateLatest && !cleared
                 ? { clipPath: "inset(0% 0% 100% 0%)" }

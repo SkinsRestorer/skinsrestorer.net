@@ -1,4 +1,4 @@
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { redactEditorParams } from "./analytics-redact";
 
 const apiKey = import.meta.env.VITE_POSTHOG_KEY;

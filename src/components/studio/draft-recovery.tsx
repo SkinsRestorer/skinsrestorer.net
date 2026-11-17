@@ -1,4 +1,4 @@
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { CustomTimeAgo } from "@/components/time-ago";

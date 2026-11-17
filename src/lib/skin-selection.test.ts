@@ -107,7 +107,7 @@ test("a dropped skin is selected without waiting for the library", async () => {
   assert.equal(selection?.keep.kind, "saving");
   // The form sends an in-memory copy with the exact dropped bytes.
   assert.notEqual(selection?.file, file);
-  assert.deepEqual(await bytes(selection!.file), await bytes(file));
+  assert.deepEqual(await bytes(selection.file), await bytes(file));
   store.dispose();
 });
 
@@ -192,7 +192,7 @@ test("gallery selection preserves its model and pixels without writing to the li
   assert.equal(state.selection?.galleryId, "forest-ranger");
   assert.equal(state.selection?.skinId, undefined);
   assert.equal(state.selection?.keep.kind, "catalog");
-  assert.deepEqual(await bytes(state.selection!.file), await bytes(file));
+  assert.deepEqual(await bytes(state.selection.file), await bytes(file));
   store.setVariant("classic");
   store.refresh();
   assert.equal(writes, 0);
@@ -264,7 +264,10 @@ test("multi-file drops keep every valid skin but select only the first", async (
   assert.deepEqual(imported, [[2, 1]]);
   assert.equal(store.getSnapshot().selection?.name, "a");
   const listing = await client.run(withLibrary((l) => l.list));
-  assert.deepEqual(listing.skins.map((skin) => skin.name).sort(), ["a", "b"]);
+  assert.deepEqual(listing.skins.map((skin) => skin.name).toSorted(), [
+    "a",
+    "b",
+  ]);
   store.dispose();
 });
 

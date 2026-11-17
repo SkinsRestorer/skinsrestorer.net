@@ -396,7 +396,7 @@ const getSkin = (id: string) =>
   withLibrary((library) =>
     library.get(id).pipe(
       Effect.map((skin): StoredSkin | undefined => skin),
-      Effect.catchTag("SkinNotFoundError", () => Effect.succeed(undefined)),
+      Effect.catchTag("SkinNotFoundError", () => Effect.undefined),
     ),
   );
 

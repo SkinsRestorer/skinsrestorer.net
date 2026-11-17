@@ -2,7 +2,7 @@
 
 import { errorMessage, message, type Message } from "@/lib/messages";
 
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { browserStorage } from "../skin-draft";

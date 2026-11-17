@@ -6,13 +6,13 @@ import {
   CollapsibleContent,
 } from "fumadocs-ui/components/ui/collapsible";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { type SubmitEvent, useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
 const rateButtonVariants = cva(
-  "inline-flex items-center gap-2 px-3 py-2 rounded-full font-medium border text-sm [&_svg]:size-4 disabled:cursor-not-allowed",
+  "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium disabled:cursor-not-allowed [&_svg]:size-4",
   {
     variants: {
       active: {
@@ -85,7 +85,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
         aria-labelledby={questionId}
         className="flex flex-row flex-wrap items-center gap-2"
       >
-        <p id={questionId} className="text-sm font-medium pe-2">
+        <p id={questionId} className="pe-2 text-sm font-medium">
           {t("feedback.didPageHelp")}
         </p>
         <button
@@ -123,7 +123,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
       </div>
       <CollapsibleContent className="mt-3">
         {previous ? (
-          <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-muted-foreground text-sm text-center rounded-xl">
+          <div className="flex flex-col items-center gap-3 rounded-xl bg-fd-card px-3 py-6 text-center text-sm text-fd-muted-foreground">
             <output>{t("feedback.thankYouFeedback")}</output>
             <div className="flex flex-row items-center gap-2">
               <button
@@ -162,7 +162,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               autoFocus
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-fd-muted-foreground"
+              className="resize-none rounded-lg border bg-fd-secondary p-3 text-fd-secondary-foreground placeholder:text-fd-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               placeholder={t(
                 "feedback.includeStepSetupResultKeepCredentialsPrivate",
               )}

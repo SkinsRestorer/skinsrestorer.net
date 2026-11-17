@@ -102,7 +102,7 @@ export function LLMCopyButton({
 }
 
 const optionVariants = cva(
-  "text-sm p-2 rounded-lg inline-flex items-center gap-2 outline-none hover:text-fd-accent-foreground hover:bg-fd-accent focus-visible:text-fd-accent-foreground focus-visible:bg-fd-accent focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4",
+  "inline-flex items-center gap-2 rounded-lg p-2 text-sm outline-none hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:bg-fd-accent focus-visible:text-fd-accent-foreground focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4",
 );
 
 export function ViewOptions({
@@ -270,7 +270,7 @@ export function ViewOptions({
             {item.title}
             <ExternalLinkIcon
               aria-hidden="true"
-              className="text-fd-muted-foreground size-3.5 ms-auto"
+              className="ms-auto size-3.5 text-fd-muted-foreground"
             />
           </a>
         ))}

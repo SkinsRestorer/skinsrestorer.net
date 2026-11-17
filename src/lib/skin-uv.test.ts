@@ -57,13 +57,7 @@ for (const variant of ["classic", "slim"] as const) {
             hit?.uv && hit.faceIndex !== undefined,
             `${part} ${region.face}`,
           );
-          const pixel = hitToPixel(
-            variant,
-            part,
-            layer,
-            hit.faceIndex!,
-            hit.uv!,
-          );
+          const pixel = hitToPixel(variant, part, layer, hit.faceIndex, hit.uv);
           assert.equal(
             pixel?.region,
             region,

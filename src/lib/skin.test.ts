@@ -123,7 +123,7 @@ test("skin dimensions preserve square, legacy, and scaled textures", () => {
     [128, 128],
     [128, 64],
   ]) {
-    assert.doesNotThrow(() => validateSkinDimensions(width!, height!));
+    assert.doesNotThrow(() => validateSkinDimensions(width, height));
   }
   for (const [width, height] of [
     [0, 0],
@@ -131,7 +131,7 @@ test("skin dimensions preserve square, legacy, and scaled textures", () => {
     [1920, 1080],
     [1402, 1122],
   ]) {
-    assert.throws(() => validateSkinDimensions(width!, height!), {
+    assert.throws(() => validateSkinDimensions(width, height), {
       _tag: "SkinImageError",
     });
   }

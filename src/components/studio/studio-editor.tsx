@@ -13,7 +13,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import {
   useCallback,
   useEffect,
@@ -473,7 +473,7 @@ export function StudioEditor(props: {
     <TooltipProvider>
       <section
         aria-label={t("studio.skinBeingEdited")}
-        className="ph-no-capture flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground sm:p-4"
+        className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground ph-no-capture sm:p-4"
       >
         <div className="flex min-h-8 items-center gap-2">
           <h2
@@ -639,7 +639,7 @@ export function StudioEditor(props: {
 
       <section
         aria-label={t("studio.livePreview")}
-        className="ph-no-capture flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground sm:p-4"
+        className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground ph-no-capture sm:p-4"
       >
         <ModelCanvas
           store={store}

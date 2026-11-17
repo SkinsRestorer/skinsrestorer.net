@@ -93,7 +93,7 @@ export function StudioGallery(props: {
   };
   const empty = state.status === "ready" && skins.length === 0;
   return (
-    <div className="ph-no-capture flex min-w-0 flex-col gap-2.5">
+    <div className="flex min-w-0 flex-col gap-2.5 ph-no-capture">
       <Field>
         <FieldLabel htmlFor={id} className="sr-only">
           {t("gallery.searchGallery")}

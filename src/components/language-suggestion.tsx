@@ -1,5 +1,5 @@
 import { useRouter } from "@tanstack/react-router";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { hasLocalizedPages, localizePath } from "@/lib/i18n";

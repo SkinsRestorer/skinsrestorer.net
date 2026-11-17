@@ -163,7 +163,7 @@ export function previewSkinFileEffect(
                 events.detected(variant);
               });
               // The component displays this URL until the next selection.
-              yield* Effect.never;
+              return yield* Effect.never;
             }),
           ),
           Effect.catch((cause) => Effect.sync(() => events.failed(cause))),

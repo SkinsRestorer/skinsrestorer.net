@@ -2,14 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supportEmail } from "@/lib/contact";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
-import Link from "fumadocs-core/link";
+import { Link } from "fumadocs-core/link";
 import { CookieSettingsButton } from "@/components/cookie-consent-banner";
 import { buttonVariants } from "@/components/ui/button";
 
 function PrivacyPolicyPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-12">
-      <article className="prose mx-auto max-w-prose">
+      <article className="mx-auto prose max-w-prose">
         <h1>Privacy Policy</h1>
         <p>
           <strong>Last updated:</strong>{" "}

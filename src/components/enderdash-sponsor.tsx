@@ -81,7 +81,7 @@ export function EnderDashSponsor({
         href={href}
         target="_blank"
         rel="sponsored noopener"
-        className="inline-flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+        className="inline-flex items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
       >
         enderdash.com
         <ArrowUpRight aria-hidden="true" className="size-4" />

@@ -286,7 +286,7 @@ test("two tabs keep separate drafts and saves conflict on pixels and on model", 
   await use(a, (library) => library.saveSession(draftA));
   await use(b, (library) => library.saveSession(draftB));
   const both = await use(b, (library) => library.list);
-  assert.deepEqual(both.sessions.map((session) => session.id).sort(), [
+  assert.deepEqual(both.sessions.map((session) => session.id).toSorted(), [
     "a",
     "b",
   ]);
@@ -535,7 +535,10 @@ test("the old editor draft migrates once, even from two tabs", async () => {
     migrateLegacyDraft(tab(), storage, recovered),
     migrateLegacyDraft(tab(), second, recovered),
   ]);
-  assert.deepEqual([first.status, other.status].sort(), ["migrated", "none"]);
+  assert.deepEqual([first.status, other.status].toSorted(), [
+    "migrated",
+    "none",
+  ]);
   assert.equal(storage.data.has(DRAFT_KEY), false);
   assert.equal(second.data.has(DRAFT_KEY), false);
   const listing = await use(tab(), (library) => library.list);
@@ -577,10 +580,10 @@ test("migration preserves a newer legacy draft written while the old one decodes
   assert.equal(storage.getItem(DRAFT_KEY), null);
   listing = await use(client, (library) => library.list);
   assert.equal(listing.skins.length, 2);
-  assert.deepEqual(listing.skins.map((skin) => skin.current.variant).sort(), [
-    "classic",
-    "slim",
-  ]);
+  assert.deepEqual(
+    listing.skins.map((skin) => skin.current.variant).toSorted(),
+    ["classic", "slim"],
+  );
 });
 
 test("a failed migration keeps the old draft, and damaged drafts stay", async () => {

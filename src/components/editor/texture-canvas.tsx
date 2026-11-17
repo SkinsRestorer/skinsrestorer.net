@@ -371,7 +371,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         className={cn(
           "block max-w-none rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
           interaction === "paint"
-            ? "touch-none cursor-crosshair"
+            ? "cursor-crosshair touch-none"
             : "touch-auto",
         )}
         onFocus={() => {

@@ -57,7 +57,7 @@ export function staticDocsMetadata(): Plugin {
                   .filter((file) =>
                     /^(?:(?:ru|es|pt-BR)\/)?docs(?:\/.*)?\.html$/.test(file),
                   )
-                  .sort();
+                  .toSorted();
                 if (!pages.length)
                   throw new Error("No prerendered documentation pages found");
                 yield* Effect.forEach(

@@ -1,4 +1,4 @@
-import Link from "fumadocs-core/link";
+import { Link } from "fumadocs-core/link";
 import { ArrowUpRight } from "lucide-react";
 import { CookieSettingsButton } from "@/components/cookie-consent-banner";
 import { useT } from "@/lib/i18n-react";

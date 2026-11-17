@@ -41,7 +41,7 @@ export function generateStaticImages({
           /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(source)
         );
       })
-      .sort();
+      .toSorted();
     yield* makeDirectory(output);
     const generated = new Set<string>();
     const entries = yield* Effect.forEach(
@@ -60,12 +60,10 @@ export function generateStaticImages({
           const width = rotated ? info.height : info.width;
           const height = rotated ? info.width : info.height;
           if (!width || !height) {
-            return yield* Effect.fail(
-              new StaticImageError({
-                operation: "read image dimensions",
-                cause: source,
-              }),
-            );
+            return yield* new StaticImageError({
+              operation: "read image dimensions",
+              cause: source,
+            });
           }
           const metadata: StaticImageManifest[string] = { width, height };
           if (

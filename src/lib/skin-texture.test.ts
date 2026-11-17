@@ -150,6 +150,7 @@ test("preview downloads run at most six at a time", async () => {
     await new Promise((resolve) => setTimeout(resolve));
   await new Promise((resolve) => setTimeout(resolve, 10));
   assert.equal(peak, 6);
+  // oxlint-disable-next-line eslint/no-unmodified-loop-condition -- the released loads decrement `active` between iterations.
   while (release.length > 0 || active > 0) {
     release.splice(0).forEach((resolve) => resolve());
     await new Promise((resolve) => setTimeout(resolve));

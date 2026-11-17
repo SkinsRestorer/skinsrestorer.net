@@ -218,7 +218,7 @@ export function StudioLibrary(props: {
       </div>
       <ul
         className={cn(
-          "ph-no-capture grid gap-2.5",
+          "grid gap-2.5 ph-no-capture",
           props.layout === "drawer"
             ? "grid-cols-2"
             : "grid-cols-1 lg:grid-cols-2",

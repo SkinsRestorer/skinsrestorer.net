@@ -49,9 +49,7 @@ export const nodeFiles = {
       })),
     ),
   exists: (file: string) =>
-    Effect.tryPromise(() => access(file)).pipe(
-      Effect.match({ onSuccess: () => true, onFailure: () => false }),
-    ),
+    Effect.tryPromise(() => access(file)).pipe(Effect.isSuccess),
   makeTemp: (prefix: string) =>
     toolOperation("create temporary directory", () =>
       mkdtemp(path.join(tmpdir(), prefix)),

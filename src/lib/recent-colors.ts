@@ -60,7 +60,7 @@ export function readRecentColors(
   if (version !== VERSION || !Array.isArray(colors) || !colors.every(isRgba))
     return { status: "corrupt" };
   let list: Rgba[] = [];
-  for (const color of [...colors].reverse())
+  for (const color of colors.toReversed())
     list = addRecentColor(list, [color[0], color[1], color[2], color[3]]);
   return { status: "found", colors: list };
 }

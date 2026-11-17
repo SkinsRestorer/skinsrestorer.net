@@ -156,6 +156,6 @@ export const loadTexturePreviewEffect = Effect.fn("Skin.loadTexturePreview")(
           cause,
         }),
     });
-    return new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "image/png" });
+    return new Blob([bytes], { type: "image/png" });
   },
 );

@@ -25,7 +25,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdvancedOptions } from "@/components/advanced-options";
@@ -494,7 +494,7 @@ export function SkinStudio(props: {
           loadTextureEffect(reference),
           signal,
         );
-        const png = new Blob([result.bytes as Uint8Array<ArrayBuffer>], {
+        const png = new Blob([result.bytes], {
           type: "image/png",
         });
         const name = `Texture ${result.hash.slice(0, 8)}`;
@@ -548,11 +548,7 @@ export function SkinStudio(props: {
         store.select(
           // Named like library skins, so the default custom skin name
           // follows the gallery name.
-          new File(
-            [result.bytes as Uint8Array<ArrayBuffer>],
-            `${skin.name}.png`,
-            { type: "image/png" },
-          ),
+          new File([result.bytes], `${skin.name}.png`, { type: "image/png" }),
           {
             origin: "gallery",
             galleryId: skin.id,
@@ -1187,7 +1183,6 @@ export function SkinStudio(props: {
               aria-label={t("studio.options")}
               className={cn(panel, "flex flex-col gap-4")}
             >
-              {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- delegates Enter from the key input inside the form. */}
               <form
                 noValidate
                 className="flex flex-col gap-4"
@@ -1625,7 +1620,7 @@ function SelectedSkinView(props: {
   }, [copied]);
   return (
     <>
-      <div className="ph-no-capture flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1">
+      <div className="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 ph-no-capture">
         <h2
           id={props.headingId}
           tabIndex={-1}

@@ -38,6 +38,7 @@ const xy = (index: number) => [
   index % SKIN_SIZE,
   Math.floor(index / SKIN_SIZE),
 ];
+const byPoint = (a: number[], b: number[]) => a[0] - b[0] || a[1] - b[1];
 
 for (const variant of ["classic", "slim"] as const) {
   test(`${variant} mirror maps every used pixel to its counterpart face and back`, () => {
@@ -118,13 +119,13 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
     10,
   );
   assert.deepEqual(
-    overlap.map(xy).sort(),
+    overlap.map(xy).toSorted(byPoint),
     [
       [11, 9],
       [11, 10],
       [12, 9],
       [12, 10],
-    ].sort(),
+    ].toSorted(byPoint),
   );
   // Size 3 at x 12 covers 11–13 and mirrors to 10–12: four columns, no repeats.
   const wide = brushPixels(
@@ -135,7 +136,7 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
   );
   assert.equal(new Set(wide).size, wide.length);
   assert.deepEqual(
-    [...new Set(wide.map((i) => xy(i)[0]))].sort(),
+    [...new Set(wide.map((i) => xy(i)[0]))].toSorted((a, b) => a - b),
     [10, 11, 12, 13],
   );
   // Right arm front (44..47, 20..31) mirrors to the left arm front (36..39, 52..63).

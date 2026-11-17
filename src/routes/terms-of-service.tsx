@@ -2,12 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supportEmail } from "@/lib/contact";
 import { HomeLayout } from "@/components/home-layout";
 import { getPageHead } from "@/lib/seo";
-import Link from "fumadocs-core/link";
+import { Link } from "fumadocs-core/link";
 
 function TermsOfServicePage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-12">
-      <article className="prose mx-auto max-w-prose">
+      <article className="mx-auto prose max-w-prose">
         <h1>Terms of Service</h1>
         <p>
           <strong>Last updated:</strong>{" "}

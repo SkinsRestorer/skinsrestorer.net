@@ -9,7 +9,7 @@ export function validateCatalogs(
   const parameters = (text: string) =>
     [...text.matchAll(/\{(\w+)\}/g)]
       .map((match) => match[1])
-      .sort()
+      .toSorted()
       .join(",");
   for (const key of keys) {
     if (!/^[a-z][a-z0-9]*(?:\.[a-zA-Z0-9]+)+$/.test(key))

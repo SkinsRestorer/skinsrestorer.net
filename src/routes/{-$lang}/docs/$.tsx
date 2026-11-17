@@ -3,7 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
 import { Schema } from "effect";
-import Link from "fumadocs-core/link";
+import { Link } from "fumadocs-core/link";
 import { useFumadocsLoader } from "fumadocs-core/source/client";
 import { Callout } from "fumadocs-ui/components/callout";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";

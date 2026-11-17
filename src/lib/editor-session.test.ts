@@ -25,7 +25,7 @@ import {
 
 const disposers: (() => unknown)[] = [];
 afterEach(async () => {
-  for (const dispose of disposers.splice(0).reverse()) await dispose();
+  for (const dispose of disposers.splice(0).toReversed()) await dispose();
 });
 
 function tab(factory: IDBFactory) {

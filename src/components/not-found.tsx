@@ -1,4 +1,4 @@
-import Link from "fumadocs-core/link";
+import { Link } from "fumadocs-core/link";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { ArrowUpRight, Search } from "lucide-react";
 import { HomeLayout } from "@/components/home-layout";

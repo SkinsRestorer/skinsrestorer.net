@@ -30,7 +30,8 @@ export function translate(
   key: MessageKey,
   values: MessageValues = {},
 ): string {
-  if (!isMessageKey(key)) throw new Error(`Unknown translation key: ${key}`);
+  if (!isMessageKey(key))
+    throw new Error(`Unknown translation key: ${String(key)}`);
   const text = catalogs[locale][key];
   return text.replace(/\{(\w+)\}/g, (match, name: string) =>
     String(values[name] ?? match),

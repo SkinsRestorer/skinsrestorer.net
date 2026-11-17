@@ -66,7 +66,7 @@ export function rankDocsResults(
   };
   return groups
     .map((group, index) => ({ group, index, tier: tier(group) }))
-    .sort((a, b) => b.tier - a.tier || a.index - b.index)
+    .toSorted((a, b) => b.tier - a.tier || a.index - b.index)
     .slice(0, maxSearchPages)
     .flatMap(({ group }) => group);
 }

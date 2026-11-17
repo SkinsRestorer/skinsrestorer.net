@@ -187,7 +187,7 @@ test(
         searchIndex.data !== null,
     );
     assert.equal(searchIndex.type, "i18n");
-    assert.deepEqual(Object.keys(searchIndex.data).sort(), [
+    assert.deepEqual(Object.keys(searchIndex.data).toSorted(), [
       "en",
       "es",
       "pt-BR",
@@ -231,9 +231,9 @@ test(
       const response = await request(`/__tsr/staticServerFnCache/${key}.json`);
       assert.equal(response.status, 200);
       assert.ok(response.headers.has("etag"));
-      const metadata = fromJSON(await response.json()) as {
+      const metadata = fromJSON<{
         result: { url: string; title: string; pageTree: unknown };
-      };
+      }>(await response.json());
       assert.equal(
         metadata.result.url,
         `/docs${slugs.length ? `/${slugs.join("/")}` : ""}`,

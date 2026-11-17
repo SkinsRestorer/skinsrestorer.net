@@ -68,7 +68,7 @@ export function MineSkinKeyField(props: {
           <PopoverContent
             align="start"
             sideOffset={8}
-            className="w-72 flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
+            className="flex w-72 flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
           >
             <p>{t("capes.needApiKeyAllMineskinPlansExcept")}</p>
             <p>
