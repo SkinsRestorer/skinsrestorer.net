@@ -70,4 +70,4 @@ Remove credentials and private data from examples, logs, and screenshots.
 `bun install` installs Lefthook for this checkout and preserves the existing preparation steps.
 Run `bun run pre-commit` to run the commit checks manually.
 Pre-commit runs staged-file lint and formatting. Before pushing, formatting, translation, and documentation checks run for relevant changes.
-Full lint and TypeScript checks remain manual because unchanged source currently fails those checks.
+Full lint, formatting, and TypeScript checks run in CI through `bun run check` and `bun run typecheck`.

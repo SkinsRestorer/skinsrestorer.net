@@ -1,8 +1,82 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "jsx-a11y", "typescript", "unicorn", "oxc"],
+  "extends": ["./node_modules/@effect/tsgo/oxlint-presets/recommended.json"],
+  "plugins": [
+    "react",
+    "jsx-a11y",
+    "typescript",
+    "unicorn",
+    "oxc",
+    "import",
+    "promise",
+    "effecttsgo"
+  ],
   "jsPlugins": ["@shadcn/lint"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "options": {
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true
+  },
+  "ignorePatterns": [
+    "src/routeTree.gen.ts",
+    ".cloudflare/**",
+    ".next/**",
+    "next-env.d.ts"
+  ],
   "rules": {
+    "react/react-in-jsx-scope": "off",
+    "typescript/no-floating-promises": [
+      "error",
+      {
+        "allowForKnownSafeCalls": [
+          {
+            "from": "package",
+            "name": ["test", "describe", "it", "suite"],
+            "package": "node:test"
+          }
+        ]
+      }
+    ],
+    "import/no-unassigned-import": [
+      "error",
+      {
+        "allow": [
+          "@fontsource-variable/*",
+          "@/lib/analytics",
+          "@/lib/stale-chunks"
+        ]
+      }
+    ],
+    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/consistent-return": "off",
+    "typescript/no-base-to-string": "off",
+    "eslint/no-shadow": "off",
+    "eslint/no-underscore-dangle": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "promise/always-return": "off",
+    "react/exhaustive-effect-dependencies": "off",
+    "react/set-state-in-effect": "off",
+    "react/immutability": "off",
+    "react/purity": "off",
+    "react/refs": "off",
+    "react/preserve-manual-memoization": "off",
+    "react/iframe-missing-sandbox": "off",
+    "jsx-a11y/alt-text": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
     "shadcn/no-unknown-classes": "error",
     "shadcn/no-raw-colors": [
       "error",
@@ -18,7 +92,12 @@
         ]
       }
     ],
-    "shadcn/no-arbitrary-values": ["error", { "allow": ["layout"] }],
+    "shadcn/no-arbitrary-values": [
+      "error",
+      {
+        "allow": ["layout"]
+      }
+    ],
     "shadcn/no-restyle": [
       "error",
       {
@@ -39,9 +118,18 @@
               "backdrop-blur-sm"
             ]
           },
-          { "pattern": "^CardHeader$", "allow": ["layout", "spacing"] },
-          { "pattern": "^CardContent$", "allow": ["layout", "spacing"] },
-          { "pattern": "^CardFooter$", "allow": ["layout", "spacing"] },
+          {
+            "pattern": "^CardHeader$",
+            "allow": ["layout", "spacing"]
+          },
+          {
+            "pattern": "^CardContent$",
+            "allow": ["layout", "spacing"]
+          },
+          {
+            "pattern": "^CardFooter$",
+            "allow": ["layout", "spacing"]
+          },
           {
             "pattern": "^CardTitle$",
             "allow": ["layout", "text-lg", "text-xl"]
@@ -71,23 +159,33 @@
             "pattern": "^AccordionContent$",
             "allow": ["layout", "text-muted-foreground"]
           },
-          { "pattern": "^HoverCardContent$", "allow": ["layout", "text-sm"] }
+          {
+            "pattern": "^HoverCardContent$",
+            "allow": ["layout", "text-sm"]
+          }
         ]
       }
     ],
     "shadcn/require-static-classes": "error",
-    "shadcn/no-inline-styles": "error"
+    "shadcn/no-inline-styles": "error",
+    "effecttsgo/any-unknown-in-error-context": "off",
+    "effecttsgo/unsafe-effect-type-assertion": "off",
+    "effecttsgo/strict-effect-provide": "off",
+    "effecttsgo/effect-try-without-catch": "off",
+    "effecttsgo/flat-map-conditional-to-filter-or-fail": "off",
+    "effecttsgo/global-error-in-effect-failure": "off",
+    "effecttsgo/run-effect-inside-effect": "off",
+    "effecttsgo/schema-number": "off",
+    "effecttsgo/schema-sync-in-effect": "off",
+    "effecttsgo/try-catch-in-effect-gen": "off",
+    "effecttsgo/unnecessary-effect-gen": "off"
   },
-  "ignorePatterns": [
-    "src/routeTree.gen.ts",
-    ".cloudflare/**",
-    ".next/**",
-    "next-env.d.ts"
-  ],
   "overrides": [
     {
       "files": ["src/lib/docs-og.tsx"],
-      "rules": { "shadcn/no-inline-styles": "off" }
+      "rules": {
+        "shadcn/no-inline-styles": "off"
+      }
     },
     {
       "files": ["src/components/ui/**"],
