@@ -11,7 +11,7 @@
     "promise",
     "effecttsgo"
   ],
-  "jsPlugins": ["@shadcn/lint"],
+  "jsPlugins": ["@shadcn/lint", "eslint-plugin-better-tailwindcss"],
   "categories": {
     "correctness": "error",
     "suspicious": "error",
@@ -19,6 +19,8 @@
   },
   "options": {
     "typeAware": true,
+    "typeCheck": true,
+    "denyWarnings": true,
     "reportUnusedDisableDirectives": "error"
   },
   "env": {
@@ -32,6 +34,11 @@
     ".next/**",
     "next-env.d.ts"
   ],
+  "settings": {
+    "better-tailwindcss": {
+      "entryPoint": "src/style.css"
+    }
+  },
   "rules": {
     "react/react-in-jsx-scope": "off",
     "typescript/no-floating-promises": [
@@ -56,28 +63,6 @@
         ]
       }
     ],
-    "typescript/no-unsafe-type-assertion": "off",
-    "typescript/consistent-return": "off",
-    "typescript/no-base-to-string": "off",
-    "eslint/no-shadow": "off",
-    "eslint/no-underscore-dangle": "off",
-    "unicorn/consistent-function-scoping": "off",
-    "unicorn/prefer-add-event-listener": "off",
-    "promise/always-return": "off",
-    "react/exhaustive-effect-dependencies": "off",
-    "react/set-state-in-effect": "off",
-    "react/immutability": "off",
-    "react/purity": "off",
-    "react/refs": "off",
-    "react/preserve-manual-memoization": "off",
-    "react/iframe-missing-sandbox": "off",
-    "jsx-a11y/alt-text": "off",
-    "jsx-a11y/click-events-have-key-events": "off",
-    "jsx-a11y/control-has-associated-label": "off",
-    "jsx-a11y/label-has-associated-control": "off",
-    "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
-    "jsx-a11y/no-noninteractive-element-interactions": "off",
-    "jsx-a11y/prefer-tag-over-role": "off",
     "shadcn/no-unknown-classes": "error",
     "shadcn/no-raw-colors": [
       "error",
@@ -172,14 +157,6 @@
     "effecttsgo/any-unknown-in-error-context": "off",
     "effecttsgo/unsafe-effect-type-assertion": "off",
     "effecttsgo/strict-effect-provide": "off",
-    "effecttsgo/effect-try-without-catch": "off",
-    "effecttsgo/flat-map-conditional-to-filter-or-fail": "off",
-    "effecttsgo/global-error-in-effect-failure": "off",
-    "effecttsgo/run-effect-inside-effect": "off",
-    "effecttsgo/schema-number": "off",
-    "effecttsgo/schema-sync-in-effect": "off",
-    "effecttsgo/try-catch-in-effect-gen": "off",
-    "effecttsgo/unnecessary-effect-gen": "off",
     "typescript/restrict-plus-operands": "error",
     "typescript/prefer-promise-reject-errors": "error",
     "typescript/return-await": "error",
@@ -217,8 +194,22 @@
     ],
     "eslint/no-console": "error",
     "eslint/no-await-in-loop": "off",
+    // Effect tags and TanStack Router splat params and history state keys.
+    "eslint/no-underscore-dangle": [
+      "error",
+      {
+        "allow": ["_tag", "_splat", "__TSR_index", "__TSR_key"]
+      }
+    ],
     "import/no-duplicates": "error",
     "import/no-cycle": "error",
+    // The last then() in a chain has no consumer for its return value.
+    "promise/always-return": [
+      "error",
+      {
+        "ignoreLastCallback": true
+      }
+    ],
     "promise/catch-or-return": [
       "error",
       {
@@ -239,7 +230,23 @@
     "react/no-danger": "error",
     "react/jsx-no-useless-fragment": "error",
     "react/no-unknown-property": "error",
-    "react/only-export-components": "error"
+    "react/only-export-components": "error",
+    "unicorn/no-abusive-eslint-disable": "error",
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": true,
+        "ts-nocheck": true,
+        "ts-check": false,
+        "minimumDescriptionLength": 10
+      }
+    ],
+    "typescript/prefer-ts-expect-error": "error",
+    "better-tailwindcss/no-conflicting-classes": "error",
+    "better-tailwindcss/no-duplicate-classes": "error",
+    "better-tailwindcss/no-deprecated-classes": "error",
+    "better-tailwindcss/enforce-canonical-classes": "error"
   },
   "overrides": [
     {
@@ -249,8 +256,26 @@
       }
     },
     {
+      // shadcn/ui primitives come from the registry. Fix consumers instead
+      // of editing them (see AGENTS.md), so the stricter rules skip them.
       "files": ["src/components/ui/**"],
       "rules": {
+        "better-tailwindcss/enforce-canonical-classes": "off",
+        "better-tailwindcss/no-deprecated-classes": "off",
+        "eslint/no-shadow": "off",
+        "eslint/no-underscore-dangle": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/control-has-associated-label": "off",
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "jsx-a11y/prefer-tag-over-role": "off",
+        "react/immutability": "off",
+        "react/preserve-manual-memoization": "off",
+        "react/purity": "off",
+        "react/refs": "off",
+        "react/set-state-in-effect": "off",
+        "typescript/consistent-return": "off",
+        "typescript/no-unsafe-type-assertion": "off",
         "shadcn/no-unknown-classes": "off",
         "shadcn/no-raw-colors": "off",
         "shadcn/no-arbitrary-values": "off",
@@ -267,12 +292,28 @@
       }
     },
     {
+      // Build scripts, tests and tool configs report their results on the console.
       "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx", "*.config.ts"],
       "rules": {
         "eslint/no-console": "off"
       }
     },
     {
+      // The three.js viewers live in refs. `ready`, `attempt` and `failure`
+      // say when a viewer was created or replaced, so effects list them to
+      // apply settings to the new viewer, and a failed WebGL setup is state.
+      "files": [
+        "src/components/studio/skin-view.tsx",
+        "src/components/editor/model-canvas.tsx"
+      ],
+      "rules": {
+        "react/exhaustive-effect-dependencies": "off",
+        "react/set-state-in-effect": "off"
+      }
+    },
+    {
+      // Route files export `Route` and keep their page components local. The
+      // TanStack Router plugin splits those components out for Fast Refresh.
       "files": ["src/routes/**"],
       "rules": {
         "react/only-export-components": "off"
