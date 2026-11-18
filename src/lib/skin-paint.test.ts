@@ -23,6 +23,7 @@ import {
   SKIN_SIZE,
   skinRegions,
 } from "./skin-regions";
+import { required } from "./utils";
 
 function settings(overrides: Partial<PaintSettings> = {}): PaintSettings {
   return {
@@ -38,7 +39,8 @@ const xy = (index: number): [number, number] => [
   index % SKIN_SIZE,
   Math.floor(index / SKIN_SIZE),
 ];
-const byPoint = (a: number[], b: number[]) => a[0] - b[0] || a[1] - b[1];
+const byPoint = (a: readonly [number, number], b: readonly [number, number]) =>
+  a[0] - b[0] || a[1] - b[1];
 
 for (const variant of ["classic", "slim"] as const) {
   test(`${variant} mirror maps every used pixel to its counterpart face and back`, () => {
@@ -55,8 +57,14 @@ for (const variant of ["classic", "slim"] as const) {
     for (const region of skinRegions(variant))
       for (let y = region.y; y < region.y + region.height; y++)
         for (let x = region.x; x < region.x + region.width; x++) {
-          const mirror = mirrorPixel(variant, x, y)!;
-          const target = regionAt(variant, mirror.x, mirror.y)!;
+          const mirror = required(
+            mirrorPixel(variant, x, y),
+            "mirrorPixel result",
+          );
+          const target = required(
+            regionAt(variant, mirror.x, mirror.y),
+            "regionAt result",
+          );
           assert.equal(target.part, pairs[region.part]);
           assert.equal(target.layer, region.layer);
           assert.equal(
@@ -120,12 +128,14 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
   );
   assert.deepEqual(
     overlap.map(xy).toSorted(byPoint),
-    [
-      [11, 9],
-      [11, 10],
-      [12, 9],
-      [12, 10],
-    ].toSorted(byPoint),
+    (
+      [
+        [11, 9],
+        [11, 10],
+        [12, 9],
+        [12, 10],
+      ] satisfies [number, number][]
+    ).toSorted(byPoint),
   );
   // Size 3 at x 12 covers 11–13 and mirrors to 10–12: four columns, no repeats.
   const wide = brushPixels(
@@ -147,7 +157,7 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
     21,
   );
   assert.deepEqual(area?.source, { x: 44, y: 20, width: 1, height: 2 });
-  assert.deepEqual(area?.mirror, { x: 39, y: 52, width: 1, height: 2 });
+  assert.deepEqual(area.mirror, { x: 39, y: 52, width: 1, height: 2 });
   // Every mirrored pixel is the mirror of a source pixel.
   const pixels = brushPixels(
     "slim",
@@ -160,7 +170,7 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
   );
   for (const index of pixels.filter((i) => !sources.has(i))) {
     const [x, y] = xy(index);
-    const back = mirrorPixel("slim", x, y)!;
+    const back = required(mirrorPixel("slim", x, y), "mirrorPixel result");
     assert.ok(sources.has(back.y * SKIN_SIZE + back.x));
   }
 });
@@ -175,7 +185,7 @@ test("the mirror skips hidden counterparts and the inactive layer", () => {
     21,
   );
   assert.ok(area?.source);
-  assert.equal(area?.mirror, undefined);
+  assert.equal(area.mirror, undefined);
   // The outer layer of the left arm is still a valid mirror target.
   const outer = brushArea(
     "classic",
@@ -183,8 +193,9 @@ test("the mirror skips hidden counterparts and the inactive layer", () => {
     44,
     37,
   );
+  const outerMirror = required(outer?.mirror, "outer mirror");
   assert.equal(
-    regionAt("classic", outer!.mirror!.x, outer!.mirror!.y)?.layer,
+    regionAt("classic", outerMirror.x, outerMirror.y)?.layer,
     "outer",
   );
   // A pixel of the other layer is not a brush anchor.
@@ -201,29 +212,35 @@ const hue = (c: Rgba) => {
 
 test("shading keeps hue and alpha, clamps at black and white, and skips clear pixels", () => {
   const base: Rgba = [180, 60, 40, 200];
-  const darker = shadeColor(base, "darken")!;
-  const lighter = shadeColor(base, "lighten")!;
+  const darker = required(shadeColor(base, "darken"), "shadeColor result");
+  const lighter = required(shadeColor(base, "lighten"), "shadeColor result");
   assert.equal(darker[3], 200);
   assert.equal(lighter[3], 200);
   assert.ok(darker[0] < base[0] && lighter[0] > base[0]);
   assert.ok(Math.abs(hue(darker) - hue(base)) < 0.03);
   assert.ok(Math.abs(hue(lighter) - hue(base)) < 0.03);
   // Grey stays grey.
-  const grey = shadeColor([128, 128, 128, 255], "darken")!;
+  const grey = required(
+    shadeColor([128, 128, 128, 255], "darken"),
+    "shadeColor result",
+  );
   assert.equal(grey[0], grey[1]);
   assert.equal(grey[1], grey[2]);
   // Repeated shading ends at black or white and stays there.
   let dark: Rgba = base;
   let light: Rgba = base;
   for (let i = 0; i < 20; i++) {
-    dark = shadeColor(dark, "darken")!;
-    light = shadeColor(light, "lighten")!;
+    dark = required(shadeColor(dark, "darken"), "shadeColor result");
+    light = required(shadeColor(light, "lighten"), "shadeColor result");
   }
   assert.deepEqual(dark, [0, 0, 0, 200]);
   assert.deepEqual(light, [255, 255, 255, 200]);
   assert.equal(shadeColor([10, 20, 30, 0], "lighten"), undefined);
   // Every result is a valid byte.
-  for (const channel of shadeColor([255, 0, 7, 1], "lighten")!)
+  for (const channel of required(
+    shadeColor([255, 0, 7, 1], "lighten"),
+    "shadeColor result",
+  ))
     assert.ok(Number.isInteger(channel) && channel >= 0 && channel <= 255);
 });
 
@@ -264,7 +281,10 @@ test("Everywhere replaces the exact RGBA on visible parts of the active layer on
     else if (x === 20 && y === 20) assert.deepEqual(value, [...nearly]);
     else assert.deepEqual(value, [...target], `${x},${y} must not change`);
   }
-  assert.equal(builder.finish()!.indices.length > 1000, true);
+  assert.equal(
+    required(builder.finish(), "finish result").indices.length > 1000,
+    true,
+  );
 });
 
 test("Everywhere ignores mirror, so no pixel of another color changes", () => {
@@ -281,15 +301,12 @@ test("Everywhere ignores mirror, so no pixel of another color changes", () => {
   );
   assert.deepEqual(targets, { source: [20 * SKIN_SIZE + 44], mirror: [] });
   // Face scope still mirrors.
-  const face = fillTargets(
-    pixels,
-    "classic",
-    settings({ mirror: true }),
-    44,
-    20,
-  )!;
+  const face = required(
+    fillTargets(pixels, "classic", settings({ mirror: true }), 44, 20),
+    "fillTargets result",
+  );
   assert.deepEqual(face.source, [20 * SKIN_SIZE + 44]);
-  const other = mirrorPixel("classic", 44, 20)!;
+  const other = required(mirrorPixel("classic", 44, 20), "mirrorPixel result");
   assert.deepEqual(face.mirror, [other.y * SKIN_SIZE + other.x]);
 });
 
@@ -304,16 +321,27 @@ test("shade strength keeps hue and alpha, skips clear pixels, clamps, and medium
     shadeColor(color, "darken"),
     shadeColor(color, "darken", SHADE_STEPS.medium),
   );
-  const deltas = (["soft", "medium", "strong"] as const).map(
-    (strength) =>
-      lightness(color) -
-      lightness(shadeColor(color, "darken", SHADE_STEPS[strength])!),
-  );
-  assert.ok(deltas[0] < deltas[1] && deltas[1] < deltas[2]);
-  assert.ok(Math.abs(deltas[0] - 0.04) < 0.01);
-  assert.ok(Math.abs(deltas[2] - 0.16) < 0.01);
+  const delta = (strength: keyof typeof SHADE_STEPS) =>
+    lightness(color) -
+    lightness(
+      required(
+        shadeColor(color, "darken", SHADE_STEPS[strength]),
+        "shadeColor result",
+      ),
+    );
+  const [soft, medium, strong] = [
+    delta("soft"),
+    delta("medium"),
+    delta("strong"),
+  ] as const;
+  assert.ok(soft < medium && medium < strong);
+  assert.ok(Math.abs(soft - 0.04) < 0.01);
+  assert.ok(Math.abs(strong - 0.16) < 0.01);
   for (const strength of ["soft", "medium", "strong"] as const) {
-    const shaded = shadeColor(color, "lighten", SHADE_STEPS[strength])!;
+    const shaded = required(
+      shadeColor(color, "lighten", SHADE_STEPS[strength]),
+      "shadeColor result",
+    );
     assert.equal(shaded[3], 170);
     assert.ok(shaded[0] > shaded[1] && shaded[1] > shaded[2], "same hue order");
     assert.equal(
@@ -332,7 +360,10 @@ test("the 3D footprint matches the brush, face lock, mirror, and fill", () => {
   const pixels = new Uint8ClampedArray(SKIN_SIZE * SKIN_SIZE * 4);
   const brush = settings({ size: 3, mirror: true });
   // Arm front corner: the square is clipped to the face.
-  const area = toolFootprint(pixels, "classic", "pencil", brush, 44, 20)!;
+  const area = required(
+    toolFootprint(pixels, "classic", "pencil", brush, 44, 20),
+    "toolFootprint result",
+  );
   assert.deepEqual(
     new Set(area.source),
     new Set(brushPixels("classic", { ...brush, mirror: false }, 44, 20)),
@@ -353,7 +384,10 @@ test("the 3D footprint matches the brush, face lock, mirror, and fill", () => {
     undefined,
     "unused pixel",
   );
-  const fill = toolFootprint(pixels, "classic", "fill", settings(), 8, 8)!;
+  const fill = required(
+    toolFootprint(pixels, "classic", "fill", settings(), 8, 8),
+    "toolFootprint result",
+  );
   assert.equal(fill.source.length, 64);
   assert.deepEqual(
     toolFootprint(pixels, "classic", "eyedropper", brush, 8, 8),
@@ -376,16 +410,22 @@ test("fill treats clear pixels with different hidden RGB as one area", () => {
   pixels.set([9, 9, 9, 255], solid);
   const outer = settings({ layer: "outer", color: [200, 10, 10, 128] });
 
-  const face = fillTargets(pixels, "classic", outer, front.x + 3, front.y + 3)!;
+  const face = required(
+    fillTargets(pixels, "classic", outer, front.x + 3, front.y + 3),
+    "fillTargets result",
+  );
   assert.equal(face.source.length, front.width * front.height - 1);
 
-  const everywhere = fillTargets(
-    pixels,
-    "classic",
-    { ...outer, fillScope: "everywhere" },
-    front.x + 3,
-    front.y + 3,
-  )!;
+  const everywhere = required(
+    fillTargets(
+      pixels,
+      "classic",
+      { ...outer, fillScope: "everywhere" },
+      front.x + 3,
+      front.y + 3,
+    ),
+    "fillTargets result",
+  );
   // Every other outer pixel is clear [0, 0, 0, 0] and joins the fill too.
   const outerPixels = skinRegions("classic")
     .filter((region) => region.layer === "outer")
@@ -394,6 +434,9 @@ test("fill treats clear pixels with different hidden RGB as one area", () => {
   assert.equal(everywhere.source.includes(solid / 4), false);
 
   // A visible color still matches its exact RGBA only.
-  const exact = fillTargets(pixels, "classic", outer, front.x, front.y)!;
+  const exact = required(
+    fillTargets(pixels, "classic", outer, front.x, front.y),
+    "fillTargets result",
+  );
   assert.deepEqual(exact.source, [solid / 4]);
 });

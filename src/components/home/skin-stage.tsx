@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import styles from "./minecraft.module.css";
 import { useT } from "@/lib/i18n-react";
+import { required } from "@/lib/utils";
 
 type DemoCommand = {
   command: string;
@@ -31,7 +32,7 @@ type DemoCommand = {
 };
 
 // Replies match the default English locale of the plugin.
-const demoCommands: DemoCommand[] = [
+const demoCommands: readonly [DemoCommand, ...DemoCommand[]] = [
   {
     command: "/skin set xknat",
     reply: "home.skinChanged",
@@ -42,7 +43,7 @@ const demoCommands: DemoCommand[] = [
   {
     command: "/skins",
     reply: "home.openingSkinsMenu",
-    replyClassName: styles.darkGreen,
+    replyClassName: styles["darkGreen"],
     showHead: false,
     skin: "unchanged",
     description: "home.opensMenuSkinsServerHasSaved",
@@ -84,7 +85,7 @@ function useWebGl2Supported() {
 }
 
 function SkinHead() {
-  return <span aria-hidden="true" className={styles.head} />;
+  return <span aria-hidden="true" className={styles["head"]} />;
 }
 
 export function SkinStage() {
@@ -98,7 +99,7 @@ export function SkinStage() {
   ]);
   const [autoplay, setAutoplay] = useState(true);
 
-  const latest = entries.at(-1)!;
+  const latest = required(entries.at(-1), "latest chat entry");
   const lastSkinChange = entries.findLast(
     (entry) => entry.command.skin !== "unchanged",
   );
@@ -112,13 +113,13 @@ export function SkinStage() {
   function run(command: DemoCommand) {
     setEntries((previous) => [
       ...previous.slice(-2),
-      { id: previous.at(-1)!.id + 1, command },
+      { id: (previous.at(-1)?.id ?? -1) + 1, command },
     ]);
   }
 
   const advance = useEffectEvent((from: ChatEntry) => {
     const index = demoCommands.indexOf(from.command);
-    run(demoCommands[(index + 1) % demoCommands.length]);
+    run(demoCommands[(index + 1) % demoCommands.length] ?? demoCommands[0]);
   });
 
   // Every new entry, typed or automatic, restarts the wait for the next one.
@@ -132,7 +133,7 @@ export function SkinStage() {
     <div className="flex flex-col gap-3">
       <div
         ref={stageRef}
-        className={`${styles.stage} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-5/4 lg:aspect-4/5`}
+        className={`${styles["stage"]} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-5/4 lg:aspect-4/5`}
       >
         {webGl2 ? (
           <Dithering
@@ -150,12 +151,12 @@ export function SkinStage() {
         ) : (
           <div
             aria-hidden="true"
-            className={`${styles.backdrop} absolute inset-0 -z-10`}
+            className={`${styles["backdrop"]} absolute inset-0 -z-10`}
           />
         )}
         <div
           aria-hidden="true"
-          className={`${styles.ground} absolute inset-x-0 bottom-0 -z-10 h-1/4`}
+          className={`${styles["ground"]} absolute inset-x-0 bottom-0 -z-10 h-1/4`}
         />
 
         <motion.div
@@ -220,7 +221,7 @@ export function SkinStage() {
         </Button>
 
         <div
-          className={`${styles.chat} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}
+          className={`${styles["chat"]} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}
         >
           <ol
             aria-label={t("home.chat")}
@@ -243,8 +244,11 @@ export function SkinStage() {
                   }}
                   className="max-w-full bg-black/50 px-1.5 py-0.5 text-white"
                 >
-                  <span className={styles.yellow}>
-                    [<span className={styles.darkGreen}>{"SkinsRestorer"}</span>
+                  <span className={styles["yellow"]}>
+                    [
+                    <span className={styles["darkGreen"]}>
+                      {"SkinsRestorer"}
+                    </span>
                     ]
                   </span>{" "}
                   <span className={entry.command.replyClassName}>

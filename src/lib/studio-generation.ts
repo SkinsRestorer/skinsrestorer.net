@@ -47,7 +47,10 @@ export function generationResult(
   const result =
     "uuid" in skin
       ? {
-          url: skin.url || `https://minesk.in/${skin.uuid}`,
+          url:
+            skin.url === undefined || skin.url === ""
+              ? `https://minesk.in/${skin.uuid}`
+              : skin.url,
           textureUrl: textureUrlFromValue(skin.texture.data.value),
         }
       : { url: skin.url, textureUrl: null };

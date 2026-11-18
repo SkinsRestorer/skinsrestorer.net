@@ -1092,7 +1092,7 @@ export function SkinStudio(props: {
               }}
             >
               <LegacyDraftAlerts migrated={library.migrated?.status} />
-              {(galleryError ||
+              {(galleryError !== undefined ||
                 (wantedGallery && gallery.state.status === "error")) && (
                 <Alert variant="destructive">
                   <AlertDescription>
@@ -1607,7 +1607,7 @@ function SelectedSkinView(props: {
   editButtonId?: string;
 }) {
   const t = useT();
-  const { selection } = props;
+  const { selection, galleryLink } = props;
   const editable = selectionEditable(selection);
   const [copied, setCopied] = useState(false);
   useEffect(() => {
@@ -1694,7 +1694,7 @@ function SelectedSkinView(props: {
             <FolderPlus />
           </Button>
         )}
-        {props.galleryLink && (
+        {galleryLink && (
           <>
             <Button
               size="icon"
@@ -1703,9 +1703,7 @@ function SelectedSkinView(props: {
               title={t("common.copyGalleryLink")}
               onClick={() =>
                 void navigator.clipboard
-                  .writeText(
-                    new URL(props.galleryLink!, window.location.origin).href,
-                  )
+                  .writeText(new URL(galleryLink, window.location.origin).href)
                   .then(
                     () => setCopied(true),
                     () => toast.error(t("common.failedCopy")),

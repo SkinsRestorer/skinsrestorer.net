@@ -9,6 +9,7 @@ import {
   parseGalleryCatalog,
   searchGallery,
 } from "./skin-gallery";
+import { required } from "./utils";
 
 const hash = "a".repeat(64);
 const texture = `http://textures.minecraft.net/texture/${hash}`;
@@ -74,13 +75,18 @@ test("name search matches every word without case or accent differences", () => 
   assert.equal(searchGallery(skins, "ranger blue").length, 0);
   assert.equal(searchGallery(skins, " ").length, 1);
   assert.equal(searchGallery(skins, "rang FOR").length, 1);
-  const accented = [{ ...skins[0], name: "Café Señor" }];
+  const accented = [
+    { ...required(skins[0], "gallery skin"), name: "Café Señor" },
+  ];
   assert.equal(searchGallery(accented, "cafe senor").length, 1);
   assert.equal(searchGallery(accented, "CAFÉ").length, 1);
 });
 
 test("gallery search ignores spaces and punctuation inside names", () => {
-  const [skin] = parseGalleryCatalog(catalog(entry()));
+  const skin = required(
+    parseGalleryCatalog(catalog(entry()))[0],
+    "gallery skin",
+  );
   const named = (name: string) => [{ ...skin, name }];
   assert.equal(searchGallery(named("Dark Knight"), "darkknight").length, 1);
   assert.equal(searchGallery(named("Dark Knight"), "dark-knight").length, 1);
@@ -109,16 +115,16 @@ const run = (fetch: HttpFetch, signal?: AbortSignal) =>
 
 test("catalog requests are bounded credential-free GETs with no redirects", async () => {
   let requests = 0;
-  const result = await run(async (url, init) => {
+  const result = await run((url, init) => {
     requests++;
     assert.equal(
       url instanceof Request ? url.url : url.toString(),
       GALLERY_URL,
     );
     assert.equal(init?.credentials, "omit");
-    assert.equal(init?.redirect, "error");
-    assert.equal(init?.body, undefined);
-    return Response.json(catalog(entry()));
+    assert.equal(init.redirect, "error");
+    assert.equal(init.body, undefined);
+    return Promise.resolve(Response.json(catalog(entry())));
   });
   assert.ok(Exit.isSuccess(result));
   assert.equal(result.value.length, 1);
@@ -128,7 +134,7 @@ test("catalog requests are bounded credential-free GETs with no redirects", asyn
     new Response("invalid"),
     new Response("x".repeat(2 * 1024 * 1024 + 1)),
   ]) {
-    const failed = await run(async () => response);
+    const failed = await run(() => Promise.resolve(response));
     assert.ok(Exit.isFailure(failed));
     assert.match(String(failed.cause), /The gallery could not be loaded/);
   }
@@ -144,10 +150,11 @@ test("cancelling catalog loading aborts the request", async () => {
   const pending = run(
     async (_url, init) =>
       new Promise<Response>((_resolve, reject) => {
-        init!.signal!.addEventListener("abort", () => {
+        const signal = required(init?.signal, "request signal");
+        signal.addEventListener("abort", () => {
           aborted = true;
           // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- an abort reason is typed any; the signal rejects with its DOMException
-          reject(init!.signal!.reason);
+          reject(signal.reason);
         });
         ready();
       }),

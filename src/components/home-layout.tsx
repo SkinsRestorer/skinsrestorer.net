@@ -72,7 +72,7 @@ export function HomeLayout({ children }: { children: ReactNode }) {
             url: localizeHref("/pricing", locale),
             description: t("common.optionalSupporterPlansDonations"),
           },
-          ...(baseOptions.links || []),
+          ...(baseOptions.links ?? []),
         ]}
       >
         <main

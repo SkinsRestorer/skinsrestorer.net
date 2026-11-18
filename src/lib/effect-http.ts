@@ -54,13 +54,14 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
               cause,
             }),
         });
-        owner.reader = response.body?.getReader();
+        const reader = response.body?.getReader();
+        owner.reader = reader;
         let size = 0;
         const parts: Uint8Array[] = [];
-        if (owner.reader)
+        if (reader)
           while (true) {
             const part = yield* Effect.tryPromise({
-              try: () => owner.reader!.read(),
+              try: () => reader.read(),
               catch: (cause) =>
                 new HttpError({
                   reason: "transport",

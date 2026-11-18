@@ -3,8 +3,8 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { Image } from "@/components/image";
 import type { Locale } from "./i18n";
 
-const discordLink = import.meta.env.VITE_DISCORD_LINK;
-const modrinthLink = import.meta.env.VITE_MODRINTH_LINK;
+const discordLink = import.meta.env["VITE_DISCORD_LINK"];
+const modrinthLink = import.meta.env["VITE_MODRINTH_LINK"];
 
 const socialLinks: BaseLayoutProps["links"] = [];
 

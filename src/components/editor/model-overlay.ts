@@ -35,18 +35,18 @@ export function paintOverlay(target: Uint8Array, overlay: HoverOverlay) {
     const x = index % SKIN_SIZE;
     const y = Math.floor(index / SKIN_SIZE);
     const at = ((SKIN_SIZE - 1 - y) * SKIN_SIZE + x) * 4;
-    const light =
-      target[at] * 0.299 + target[at + 1] * 0.587 + target[at + 2] * 0.114;
+    // `at` points into the texture, so every channel read is defined.
+    const channel = (i: number) => target[at + i] ?? 0;
+    const light = channel(0) * 0.299 + channel(1) * 0.587 + channel(2) * 0.114;
     const ink =
       color ??
-      (target[at + 3] > 0 && light > 140
+      (channel(3) > 0 && light > 140
         ? ([0, 0, 0] as const)
         : ([255, 255, 255] as const));
-    for (let c = 0; c < 3; c++)
-      target[at + c] = Math.round(
-        target[at + c] * (1 - amount) + ink[c] * amount,
-      );
-    target[at + 3] = Math.max(target[at + 3], minAlpha);
+    ink.forEach((value, c) => {
+      target[at + c] = Math.round(channel(c) * (1 - amount) + value * amount);
+    });
+    target[at + 3] = Math.max(channel(3), minAlpha);
   };
   for (const index of overlay.mirror) tint(index, 0.35, 150);
   for (const index of overlay.source) tint(index, 0.6, 200);

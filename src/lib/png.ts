@@ -10,6 +10,13 @@ import { MessageError } from "./messages";
 
 const signature = [137, 80, 78, 71, 13, 10, 26, 10];
 
+/** Read a byte that the caller already checked is in range. */
+function byteAt(bytes: Uint8Array | Uint32Array, index: number) {
+  const value = bytes[index];
+  if (value === undefined) throw new PngError("png.dataIncomplete");
+  return value;
+}
+
 export class PngError extends MessageError {
   override readonly name = "PngError";
 }
@@ -27,7 +34,7 @@ const crcTable = (() => {
 function crc32(bytes: Uint8Array, start = 0, end = bytes.length) {
   let crc = 0xffffffff;
   for (let i = start; i < end; i++)
-    crc = crcTable[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+    crc = byteAt(crcTable, (crc ^ byteAt(bytes, i)) & 0xff) ^ (crc >>> 8);
   return (crc ^ 0xffffffff) >>> 0;
 }
 
@@ -215,14 +222,15 @@ function unfilter(
   const rows: number[] = [];
   let previous = -1;
   for (let y = 0; y < height; y++) {
-    const filter = data[offset];
+    const filter = byteAt(data, offset);
     const row = offset + 1;
     if (row + stride > data.length) throw new PngError("png.dataIncomplete");
     for (let i = 0; i < stride; i++) {
-      const left = i >= bpp ? data[row + i - bpp] : 0;
-      const up = previous >= 0 ? data[previous + i] : 0;
-      const upLeft = previous >= 0 && i >= bpp ? data[previous + i - bpp] : 0;
-      let value = data[row + i];
+      const left = i >= bpp ? byteAt(data, row + i - bpp) : 0;
+      const up = previous >= 0 ? byteAt(data, previous + i) : 0;
+      const upLeft =
+        previous >= 0 && i >= bpp ? byteAt(data, previous + i - bpp) : 0;
+      let value = byteAt(data, row + i);
       switch (filter) {
         case 0:
           break;
@@ -299,12 +307,11 @@ export async function decodePng(
       if (length !== 13) throw new PngError("png.headerInvalid");
       width = view.getUint32(start);
       height = view.getUint32(start + 4);
-      depth = body[8];
-      colorType = body[9];
-      interlace = body[12];
+      depth = byteAt(body, 8);
+      colorType = byteAt(body, 9);
+      interlace = byteAt(body, 12);
       if (
-        !(colorType in channels) ||
-        !allowedDepths[colorType].includes(depth) ||
+        !allowedDepths[colorType]?.includes(depth) ||
         body[10] !== 0 ||
         body[11] !== 0 ||
         interlace > 1
@@ -324,7 +331,9 @@ export async function decodePng(
     throw new PngError("png.fileIncomplete");
   if (colorType === 3 && !palette) throw new PngError("png.paletteMissing");
 
-  const bitsPerPixel = channels[colorType] * depth;
+  const c = channels[colorType];
+  if (c === undefined) throw new PngError("png.headerInvalid");
+  const bitsPerPixel = c * depth;
   const passes =
     interlace === 1
       ? adam7.map(([x0, y0, dx, dy]) => ({
@@ -357,13 +366,13 @@ export async function decodePng(
   const pixels = new Uint8ClampedArray(width * height * 4);
   const max = (1 << depth) - 1;
   const sample = (row: number, index: number) => {
-    if (depth === 8) return raw[row + index];
-    if (depth === 16) return raw[row + index * 2];
+    if (depth === 8) return byteAt(raw, row + index);
+    if (depth === 16) return byteAt(raw, row + index * 2);
     const bit = index * depth;
-    return (raw[row + (bit >> 3)] >> (8 - depth - (bit & 7))) & max;
+    return (byteAt(raw, row + (bit >> 3)) >> (8 - depth - (bit & 7))) & max;
   };
   const sample16 = (row: number, index: number) =>
-    (raw[row + index * 2] << 8) | raw[row + index * 2 + 1];
+    (byteAt(raw, row + index * 2) << 8) | byteAt(raw, row + index * 2 + 1);
   const scale = (value: number) =>
     depth === 16
       ? value
@@ -372,14 +381,14 @@ export async function decodePng(
         : Math.round((value * 255) / max);
   const transparentGray =
     transparency && colorType === 0 && transparency.length >= 2
-      ? (transparency[0] << 8) | transparency[1]
+      ? (byteAt(transparency, 0) << 8) | byteAt(transparency, 1)
       : undefined;
   const transparentRgb =
     transparency && colorType === 2 && transparency.length >= 6
       ? [
-          (transparency[0] << 8) | transparency[1],
-          (transparency[2] << 8) | transparency[3],
-          (transparency[4] << 8) | transparency[5],
+          (byteAt(transparency, 0) << 8) | byteAt(transparency, 1),
+          (byteAt(transparency, 2) << 8) | byteAt(transparency, 3),
+          (byteAt(transparency, 4) << 8) | byteAt(transparency, 5),
         ]
       : undefined;
 
@@ -396,24 +405,24 @@ export async function decodePng(
     offsetInRaw = end;
     for (let py = 0; py < pass.height; py++) {
       const row = rows[py];
+      if (row === undefined) throw new PngError("png.dataIncomplete");
       for (let px = 0; px < pass.width; px++) {
         const x = pass.x0 + px * pass.dx;
         const y = pass.y0 + py * pass.dy;
         const out = (y * width + x) * 4;
-        const c = channels[colorType];
         let r: number;
         let g: number;
         let b: number;
         let a = 255;
         if (colorType === 3) {
           const index = sample(row, px);
-          if (index * 3 + 2 >= palette!.length)
+          if (!palette || index * 3 + 2 >= palette.length)
             throw new PngError("png.paletteTooShort");
-          r = palette![index * 3];
-          g = palette![index * 3 + 1];
-          b = palette![index * 3 + 2];
+          r = byteAt(palette, index * 3);
+          g = byteAt(palette, index * 3 + 1);
+          b = byteAt(palette, index * 3 + 2);
           if (transparency && index < transparency.length)
-            a = transparency[index];
+            a = byteAt(transparency, index);
         } else if (colorType === 0 || colorType === 4) {
           const raw16 = depth === 16 ? sample16(row, px * c) : -1;
           const gray = scale(sample(row, px * c));

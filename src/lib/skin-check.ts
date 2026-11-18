@@ -50,7 +50,7 @@ export function checkSkin(
   const transparentBase: number[] = [];
   const unused: number[] = [];
   const filledClassicColumns = classicOnly.filter(
-    (index) => pixels[index * 4 + 3] > 0,
+    (index) => (pixels[index * 4 + 3] ?? 0) > 0,
   );
   const mayBeClassic = variant === "slim" && filledClassicColumns.length > 0;
   const mayBeSlim = variant === "classic" && filledClassicColumns.length === 0;
@@ -58,7 +58,7 @@ export function checkSkin(
     // Model hints own the fourth arm column, so no repair can erase or fill
     // it while the model is in doubt.
     if ((mayBeClassic || mayBeSlim) && classicOnlySet.has(index)) continue;
-    const alpha = pixels[index * 4 + 3];
+    const alpha = pixels[index * 4 + 3] ?? 0;
     const region = regionAt(
       variant,
       index % SKIN_SIZE,
@@ -119,9 +119,8 @@ export function repairSkin(
   const issue = checkSkin(pixels, variant).find((i) => i.id === id);
   if (!issue?.repair) return;
   for (const index of issue.pixels) {
-    const at = index * 4;
     if (id === "transparent-base")
-      builder.write(index, [pixels[at], pixels[at + 1], pixels[at + 2], 255]);
+      builder.write(index, [...pixels.subarray(index * 4, index * 4 + 3), 255]);
     else if (id === "unused-pixels") builder.write(index, [0, 0, 0, 0]);
   }
 }

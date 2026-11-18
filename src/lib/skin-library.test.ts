@@ -25,6 +25,7 @@ import {
   type SkinContent,
 } from "./skin-library";
 import type { SkinVariant } from "./skin";
+import { required } from "./utils";
 
 const clients: LibraryClient[] = [];
 afterEach(async () => {
@@ -242,7 +243,10 @@ test("save as copy leaves the source byte-identical", async () => {
     }),
   );
   const listing = await use(client, (library) => library.list);
-  const source = listing.skins.find((entry) => entry.id === skin.id)!;
+  const source = required(
+    listing.skins.find((entry) => entry.id === skin.id),
+    "find result",
+  );
   assert.notEqual(copy.id, skin.id);
   assert.equal(source.revision, skin.revision);
   assert.deepEqual(await bytes(source.current.png), await bytes(png));
@@ -373,8 +377,8 @@ test("removing a skin removes its sessions, and undo restores both", async () =>
   assert.ok(missing instanceof SkinNotFoundError);
   await use(b, (library) => library.restore(removed));
   const listing = await use(a, (library) => library.list);
-  assert.equal(listing.skins[0].id, skin.id);
-  assert.equal(listing.sessions[0].id, "s1");
+  assert.equal(listing.skins[0]?.id, skin.id);
+  assert.equal(listing.sessions[0]?.id, "s1");
 });
 
 test("other tabs are told about committed changes", async () => {
@@ -421,7 +425,9 @@ test("damaged records are reported and can be removed, never overwritten", async
   );
   assert.ok(damaged instanceof SkinLibraryError);
   assert.equal(damaged.reason, "damaged");
-  await use(client, (library) => library.removeDamaged(listing.damaged[0]));
+  const [record] = listing.damaged;
+  assert.ok(record);
+  await use(client, (library) => library.removeDamaged(record));
   assert.equal(
     (await use(client, (library) => library.list)).damaged.length,
     0,
@@ -501,7 +507,7 @@ const recovered = {
   name: (updatedAt: number) => `Borrador recuperado ${updatedAt}`,
 };
 
-async function legacyDraft(variant: SkinVariant = "slim") {
+function legacyDraft(variant: SkinVariant = "slim") {
   const document = createTemplate("classic");
   const png = encodePngSync(document.pixels, 64, 64);
   let binary = "";
@@ -517,9 +523,12 @@ async function legacyDraft(variant: SkinVariant = "slim") {
 test("the old editor draft migrates once, even from two tabs", async () => {
   const { tab } = browser();
   const storage = memoryStorage();
-  storage.data.set(DRAFT_KEY, await legacyDraft());
+  storage.data.set(DRAFT_KEY, legacyDraft());
   const second = memoryStorage();
-  second.data.set(DRAFT_KEY, storage.data.get(DRAFT_KEY)!);
+  second.data.set(
+    DRAFT_KEY,
+    required(storage.data.get(DRAFT_KEY), "get result"),
+  );
   const [first, other] = await Promise.all([
     migrateLegacyDraft(tab(), storage, recovered),
     migrateLegacyDraft(tab(), second, recovered),
@@ -532,7 +541,7 @@ test("the old editor draft migrates once, even from two tabs", async () => {
   assert.equal(second.data.has(DRAFT_KEY), false);
   const listing = await use(tab(), (library) => library.list);
   assert.equal(listing.skins.length, 1);
-  assert.equal(listing.skins[0].source.kind, "migrated-draft");
+  assert.equal(listing.skins[0]?.source.kind, "migrated-draft");
   assert.equal(listing.skins[0].current.variant, "slim");
   assert.equal(listing.skins[0].name, "Borrador recuperado 1000");
 });
@@ -541,8 +550,8 @@ test("migration preserves a newer legacy draft written while the old one decodes
   const { tab } = browser();
   const client = tab();
   const storage = memoryStorage();
-  const before = await legacyDraft("classic");
-  const after = await legacyDraft("slim");
+  const before = legacyDraft("classic");
+  const after = legacyDraft("slim");
   storage.setItem(DRAFT_KEY, before);
   const getItem = storage.getItem;
   let changed = false;
@@ -561,7 +570,7 @@ test("migration preserves a newer legacy draft written while the old one decodes
   assert.equal(storage.getItem(DRAFT_KEY), after);
   let listing = await use(client, (library) => library.list);
   assert.equal(listing.skins.length, 1);
-  assert.equal(listing.skins[0].current.variant, "classic");
+  assert.equal(listing.skins[0]?.current.variant, "classic");
   assert.equal(
     (await migrateLegacyDraft(client, storage, recovered)).status,
     "migrated",
@@ -578,7 +587,7 @@ test("migration preserves a newer legacy draft written while the old one decodes
 test("a failed migration keeps the old draft, and damaged drafts stay", async () => {
   const full = browser();
   const storage = memoryStorage();
-  storage.data.set(DRAFT_KEY, await legacyDraft());
+  storage.data.set(DRAFT_KEY, legacyDraft());
   await failure(
     migrateLegacyDraft(
       full.tab(quotaFactory(full.factory)),

@@ -1,7 +1,9 @@
 import { ImageResponse } from "takumi-js/response";
 import cyrillicFont from "@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2?inline";
 
-const cyrillic = Uint8Array.from(atob(cyrillicFont.split(",")[1]), (char) =>
+// The inline import is a data URL, so the font bytes follow the comma.
+const [, cyrillicBase64 = ""] = cyrillicFont.split(",");
+const cyrillic = Uint8Array.from(atob(cyrillicBase64), (char) =>
   char.charCodeAt(0),
 );
 

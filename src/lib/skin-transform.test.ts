@@ -16,6 +16,7 @@ import {
   type SkinPart,
 } from "./skin-regions";
 import { convertArms, transformPart } from "./skin-transform";
+import { required } from "./utils";
 
 function asMesh(object: Object3D): Mesh {
   assert.ok(object instanceof Mesh);
@@ -56,24 +57,33 @@ function surfaces(variant: SkinVariant) {
       );
       const center = new Box3().setFromObject(mesh).getCenter(new Vector3());
       const geometry = mesh.geometry;
-      const index = geometry.index!;
+      const index = required(geometry.index, "mesh index");
       const positions = geometry.getAttribute("position");
       const uvs = geometry.getAttribute("uv");
       const normals = geometry.getAttribute("normal");
       for (let triangle = 0; triangle < index.count; triangle += 3) {
-        const ids = [0, 1, 2].map((i) => index.getX(triangle + i));
-        const [a, b, c] = ids.map((id) => [uvs.getX(id), uvs.getY(id)]);
+        const ids = [
+          index.getX(triangle),
+          index.getX(triangle + 1),
+          index.getX(triangle + 2),
+        ] as const;
+        const uv = (id: number) => [uvs.getX(id), uvs.getY(id)] as const;
+        const [a, b, c] = [uv(ids[0]), uv(ids[1]), uv(ids[2])];
         const area =
           (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
         const normal = new Vector3()
           .fromBufferAttribute(normals, ids[0])
           .transformDirection(mesh.matrixWorld)
           .round();
-        const vertices = ids.map((id) =>
+        const vertex = (id: number) =>
           new Vector3()
             .fromBufferAttribute(positions, id)
-            .applyMatrix4(mesh.matrixWorld),
-        );
+            .applyMatrix4(mesh.matrixWorld);
+        const vertices = [
+          vertex(ids[0]),
+          vertex(ids[1]),
+          vertex(ids[2]),
+        ] as const;
         for (let y = 0; y < SKIN_SIZE; y++)
           for (let x = 0; x < SKIN_SIZE; x++) {
             const u = (x + 0.5) / SKIN_SIZE;
@@ -108,7 +118,8 @@ function addressed() {
   return pixels;
 }
 const sourceOf = (pixels: Uint8ClampedArray, i: number) =>
-  pixels[i * 4] + 256 * pixels[i * 4 + 1];
+  required(pixels[i * 4], "low byte") +
+  256 * required(pixels[i * 4 + 1], "high byte");
 
 function convert(
   pixels: Uint8ClampedArray,
@@ -152,7 +163,10 @@ test("narrowing keeps the inner columns in place on the 3D model", () => {
   const output = convert(addressed(), "classic", "slim");
   for (const [index, target] of geometry.slim) {
     if (!isArm(target.part) || target.layer !== "base") continue;
-    const source = geometry.classic.get(sourceOf(output, index))!;
+    const source = required(
+      geometry.classic.get(sourceOf(output, index)),
+      "source pixel",
+    );
     // Pixels in the inner half of a wide face keep their exact position.
     const fromBody = Math.abs(target.point.x) - 4;
     if (Math.abs(target.normal.x) < 0.5 && fromBody < 2)
@@ -251,12 +265,11 @@ for (const variant of ["classic", "slim"] as const) {
     const map = geometry[variant];
     let count = 0;
     for (const [index, surface] of map) {
-      const to = flipPixel(
-        variant,
-        index % SKIN_SIZE,
-        Math.floor(index / SKIN_SIZE),
-      )!;
-      const target = map.get(to.y * SKIN_SIZE + to.x)!;
+      const to = required(
+        flipPixel(variant, index % SKIN_SIZE, Math.floor(index / SKIN_SIZE)),
+        "flipped pixel",
+      );
+      const target = required(map.get(to.y * SKIN_SIZE + to.x), "target pixel");
       assert.equal(target.part, surface.part);
       assert.equal(target.layer, surface.layer);
       const reflected = surface.point.clone();
@@ -280,7 +293,8 @@ for (const variant of ["classic", "slim"] as const) {
         assert.equal(to, undefined);
         continue;
       }
-      const target = map.get(to!.y * SKIN_SIZE + to!.x)!;
+      assert.ok(to);
+      const target = required(map.get(to.y * SKIN_SIZE + to.x), "target pixel");
       assert.notEqual(target.part, surface.part);
       assert.equal(target.layer, surface.layer);
       assert.ok(target.normal.equals(surface.normal));
@@ -327,7 +341,7 @@ test("flip and copy change only the active layer of the target and keep alpha", 
     const pick = (pixels: Uint8ClampedArray) =>
       Array.from(pixels.subarray(i * 4, i * 4 + 4));
     if (region?.part === "leftArm" && region.layer === "outer") {
-      const from = flipPixel("classic", x, y)!;
+      const from = required(flipPixel("classic", x, y), "flipped pixel");
       const j = from.y * SKIN_SIZE + from.x;
       assert.deepEqual(
         pick(flipped),
@@ -335,7 +349,7 @@ test("flip and copy change only the active layer of the target and keep alpha", 
       );
     } else assert.deepEqual(pick(flipped), pick(original), `flip changed ${i}`);
     if (region?.part === "leftLeg" && region.layer === "base") {
-      const from = pairedPixel("classic", x, y)!;
+      const from = required(pairedPixel("classic", x, y), "paired pixel");
       const j = from.y * SKIN_SIZE + from.x;
       assert.deepEqual(
         pick(copied),

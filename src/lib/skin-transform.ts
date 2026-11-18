@@ -1,6 +1,7 @@
 import type { SkinVariant } from "./skin";
 import type { PatchBuilder } from "./skin-history";
 import type { PartVisibility } from "./skin-paint";
+import { required } from "./utils";
 import {
   findRegion,
   flipPixel,
@@ -79,7 +80,10 @@ export function convertArms(
             let sourceColumn = column;
             if (before.width !== after.width) {
               const fromOuter = outer ? column : after.width - 1 - column;
-              const sourceFromOuter = columnSources[to][fromOuter];
+              const sourceFromOuter = required(
+                columnSources[to][fromOuter],
+                `${to} arm column ${fromOuter}`,
+              );
               sourceColumn = outer
                 ? sourceFromOuter
                 : before.width - 1 - sourceFromOuter;
@@ -102,10 +106,15 @@ export type PartAction =
   | { readonly kind: "flip"; readonly part: SkinPart }
   | { readonly kind: "copy"; readonly from: SkinPart; readonly to: SkinPart };
 
+const limbs = ["rightArm", "leftArm", "rightLeg", "leftLeg"] as const;
+export type LimbPart = (typeof limbs)[number];
+
 /** Arm and leg copies in a fixed order for menus. */
-export const partCopies: ReadonlyArray<{ from: SkinPart; to: SkinPart }> = (
-  ["rightArm", "leftArm", "rightLeg", "leftLeg"] as const
-).map((from) => ({ from, to: pairedParts[from]! }));
+export const partCopies: ReadonlyArray<{ from: LimbPart; to: SkinPart }> =
+  limbs.flatMap((from) => {
+    const to = pairedParts[from];
+    return to ? [{ from, to }] : [];
+  });
 
 /** The part whose pixels an action changes. */
 export function actionTarget(action: PartAction) {

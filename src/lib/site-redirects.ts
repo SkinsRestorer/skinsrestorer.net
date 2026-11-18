@@ -2,7 +2,7 @@ import { splitLocalePath, localizeHref } from "./i18n";
 import { docsRedirects } from "./docs-redirects";
 
 const github =
-  import.meta.env.VITE_GITHUB_LINK ??
+  import.meta.env["VITE_GITHUB_LINK"] ??
   "https://github.com/SkinsRestorer/SkinsRestorer";
 
 /**
@@ -16,17 +16,18 @@ function sitePath(href: string) {
 
 const aliases: Record<string, string> = {
   "/discord":
-    import.meta.env.VITE_DISCORD_LINK ?? "https://discord.com/invite/aKm3B52",
+    import.meta.env["VITE_DISCORD_LINK"] ??
+    "https://discord.com/invite/aKm3B52",
   "/github": github,
   "/spigot":
-    import.meta.env.VITE_SPIGOT_LINK ??
+    import.meta.env["VITE_SPIGOT_LINK"] ??
     "https://www.spigotmc.org/resources/skinsrestorer.2124",
-  "/donate": sitePath(import.meta.env.VITE_DONATE_LINK ?? "/pricing"),
+  "/donate": sitePath(import.meta.env["VITE_DONATE_LINK"] ?? "/pricing"),
   "/bstats":
-    import.meta.env.VITE_BSTATS_LINK ??
+    import.meta.env["VITE_BSTATS_LINK"] ??
     "https://bstats.org/plugin/bungeecord/SkinsRestorer/1686",
   "/modrinth":
-    import.meta.env.VITE_MODRINTH_LINK ??
+    import.meta.env["VITE_MODRINTH_LINK"] ??
     "https://modrinth.com/plugin/skinsrestorer",
   "/perms": "/docs/configuration/commands-permissions",
   "/skinurl": "/upload",

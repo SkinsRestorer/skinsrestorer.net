@@ -31,17 +31,10 @@ export class PatchBuilder {
         return false;
       this.positions.set(pixel, this.indices.length);
       this.indices.push(pixel);
-      this.before.push(
-        this.pixels[at],
-        this.pixels[at + 1],
-        this.pixels[at + 2],
-        this.pixels[at + 3],
-      );
+      this.before.push(...this.pixels.subarray(at, at + 4));
     }
-    this.pixels[at] = rgba[0];
-    this.pixels[at + 1] = rgba[1];
-    this.pixels[at + 2] = rgba[2];
-    this.pixels[at + 3] = rgba[3];
+    // Callers pass four channels, so the fallback is never used.
+    for (let c = 0; c < 4; c++) this.pixels[at + c] = rgba[c] ?? 0;
     return true;
   }
 

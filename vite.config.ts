@@ -70,18 +70,18 @@ export default defineConfig(({ command }) => ({
     }),
     staticDocsMetadata(),
     react(),
-    ...(command === "build" && process.env.POSTHOG_PERSONAL_API_KEY
+    ...(command === "build" && process.env["POSTHOG_PERSONAL_API_KEY"]
       ? [
           {
             ...posthog({
-              personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+              personalApiKey: process.env["POSTHOG_PERSONAL_API_KEY"],
               projectId: "101544",
               host: "https://eu.posthog.com",
               sourcemaps: {
                 enabled: true,
                 releaseName: "skinsrestorer.net",
                 releaseVersion:
-                  process.env.GITHUB_SHA ??
+                  process.env["GITHUB_SHA"] ??
                   execFileSync("git", ["rev-parse", "HEAD"], {
                     encoding: "utf8",
                   }).trim(),

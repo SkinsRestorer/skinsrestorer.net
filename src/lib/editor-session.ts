@@ -81,7 +81,7 @@ export class EditorSession {
   private readonly autosave: Debouncer<() => void>;
   /** Session writes and saves run one at a time, in order. */
   private queue: Promise<void> = Promise.resolve();
-  private stopStore: () => void;
+  private readonly stopStore: () => void;
   /** The library failed to open, so saves return the PNG only. */
   private unavailable = false;
 
@@ -225,7 +225,8 @@ export class EditorSession {
     let owner = draft.skinId;
     if (owner)
       try {
-        const skin = await library.run(withLibrary((l) => l.get(owner!)));
+        const skinId = owner;
+        const skin = await library.run(withLibrary((l) => l.get(skinId)));
         base = await documentOf(skin.current.png, skin.current.variant);
       } catch (cause) {
         // The skin was removed after this draft was written. Continue it as
@@ -355,12 +356,13 @@ export class EditorSession {
       const library =
         options.keep === false || this.unavailable ? undefined : this.library;
       if (!library) return { content, skin: undefined, name: target.name };
-      const skin = target.skinId
+      const { skinId } = target;
+      const skin = skinId
         ? await library.run(
             withLibrary((l) =>
               l.commitSession({
                 sessionId,
-                skinId: target.skinId!,
+                skinId,
                 baseRevision: target.baseRevision ?? -1,
                 content,
                 replace: options.replace ?? false,

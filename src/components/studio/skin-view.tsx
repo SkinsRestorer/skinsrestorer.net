@@ -129,7 +129,7 @@ export function SkinView(props: {
     const viewer = viewerRef.current;
     if (!viewer) return;
     if (reduceMotion) viewer.animation = null;
-    else if (!viewer.animation) viewer.animation = new IdleAnimation();
+    else viewer.animation ??= new IdleAnimation();
     redrawRef.current();
   }, [ready, reduceMotion]);
 

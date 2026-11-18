@@ -61,7 +61,7 @@ test("the skip link targets the focusable main landmark that holds the page", ()
   assert.equal(skipLink?.[1], "Skip to content");
 
   const main = /<main([^>]*)>([\s\S]*)<\/main>/.exec(html);
-  assert.ok(main?.[1].includes('id="main-content"'));
-  assert.ok(main?.[1].includes('tabindex="-1"'));
+  assert.ok(main?.[1]?.includes('id="main-content"'));
+  assert.ok(main?.[1]?.includes('tabindex="-1"'));
   assert.equal(main?.[2], "<h1>Page content</h1>");
 });

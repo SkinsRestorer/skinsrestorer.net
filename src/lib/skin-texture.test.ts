@@ -54,34 +54,35 @@ const run = <A, E>(
 test("a texture downloads without credentials or redirects and opens locally", async () => {
   const png = await exportSkinPng(createTemplate("slim").pixels);
   let request: { url: string; init?: RequestInit } | undefined;
-  const exit = await run(loadTextureEffect(hash), async (url, init) => {
+  const exit = await run(loadTextureEffect(hash), (url, init) => {
     request = { url: url instanceof Request ? url.url : url.toString(), init };
-    return new Response(png, {
-      headers: { "content-type": "image/png" },
-    });
+    return Promise.resolve(
+      new Response(png, {
+        headers: { "content-type": "image/png" },
+      }),
+    );
   });
   assert.ok(Exit.isSuccess(exit));
   assert.equal(exit.value.hash, hash);
   assert.equal(exit.value.document.variant, "slim");
   assert.equal(request?.url, `https://textures.minecraft.net/texture/${hash}`);
-  assert.equal(request?.init?.redirect, "error");
-  assert.equal(request?.init?.credentials, "omit");
+  assert.equal(request.init?.redirect, "error");
+  assert.equal(request.init.credentials, "omit");
 });
 
 test("rejected hosts never reach the network and missing textures explain why", async () => {
   let calls = 0;
   const other = await run(
     loadTextureEffect("https://example.com/skin.png"),
-    async () => {
+    () => {
       calls++;
-      return new Response();
+      return Promise.resolve(new Response());
     },
   );
   assert.ok(Exit.isFailure(other));
   assert.equal(calls, 0);
-  const missing = await run(
-    loadTextureEffect(hash),
-    async () => new Response("", { status: 404 }),
+  const missing = await run(loadTextureEffect(hash), () =>
+    Promise.resolve(new Response("", { status: 404 })),
   );
   assert.ok(Exit.isFailure(missing));
   assert.match(String(missing.cause), /No texture exists/);
@@ -112,9 +113,8 @@ test("cancelling a texture read aborts the request", async () => {
 
 test("previews return the downloaded PNG after a header check", async () => {
   const png = await exportSkinPng(createTemplate("classic").pixels);
-  const exit = await run(
-    loadTexturePreviewEffect(hash),
-    async () => new Response(png),
+  const exit = await run(loadTexturePreviewEffect(hash), () =>
+    Promise.resolve(new Response(png)),
   );
   assert.ok(Exit.isSuccess(exit));
   assert.equal(exit.value.type, "image/png");
@@ -123,9 +123,8 @@ test("previews return the downloaded PNG after a header check", async () => {
     new TextEncoder().encode("<html>not a png</html>"),
     await encodePng(new Uint8ClampedArray(16 * 16 * 4), 16, 16),
   ]) {
-    const rejected = await run(
-      loadTexturePreviewEffect(hash),
-      async () => new Response(body),
+    const rejected = await run(loadTexturePreviewEffect(hash), () =>
+      Promise.resolve(new Response(body)),
     );
     assert.ok(Exit.isFailure(rejected));
   }

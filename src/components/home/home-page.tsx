@@ -25,9 +25,9 @@ import { headingFontClassName, usesPixelHeadingFont } from "./heading-font";
 const githubLink = "https://github.com/SkinsRestorer/SkinsRestorer";
 const releasesLink = `${githubLink}/releases`;
 const downloadLink =
-  import.meta.env.VITE_MODRINTH_LINK ??
+  import.meta.env["VITE_MODRINTH_LINK"] ??
   "https://modrinth.com/plugin/skinsrestorer";
-const discordLink = import.meta.env.VITE_DISCORD_LINK ?? "/discord";
+const discordLink = import.meta.env["VITE_DISCORD_LINK"] ?? "/discord";
 
 const linkClassName =
   "inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline";
@@ -403,7 +403,7 @@ export default function IndexPage() {
                         className="flex w-16 flex-col items-center gap-2 text-xs font-medium"
                       >
                         <span
-                          className={`${styles.slot} flex size-14 items-center justify-center`}
+                          className={`${styles["slot"]} flex size-14 items-center justify-center`}
                         >
                           <Image
                             src={software.image}

@@ -20,7 +20,7 @@ export function SkinIssueAlerts(props: {
   if (issues.length === 0) return null;
   return (
     <ul aria-label={t("editor.skinProblems")} className="flex flex-col gap-3">
-      {issues.map((issue) => (
+      {issues.map(({ switchVariant, ...issue }) => (
         <li key={issue.id}>
           <Alert>
             <TriangleAlert aria-hidden="true" />
@@ -31,7 +31,7 @@ export function SkinIssueAlerts(props: {
                   ? t(issue.detail.key, {
                       ...issue.detail.values,
                       model: t(
-                        issue.detail.values?.model === "slim"
+                        issue.detail.values?.["model"] === "slim"
                           ? "model.slim"
                           : "model.classic",
                       ),
@@ -49,15 +49,15 @@ export function SkinIssueAlerts(props: {
                   {t(issue.repair.label)}
                 </Button>
               )}
-              {issue.switchVariant && (
+              {switchVariant && (
                 <Button
                   size="sm"
                   className="h-auto min-h-8 max-w-full whitespace-normal"
                   variant="outline"
-                  onClick={() => props.onVariant(issue.switchVariant!)}
+                  onClick={() => props.onVariant(switchVariant)}
                 >
                   {t(
-                    issue.switchVariant === "slim"
+                    switchVariant === "slim"
                       ? "editor.useSlim"
                       : "editor.useClassic",
                   )}

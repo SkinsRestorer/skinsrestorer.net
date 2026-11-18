@@ -78,9 +78,9 @@ export function getLLMIndex() {
   for (const node of tree.children) {
     if (node.type !== "folder") continue;
     const pages = orderPages([node], remaining);
-    if (pages.length === 0) continue;
-    const name =
-      typeof node.name === "string" ? node.name : pages[0].data.title;
+    const [first] = pages;
+    if (!first) continue;
+    const name = typeof node.name === "string" ? node.name : first.data.title;
     sections.push(`## ${name}\n\n${pages.map(line).join("\n")}`);
   }
   const other = [...topLevel, ...remaining.values()];

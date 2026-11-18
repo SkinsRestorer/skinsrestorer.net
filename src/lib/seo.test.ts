@@ -21,7 +21,7 @@ const pages = [
 
 for (const locale of locales) {
   for (const [route, titleKey, descriptionKey] of pages) {
-    test(`${locale} ${titleKey} uses translated search and social metadata`, async () => {
+    test(`${locale} ${titleKey} uses translated search and social metadata`, () => {
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- The page heads read only `params`; a full TanStack head context needs a running router.
       const head = route.options.head as (context: {
         params: { lang: Locale };
@@ -31,34 +31,27 @@ for (const locale of locales) {
       const description = translate(locale, descriptionKey);
       assert.notEqual(description, descriptionKey);
       assert.ok(
-        result?.meta?.some(
-          (tag) => tag && "title" in tag && tag.title === title,
-        ),
+        result.meta.some((tag) => "title" in tag && tag.title === title),
       );
       for (const name of ["description", "twitter:description"]) {
         assert.ok(
-          result?.meta?.some(
+          result.meta.some(
             (tag) =>
-              tag &&
-              "name" in tag &&
-              tag.name === name &&
-              tag.content === description,
+              "name" in tag && tag.name === name && tag.content === description,
           ),
         );
       }
       assert.ok(
-        result?.meta?.some(
+        result.meta.some(
           (tag) =>
-            tag &&
             "property" in tag &&
             tag.property === "og:description" &&
             tag.content === description,
         ),
       );
       assert.ok(
-        result?.meta?.some(
+        result.meta.some(
           (tag) =>
-            tag &&
             "property" in tag &&
             tag.property === "og:title" &&
             tag.content === title,

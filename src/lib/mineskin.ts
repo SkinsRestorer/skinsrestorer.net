@@ -87,7 +87,9 @@ function createMineSkinHeaders(apiKey?: string): Record<string, string> {
   const headers: Record<string, string> = { "User-Agent": MINESKIN_USER_AGENT };
   const key = apiKey?.trim();
   if (key)
-    headers.Authorization = key.startsWith("Bearer ") ? key : `Bearer ${key}`;
+    headers["Authorization"] = key.startsWith("Bearer ")
+      ? key
+      : `Bearer ${key}`;
   return headers;
 }
 
@@ -204,7 +206,7 @@ export const fetchMineSkinCapeGrantEffect = Effect.fn("MineSkin.capeGrant")(
       { headers: createMineSkinHeaders(apiKey) },
       grantsSchema,
     );
-    return Boolean(data.grants?.capes);
+    return Boolean(data.grants?.["capes"]);
   },
 );
 export const fetchMineSkinSupportedCapesEffect = Effect.fn(

@@ -11,7 +11,7 @@ import { localizedSitePages } from "../src/lib/site-pages";
 import { fromJSON } from "seroval";
 
 // Run against `bun run preview` with `bun run test:site` after building.
-const baseUrl = process.env.SITE_TEST_URL;
+const baseUrl = process.env["SITE_TEST_URL"];
 
 test(
   "production routes preserve pages, metadata, and public endpoints",
@@ -34,7 +34,7 @@ test(
       ["/cookie-policy", "Cookie Policy"],
       ["/docs", "SkinsRestorer documentation"],
       ["/docs/installation", "Install SkinsRestorer"],
-    ]) {
+    ] as const) {
       const response = await request(path);
       assert.equal(response.status, 200, path);
       assert.equal(
@@ -58,7 +58,7 @@ test(
       const html = await response.text();
       const title = html
         .match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1]
-        .replaceAll(/<[^>]+>/g, "")
+        ?.replaceAll(/<[^>]+>/g, "")
         .trim();
       assert.equal(title, heading, `Missing page heading: ${path}`);
       assert.ok(
@@ -73,7 +73,7 @@ test(
       ["ru", "Загрузка скина"],
       ["es", "Subir skin"],
       ["pt-BR", "Enviar skin"],
-    ]) {
+    ] as const) {
       const response = await request(`/${locale}/upload?handoff=example`);
       assert.equal(response.status, 200);
       const html = await response.text();
@@ -207,7 +207,7 @@ test(
       ["ru", "скин"],
       ["es", "skin"],
       ["pt-BR", "skin"],
-    ]) {
+    ] as const) {
       assert.ok(isLocale(locale));
       const localizedClient = createDocsSearchClient(
         locale,

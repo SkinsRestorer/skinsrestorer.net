@@ -18,7 +18,8 @@ class StaticImageError extends Data.TaggedError("StaticImageError")<{
 
 // Keep encoding bounded even on build machines with many CPU cores.
 sharp.concurrency(1);
-const widths = [48, 96, 192, 384, 768, 1280, 1920];
+const largestWidth = 1920;
+const widths = [48, 96, 192, 384, 768, 1280, largestWidth];
 const outputName = "_images";
 
 export function generateStaticImages({
@@ -108,7 +109,7 @@ export function generateStaticImages({
           const sizes = [
             ...new Set([
               ...widths.filter((size) => size < width),
-              Math.min(width, widths.at(-1)!),
+              Math.min(width, largestWidth),
             ]),
           ];
           metadata.variants = yield* Effect.forEach(

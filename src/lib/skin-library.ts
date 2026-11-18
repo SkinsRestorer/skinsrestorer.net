@@ -12,6 +12,7 @@ import { Context, Data, Effect, Layer, Schema } from "effect";
 import { PngError, readPngSize } from "./png";
 import { validateSkinDimensions, type SkinVariant } from "./skin";
 import { importSkinPng, MAX_SKIN_FILE_BYTES } from "./skin-document";
+import { required } from "./utils";
 
 /**
  * Skins kept in this browser. One IndexedDB database holds two stores:
@@ -594,7 +595,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           result = change(skin.value, now());
           store.put(result);
         });
-        return () => result!;
+        return () => required(result, "transaction result");
       },
     );
 
@@ -677,7 +678,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
             store.put(used);
             result = { skin: used, created: false };
           });
-        return () => result!;
+        return () => required(result, "transaction result");
       }),
     touch: (id) =>
       write([SKINS], (tx) => {
@@ -722,7 +723,12 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           revision: skin.revision + 1,
           updatedAt: at,
         };
-      }).pipe(Effect.map((skin) => ({ skin, previous: previous! })));
+      }).pipe(
+        Effect.map((skin) => ({
+          skin,
+          previous: required(previous, "previous content"),
+        })),
+      );
     },
     duplicate: (id, locale) =>
       write<StoredSkin, SkinNotFoundError | SkinLibraryError>(
@@ -744,7 +750,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
             );
             store.add(result);
           });
-          return () => result!;
+          return () => required(result, "transaction result");
         },
       ),
     remove: (id) =>
@@ -769,7 +775,10 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
               sessions.delete(value.id);
             }
           });
-          return () => ({ skin: skin!, sessions: removedSessions });
+          return () => ({
+            skin: required(skin, "removed skin"),
+            sessions: removedSessions,
+          });
         },
       ),
     restore: (removed) =>
@@ -842,7 +851,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
             skins.put(result);
             tx.objectStore(SESSIONS).delete(input.sessionId);
           });
-          return () => result!;
+          return () => required(result, "transaction result");
         },
         "strict",
       ),
@@ -908,10 +917,10 @@ function parseCopyName(name: string, pattern: CopyPattern) {
       .replace("\\{name\\}", "(?<name>.+?)")
       .replace("\\{number\\}", "(?<number>\\d+)");
     const groups = new RegExp(`^${source}$`, "u").exec(name)?.groups;
-    if (groups?.name)
+    if (groups?.["name"])
       return {
-        base: groups.name,
-        number: numbered ? Number(groups.number) : 1,
+        base: groups["name"],
+        number: numbered ? Number(groups["number"]) : 1,
       };
   }
   return undefined;

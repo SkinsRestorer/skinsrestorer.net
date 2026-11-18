@@ -147,16 +147,15 @@ export function skinRegions(variant: SkinVariant): readonly SkinRegion[] {
 }
 
 function regionIndex(variant: SkinVariant): Int16Array {
-  let index = indexCache.get(variant);
-  if (!index) {
-    index = new Int16Array(SKIN_SIZE * SKIN_SIZE).fill(-1);
-    skinRegions(variant).forEach((region, id) => {
-      for (let y = region.y; y < region.y + region.height; y++)
-        for (let x = region.x; x < region.x + region.width; x++)
-          index![y * SKIN_SIZE + x] = id;
-    });
-    indexCache.set(variant, index);
-  }
+  const cached = indexCache.get(variant);
+  if (cached) return cached;
+  const index = new Int16Array(SKIN_SIZE * SKIN_SIZE).fill(-1);
+  skinRegions(variant).forEach((region, id) => {
+    for (let y = region.y; y < region.y + region.height; y++)
+      for (let x = region.x; x < region.x + region.width; x++)
+        index[y * SKIN_SIZE + x] = id;
+  });
+  indexCache.set(variant, index);
   return index;
 }
 
@@ -176,7 +175,7 @@ export function regionAt(
   )
     return undefined;
   const id = regionIndex(variant)[y * SKIN_SIZE + x];
-  return id < 0 ? undefined : skinRegions(variant)[id];
+  return id === undefined || id < 0 ? undefined : skinRegions(variant)[id];
 }
 
 export function findRegion(
@@ -255,7 +254,7 @@ function pixelMap(variant: SkinVariant, kind: PixelMap): Int16Array {
 function mapPixel(variant: SkinVariant, kind: PixelMap, x: number, y: number) {
   if (!regionAt(variant, x, y)) return undefined;
   const index = pixelMap(variant, kind)[y * SKIN_SIZE + x];
-  if (index < 0) return undefined;
+  if (index === undefined || index < 0) return undefined;
   return { x: index % SKIN_SIZE, y: Math.floor(index / SKIN_SIZE) };
 }
 

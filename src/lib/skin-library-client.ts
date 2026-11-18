@@ -84,7 +84,9 @@ export function browserLibrary(): LibraryClient | undefined {
   if (!browserClient) {
     let factory: IDBFactory | undefined;
     try {
-      factory = window.indexedDB ?? undefined;
+      // Some private browsing modes leave indexedDB unset.
+      const available: unknown = window.indexedDB;
+      factory = available instanceof IDBFactory ? available : undefined;
     } catch {
       factory = undefined;
     }

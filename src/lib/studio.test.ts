@@ -21,6 +21,7 @@ import {
   StudioGeneration,
   type Upload,
 } from "./studio-generation";
+import { required } from "./utils";
 
 const texture =
   "https://textures.minecraft.net/texture/26c156a5a28ba3647b3de3b5bfec4d399670b1f063d6526ba201c2be01b60df5";
@@ -219,12 +220,12 @@ test("generation sends the exact selected file once and builds the command", asy
   });
   assert.equal(generation.for(chosen).status, "pending");
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].file, chosen.file);
+  assert.equal(calls[0]?.file, chosen.file);
   calls[0].resolve(response("uuid", "https://minesk.in/abc"));
   await done;
   const state = generation.for(chosen);
   assert.equal(state.status, "done");
-  assert.deepEqual(state.status === "done" && state.result, {
+  assert.deepEqual(state.result, {
     url: "https://minesk.in/abc",
     command: '/sr createcustom lobby "https://minesk.in/abc" slim',
     textureUrl: texture,
@@ -250,7 +251,7 @@ test("a result is hidden for other choices and a superseded upload never publish
     assert.equal(generation.for({ ...first, ...change }).status, "idle");
 
   generation.cancel();
-  assert.equal(calls[0].signal.aborted, true);
+  assert.equal(calls[0]?.signal.aborted, true);
   calls[0].resolve(response("late"));
   await firstRun;
   assert.equal(generation.for(first).status, "idle");
@@ -260,11 +261,11 @@ test("a result is hidden for other choices and a superseded upload never publish
     file: second.file,
     variant: "slim",
   });
-  calls[1].reject(new Error("Queue is full"));
+  calls[1]?.reject(new Error("Queue is full"));
   await secondRun;
   const failed = generation.for(second);
   assert.equal(failed.status, "failed");
-  assert.equal(failed.status === "failed" && failed.message, "Queue is full");
+  assert.equal(failed.message, "Queue is full");
   // A failure is not retried on its own.
   assert.equal(calls.length, 2);
 });
@@ -276,14 +277,16 @@ afterEach(() => {
 
 test("the Axolotl cape route posts the selected bytes without the user key", async () => {
   const requests: Parameters<HttpFetch>[] = [];
-  globalThis.fetch = Object.assign(async (...args: Parameters<HttpFetch>) => {
+  globalThis.fetch = Object.assign((...args: Parameters<HttpFetch>) => {
     requests.push(args);
-    return Response.json({
-      success: true,
-      skin: { url: "skinsrestorer-axolotl://uuid" },
-      warnings: [],
-      messages: [],
-    });
+    return Promise.resolve(
+      Response.json({
+        success: true,
+        skin: { url: "skinsrestorer-axolotl://uuid" },
+        warnings: [],
+        messages: [],
+      }),
+    );
   }, originalFetch);
   const chosen = input({ capeUuid: "cape-id" });
   const generation = new StudioGeneration(uploadMineSkinFile);
@@ -295,7 +298,7 @@ test("the Axolotl cape route posts the selected bytes without the user key", asy
     useCapeProxy: true,
   });
   assert.equal(requests.length, 1);
-  const [url, init] = requests[0];
+  const [url, init] = required(requests[0], "proxy request");
   assert.equal(
     url instanceof Request ? url.url : url.toString(),
     "https://axolotl.skinsrestorer.net/mineskin/skins",
@@ -324,7 +327,7 @@ test("URL-only proxy results support explicit and default custom skin names", ()
     ["lobby", "Forest ranger.png", "lobby"],
     ["", "Forest ranger.png", "forest_ranger"],
     ["", "Скин.png", "custom_skin"],
-  ]) {
+  ] as const) {
     const chosen = input({
       purpose: "createcustom",
       name,

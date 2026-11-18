@@ -11,7 +11,7 @@ function selectVariant(
   variants: NonNullable<StaticImageMetadata["variants"]>,
   width: number,
 ) {
-  return variants.find((variant) => variant.width >= width) ?? variants.at(-1)!;
+  return variants.find((variant) => variant.width >= width) ?? variants.at(-1);
 }
 
 export function getStaticImageWidths(
@@ -22,8 +22,8 @@ export function getStaticImageWidths(
   if (!variants?.length) return [];
   return [
     ...new Set(
-      (requested ?? variants.map((variant) => variant.width)).map(
-        (width) => selectVariant(variants, width).width,
+      (requested ?? variants.map((variant) => variant.width)).flatMap(
+        (width) => selectVariant(variants, width)?.width ?? [],
       ),
     ),
   ];
@@ -44,8 +44,8 @@ export function createStaticImageTransformer(manifest: StaticImageManifest) {
   return (src: string | URL, operations: { width?: number }) => {
     const source = src.toString();
     const image = getStaticImage(manifest, source);
-    if (!image?.variants?.length) return source;
+    if (!image?.variants) return source;
     const width = operations.width ?? image.width;
-    return selectVariant(image.variants, width).src;
+    return selectVariant(image.variants, width)?.src ?? source;
   };
 }

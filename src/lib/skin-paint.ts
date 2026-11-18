@@ -261,7 +261,9 @@ export function readPixel(
   y: number,
 ): Rgba {
   const at = (y * SKIN_SIZE + x) * 4;
-  return [pixels[at], pixels[at + 1], pixels[at + 2], pixels[at + 3]];
+  // A pixel outside the texture reads as clear.
+  const channel = (c: number) => pixels[at + c] ?? 0;
+  return [channel(0), channel(1), channel(2), channel(3)];
 }
 
 /**
@@ -320,8 +322,8 @@ export function fillTargets(
   }
   const area = new Set<number>();
   const stack: Array<readonly [number, number]> = [[x, y]];
-  while (stack.length > 0) {
-    const [px, py] = stack.pop()!;
+  for (let next = stack.pop(); next; next = stack.pop()) {
+    const [px, py] = next;
     const index = py * SKIN_SIZE + px;
     if (
       area.has(index) ||

@@ -14,6 +14,7 @@ import {
   SkinSelectionStore,
   type PreviewEvents,
 } from "./skin-selection";
+import { required } from "./utils";
 
 const clients: LibraryClient[] = [];
 afterEach(async () => {
@@ -30,12 +31,12 @@ function library(factory = new IDBFactory()) {
 const stalled: LibraryClient = {
   run: () => new Promise(() => {}),
   subscribe: () => () => undefined,
-  dispose: async () => undefined,
+  dispose: () => Promise.resolve(undefined),
 };
 const failing: LibraryClient = {
   run: () => Promise.reject(new Error("Browser storage is full.")),
   subscribe: () => () => undefined,
-  dispose: async () => undefined,
+  dispose: () => Promise.resolve(undefined),
 };
 
 async function skinFile(seed: number, name = `skin-${seed}.png`) {
@@ -115,7 +116,7 @@ test("a dropped skin is selected without waiting for the library", async () => {
   assert.equal(variant, "slim");
   assert.equal(selection?.keep.kind, "saving");
   // The form sends an in-memory copy with the exact dropped bytes.
-  assert.notEqual(selection?.file, file);
+  assert.notEqual(selection.file, file);
   assert.deepEqual(await bytes(selection.file), await bytes(file));
   store.dispose();
 });
@@ -127,7 +128,7 @@ test("a failing library leaves the selection usable and says it was not kept", a
   });
   store.selectFiles([await skinFile(1)]);
   await until(() => store.getSnapshot().selection?.keep.kind === "off");
-  const selection = store.getSnapshot().selection!;
+  const selection = required(store.getSnapshot().selection, "selection");
   assert.equal(selection.status, "ready");
   assert.equal(selection.skinId, undefined);
   assert.equal(
@@ -145,6 +146,7 @@ test("a late detection result never replaces a newer file", async () => {
   store.selectFiles([await skinFile(2, "new.png")]);
   await preview.next(2);
   const [old, next] = preview.pending;
+  assert.ok(old && next);
   next.events.detected("slim");
   old.events.preview("blob:old");
   old.events.detected("classic");
@@ -162,7 +164,7 @@ test("detection does not overwrite a model the user already picked", async () =>
   store.selectFiles([await skinFile(1)]);
   await preview.next();
   store.setVariant("slim");
-  preview.pending[0].events.detected("classic");
+  preview.pending[0]?.events.detected("classic");
   assert.equal(store.getSnapshot().variant, "slim");
   store.dispose();
 });
@@ -199,8 +201,8 @@ test("gallery selection preserves its model and pixels without writing to the li
   const state = store.getSnapshot();
   assert.equal(state.variant, "slim");
   assert.equal(state.selection?.galleryId, "forest-ranger");
-  assert.equal(state.selection?.skinId, undefined);
-  assert.equal(state.selection?.keep.kind, "catalog");
+  assert.equal(state.selection.skinId, undefined);
+  assert.equal(state.selection.keep.kind, "catalog");
   assert.deepEqual(await bytes(state.selection.file), await bytes(file));
   store.setVariant("classic");
   store.refresh();
@@ -232,7 +234,10 @@ test("a late library write links only the selection that started it", async () =
   release();
   await until(() => store.getSnapshot().selection?.keep.kind === "kept");
   const listing = await client.run(withLibrary((l) => l.list));
-  const second = listing.skins.find((skin) => skin.name === "second")!;
+  const second = required(
+    listing.skins.find((skin) => skin.name === "second"),
+    "find result",
+  );
   assert.equal(listing.skins.length, 2);
   assert.equal(store.getSnapshot().selection?.skinId, second.id);
   store.dispose();
@@ -250,7 +255,11 @@ test("a model picked while the skin is kept is saved to the skin", async () => {
   await until(() => store.getSnapshot().selection?.keep.kind === "kept");
   await until(() => (store.getSnapshot().selection?.revision ?? 0) > 1);
   const skin = await client.run(
-    withLibrary((l) => l.get(store.getSnapshot().selection!.skinId!)),
+    withLibrary((l) =>
+      l.get(
+        required(store.getSnapshot().selection?.skinId, "selected skin id"),
+      ),
+    ),
   );
   assert.equal(skin.current.variant, "slim");
   assert.equal(skin.original.variant, "classic");
@@ -292,8 +301,15 @@ test("a change in another tab is offered, never swapped into the form", async ()
   });
   store.selectFiles([await skinFile(1)]);
   await until(() => store.getSnapshot().selection?.keep.kind === "kept");
-  const selected = store.getSnapshot().selection!;
-  await tabB.run(withLibrary((l) => l.setVariant(selected.skinId!, "slim")));
+  const selected = required(
+    store.getSnapshot().selection,
+    "store.getSnapshot().selection",
+  );
+  await tabB.run(
+    withLibrary((l) =>
+      l.setVariant(required(selected.skinId, "selected.skinId"), "slim"),
+    ),
+  );
   store.refresh();
   await until(() => store.getSnapshot().selection?.keep.kind === "changed");
   // The form still shows and sends the snapshot it had.
@@ -305,7 +321,11 @@ test("a change in another tab is offered, never swapped into the form", async ()
   assert.equal(store.getSnapshot().selection?.origin, "library");
 
   await tabB.run(
-    withLibrary((l) => l.remove(store.getSnapshot().selection!.skinId!)),
+    withLibrary((l) =>
+      l.remove(
+        required(store.getSnapshot().selection?.skinId, "selected skin id"),
+      ),
+    ),
   );
   store.refresh();
   await until(() => store.getSnapshot().selection?.keep.kind === "removed");
@@ -336,7 +356,11 @@ test("a populated library stays unselected on startup and library updates", asyn
     assert.equal(skins.length, 2);
     assert.equal(store.getSnapshot().selection, null);
 
-    await client.run(withLibrary((l) => l.rename(skins[0].id, "Renamed skin")));
+    await client.run(
+      withLibrary((l) =>
+        l.rename(required(skins[0], "stored skin").id, "Renamed skin"),
+      ),
+    );
     store.refresh();
     assert.equal(store.getSnapshot().selection, null);
     assert.equal(store.getSnapshot().previewUrl, null);
@@ -356,13 +380,14 @@ test("a skin selected from the library is the stored current version", async () 
   await until(() => keep.getSnapshot().selection?.keep.kind === "kept");
   keep.dispose();
   const [skin] = (await client.run(withLibrary((l) => l.list))).skins;
+  assert.ok(skin);
   const store = new SkinSelectionStore({
     preview: autoPreview("classic"),
     library: client,
   });
   store.selectSkin({ ...skin, current: { ...skin.current, variant: "slim" } });
   await until(() => store.getSnapshot().selection?.status === "ready");
-  const selection = store.getSnapshot().selection!;
+  const selection = required(store.getSnapshot().selection, "selection");
   assert.equal(selection.skinId, skin.id);
   assert.equal(selection.keep.kind, "kept");
   assert.equal(store.getSnapshot().variant, "slim");

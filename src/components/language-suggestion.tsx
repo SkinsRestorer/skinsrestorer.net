@@ -27,7 +27,7 @@ export function LanguageSuggestion() {
       return undefined;
     }
     if (answered) return undefined;
-    const target = suggestedLocale(navigator.languages ?? [], locale);
+    const target = suggestedLocale(navigator.languages, locale);
     const { href } = router.state.location;
     if (!target || !hasLocalizedPages(href)) return undefined;
     // Only the visitor's first answer counts; cleanup's own dismiss does not.

@@ -1,7 +1,7 @@
 import { posthog } from "posthog-js";
 import { redactEditorParams } from "./analytics-redact";
 
-const apiKey = import.meta.env.VITE_POSTHOG_KEY;
+const apiKey = import.meta.env["VITE_POSTHOG_KEY"];
 
 if (typeof window !== "undefined" && apiKey) {
   posthog.init(apiKey, {

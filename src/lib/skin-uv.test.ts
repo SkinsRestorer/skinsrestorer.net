@@ -10,6 +10,7 @@ import {
   type SkinFace,
 } from "./skin-regions";
 import { hitToPixel } from "./skin-uv";
+import { required } from "./utils";
 
 function asMesh(object: Object3D): Mesh {
   assert.ok(object instanceof Mesh);
@@ -68,8 +69,8 @@ for (const variant of ["classic", "slim"] as const) {
             region,
             `${part} ${layer} ${region.face}`,
           );
-          assert.equal(pixel?.x, region.x + Math.floor(region.width / 2));
-          assert.equal(pixel?.y, region.y + Math.floor(region.height / 2));
+          assert.equal(pixel.x, region.x + Math.floor(region.width / 2));
+          assert.equal(pixel.y, region.y + Math.floor(region.height / 2));
         }
       }
   });
@@ -80,18 +81,42 @@ test("3D hits keep the texture orientation of the face", () => {
   const head = asMesh(skin.head.innerLayer);
   // The front faces +z. The player's right side is at -x, which is the first
   // texture column of the front face.
-  const front = castAt(head, directions.front, new Vector3(-3.5, 7.5, 4));
+  const front = required(
+    castAt(head, directions.front, new Vector3(-3.5, 7.5, 4)),
+    "front hit",
+  );
   assert.deepEqual(
     (({ x, y }) => ({ x, y }))(
-      hitToPixel("classic", "head", "base", front.faceIndex!, front.uv!)!,
+      required(
+        hitToPixel(
+          "classic",
+          "head",
+          "base",
+          required(front.faceIndex, "front.faceIndex"),
+          required(front.uv, "front.uv"),
+        ),
+        "hitToPixel result",
+      ),
     ),
     { x: 8, y: 8 },
   );
   // On the left side (+x), the column next to the front is the first column.
-  const left = castAt(head, directions.left, new Vector3(4, 7.5, 3.5));
+  const left = required(
+    castAt(head, directions.left, new Vector3(4, 7.5, 3.5)),
+    "left hit",
+  );
   assert.deepEqual(
     (({ x, y }) => ({ x, y }))(
-      hitToPixel("classic", "head", "base", left.faceIndex!, left.uv!)!,
+      required(
+        hitToPixel(
+          "classic",
+          "head",
+          "base",
+          required(left.faceIndex, "left.faceIndex"),
+          required(left.uv, "left.uv"),
+        ),
+        "hitToPixel result",
+      ),
     ),
     { x: 16, y: 8 },
   );
@@ -148,27 +173,36 @@ for (const variant of ["classic", "slim"] as const) {
                 box.min[across] + ((i + 0.5) / region.width) * size[across];
               point[down] =
                 box.min[down] + ((j + 0.5) / region.height) * size[down];
-              const hit = castAt(mesh, outward, point);
-              const source = hitToPixel(
-                variant,
-                part,
-                layer,
-                hit.faceIndex!,
-                hit.uv!,
-              )!;
-              covered.add(source.y * 64 + source.x);
-              const reflected = castAt(
-                other,
-                outward.clone().multiply(mirror),
-                point.clone().multiply(mirror),
+              const hit = required(castAt(mesh, outward, point), "ray hit");
+              const source = required(
+                hitToPixel(
+                  variant,
+                  part,
+                  layer,
+                  required(hit.faceIndex, "hit.faceIndex"),
+                  required(hit.uv, "hit.uv"),
+                ),
+                "hitToPixel result",
               );
-              const target = hitToPixel(
-                variant,
-                counterpart[part],
-                layer,
-                reflected.faceIndex!,
-                reflected.uv!,
-              )!;
+              covered.add(source.y * 64 + source.x);
+              const reflected = required(
+                castAt(
+                  other,
+                  outward.clone().multiply(mirror),
+                  point.clone().multiply(mirror),
+                ),
+                "reflected hit",
+              );
+              const target = required(
+                hitToPixel(
+                  variant,
+                  counterpart[part],
+                  layer,
+                  required(reflected.faceIndex, "reflected.faceIndex"),
+                  required(reflected.uv, "reflected.uv"),
+                ),
+                "hitToPixel result",
+              );
               assert.deepEqual(
                 mirrorPixel(variant, source.x, source.y),
                 { x: target.x, y: target.y },

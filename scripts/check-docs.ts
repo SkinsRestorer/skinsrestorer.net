@@ -32,7 +32,8 @@ function parseDocument(
 ) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(raw);
   if (!match) throw new Error("Missing front matter");
-  const metadata = Schema.decodeUnknownSync(docsSchema)(parseYaml(match[1]));
+  const [, frontMatter = "", body = ""] = match;
+  const metadata = Schema.decodeUnknownSync(docsSchema)(parseYaml(frontMatter));
   if (!(metadata.icon in icons)) {
     throw new Error(`Unknown sidebar icon ${metadata.icon}`);
   }
@@ -41,7 +42,6 @@ function parseDocument(
       `Page version differs from verified release ${release.version}`,
     );
   }
-  const body = match[2];
   if (body.includes("—"))
     throw new Error("Replace em dashes with plain punctuation");
   const tree = parser.parse(body);
@@ -204,9 +204,12 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
 
   for (const property of release.config) {
     const row = tableRows.find((candidate) => candidate[0] === property.key);
+    const value = row?.[2];
     if (!row) errors.push(`Missing reference row for ${property.key}`);
+    else if (value === undefined)
+      errors.push(`Missing reference default for ${property.key}`);
     else if (
-      JSON.stringify(JSON.parse(row[2])) !== JSON.stringify(property.default)
+      JSON.stringify(JSON.parse(value)) !== JSON.stringify(property.default)
     ) {
       errors.push(
         `Reference default differs from the inventory: ${property.key}`,
@@ -259,7 +262,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
             `${location}: supply a valid icon for sidebar link ${entry}`,
           );
         }
-        yield* checkLink(link[2], "/docs", location);
+        yield* checkLink(link[2] ?? "", "/docs", location);
         continue;
       }
       const exists = documentFiles.some(

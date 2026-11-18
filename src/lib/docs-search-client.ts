@@ -48,15 +48,16 @@ export function rankDocsResults(
   query: string,
 ): SortedResult[] {
   const terms = words(query);
-  const groups: SortedResult[][] = [];
+  const groups: [SortedResult, ...SortedResult[]][] = [];
   for (const result of results) {
-    if (result.type === "page" || groups.length === 0) groups.push([result]);
-    else groups.at(-1)!.push(result);
+    const last = groups.at(-1);
+    if (result.type === "page" || !last) groups.push([result]);
+    else last.push(result);
   }
-  const tier = (group: SortedResult[]) => {
+  const tier = (group: [SortedResult, ...SortedResult[]]) => {
     if (terms.length === 0) return 0;
-    if (group[0].type === "page" && matchesAll(group[0].content, terms))
-      return 2;
+    const [first] = group;
+    if (first.type === "page" && matchesAll(first.content, terms)) return 2;
     return group.some(
       (result) =>
         result.type === "heading" && matchesAll(result.content, terms),

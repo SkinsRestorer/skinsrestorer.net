@@ -72,7 +72,7 @@ export function StudioGallery(props: {
     );
     if (target === undefined) return;
     event.preventDefault();
-    buttons[target].focus();
+    buttons[target]?.focus();
   };
   const empty = state.status === "ready" && skins.length === 0;
   return (

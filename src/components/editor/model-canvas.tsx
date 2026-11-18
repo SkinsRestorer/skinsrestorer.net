@@ -498,7 +498,10 @@ export function ModelCanvas(
             if (event.pointerType !== "touch")
               hover.current?.move(event.clientX, event.clientY);
             if (!store.getSnapshot().painting) return;
-            const samples = event.nativeEvent.getCoalescedEvents?.() ?? [];
+            // Older Safari versions lack getCoalescedEvents.
+            const native = event.nativeEvent;
+            const samples =
+              "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
             for (const sample of samples.length ? samples : [event]) {
               const target = pick(sample.clientX, sample.clientY);
               if (target && !("covered" in target))

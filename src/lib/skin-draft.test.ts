@@ -13,6 +13,7 @@ import {
   writeHandoff,
   type KeyValueStorage,
 } from "./skin-draft";
+import { required } from "./utils";
 
 function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
   const data = new Map<string, string>();
@@ -62,7 +63,6 @@ test("an earlier editor draft restores the same pixels and the chosen model", as
   storeDraft(storage, chosen, 1234);
   const draft = await readDraft(storage);
   assert.equal(draft.status, "found");
-  if (draft.status !== "found") return;
   assert.deepEqual(draft.document.pixels, document.pixels);
   assert.equal(draft.document.variant, "slim");
   assert.equal(draft.updatedAt, 1234);
@@ -118,7 +118,7 @@ test("a handoff is a stable snapshot with its explicit model", async () => {
 test("a handoff survives a page reload through storage and works without storage", async () => {
   const storage = memoryStorage();
   await writeHandoff(storage, createTemplate("classic"), "reload");
-  const stored = storage.data.get(HANDOFF_KEY)!;
+  const stored = required(storage.data.get(HANDOFF_KEY), "get result");
   // Another handoff replaces the copy in memory, as a reload would lose it.
   await writeHandoff(undefined, createTemplate("slim"), "other");
   storage.data.set(HANDOFF_KEY, stored);

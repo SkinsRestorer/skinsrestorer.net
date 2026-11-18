@@ -64,8 +64,8 @@ test("a possible model mismatch only suggests a model and never offers to erase 
     issues.map((i) => i.id),
     ["possible-classic"],
   );
-  assert.equal(issues[0].repair, undefined);
-  assert.equal(issues[0].switchVariant, "classic");
+  assert.equal(issues[0]?.repair, undefined);
+  assert.equal(issues[0]?.switchVariant, "classic");
   const before = store.pixels.slice();
   store.apply((pixels, builder) =>
     repairSkin("unused-pixels", pixels, "slim", builder),

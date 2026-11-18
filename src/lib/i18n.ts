@@ -40,7 +40,8 @@ export function localizePath(path: string, locale: Locale): string {
 
 /** Legal text and service endpoints remain at their existing English URLs. */
 export function hasLocalizedPages(href: string): boolean {
-  const path = splitLocalePath(href.split(/[?#]/)[0]).path;
+  const [pathname = ""] = href.split(/[?#]/);
+  const path = splitLocalePath(pathname).path;
   return (
     path === "/" ||
     [
@@ -66,9 +67,9 @@ export function docFileInfo(file: string) {
     file.replaceAll("\\", "/"),
   );
   if (!match) throw new Error(`Invalid documentation file: ${file}`);
-  const suffix = match[2];
+  const [, name = "", suffix] = match;
   const locale: Locale = isLocale(suffix) ? suffix : "en";
-  const slug = match[1].replace(/(^|\/)index$/, "");
+  const slug = name.replace(/(^|\/)index$/, "");
   const path = `/docs/${slug}`.replace(/\/$/, "");
   return { locale, path, slugs: slug.split("/").filter(Boolean) };
 }

@@ -15,14 +15,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
-import { partCopies, type PartAction } from "@/lib/skin-transform";
+import {
+  partCopies,
+  type LimbPart,
+  type PartAction,
+} from "@/lib/skin-transform";
 import { useT } from "@/lib/i18n-react";
 
-const copyLabels: Record<string, MessageKey> = {
-  "rightArm leftArm": "editor.rightArmLeftArm",
-  "leftArm rightArm": "editor.leftArmRightArm",
-  "rightLeg leftLeg": "editor.rightLegLeftLeg",
-  "leftLeg rightLeg": "editor.leftLegRightLeg",
+/** Each limb copies onto its pair, so the source names the action. */
+const copyLabels: Record<LimbPart, MessageKey> = {
+  rightArm: "editor.rightArmLeftArm",
+  leftArm: "editor.leftArmRightArm",
+  rightLeg: "editor.rightLegLeftLeg",
+  leftLeg: "editor.leftLegRightLeg",
 };
 
 /**
@@ -84,7 +89,7 @@ export function PartActions(props: {
               disabled={!visibility[to][layer]}
               onClick={() => props.onAction({ kind: "copy", from, to })}
             >
-              {t(copyLabels[`${from} ${to}`])}
+              {t(copyLabels[from])}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>

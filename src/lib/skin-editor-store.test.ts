@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createTemplate, pixelOffset } from "./skin-document";
+import { createTemplate } from "./skin-document";
 import { SkinEditorStore } from "./skin-editor-store";
 import { HISTORY_LIMIT } from "./skin-history";
 import {
@@ -9,9 +9,11 @@ import {
   SHADE_STEPS,
   shadeColor,
   type PaintSettings,
+  readPixel,
   type Rgba,
 } from "./skin-paint";
 import { mirrorPixel, SKIN_SIZE } from "./skin-regions";
+import { required } from "./utils";
 
 const red = [200, 10, 10, 120] as const;
 
@@ -31,15 +33,8 @@ function settings(overrides: Partial<PaintSettings> = {}): PaintSettings {
   };
 }
 
-const pixel = (store: SkinEditorStore, x: number, y: number): Rgba => {
-  const at = pixelOffset(x, y);
-  return [
-    store.pixels[at],
-    store.pixels[at + 1],
-    store.pixels[at + 2],
-    store.pixels[at + 3],
-  ];
-};
+const pixel = (store: SkinEditorStore, x: number, y: number): Rgba =>
+  readPixel(store.pixels, x, y);
 
 test("a fast stroke paints every pixel between samples and is one undo step", () => {
   const store = setup();
@@ -230,7 +225,10 @@ test("mirror painting writes both sides in one undo step and keeps the shape", (
     const changed = changedPixels(before, store.pixels);
     const set = new Set(changed);
     for (const index of changed) {
-      const m = mirrorPixel(variant, index % 64, Math.floor(index / 64))!;
+      const m = required(
+        mirrorPixel(variant, index % 64, Math.floor(index / 64)),
+        "mirrorPixel result",
+      );
       assert.ok(set.has(m.y * 64 + m.x), `${variant} ${index}`);
     }
     assert.ok(changed.some((i) => i % 64 < 40 && Math.floor(i / 64) >= 52));
@@ -270,7 +268,10 @@ test("mirror fill fills the reflected shape and skips hidden parts", () => {
   assert.equal(store.fill(settings({ mirror: true }), 44, 25), true);
   const changed = new Set(changedPixels(before, store.pixels));
   for (const index of changed) {
-    const m = mirrorPixel("classic", index % 64, Math.floor(index / 64))!;
+    const m = required(
+      mirrorPixel("classic", index % 64, Math.floor(index / 64)),
+      "mirrorPixel result",
+    );
     assert.ok(changed.has(m.y * 64 + m.x));
   }
   store.undo();
@@ -294,12 +295,11 @@ test("shade changes each pixel once per stroke, also where the mirror overlaps",
   assert.ok(changed.length > 0);
   for (const index of changed) {
     const at = index * 4;
-    const old = [
-      before[at],
-      before[at + 1],
-      before[at + 2],
-      before[at + 3],
-    ] as const;
+    const old = readPixel(
+      before,
+      index % SKIN_SIZE,
+      Math.floor(index / SKIN_SIZE),
+    );
     assert.deepEqual(
       Array.from(store.pixels.subarray(at, at + 4)),
       shadeColor(old, "darken"),
@@ -369,7 +369,10 @@ test("strong shade with mirror overlap changes each pixel once per stroke", () =
   store.strokeTo(12, 12);
   store.endStroke();
   assert.deepEqual(pixel(store, 12, 12), [
-    ...shadeColor(before, "darken", SHADE_STEPS.strong)!,
+    ...required(
+      shadeColor(before, "darken", SHADE_STEPS.strong),
+      "shadeColor result",
+    ),
   ]);
   assert.deepEqual(pixel(store, 11, 12), pixel(store, 12, 12));
   // A soft stroke darkens less than a strong one.
@@ -448,6 +451,9 @@ test("a shaded line changes each pixel once, also at the anchor", () => {
   store.endStroke();
   store.lineTo("shade", shade, 12, 10);
   assert.deepEqual(pixel(store, 10, 10), [
-    ...shadeColor(original, "darken", SHADE_STEPS.strong)!,
+    ...required(
+      shadeColor(original, "darken", SHADE_STEPS.strong),
+      "shadeColor result",
+    ),
   ]);
 });

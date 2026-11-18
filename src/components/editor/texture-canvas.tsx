@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useAsRef } from "@/hooks/use-as-ref";
-import { cn } from "@/lib/utils";
+import { cn, required } from "@/lib/utils";
 import { describePixel, SKIN_SIZE, skinRegions } from "@/lib/skin-regions";
 import {
   startTool,
@@ -180,7 +180,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
       const checks = document.createElement("canvas");
       checks.width = SKIN_SIZE * 2;
       checks.height = SKIN_SIZE * 2;
-      const checksCtx = checks.getContext("2d")!;
+      const checksCtx = required(checks.getContext("2d"), "2D canvas context");
       checksCtx.fillStyle = background;
       checksCtx.fillRect(0, 0, checks.width, checks.height);
       checksCtx.fillStyle = muted;
@@ -226,7 +226,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
       const mask = document.createElement("canvas");
       mask.width = SKIN_SIZE;
       mask.height = SKIN_SIZE;
-      const maskCtx = mask.getContext("2d")!;
+      const maskCtx = required(mask.getContext("2d"), "2D canvas context");
       const state = new Uint8Array(SKIN_SIZE * SKIN_SIZE);
       for (const region of skinRegions(variant)) {
         const active =
@@ -340,7 +340,9 @@ export function TextureCanvas(props: TextureCanvasProps) {
   ]);
 
   const toPixel = (event: { clientX: number; clientY: number }) => {
-    const rect = canvasRef.current!.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const rect = canvas.getBoundingClientRect();
     const x = Math.floor(
       ((event.clientX - rect.left) / rect.width) * SKIN_SIZE,
     );
@@ -428,7 +430,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
               store.cancelStroke();
               const [a, b] = touches.current.values();
               pinch.current =
-                touches.current.size === 2
+                a && b && touches.current.size === 2
                   ? { distance: distance(a, b), scale: propsRef.current.scale }
                   : null;
               return;
@@ -472,8 +474,8 @@ export function TextureCanvas(props: TextureCanvasProps) {
               );
               const start = pinch.current;
               const { onZoom, scale: current } = propsRef.current;
-              if (start && start.distance > 0 && onZoom) {
-                const [a, b] = touches.current.values();
+              const [a, b] = touches.current.values();
+              if (start && start.distance > 0 && onZoom && a && b) {
                 const zoomed = Math.round(
                   (start.scale * distance(a, b)) / start.distance,
                 );
@@ -504,7 +506,10 @@ export function TextureCanvas(props: TextureCanvasProps) {
             );
           }
           if (!store.getSnapshot().painting) return;
-          const samples = event.nativeEvent.getCoalescedEvents?.() ?? [];
+          // Older Safari versions lack getCoalescedEvents.
+          const native = event.nativeEvent;
+          const samples =
+            "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
           for (const sample of samples.length ? samples : [event]) {
             const point = toPixel(sample);
             if (point) store.strokeTo(point.x, point.y);

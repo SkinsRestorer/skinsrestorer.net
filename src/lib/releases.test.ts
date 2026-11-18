@@ -14,26 +14,25 @@ const run = (fetcher: HttpFetch) =>
   );
 
 test("release reads decode GitHub data and return a safe fallback", async () => {
-  const result = await run(async () => {
-    return Response.json({
-      html_url:
-        "https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6",
-      tag_name: "15.12.6",
-    });
-  });
+  const result = await run(() =>
+    Promise.resolve(
+      Response.json({
+        html_url:
+          "https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6",
+        tag_name: "15.12.6",
+      }),
+    ),
+  );
   assert.equal(result?.tag_name, "15.12.6");
   assert.equal(
-    await run(async () =>
-      Response.json({ message: "Unavailable" }, { status: 503 }),
+    await run(() =>
+      Promise.resolve(
+        Response.json({ message: "Unavailable" }, { status: 503 }),
+      ),
     ),
     null,
   );
-  assert.equal(
-    await run(async () => {
-      throw new Error("offline");
-    }),
-    null,
-  );
+  assert.equal(await run(() => Promise.reject(new Error("offline"))), null);
 });
 
 test("release reads share a result for 120 seconds before refreshing", async () => {
@@ -54,12 +53,14 @@ test("release reads share a result for 120 seconds before refreshing", async () 
       assert.equal(requests, 2);
     }).pipe(
       Effect.provideService(HttpClient, {
-        fetch: async () =>
-          Response.json({
-            html_url:
-              "https://github.com/SkinsRestorer/SkinsRestorer/releases/latest",
-            tag_name: `release-${++requests}`,
-          }),
+        fetch: () =>
+          Promise.resolve(
+            Response.json({
+              html_url:
+                "https://github.com/SkinsRestorer/SkinsRestorer/releases/latest",
+              tag_name: `release-${++requests}`,
+            }),
+          ),
       }),
       Effect.provide(TestClock.layer()),
     ),

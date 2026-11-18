@@ -25,15 +25,14 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
         for (const match of source.matchAll(
           /```(?:xml|yaml|java) title="([^"]+)"\n([\s\S]*?)\n```/g,
         )) {
+          const [, name = "", contents = ""] = match;
           yield* toolTry("validate example files", () => {
-            if (!expected.delete(match[1]))
-              throw new Error(
-                `Unexpected or duplicate example file: ${match[1]}`,
-              );
+            if (!expected.delete(name))
+              throw new Error(`Unexpected or duplicate example file: ${name}`);
           });
-          const file = path.join(directory, match[1]);
+          const file = path.join(directory, name);
           yield* files.makeDirectory(path.dirname(file));
-          yield* files.writeText(file, match[2]);
+          yield* files.writeText(file, contents);
         }
         yield* toolTry("validate example files", () => {
           if (expected.size)

@@ -60,7 +60,8 @@ export function parseTextureReference(input: string): {
     throw new TextureImportError({
       ...messageFields("common.texturesMinecraftNetUrlDoesNotPoint"),
     });
-  const hash = match[1].toLowerCase();
+  const [, digits = ""] = match;
+  const hash = digits.toLowerCase();
   return { hash, url: `https://${TEXTURE_HOST}/texture/${hash}` };
 }
 

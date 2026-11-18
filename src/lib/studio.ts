@@ -63,21 +63,21 @@ export function skinSource(search: StudioSearch): SkinSource {
  */
 export function studioSearch(search: Record<string, unknown>): StudioSearch {
   const result: Mutable<StudioSearch> = {};
-  if (search.intent === "skin-url" || search.intent === "createcustom")
-    result.intent = search.intent;
-  const handoff = stringParam(search.handoff)?.trim();
-  const texture = stringParam(search.texture)?.trim();
-  const skin = stringParam(search.skin);
+  if (search["intent"] === "skin-url" || search["intent"] === "createcustom")
+    result.intent = search["intent"];
+  const handoff = stringParam(search["handoff"])?.trim();
+  const texture = stringParam(search["texture"])?.trim();
+  const skin = stringParam(search["skin"]);
   if (handoff && handoff.length <= 128) result.handoff = handoff;
   else if (texture && texture.length <= 512) result.texture = texture;
   else if (isGalleryId(skin)) result.skin = skin;
   const source =
-    search.source === "library" || search.source === "gallery"
-      ? search.source
+    search["source"] === "library" || search["source"] === "gallery"
+      ? search["source"]
       : undefined;
   const fallback = skinSource({ skin: result.skin });
   if (source && source !== fallback) result.source = source;
-  const q = stringParam(search.q)?.trim().slice(0, MAX_GALLERY_QUERY).trim();
+  const q = stringParam(search["q"])?.trim().slice(0, MAX_GALLERY_QUERY).trim();
   if (q && skinSource(result) === "gallery") result.q = q;
   return result;
 }

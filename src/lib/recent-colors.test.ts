@@ -75,10 +75,8 @@ test("stored colors survive a reload and are validated", () => {
   );
   const read = readRecentColors(edited);
   assert.equal(read.status, "found");
-  if (read.status === "found") {
-    assert.equal(read.colors.length, 8);
-    assert.deepEqual(read.colors, colors(8));
-  }
+  assert.equal(read.colors.length, 8);
+  assert.deepEqual(read.colors, colors(8));
 });
 
 test("blocked or full storage fails quietly", () => {

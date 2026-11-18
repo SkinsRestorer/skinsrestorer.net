@@ -21,7 +21,7 @@ test("uncompressed PNGs, including multi-block data, decode to the same bytes", 
   for (const [width, height] of [
     [64, 64],
     [128, 160],
-  ]) {
+  ] as const) {
     const pixels = new Uint8ClampedArray(width * height * 4);
     for (let i = 0; i < pixels.length; i++) pixels[i] = (i * 13) % 251;
     const decoded = await decodePng(encodePngSync(pixels, width, height), any);
@@ -42,7 +42,7 @@ test("the size check runs before image data is inflated", async () => {
 test("damaged and non-PNG input is rejected", async () => {
   const png = await encodePng(new Uint8ClampedArray(4 * 4 * 4), 4, 4);
   const broken = png.slice();
-  broken[40] ^= 0xff;
+  broken[40] = (broken[40] ?? 0) ^ 0xff;
   await assert.rejects(decodePng(broken, any), /damaged/);
   await assert.rejects(decodePng(new Uint8Array([1, 2, 3]), any), /not a PNG/);
   await assert.rejects(decodePng(png.slice(0, 30), any), /incomplete/);
@@ -56,7 +56,7 @@ const table = Array.from({ length: 256 }, (_, n) => {
 });
 function crc(bytes: Uint8Array) {
   let c = 0xffffffff;
-  for (const b of bytes) c = table[(c ^ b) & 0xff] ^ (c >>> 8);
+  for (const b of bytes) c = (table[(c ^ b) & 0xff] ?? 0) ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 }
 function chunk(type: string, data: Uint8Array) {

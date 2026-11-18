@@ -53,7 +53,7 @@ test("body deadlines cancel and unlock a stalled response", async () => {
         yield* TestClock.adjust(10_000);
         return yield* Fiber.join(pending);
       }),
-      async () => new Response(body),
+      () => Promise.resolve(new Response(body)),
     ).pipe(Effect.provide(TestClock.layer())),
   );
   assert.equal(Result.isFailure(result) && result.failure.reason, "timeout");
@@ -108,9 +108,8 @@ test("oversized and invalid responses fail with typed errors and release readers
   });
   await assert.rejects(
     Effect.runPromise(
-      provide(
-        readHttpText(url, {}, { maxBytes: 4 }),
-        async () => new Response(body),
+      provide(readHttpText(url, {}, { maxBytes: 4 }), () =>
+        Promise.resolve(new Response(body)),
       ),
     ),
     {
@@ -122,9 +121,8 @@ test("oversized and invalid responses fail with typed errors and release readers
   assert.equal(body.locked, false);
   await assert.rejects(
     Effect.runPromise(
-      provide(
-        readHttpJson(url, {}, Schema.Struct({ id: Schema.String })),
-        async () => Response.json({ id: 1 }),
+      provide(readHttpJson(url, {}, Schema.Struct({ id: Schema.String })), () =>
+        Promise.resolve(Response.json({ id: 1 })),
       ),
     ),
     {
@@ -162,7 +160,7 @@ test("HTTP cancellation waits for response reader cleanup", async () => {
   const controller = new AbortController();
   let settled = false;
   const pending = Effect.runPromiseExit(
-    provide(readHttpText(url), async () => new Response(body)),
+    provide(readHttpText(url), () => Promise.resolve(new Response(body))),
     { signal: controller.signal },
   ).finally(() => {
     settled = true;
@@ -183,7 +181,7 @@ test("cancelling a response closes its reader without aborting the transport", a
   const started = new Promise<void>((resolve) => {
     reading = resolve;
   });
-  const transport: HttpFetch = async (_url, init) => {
+  const transport: HttpFetch = (_url, init) => {
     transportSignal = init?.signal;
     const body = new ReadableStream<Uint8Array>(
       {
@@ -196,7 +194,7 @@ test("cancelling a response closes its reader without aborting the transport", a
       },
       { highWaterMark: 0 },
     );
-    return new Response(body);
+    return Promise.resolve(new Response(body));
   };
   const caller = new AbortController();
   const pending = Effect.runPromiseExit(provide(readHttpText(url), transport), {
@@ -220,7 +218,7 @@ test("cancellation lets a fetch wrapper finish reading its cloned body", async (
   const gate = new Promise<void>((resolve) => {
     release = resolve;
   });
-  const transport: HttpFetch = async (_url, init) => {
+  const transport: HttpFetch = (_url, init) => {
     transportSignal = init?.signal;
     const body = new ReadableStream<Uint8Array>(
       {
@@ -236,7 +234,7 @@ test("cancellation lets a fetch wrapper finish reading its cloned body", async (
     // Wrappers such as analytics or extensions read a clone of the response.
     const [appBody, wrapperBody] = body.tee();
     wrapperRead = new Response(wrapperBody).text();
-    return new Response(appBody);
+    return Promise.resolve(new Response(appBody));
   };
   const caller = new AbortController();
   const pending = Effect.runPromiseExit(provide(readHttpText(url), transport), {
@@ -258,7 +256,7 @@ test("an unread cloned body is aborted only after the deadline", async () => {
   const started = new Promise<void>((resolve) => {
     reading = resolve;
   });
-  const transport: HttpFetch = async (_url, init) => {
+  const transport: HttpFetch = (_url, init) => {
     transportSignal = init?.signal;
     const body = new ReadableStream<Uint8Array>(
       {
@@ -278,7 +276,7 @@ test("an unread cloned body is aborted only after the deadline", async () => {
     // A wrapper can keep its branch without ever reading it.
     let appBody: ReadableStream<Uint8Array>;
     [appBody, wrapperBody] = body.tee();
-    return new Response(appBody);
+    return Promise.resolve(new Response(appBody));
   };
   try {
     await Effect.runPromise(

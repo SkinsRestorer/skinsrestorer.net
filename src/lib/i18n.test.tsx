@@ -131,7 +131,7 @@ test("every tool translation is self-canonical with reciprocal hreflang and an E
         (tag) =>
           "property" in tag &&
           tag.property === "og:url" &&
-          tag.content === canonical[0].href,
+          tag.content === canonical[0]?.href,
       ),
     );
   }
@@ -145,7 +145,7 @@ test("untranslated docs use the English canonical and never claim a missing tran
     title: "Development",
   });
   assert.equal(
-    head.links[0].href,
+    head.links[0]?.href,
     "https://skinsrestorer.net/docs/development",
   );
   assert.ok(
@@ -162,7 +162,7 @@ test("untranslated docs use the English canonical and never claim a missing tran
 });
 
 const placeholders = (text: string) =>
-  [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).toSorted();
+  [...text.matchAll(/\{(\w+)\}/g)].map(([, name = ""]) => name).toSorted();
 
 test("translation catalogs keep every message and interpolation parameter in each locale", () => {
   const keys = Object.keys(catalogs.en).toSorted();
@@ -295,11 +295,10 @@ test("failure messages keep their keys through Effect and async generation state
   );
   const state = generation.getSnapshot();
   assert.equal(state.status, "failed");
-  if (state.status === "failed")
-    assert.equal(
-      createTranslator("pt-BR").message(state.message),
-      catalogs["pt-BR"]["errors.serviceReturnedInvalidResponse"],
-    );
+  assert.equal(
+    createTranslator("pt-BR").message(state.message),
+    catalogs["pt-BR"]["errors.serviceReturnedInvalidResponse"],
+  );
 });
 
 test("skin issue details interpolate counts and localize the selected model", async () => {

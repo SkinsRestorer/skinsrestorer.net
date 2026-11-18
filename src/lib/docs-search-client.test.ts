@@ -92,8 +92,8 @@ test("pages named after the query come first, then matching headings", () => {
 test("ranking keeps each page's hits with their page", () => {
   const ranked = rankDocsResults(results, "cape");
   assert.equal(ranked.length, results.length);
-  assert.equal(ranked[1].url, "/docs/concepts/skin-properties");
-  assert.equal(ranked[2].content, "Model and cape");
+  assert.equal(ranked[1]?.url, "/docs/concepts/skin-properties");
+  assert.equal(ranked[2]?.content, "Model and cape");
 });
 
 test("a plural query still matches a singular title", () => {

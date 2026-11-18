@@ -34,12 +34,12 @@ test("legacy shortcuts resolve with temporary redirects, including trailing slas
       "/docs/troubleshooting/cannot-fetch-new-skins",
       "/docs/troubleshooting/firewall",
     ],
-  ]) {
+  ] as const) {
     assert.deepEqual(getSiteRedirect(path), { destination, status: 307 });
   }
   assert.equal(
     getSiteRedirect("/github")?.destination,
-    import.meta.env.VITE_GITHUB_LINK ??
+    import.meta.env["VITE_GITHUB_LINK"] ??
       "https://github.com/SkinsRestorer/SkinsRestorer",
   );
 });

@@ -22,6 +22,7 @@ import {
   skinLibraryLayer,
   type StoredSkin,
 } from "./skin-library";
+import { required } from "./utils";
 
 const disposers: (() => unknown)[] = [];
 afterEach(async () => {
@@ -105,9 +106,9 @@ test("autosave writes only the editor's own draft, never the skin", async () => 
   await session.flush();
   const listing = await list(library);
   assert.equal(listing.sessions.length, 1);
-  assert.equal(listing.sessions[0].id, session.getSnapshot().sessionId);
+  assert.equal(listing.sessions[0]?.id, session.getSnapshot().sessionId);
   assert.equal(listing.sessions[0].baseRevision, skin.revision);
-  assert.equal(listing.skins[0].revision, skin.revision);
+  assert.equal(listing.skins[0]?.revision, skin.revision);
   assert.deepEqual(
     await bytes(listing.skins[0].current.png),
     await bytes(skin.current.png),
@@ -130,7 +131,7 @@ test("autosave waits for a quiet moment and never writes during a stroke", async
   await session.flush();
   const listing = await list(library);
   assert.equal(listing.sessions.length, 1);
-  assert.equal(listing.sessions[0].id, session.getSnapshot().sessionId);
+  assert.equal(listing.sessions[0]?.id, session.getSnapshot().sessionId);
 });
 
 test("an explicit flush replaces the scheduled write and resolves after it", async () => {
@@ -140,12 +141,12 @@ test("an explicit flush replaces the scheduled write and resolves after it", asy
   const id = session.getSnapshot().sessionId;
   await session.flush();
   assert.equal((await list(library)).sessions.length, 1);
-  const first = (await list(library)).sessions[0].updatedAt;
+  const first = (await list(library)).sessions[0]?.updatedAt;
   // The cancelled schedule does not write a second time.
   await sleep(60);
   const listing = await list(library);
   assert.equal(listing.sessions.length, 1);
-  assert.equal(listing.sessions[0].id, id);
+  assert.equal(listing.sessions[0]?.id, id);
   assert.equal(listing.sessions[0].updatedAt, first);
 });
 
@@ -189,7 +190,7 @@ test("a queued draft keeps its pixels and owner when another skin opens", async 
   await saving;
   const listing = await list(library);
   assert.equal(listing.sessions.length, 1);
-  const draft = listing.sessions[0];
+  const draft = required(listing.sessions[0], "saved draft");
   assert.equal(draft.id, previousId);
   assert.equal(draft.skinId, skin.id);
   assert.equal(draft.variant, "slim");
@@ -223,13 +224,12 @@ test("save replaces the current version, keeps the original, and ends the draft"
   await session.flush();
   const result = await session.save();
   assert.equal(result.kind, "saved");
-  if (result.kind !== "saved") return;
   assert.equal(result.variant, "slim");
   assert.equal(result.skin?.id, skin.id);
   assert.equal(session.getSnapshot().dirty, false);
   const listing = await list(library);
   assert.equal(listing.sessions.length, 0);
-  const saved = listing.skins[0];
+  const saved = required(listing.skins[0], "saved skin");
   assert.equal(saved.current.variant, "slim");
   assert.equal(saved.original.hash, skin.original.hash);
   assert.deepEqual(await bytes(result.file), await bytes(saved.current.png));
@@ -247,17 +247,19 @@ test("save as copy selects a new skin and leaves the source unchanged", async ()
   await session.flush();
   const result = await session.saveCopy();
   assert.equal(result.kind, "saved");
-  if (result.kind !== "saved") return;
   assert.notEqual(result.skin?.id, skin.id);
   assert.equal(result.name, "Harbor copy");
   assert.equal(result.skin?.source.copiedFrom, skin.id);
   const listing = await list(library);
-  const source = listing.skins.find((entry) => entry.id === skin.id)!;
+  const source = required(
+    listing.skins.find((entry) => entry.id === skin.id),
+    "find result",
+  );
   assert.equal(source.revision, skin.revision);
   assert.equal(source.current.hash, skin.current.hash);
   assert.equal(listing.sessions.length, 0);
   // The editor now works on the copy.
-  assert.equal(session.getSnapshot().target.skinId, result.skin?.id);
+  assert.equal(session.getSnapshot().target.skinId, result.skin.id);
 });
 
 test("an unsaved draft survives a reload and continues in a new session", async () => {
@@ -281,7 +283,7 @@ test("an unsaved draft survives a reload and continues in a new session", async 
     recovery.map((draft) => draft.id),
     [oldId],
   );
-  await after.session.continueDraft(recovery[0]);
+  await after.session.continueDraft(required(recovery[0], "recovered draft"));
   assert.deepEqual(after.store.pixels, pixels);
   assert.equal(after.store.getSnapshot().variant, "slim");
   assert.equal(after.session.getSnapshot().dirty, true);
@@ -314,7 +316,6 @@ test("two editors on one skin keep both drafts and the second save conflicts", a
   assert.equal((await b.session.save()).kind, "saved");
   const conflict = await a.session.save();
   assert.equal(conflict.kind, "changed");
-  if (conflict.kind !== "changed") return;
   assert.equal(conflict.skin.current.variant, "slim");
   // A's draft is still there; nothing was lost.
   assert.equal((await list(tabA)).sessions.length, 1);
@@ -349,7 +350,6 @@ test("save as copy names the copy in the visitor's language", async () => {
   paint(store, 4);
   const result = await session.saveCopy();
   assert.equal(result.kind, "saved");
-  if (result.kind !== "saved") return;
   assert.equal(result.name, "Harbor (копия)");
   assert.equal(result.file.name, "Harbor (копия).png");
 });
@@ -369,16 +369,18 @@ test("a draft written after another tab removed its skin can become a new skin",
   const reloaded = editor(tab(factory));
   const recovery = await reloaded.session.loadRecovery();
   assert.equal(recovery.length, 1);
-  assert.deepEqual(reloaded.session.getSnapshot().orphans, [recovery[0].id]);
-  const saved = await reloaded.session.saveDraftAsSkin(recovery[0]);
+  assert.deepEqual(reloaded.session.getSnapshot().orphans, [recovery[0]?.id]);
+  const saved = await reloaded.session.saveDraftAsSkin(
+    required(recovery[0], "recovered draft"),
+  );
   assert.equal(saved?.name, "Harbor");
-  assert.notEqual(saved?.id, skin.id);
+  assert.notEqual(saved.id, skin.id);
   assert.deepEqual(reloaded.session.getSnapshot().recovery, []);
   assert.deepEqual(reloaded.session.getSnapshot().orphans, []);
   const listing = await list(tabA);
   assert.deepEqual(
     listing.skins.map((entry) => entry.id),
-    [saved?.id],
+    [saved.id],
   );
   // The draft became the skin, so it is no longer offered for recovery.
   assert.equal(listing.sessions.length, 0);
@@ -397,7 +399,7 @@ test("continuing a draft whose skin was removed saves it as a new skin", async (
   const library = tab(factory);
   const b = editor(library);
   const [draft] = await b.session.loadRecovery();
-  await b.session.continueDraft(draft);
+  await b.session.continueDraft(required(draft, "recovered draft"));
   assert.equal(b.session.getSnapshot().target.skinId, undefined);
   assert.equal(b.session.getSnapshot().target.name, "Harbor");
   // The continued draft no longer points at the removed skin.
@@ -407,7 +409,6 @@ test("continuing a draft whose skin was removed saves it as a new skin", async (
   assert.equal(continued?.skinId, undefined);
   const result = await b.session.save();
   assert.equal(result.kind, "saved");
-  if (result.kind !== "saved") return;
   assert.notEqual(result.skin?.id, skin.id);
   assert.equal(result.skin?.name, "Harbor");
 });
@@ -419,7 +420,6 @@ test("without a library, saving returns the edited PNG for the form only", async
   assert.equal(session.getSnapshot().drafts.kind, "off");
   const result = await session.save();
   assert.equal(result.kind, "saved");
-  if (result.kind !== "saved") return;
   assert.equal(result.skin, undefined);
   assert.equal(result.file.name, "harbor.png");
   const reopened = await documentOf(result.file, result.variant);
@@ -435,7 +435,7 @@ test("new work is saved as a new skin on the first save", async () => {
   assert.equal(result.kind, "saved");
   const listing = await list(library);
   assert.equal(listing.skins.length, 1);
-  assert.equal(listing.skins[0].source.kind, "editor");
+  assert.equal(listing.skins[0]?.source.kind, "editor");
   assert.equal(session.getSnapshot().target.skinId, listing.skins[0].id);
 });
 
@@ -457,7 +457,7 @@ test("when the library cannot open, saving returns the PNG without asking", asyn
   paint(store, 4);
   const result = await session.save();
   assert.equal(result.kind, "saved");
-  if (result.kind === "saved") assert.equal(result.skin, undefined);
+  assert.equal(result.skin, undefined);
 });
 
 test("drafts come back after a full storage write, and stop when the library cannot open", async () => {

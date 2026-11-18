@@ -134,7 +134,11 @@ const templateColors = {
  */
 export function createTemplate(variant: SkinVariant): SkinDocument {
   const pixels = emptyPixels();
-  const set = (x: number, y: number, rgb: readonly number[]) => {
+  const set = (
+    x: number,
+    y: number,
+    rgb: readonly [number, number, number],
+  ) => {
     const at = pixelOffset(x, y);
     pixels[at] = rgb[0];
     pixels[at + 1] = rgb[1];
@@ -145,7 +149,7 @@ export function createTemplate(variant: SkinVariant): SkinDocument {
     if (region.layer !== "base") continue;
     for (let y = 0; y < region.height; y++)
       for (let x = 0; x < region.width; x++) {
-        let color: readonly number[];
+        let color: readonly [number, number, number];
         const shade = region.face === "bottom" || region.face === "back";
         if (region.part === "head")
           color =

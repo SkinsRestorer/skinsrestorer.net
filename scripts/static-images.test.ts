@@ -23,6 +23,7 @@ import {
   type StaticImageManifest,
 } from "../src/lib/static-images";
 import { Image } from "../src/components/image";
+import { required } from "../src/lib/utils";
 import imageMetadata from "../src/lib/image-metadata.json" with { type: "json" };
 
 void test("generate static variants, reserve oriented dimensions, and preserve special images", async () => {
@@ -83,22 +84,22 @@ void test("generate static variants, reserve oriented dimensions, and preserve s
     const manifest: StaticImageManifest = JSON.parse(
       await readFile(metadataFile, "utf8"),
     );
-    const photo = manifest["/photo sample.png"];
+    const photo = required(manifest["/photo sample.png"], "photo metadata");
     assert.match(photo.background ?? "", /^data:image\/bmp;base64,/);
-    assert.equal(manifest["/transparent.png"].background, undefined);
-    const alphaVariant = manifest["/transparent.png"].variants?.[0];
+    assert.equal(manifest["/transparent.png"]?.background, undefined);
+    const alphaVariant = manifest["/transparent.png"]?.variants?.[0];
     assert.ok(alphaVariant);
     assert.equal(
       (await sharp(join(publicDirectory, alphaVariant.src)).stats()).isOpaque,
       false,
     );
     assert.deepEqual(
-      [manifest["/rotated.jpg"].width, manifest["/rotated.jpg"].height],
+      [manifest["/rotated.jpg"]?.width, manifest["/rotated.jpg"]?.height],
       [80, 120],
     );
     for (const src of ["/vector.svg", "/animated.webp", "/skin.png"]) {
-      assert.equal(manifest[src].variants, undefined, src);
-      assert.equal(manifest[src].background, undefined, src);
+      assert.equal(manifest[src]?.variants, undefined, src);
+      assert.equal(manifest[src]?.background, undefined, src);
     }
     for (const metadata of Object.values(manifest)) {
       for (const variant of metadata.variants ?? []) {
@@ -109,8 +110,7 @@ void test("generate static variants, reserve oriented dimensions, and preserve s
         assert.ok(variant.width <= metadata.width);
         assert.ok(
           Math.abs(
-            (actual.height ?? 0) / variant.width -
-              metadata.height / metadata.width,
+            actual.height / variant.width - metadata.height / metadata.width,
           ) <=
             1 / variant.width,
         );
@@ -140,12 +140,15 @@ void test("generate static variants, reserve oriented dimensions, and preserve s
       await readFile(metadataFile, "utf8"),
     );
     assert.notEqual(
-      changed["/photo sample.png"].variants?.[0].src,
-      photo.variants?.[0].src,
+      changed["/photo sample.png"]?.variants?.[0]?.src,
+      photo.variants?.[0]?.src,
     );
     assert.ok(
       !(await readdir(join(publicDirectory, "_images"))).includes(
-        photo.variants![0].src.split("/").pop()!,
+        required(
+          photo.variants?.[0]?.src.split("/").pop(),
+          "photo variant file name",
+        ),
       ),
     );
     for (const src of [

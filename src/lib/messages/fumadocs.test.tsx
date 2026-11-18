@@ -45,7 +45,7 @@ for (const locale of locales) {
       html,
     );
     assert.ok(button, "language button not rendered");
-    const [, name, content] = button;
+    const [, name = "", content = ""] = button;
     const visibleText = content.replaceAll(/<[^>]+>/g, "");
     assert.equal(visibleText, localeNames[locale]);
     assert.ok(

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-const baseUrl = process.env.SITE_TEST_URL;
+const baseUrl = process.env["SITE_TEST_URL"];
 const siteUrl = "https://skinsrestorer.net";
 const languages = ["en", "ru", "es", "pt-BR"] as const;
 const entryPaths = ["/studio", "/upload", "/generator"] as const;
@@ -124,7 +124,7 @@ void test(
     const sitemap = await sitemapResponse.text();
     const entries = new Map(
       [...sitemap.matchAll(/<url\b[^>]*>([\s\S]*?)<\/url>/g)].map(
-        ([, markup]) => [markup.match(/<loc>(.*?)<\/loc>/)?.[1], markup],
+        ([, markup = ""]) => [markup.match(/<loc>(.*?)<\/loc>/)?.[1], markup],
       ),
     );
     for (const language of languages) {
