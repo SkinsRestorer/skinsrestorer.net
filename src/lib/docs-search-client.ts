@@ -17,7 +17,7 @@ export const maxSearchPages = 12;
 function words(value: string) {
   return value
     .normalize("NFD")
-    .replace(/\p{M}/gu, "")
+    .replaceAll(/\p{M}/gu, "")
     .toLowerCase()
     .split(/[^\p{L}\p{N}]+/u)
     .filter(Boolean);
@@ -51,7 +51,7 @@ export function rankDocsResults(
   const groups: SortedResult[][] = [];
   for (const result of results) {
     if (result.type === "page" || groups.length === 0) groups.push([result]);
-    else groups[groups.length - 1].push(result);
+    else groups.at(-1)!.push(result);
   }
   const tier = (group: SortedResult[]) => {
     if (terms.length === 0) return 0;

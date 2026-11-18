@@ -29,8 +29,9 @@ import {
   editorShortcuts,
   toolCommands,
   type EditorCommand,
-} from "@/components/editor/editor-commands";
-import { ColorControls, toHex } from "@/components/editor/color-panel";
+} from "@/components/editor/editor-shortcuts";
+import { ColorControls } from "@/components/editor/color-panel";
+import { toHex } from "@/components/editor/color-hex";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import {
   toolLabels,
@@ -420,6 +421,16 @@ export function StudioEditor(props: {
     handle(await session.save({ replace }), "save");
   };
   const saveCopy = async () => handle(await session.saveCopy(), "copy");
+  const saveUnkept = async () =>
+    handle(await session.save({ keep: false }), "save");
+  const discardAndLeave = async () => {
+    await session.discard();
+    leave();
+  };
+  const keepDraftAndLeave = async () => {
+    await session.flush();
+    leave();
+  };
 
   const convertArms = () => {
     const target =
@@ -775,19 +786,17 @@ export function StudioEditor(props: {
                 setConfirm(null);
                 void save(true);
               }}
-              onUnkept={async () => {
+              onUnkept={() => {
                 setConfirm(null);
-                handle(await session.save({ keep: false }), "save");
+                void saveUnkept();
               }}
-              onDiscard={async () => {
+              onDiscard={() => {
                 setConfirm(null);
-                await session.discard();
-                leave();
+                void discardAndLeave();
               }}
-              onKeepDraft={async () => {
+              onKeepDraft={() => {
                 setConfirm(null);
-                await session.flush();
-                leave();
+                void keepDraftAndLeave();
               }}
             />
           )}

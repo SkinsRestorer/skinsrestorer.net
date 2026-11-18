@@ -28,13 +28,12 @@ function library(factory = new IDBFactory()) {
 
 /** A library whose calls never finish or always fail. */
 const stalled: LibraryClient = {
-  run: () => new Promise(() => undefined),
+  run: () => new Promise(() => {}),
   subscribe: () => () => undefined,
   dispose: async () => undefined,
 };
 const failing: LibraryClient = {
-  run: () =>
-    Promise.reject(Object.assign(new Error("Browser storage is full."))),
+  run: () => Promise.reject(new Error("Browser storage is full.")),
   subscribe: () => () => undefined,
   dispose: async () => undefined,
 };
@@ -61,13 +60,18 @@ function manualPreview() {
     preview: (file: File, events: PreviewEvents, signal: AbortSignal) => {
       pending.push({ file, events, signal });
       for (const wake of waiting.splice(0)) wake();
-      return new Promise<void>((_, reject) =>
-        signal.addEventListener("abort", () => reject(signal.reason)),
-      );
+      return new Promise<void>((_, reject) => {
+        signal.addEventListener("abort", () =>
+          // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- an abort reason is typed any; the signal rejects with its DOMException
+          reject(signal.reason),
+        );
+      });
     },
     async next(count = 1) {
       while (pending.length < count)
-        await new Promise<void>((resolve) => waiting.push(resolve));
+        await new Promise<void>((resolve) => {
+          waiting.push(resolve);
+        });
     },
   };
 }
@@ -76,15 +80,20 @@ function autoPreview(variant: SkinVariant = "classic") {
   return (file: File, events: PreviewEvents, signal: AbortSignal) => {
     events.preview(`blob:${file.name}`);
     events.detected(variant);
-    return new Promise<void>((_, reject) =>
-      signal.addEventListener("abort", () => reject(signal.reason)),
-    );
+    return new Promise<void>((_, reject) => {
+      signal.addEventListener("abort", () =>
+        // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- an abort reason is typed any; the signal rejects with its DOMException
+        reject(signal.reason),
+      );
+    });
   };
 }
 
 async function until(check: () => boolean) {
   for (let i = 0; i < 200 && !check(); i++)
-    await new Promise((resolve) => setTimeout(resolve, 1));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1);
+    });
   assert.ok(check(), "condition not reached");
 }
 
@@ -202,7 +211,9 @@ test("gallery selection preserves its model and pixels without writing to the li
 test("a late library write links only the selection that started it", async () => {
   const client = library();
   let release!: () => void;
-  const gate = new Promise<void>((resolve) => (release = resolve));
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
   const slow: LibraryClient = {
     ...client,
     run: async (effect, signal) => {

@@ -95,7 +95,7 @@ async function build(
     chunk("IDAT", compressed),
     chunk("IEND", new Uint8Array()),
   ];
-  return new Uint8Array(parts.flatMap((p) => [...p]));
+  return new Uint8Array(parts.flatMap((p) => Array.from(p)));
 }
 
 test("palette images with transparency decode to RGBA", async () => {

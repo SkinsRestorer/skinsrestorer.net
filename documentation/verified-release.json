@@ -914,16 +914,16 @@
     "shared/src/main/java/net/skinsrestorer/shared/utils/ValidationUtil.java": "15090c155d5b3d64f0663d2bb4b20ac2a51dbcd3b018cde2d309d400199cee17"
   },
   "websiteSources": {
-    "src/lib/mineskin.ts": "a72f5a29ce2e5a0bf06077d8f4b0a4e240e36cb57ce486466f533a5f8e24020f",
+    "src/lib/mineskin.ts": "a69511b08cab8c5f7bc942917dc5c94cd29d831f022daa8f91c62144cee12dcf",
     "src/lib/hooks/use-cape-access.ts": "32fee11dc82be68258d29e273108f771660a0a321cbe53c49c0201213d715795",
     "src/lib/hooks/use-skin-selection.ts": "e4cc76b5ab5679af90c7f472b0b65b134ce29d535c4566d05aa8fed7eb831d5a",
-    "src/lib/skin-selection.ts": "f35bc6dc7fe701be9f64923ed32eddbcfeef0b6035e767bc0a3dddfb448963ce",
-    "src/lib/skin-library.ts": "5f36d0362320d6b085a50bb9482faf8b6d55ef0134cdee799182bb482155c3ab",
+    "src/lib/skin-selection.ts": "df3e9d00068427f300aab3ae5c43a3112f067423382630d01f4cf9a42b3c2070",
+    "src/lib/skin-library.ts": "3cdd28c2ac6aef2358b00478a2b2218892aafb0735b74baec18bb82e22aff73e",
     "src/lib/skin-library-client.ts": "f4b0ae64294e58cd60465c80fb7bf1b2f355626fc15dec13e75c2b5257157c52",
     "src/lib/editor-session.ts": "09a9761c3aca835c743c03825b61311e64a9beb15724cc8e1e9c861d1ae31fe9",
-    "src/components/studio/skin-studio.tsx": "51c9763681b40f3492e51cc25835b15fed9a49f5659f88d8972e812831548d80",
+    "src/components/studio/skin-studio.tsx": "79363aa321c4b3f134ac509ffca762458fbfc278a4f3d6533ae554d4e7375bff",
     "src/components/studio/studio-library.tsx": "e47d73301855bbc1b5bbfe5a75ab93146af15e0f8903ea066f8bd13173181e89",
-    "src/components/studio/studio-editor.tsx": "c96896a9d7548ad8ecd128be5cf6ec896bf9f7cc21f5fe41ee3840f6a21492a9",
+    "src/components/studio/studio-editor.tsx": "775d995dadf4aad572808f098e1c1053910f257fafd451f32e74caecd5cd5eae",
     "src/components/studio/draft-recovery.tsx": "4b3d9caff63528ef0b9a81ba22adf1d3d7a11e8be20c608c2d5e1ced01247459",
     "src/components/advanced-options.tsx": "a409b3a99a60dadadbdb1c27acf1f94c85e1573f9625d3301d80d47345a13905",
     "src/components/cape-support-fields.tsx": "5f67c58cdd4de739c532cdfee0d400ae87297aa4e6c5c3d87e948cfb2be776c0",
@@ -932,13 +932,14 @@
     "src/lib/hooks/use-latest-task.ts": "187497ebcc921d7b59ae1fa9e316a224e5ca950d2f7c0c1ab4a9b4875408977e",
     "src/lib/hooks/use-studio-generation.ts": "fcbf7c71ebbdd6de6d81be8320dc11d993c42d18bce6819c9ca9ed8ea3d86bba",
     "src/lib/studio-generation.ts": "e4edc531b2c09ab829b6042a1979ca7ddd39e42b3ba9c6c3e0495835f6f16542",
-    "src/lib/studio.ts": "271625bd0b0a78101bdc674805d604b2b7e24d2d5dbb3f90e965f4746591f084",
+    "src/lib/studio.ts": "cbf56f460a26ed64f1bb8c56c62efa4f719c67808cc351cbfd254edeefb22fa3",
     "src/lib/studio-options.ts": "48a199a5fbb24eb2a0b14ac247a4c010fd515418f8d3b5a71b89506ae6fe1c23",
     "src/lib/location-write.ts": "ac1dca445184445fef14c0b9858f7a822c6bbef0da35d4415e72b1eeecad7527",
     "src/lib/skin.ts": "66091568be24d7fb920fca1e00a6a9b89ec010d1a42652eba951dc4f31025174",
     "src/lib/skin-check.ts": "f5e83356de49cfc518cba3f4c3fd95e96292c4daff80167117a244d93d97c0a8",
     "src/lib/skin-draft.ts": "ed5540221524452a4dcd78504d451c18b704008a10207370c22b81667568973e",
-    "src/components/studio/studio-gallery.tsx": "a96fc8385b24e9844c9740539d769e01dc55d9a324fc6a24c887a813c34100c3",
-    "src/lib/skin-gallery.ts": "3ed5908ac669d78c8fc173b52c8f2fae2ba1ac59176a9f59431ae41117fcd6d9"
+    "src/components/studio/studio-gallery.tsx": "b9b3a419821841a623f77f67ad1d15c5440a373a587b50cea41c46908a5650a4",
+    "src/components/studio/gallery-keys.ts": "b774cf22ed1b776f61b27e84e0324be6173bc35192dcd2f376a3ce6ac313293f",
+    "src/lib/skin-gallery.ts": "b80c40da2d98617d2ee0d9b25f429c8c647ca583bc4e79353ffab3922047b3c4"
   }
 }

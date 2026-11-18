@@ -12,13 +12,14 @@ import {
   locales,
   splitLocalePath,
 } from "./i18n";
-import { LocaleProvider } from "./i18n-react";
+import { LocaleProvider } from "./locale-provider";
 import {
   catalogs,
   translate,
   createTranslator,
   MessageError,
   isMessageKey,
+  type Message,
   type MessageKey,
 } from "./messages";
 import { getPageHead } from "./seo";
@@ -324,7 +325,7 @@ test("blocked painting returns a localizable status without leaking a key", asyn
   const { startTool } = await import("@/components/editor/editor-types");
   const { SkinEditorStore } = await import("./skin-editor-store");
   const { allPartsVisible, defaultBrush } = await import("./skin-paint");
-  let status: import("./messages").Message = "";
+  let status: Message = "";
   const result = startTool(
     {
       store: new SkinEditorStore(),

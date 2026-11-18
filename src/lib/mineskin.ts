@@ -217,10 +217,12 @@ export const fetchMineSkinSupportedCapesEffect = Effect.fn(
   );
   return (data.capes ?? [])
     .filter((cape) => cape.supported)
-    .map((cape) => ({
-      ...cape,
-      url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
-    }));
+    .map((cape) =>
+      // The decoded capes are fresh objects that only this function owns.
+      Object.assign(cape, {
+        url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
+      }),
+    );
 });
 export const fetchCapeSupportEffect = Effect.fn("MineSkin.capeSupport")(
   function* (apiKey: string) {

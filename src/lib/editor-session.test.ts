@@ -77,7 +77,10 @@ async function open(session: EditorSession, skin: StoredSkin) {
   });
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 const pencil: PaintSettings = {
   ...defaultBrush,

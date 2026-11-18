@@ -46,6 +46,7 @@ export function HomeLayout({ children }: { children: ReactNode }) {
       <FumadocsHomeLayout
         {...baseOptions}
         slots={slots}
+        // oxlint-disable-next-line typescript/no-deprecated -- the replacement is a custom slot; this prop hides the language switch on English-only pages
         i18n={
           !["/privacy-policy", "/terms-of-service", "/cookie-policy"].includes(
             path,

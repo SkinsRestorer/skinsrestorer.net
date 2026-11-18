@@ -2,7 +2,7 @@
 
 import { isMessageKey, type MessageKey } from "@/lib/messages";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useForm, useSelector } from "@tanstack/react-form";
 import {
   Link,
   useNavigate,
@@ -75,7 +75,7 @@ import {
 } from "@/lib/editor-session";
 import { useCapeAccess } from "@/lib/hooks/use-cape-access";
 import { useLatestTask } from "@/lib/hooks/use-latest-task";
-import { useSkinLibrary } from "@/lib/hooks/use-skin-library";
+import { useSkinLibrary, downloadSkin } from "@/lib/hooks/use-skin-library";
 import { useSkinGallery } from "@/lib/hooks/use-skin-gallery";
 import { useSkinSelection } from "@/lib/hooks/use-skin-selection";
 import { useStudioGeneration } from "@/lib/hooks/use-studio-generation";
@@ -92,7 +92,6 @@ import {
 } from "@/lib/skin-selection";
 import { loadTextureEffect } from "@/lib/skin-texture";
 import { galleryPermalink, type GallerySkin } from "@/lib/skin-gallery";
-import { downloadSkin } from "@/lib/hooks/use-skin-library";
 import {
   fixedPurpose,
   MAX_GALLERY_QUERY,
@@ -711,8 +710,7 @@ export function SkinStudio(props: {
   };
 
   const keepGallery = () => {
-    if (!current || current.origin !== "gallery" || current.status !== "ready")
-      return;
+    if (current?.origin !== "gallery" || current.status !== "ready") return;
     const client = library.client;
     if (!client) return;
     const token = current.token;
@@ -743,7 +741,7 @@ export function SkinStudio(props: {
     );
   };
   const editSelected = () => {
-    if (!current || current.status !== "ready") return;
+    if (current?.status !== "ready") return;
     const { token } = current;
     cancelImport();
     void importTask.run(
@@ -773,12 +771,12 @@ export function SkinStudio(props: {
       });
     // The view's entry still names the gallery skin; replace it once Back
     // has reached it, so the saved skin stays selected.
-    exitEdit(() =>
-      updateSearch((prev) => ({
+    exitEdit(() => {
+      void updateSearch((prev) => ({
         ...withoutSkinReference(prev),
         source: "library",
-      })),
-    );
+      }));
+    });
   };
 
   // ---- Command options ----
@@ -804,12 +802,12 @@ export function SkinStudio(props: {
     });
     return Object.keys(fields).length ? { fields } : undefined;
   }
-  const options = useStore(form.store, (formState) => formState.values);
-  const submitting = useStore(
+  const options = useSelector(form.store, (formState) => formState.values);
+  const submitting = useSelector(
     form.store,
     (formState) => formState.isSubmitting,
   );
-  const submitted = useStore(
+  const submitted = useSelector(
     form.store,
     (formState) => formState.submissionAttempts > 0,
   );
@@ -1795,6 +1793,18 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
     const timer = setTimeout(() => setCopied(false), 1400);
     return () => clearTimeout(timer);
   }, [copied]);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(props.value);
+      setCopied(true);
+      // The icon change alone is easy to miss.
+      toast.success(t("common.copiedClipboard"), {
+        id: `copy-${id}`,
+      });
+    } catch {
+      toast.error(t("common.failedCopy"));
+    }
+  };
   return (
     <div className="flex flex-col gap-1.5">
       <span id={id} className="text-sm font-medium">
@@ -1816,18 +1826,7 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
           size="icon-sm"
           className="absolute top-0.5 right-0.5"
           aria-label={t("studio.copyItem", { item: props.label })}
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(props.value);
-              setCopied(true);
-              // The icon change alone is easy to miss.
-              toast.success(t("common.copiedClipboard"), {
-                id: `copy-${id}`,
-              });
-            } catch {
-              toast.error(t("common.failedCopy"));
-            }
-          }}
+          onClick={() => void copy()}
         >
           {copied ? <Check /> : <Copy />}
         </Button>

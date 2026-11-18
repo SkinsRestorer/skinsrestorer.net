@@ -58,7 +58,7 @@ test(
       const html = await response.text();
       const title = html
         .match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1]
-        .replace(/<[^>]+>/g, "")
+        .replaceAll(/<[^>]+>/g, "")
         .trim();
       assert.equal(title, heading, `Missing page heading: ${path}`);
       assert.ok(
@@ -225,7 +225,7 @@ test(
     for (const slugs of [[], ["installation"]]) {
       const key = createHash("sha1")
         .update(
-          `docs-metadata__${JSON.stringify(["en", ...slugs]).replace(/[/\\?%*:|"<>]/g, "-")}`,
+          `docs-metadata__${JSON.stringify(["en", ...slugs]).replaceAll(/[/\\?%*:|"<>]/g, "-")}`,
         )
         .digest("hex");
       const response = await request(`/__tsr/staticServerFnCache/${key}.json`);

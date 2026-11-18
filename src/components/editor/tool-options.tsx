@@ -9,11 +9,13 @@ import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { usesBrush } from "@/components/editor/editor-types";
 import {
-  editorShortcuts,
   HintTrigger,
   ShortcutHints,
-  useShortcutHints,
 } from "@/components/editor/editor-commands";
+import {
+  editorShortcuts,
+  useShortcutHints,
+} from "@/components/editor/editor-shortcuts";
 import {
   BRUSH_SIZES,
   type FillScope,

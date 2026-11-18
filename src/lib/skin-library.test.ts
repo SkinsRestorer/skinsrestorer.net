@@ -401,9 +401,13 @@ test("other tabs are told about committed changes", async () => {
   await use(b, (library) => library.list);
   const events: string[] = [];
   const stop = b.subscribe((event) => events.push(event.type));
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
   await addSkin(a, await prepare(await skinPng(1)));
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
   stop();
   assert.deepEqual(events, ["changed"]);
 });
@@ -421,7 +425,8 @@ test("damaged records are reported and can be removed, never overwritten", async
         open.result.close();
         resolve();
       };
-      tx.onerror = () => reject(tx.error);
+      tx.onerror = () =>
+        reject(tx.error ?? new Error("The IndexedDB transaction failed."));
     };
   });
   const listing = await use(client, (library) => library.list);

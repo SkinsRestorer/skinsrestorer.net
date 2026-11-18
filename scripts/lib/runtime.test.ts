@@ -62,7 +62,9 @@ test("interrupted child processes are reaped before temporary directory cleanup"
               pid = Number(current);
               return;
             }
-            await new Promise((resolve) => setTimeout(resolve, 5));
+            await new Promise((resolve) => {
+              setTimeout(resolve, 5);
+            });
           }
           throw new Error("Child did not start");
         });

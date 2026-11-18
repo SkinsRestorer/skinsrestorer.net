@@ -6,7 +6,7 @@ const textureParam = /([?&](?:texture|handoff)=)[^&#\s"'\\]*/gi;
  */
 export function redactEditorParams<T>(value: T): T {
   if (typeof value === "string")
-    return value.replace(textureParam, "$1redacted") as T;
+    return value.replaceAll(textureParam, "$1redacted") as T;
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++)
       value[i] = redactEditorParams(value[i]);

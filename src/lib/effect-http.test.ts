@@ -16,7 +16,7 @@ test("HTTP deadline aborts pending headers without waiting for the transport", a
   let signal: AbortSignal | null | undefined;
   const transport: HttpFetch = (_url, init) => {
     signal = init?.signal;
-    return new Promise(() => undefined);
+    return new Promise(() => {});
   };
   const outcome = await Effect.runPromise(
     provide(

@@ -28,7 +28,8 @@ import {
   isLocale,
   hasLocalizedPages,
 } from "@/lib/i18n";
-import { LocaleProvider, useLocale, useT } from "@/lib/i18n-react";
+import { useLocale, useT } from "@/lib/i18n-react";
+import { LocaleProvider } from "@/lib/locale-provider";
 import { fumadocsMessages } from "@/lib/messages/fumadocs";
 import { translate } from "@/lib/messages";
 import { siteTitleKey } from "@/lib/seo";

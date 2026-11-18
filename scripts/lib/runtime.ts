@@ -11,7 +11,8 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Context, Data, Effect, Layer } from "effect";
-import { HttpClient, httpClientLayer } from "../../src/lib/effect-http";
+import type { HttpClient } from "../../src/lib/effect-http";
+import { httpClientLayer } from "../../src/lib/effect-http";
 
 export class ToolError extends Data.TaggedError("ToolError")<{
   readonly operation: string;

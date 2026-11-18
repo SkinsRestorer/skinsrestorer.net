@@ -155,14 +155,16 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
     42,
     22,
   );
-  const sources = pixels.filter(
-    (i) =>
-      regionAt("slim", ...(xy(i) as [number, number]))?.part === "rightArm",
+  const sources = new Set(
+    pixels.filter(
+      (i) =>
+        regionAt("slim", ...(xy(i) as [number, number]))?.part === "rightArm",
+    ),
   );
-  for (const index of pixels.filter((i) => !sources.includes(i))) {
+  for (const index of pixels.filter((i) => !sources.has(i))) {
     const [x, y] = xy(index);
     const back = mirrorPixel("slim", x, y)!;
-    assert.ok(sources.includes(back.y * SKIN_SIZE + back.x));
+    assert.ok(sources.has(back.y * SKIN_SIZE + back.x));
   }
 });
 

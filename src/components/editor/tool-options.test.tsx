@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LocaleProvider } from "@/lib/i18n-react";
+import { LocaleProvider } from "@/lib/locale-provider";
 import type { FillScope, PaintTool } from "@/lib/skin-paint";
 import { ToolOptions } from "./tool-options";
 

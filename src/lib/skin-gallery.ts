@@ -114,13 +114,13 @@ export const loadGalleryEffect = Effect.fn("Skin.loadGallery")(function* () {
 function normalizeSearch(text: string) {
   return text
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 }
 
 /** Letters and digits only, so "darkknight" finds "Dark Knight". */
 function compactSearch(text: string) {
-  return text.replace(/[^\p{L}\p{N}]/gu, "");
+  return text.replaceAll(/[^\p{L}\p{N}]/gu, "");
 }
 
 interface SearchName {

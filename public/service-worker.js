@@ -10,5 +10,6 @@ self.addEventListener("activate", (_e) => {
       for (const client of clients) {
         void client.navigate(client.url);
       }
-    });
+    })
+    .catch(reportError);
 });

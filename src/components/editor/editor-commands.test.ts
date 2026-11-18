@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ariaShortcuts, editorShortcuts } from "./editor-commands";
+import { ariaShortcuts, editorShortcuts } from "./editor-shortcuts";
 
 test("aria-keyshortcuts use ARIA key names for each platform", () => {
   assert.equal(ariaShortcuts(["undo"], "windows"), "Control+Z");

@@ -4,7 +4,7 @@ import { createTemplate } from "@/lib/skin-document";
 import { SkinEditorStore } from "@/lib/skin-editor-store";
 import { allPartsVisible, defaultBrush, toolFootprint } from "@/lib/skin-paint";
 import { SKIN_SIZE } from "@/lib/skin-regions";
-import { copyFlipped, paintOverlay } from "./model-canvas";
+import { copyFlipped, paintOverlay } from "./model-overlay";
 
 test("the hover footprint changes only the GPU copy, never the document", () => {
   const store = new SkinEditorStore();

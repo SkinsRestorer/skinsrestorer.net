@@ -41,7 +41,7 @@ export function CopyCommand({ command }: { command: string }) {
         type="button"
         variant="ghost"
         size="icon-sm"
-        onClick={copy}
+        onClick={() => void copy()}
         aria-label={t("home.copyCommand", { command })}
       >
         {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}

@@ -90,14 +90,16 @@ test("rejected hosts never reach the network and missing textures explain why", 
 test("cancelling a texture read aborts the request", async () => {
   let signal: AbortSignal | null | undefined;
   let started!: () => void;
-  const ready = new Promise<void>((resolve) => (started = resolve));
+  const ready = new Promise<void>((resolve) => {
+    started = resolve;
+  });
   const controller = new AbortController();
   const pending = run(
     loadTextureEffect(hash),
     (_url, init) => {
       signal = init?.signal;
       started();
-      return new Promise(() => undefined);
+      return new Promise(() => {});
     },
     controller.signal,
   );
@@ -137,7 +139,9 @@ test("preview downloads run at most six at a time", async () => {
   const fetch: HttpFetch = async () => {
     active++;
     peak = Math.max(peak, active);
-    await new Promise<void>((resolve) => release.push(resolve));
+    await new Promise<void>((resolve) => {
+      release.push(resolve);
+    });
     active--;
     return new Response(png as Uint8Array<ArrayBuffer>);
   };
@@ -147,13 +151,19 @@ test("preview downloads run at most six at a time", async () => {
     ),
   );
   while (release.length < 6)
-    await new Promise((resolve) => setTimeout(resolve));
-  await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => {
+      setTimeout(resolve);
+    });
+  await new Promise((resolve) => {
+    setTimeout(resolve, 10);
+  });
   assert.equal(peak, 6);
   // oxlint-disable-next-line eslint/no-unmodified-loop-condition -- the released loads decrement `active` between iterations.
   while (release.length > 0 || active > 0) {
     release.splice(0).forEach((resolve) => resolve());
-    await new Promise((resolve) => setTimeout(resolve));
+    await new Promise((resolve) => {
+      setTimeout(resolve);
+    });
   }
   const exits = await pending;
   assert.ok(exits.every(Exit.isSuccess));

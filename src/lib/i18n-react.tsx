@@ -1,11 +1,5 @@
 import { useAsRef } from "@/hooks/use-as-ref";
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useCallback,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useMemo, useCallback } from "react";
 import type { Locale } from "./i18n";
 import {
   createTranslator,
@@ -15,17 +9,7 @@ import {
   type Message,
 } from "./messages";
 
-const LocaleContext = createContext<Locale>("en");
-
-export function LocaleProvider({
-  locale,
-  children,
-}: {
-  locale: Locale;
-  children: ReactNode;
-}) {
-  return <LocaleContext value={locale}>{children}</LocaleContext>;
-}
+export const LocaleContext = createContext<Locale>("en");
 
 export function useLocale() {
   return useContext(LocaleContext);

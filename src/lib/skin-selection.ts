@@ -401,7 +401,7 @@ const getSkin = (id: string) =>
   );
 
 export function selectionEditable(selection: SelectedSkin | null) {
-  if (!selection || selection.status !== "ready") return false;
+  if (selection?.status !== "ready") return false;
   if (selection.width === undefined || selection.height === undefined)
     return true;
   return isEditableContent({

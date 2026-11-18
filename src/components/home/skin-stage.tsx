@@ -98,7 +98,7 @@ export function SkinStage() {
   ]);
   const [autoplay, setAutoplay] = useState(true);
 
-  const latest = entries[entries.length - 1];
+  const latest = entries.at(-1)!;
   const lastSkinChange = entries.findLast(
     (entry) => entry.command.skin !== "unchanged",
   );
@@ -112,7 +112,7 @@ export function SkinStage() {
   function run(command: DemoCommand) {
     setEntries((previous) => [
       ...previous.slice(-2),
-      { id: previous[previous.length - 1].id + 1, command },
+      { id: previous.at(-1)!.id + 1, command },
     ]);
   }
 

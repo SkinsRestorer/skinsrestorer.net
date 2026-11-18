@@ -143,6 +143,7 @@ test("cancelling catalog loading aborts the request", async () => {
       new Promise<Response>((_resolve, reject) => {
         init!.signal!.addEventListener("abort", () => {
           aborted = true;
+          // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- an abort reason is typed any; the signal rejects with its DOMException
           reject(init!.signal!.reason);
         });
         ready();

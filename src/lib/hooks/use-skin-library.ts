@@ -1,6 +1,11 @@
 "use client";
 
-import { errorMessage, message, type Message } from "@/lib/messages";
+import {
+  errorMessage,
+  message,
+  type Message,
+  type Translator,
+} from "@/lib/messages";
 
 import { posthog } from "posthog-js";
 import { useCallback, useEffect, useState } from "react";
@@ -22,7 +27,6 @@ import {
 } from "../skin-library";
 import { useLatestTask } from "./use-latest-task";
 import { useLocale, useNotificationT } from "@/lib/i18n-react";
-import type { Translator } from "@/lib/messages";
 
 export type LibraryState =
   | { readonly status: "loading" }

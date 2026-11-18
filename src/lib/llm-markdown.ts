@@ -27,7 +27,7 @@ export function formatExportedMarkdown(markdown: string, locale: Locale) {
       if (fence) return line;
       return line
         .replace(/^(#{1,6}\s.*?)\s+\[#[^\]\s]+\]\s*$/, "$1")
-        .replace(
+        .replaceAll(
           /\]\((\/(?!\/)[^)\s]*)\)/g,
           (_, href: string) => `](${absoluteDocsUrl(href, locale)})`,
         );

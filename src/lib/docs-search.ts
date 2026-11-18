@@ -2,6 +2,7 @@ import { createFromSource } from "fumadocs-core/search/server";
 import { source } from "./source";
 
 const searchAPI = createFromSource(source, {
+  // oxlint-disable-next-line typescript/no-deprecated -- removing it switches to the multilingual tokenizer and changes search results
   localeMap: {
     en: { language: "english" },
     ru: { language: "russian" },

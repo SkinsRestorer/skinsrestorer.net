@@ -174,7 +174,7 @@ export type LibraryEvent = { readonly type: "changed" | "closed" };
 export function cleanSkinName(name: string, fallback = "Skin") {
   const clean = name
     .replace(/\.png$/i, "")
-    .replace(/\s+/g, " ")
+    .replaceAll(/\s+/g, " ")
     .trim()
     .slice(0, MAX_SKIN_NAME_LENGTH);
   return clean || fallback;
@@ -887,7 +887,7 @@ function copyPattern(locale: Locale): CopyPattern {
 }
 
 const escapeRegExp = (text: string) =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  text.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** Read "Harbor copy 2" as base "Harbor" and number 2, or undefined. */
 function parseCopyName(name: string, pattern: CopyPattern) {
@@ -947,9 +947,9 @@ export function skinFileName(name: string) {
   const clean = name
     .normalize("NFC")
     // Control characters and text direction overrides can disguise a name.
-    .replace(/[\p{Cc}\u202a-\u202e\u2066-\u2069]/gu, "")
-    .replace(/[<>:"/\\|?*]/g, "_")
-    .replace(/\s+/g, " ")
+    .replaceAll(/[\p{Cc}\u202a-\u202e\u2066-\u2069]/gu, "")
+    .replaceAll(/[<>:"/\\|?*]/g, "_")
+    .replaceAll(/\s+/g, " ")
     .trim()
     // Windows drops trailing dots and spaces.
     .replace(/[. ]+$/, "");

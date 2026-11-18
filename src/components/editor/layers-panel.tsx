@@ -13,11 +13,13 @@ import { Button } from "@/components/ui/button";
 import { allPartsVisible, type PartVisibility } from "@/lib/skin-paint";
 import { skinPartLabels, skinParts, type SkinLayer } from "@/lib/skin-regions";
 import {
-  editorShortcuts,
   HintTrigger,
   ShortcutHints,
-  useShortcutHints,
 } from "@/components/editor/editor-commands";
+import {
+  editorShortcuts,
+  useShortcutHints,
+} from "@/components/editor/editor-shortcuts";
 import { useT } from "@/lib/i18n-react";
 
 /** The active layer. Tools change only this layer (L switches). */

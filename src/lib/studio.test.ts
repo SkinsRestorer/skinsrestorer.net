@@ -65,9 +65,9 @@ function manualUpload() {
     reject: (cause: unknown) => void;
   }[] = [];
   const upload: Upload = (options, signal) =>
-    new Promise((resolve, reject) =>
-      calls.push({ file: options.file, signal, resolve, reject }),
-    );
+    new Promise((resolve, reject) => {
+      calls.push({ file: options.file, signal, resolve, reject });
+    });
   return { calls, upload };
 }
 

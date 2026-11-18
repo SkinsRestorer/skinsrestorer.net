@@ -21,13 +21,15 @@ import {
   type EditorInteraction,
 } from "@/components/editor/editor-types";
 import {
-  editorShortcuts,
   HintTrigger,
   ShortcutHints,
+} from "@/components/editor/editor-commands";
+import {
+  editorShortcuts,
   toolCommands,
   useAriaShortcuts,
   useShortcutHints,
-} from "@/components/editor/editor-commands";
+} from "@/components/editor/editor-shortcuts";
 import { useT } from "@/lib/i18n-react";
 
 const toolIcons = {

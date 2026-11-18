@@ -5,7 +5,7 @@ import { Route as upload } from "../routes/{-$lang}/upload";
 import { Route as generator } from "../routes/{-$lang}/generator";
 import { Route as pricing } from "../routes/{-$lang}/pricing";
 import { locales, type Locale } from "./i18n";
-import { getPageHead } from "./seo";
+import type { getPageHead } from "./seo";
 import { translate } from "./messages";
 
 const pages = [

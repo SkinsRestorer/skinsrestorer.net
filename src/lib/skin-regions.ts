@@ -138,10 +138,9 @@ const indexCache = new Map<SkinVariant, Int16Array>();
 export function skinRegions(variant: SkinVariant): readonly SkinRegion[] {
   let regions = regionCache.get(variant);
   if (!regions) {
-    regions = skinParts.flatMap((part) => [
-      ...boxFaces(part, "base", variant),
-      ...boxFaces(part, "outer", variant),
-    ]);
+    regions = skinParts.flatMap((part) =>
+      boxFaces(part, "base", variant).concat(boxFaces(part, "outer", variant)),
+    );
     regionCache.set(variant, regions);
   }
   return regions;
