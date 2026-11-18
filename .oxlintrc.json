@@ -14,7 +14,8 @@
   "jsPlugins": ["@shadcn/lint"],
   "categories": {
     "correctness": "error",
-    "suspicious": "error"
+    "suspicious": "error",
+    "perf": "error"
   },
   "options": {
     "typeAware": true,
@@ -178,7 +179,67 @@
     "effecttsgo/schema-number": "off",
     "effecttsgo/schema-sync-in-effect": "off",
     "effecttsgo/try-catch-in-effect-gen": "off",
-    "effecttsgo/unnecessary-effect-gen": "off"
+    "effecttsgo/unnecessary-effect-gen": "off",
+    "typescript/restrict-plus-operands": "error",
+    "typescript/prefer-promise-reject-errors": "error",
+    "typescript/return-await": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/prefer-optional-chain": "error",
+    "typescript/only-throw-error": [
+      "error",
+      {
+        "allow": [
+          {
+            "from": "package",
+            "package": "@tanstack/router-core",
+            "name": ["Redirect", "NotFoundError"]
+          }
+        ]
+      }
+    ],
+    "typescript/no-deprecated": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-exports": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/no-explicit-any": "error",
+    "eslint/array-callback-return": "error",
+    "eslint/no-throw-literal": "error",
+    "eslint/no-self-compare": "error",
+    "eslint/no-fallthrough": "error",
+    "eslint/no-loop-func": "error",
+    "eslint/no-promise-executor-return": "error",
+    "eslint/eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
+    "eslint/no-console": "error",
+    "eslint/no-await-in-loop": "off",
+    "import/no-duplicates": "error",
+    "import/no-cycle": "error",
+    "promise/catch-or-return": [
+      "error",
+      {
+        "allowThen": true
+      }
+    ],
+    "unicorn/prefer-at": "error",
+    "unicorn/prefer-string-replace-all": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/prefer-top-level-await": "error",
+    "react/jsx-no-target-blank": [
+      "error",
+      {
+        "allowReferrer": true
+      }
+    ],
+    "react/button-has-type": "error",
+    "react/no-danger": "error",
+    "react/jsx-no-useless-fragment": "error",
+    "react/no-unknown-property": "error",
+    "react/only-export-components": "error"
   },
   "overrides": [
     {
@@ -195,7 +256,26 @@
         "shadcn/no-arbitrary-values": "off",
         "shadcn/no-restyle": "off",
         "shadcn/require-static-classes": "off",
-        "shadcn/no-inline-styles": "off"
+        "shadcn/no-inline-styles": "off",
+        "react/only-export-components": "off",
+        "react/no-array-index-key": "off",
+        "react/jsx-no-constructed-context-values": "off",
+        "react/jsx-no-useless-fragment": "off",
+        "typescript/consistent-type-imports": "off",
+        "typescript/prefer-optional-chain": "off",
+        "eslint/eqeqeq": "off"
+      }
+    },
+    {
+      "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx", "*.config.ts"],
+      "rules": {
+        "eslint/no-console": "off"
+      }
+    },
+    {
+      "files": ["src/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
       }
     }
   ]
