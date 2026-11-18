@@ -21,6 +21,7 @@ import {
   useShortcutHints,
 } from "@/components/editor/editor-shortcuts";
 import { useT } from "@/lib/i18n-react";
+import { findOption } from "@/lib/utils";
 
 /** The active layer. Tools change only this layer (L switches). */
 export function LayerToggle(props: {
@@ -40,7 +41,8 @@ export function LayerToggle(props: {
         spacing={0}
         value={[props.layer]}
         onValueChange={(value) => {
-          if (value[0]) props.onLayerChange(value[0] as SkinLayer);
+          const layer = findOption(["base", "outer"], value[0]);
+          if (layer) props.onLayerChange(layer);
         }}
       >
         {(["base", "outer"] as const).map((layer) => (
@@ -85,6 +87,7 @@ export function VisibleParts(props: {
       <Collapsible>
         <CollapsibleTrigger
           render={
+            // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- The trigger's children become this button's content and label.
             <button
               type="button"
               className="group flex w-full items-center gap-1.5 rounded-md py-2.5 text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -93,7 +96,7 @@ export function VisibleParts(props: {
         >
           <ChevronRight
             aria-hidden="true"
-            className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-90 motion-reduce:transition-none"
+            className="size-4 text-muted-foreground transition-transform group-data-panel-open:rotate-90 motion-reduce:transition-none"
           />
           {t("editor.visibleParts")}
           {!allShown && (

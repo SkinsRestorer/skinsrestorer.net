@@ -20,7 +20,6 @@ import {
   MessageError,
   isMessageKey,
   type Message,
-  type MessageKey,
 } from "./messages";
 import { getPageHead } from "./seo";
 
@@ -162,17 +161,19 @@ test("untranslated docs use the English canonical and never claim a missing tran
   );
 });
 
+const placeholders = (text: string) =>
+  [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).toSorted();
+
 test("translation catalogs keep every message and interpolation parameter in each locale", () => {
   const keys = Object.keys(catalogs.en).toSorted();
   for (const catalog of Object.values(catalogs)) {
     assert.deepEqual(Object.keys(catalog).toSorted(), keys);
     for (const [message, value] of Object.entries(catalog)) {
       assert.ok(value.trim(), message);
-      const placeholders = (text: string) =>
-        [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).toSorted();
+      assert.ok(isMessageKey(message), message);
       assert.deepEqual(
         placeholders(value),
-        placeholders(catalogs.en[message as MessageKey]),
+        placeholders(catalogs.en[message]),
         message,
       );
     }

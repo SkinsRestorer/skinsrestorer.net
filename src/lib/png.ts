@@ -32,14 +32,14 @@ function crc32(bytes: Uint8Array, start = 0, end = bytes.length) {
 }
 
 async function transform(
-  bytes: Uint8Array,
+  bytes: Uint8Array<ArrayBuffer>,
   stream: CompressionStream | DecompressionStream,
   maxBytes = Number.POSITIVE_INFINITY,
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   const writer = stream.writable.getWriter();
   const reader = stream.readable.getReader();
   const written = writer
-    .write(bytes as Uint8Array<ArrayBuffer>)
+    .write(bytes)
     .then(() => writer.close())
     .catch(() => undefined);
   const parts: Uint8Array[] = [];
@@ -124,7 +124,7 @@ export async function encodePng(
   pixels: Uint8ClampedArray | Uint8Array,
   width: number,
   height: number,
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   const raw = scanlines(pixels, width, height);
   return assemble(
     width,
@@ -141,7 +141,7 @@ export function encodePngSync(
   pixels: Uint8ClampedArray | Uint8Array,
   width: number,
   height: number,
-): Uint8Array {
+): Uint8Array<ArrayBuffer> {
   const raw = scanlines(pixels, width, height);
   const blocks = Math.max(1, Math.ceil(raw.length / 0xffff));
   const data = new Uint8Array(2 + raw.length + blocks * 5 + 4);

@@ -50,35 +50,47 @@ export function withSkinImageEffect<A>(
     const images = yield* SkinImages;
     return yield* Effect.acquireUseRelease(
       Effect.try({
-        try: images.create,
+        try: () => ({
+          image: images.create(),
+          listeners: new AbortController(),
+        }),
         catch: (cause) =>
           new SkinImageError({
             ...messageFields("common.failedLoadImage"),
             cause,
           }),
       }),
-      (image) =>
+      ({ image, listeners }) =>
         Effect.callback<A, SkinImageError>((resume) => {
+          const { signal } = listeners;
           image.crossOrigin = "Anonymous";
-          image.onload = () =>
-            resume(
-              Effect.try({
-                try: () => use(image),
-                catch: (cause) =>
-                  new SkinImageError({
-                    ...errorFields(cause, failure),
-                    cause,
-                  }),
-              }),
-            );
-          image.onerror = () =>
-            resume(
-              Effect.fail(
-                new SkinImageError({
-                  ...messageFields("common.failedLoadImage"),
+          image.addEventListener(
+            "load",
+            () =>
+              resume(
+                Effect.try({
+                  try: () => use(image),
+                  catch: (cause) =>
+                    new SkinImageError({
+                      ...errorFields(cause, failure),
+                      cause,
+                    }),
                 }),
               ),
-            );
+            { signal },
+          );
+          image.addEventListener(
+            "error",
+            () =>
+              resume(
+                Effect.fail(
+                  new SkinImageError({
+                    ...messageFields("common.failedLoadImage"),
+                  }),
+                ),
+              ),
+            { signal },
+          );
           // Cached images can finish synchronously when src is assigned.
           try {
             image.src = imageUrl;
@@ -93,10 +105,9 @@ export function withSkinImageEffect<A>(
             );
           }
         }),
-      (image) =>
+      ({ image, listeners }) =>
         Effect.sync(() => {
-          image.onload = null;
-          image.onerror = null;
+          listeners.abort();
           image.removeAttribute("src");
         }),
     );
@@ -140,7 +151,7 @@ export function previewSkinFileEffect(
     failed: (cause: SkinImageError) => void;
   },
   urls = {
-    create: (file: File) => URL.createObjectURL(file),
+    create: (blob: File) => URL.createObjectURL(blob),
     revoke: (url: string) => URL.revokeObjectURL(url),
   },
 ) {
@@ -154,21 +165,19 @@ export function previewSkinFileEffect(
         }),
     }),
     (url) =>
-      Effect.gen(function* () {
-        yield* detectSkinVariantEffect(url).pipe(
-          Effect.flatMap((variant) =>
-            Effect.gen(function* () {
-              yield* Effect.sync(() => {
-                events.preview(url);
-                events.detected(variant);
-              });
-              // The component displays this URL until the next selection.
-              return yield* Effect.never;
-            }),
-          ),
-          Effect.catch((cause) => Effect.sync(() => events.failed(cause))),
-        );
-      }),
+      detectSkinVariantEffect(url).pipe(
+        Effect.flatMap((variant) =>
+          Effect.gen(function* () {
+            yield* Effect.sync(() => {
+              events.preview(url);
+              events.detected(variant);
+            });
+            // The component displays this URL until the next selection.
+            return yield* Effect.never;
+          }),
+        ),
+        Effect.catch((cause) => Effect.sync(() => events.failed(cause))),
+      ),
     (url) => Effect.sync(() => urls.revoke(url)),
   );
 }

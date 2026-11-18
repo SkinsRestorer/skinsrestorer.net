@@ -50,7 +50,7 @@ function browser() {
     };
   };
   let ids = 0;
-  const tab = (factoryOverride: IDBFactory = factory) => {
+  const tab = (factoryOverride: Pick<IDBFactory, "open"> = factory) => {
     const client = createLibraryClient(
       skinLibraryLayer({
         factory: factoryOverride,
@@ -77,12 +77,9 @@ const use = <A, E>(
 async function skinPng(seed: number, variant: SkinVariant = "classic") {
   const document = createTemplate(variant);
   document.pixels.set([seed, 2, 3, 255], pixelOffset(8, 8));
-  return new Blob(
-    [(await exportSkinPng(document.pixels)) as Uint8Array<ArrayBuffer>],
-    {
-      type: "image/png",
-    },
-  );
+  return new Blob([await exportSkinPng(document.pixels)], {
+    type: "image/png",
+  });
 }
 
 const prepare = (blob: Blob, variant?: SkinVariant) =>
@@ -108,7 +105,7 @@ async function failure(promise: Promise<unknown>) {
   } catch (cause) {
     return cause;
   }
-  assert.fail("expected a failure");
+  return assert.fail("expected a failure");
 }
 
 test("prepares exact bytes, hashes, and canonical keys outside transactions", async () => {
@@ -122,20 +119,12 @@ test("prepares exact bytes, hashes, and canonical keys outside transactions", as
   const document = createTemplate("classic");
   document.pixels.set([1, 2, 3, 255], pixelOffset(8, 8));
   const other = await prepare(
-    new Blob([
-      encodePngSync(document.pixels, 64, 64) as Uint8Array<ArrayBuffer>,
-    ]),
+    new Blob([encodePngSync(document.pixels, 64, 64)]),
   );
   assert.equal(other.pixelKey, content.pixelKey);
   // HD skins are accepted for upload and keyed by their bytes.
   const hd = await prepare(
-    new Blob([
-      encodePngSync(
-        new Uint8ClampedArray(128 * 128 * 4),
-        128,
-        128,
-      ) as Uint8Array<ArrayBuffer>,
-    ]),
+    new Blob([encodePngSync(new Uint8ClampedArray(128 * 128 * 4), 128, 128)]),
   );
   assert.equal(hd.width, 128);
   assert.equal(hd.pixelKey, `file:${hd.hash}`);
@@ -147,13 +136,7 @@ test("rejects files that are not skin PNGs or are larger than 5 MB", async () =>
   assert.equal(notPng.reason, "invalid");
   const wide = await failure(
     prepare(
-      new Blob([
-        encodePngSync(
-          new Uint8ClampedArray(64 * 16 * 4),
-          64,
-          16,
-        ) as Uint8Array<ArrayBuffer>,
-      ]),
+      new Blob([encodePngSync(new Uint8ClampedArray(64 * 16 * 4), 64, 16)]),
     ),
   );
   assert.ok(wide instanceof SkinLibraryError);
@@ -425,8 +408,9 @@ test("damaged records are reported and can be removed, never overwritten", async
         open.result.close();
         resolve();
       };
-      tx.onerror = () =>
-        reject(tx.error ?? new Error("The IndexedDB transaction failed."));
+      tx.addEventListener("error", () =>
+        reject(tx.error ?? new Error("The IndexedDB transaction failed.")),
+      );
     };
   });
   const listing = await use(client, (library) => library.list);
@@ -451,7 +435,7 @@ test("unavailable, newer, and full storage fail with typed errors", async () => 
         open: () => {
           throw new DOMException("blocked", "SecurityError");
         },
-      } as unknown as IDBFactory,
+      },
     }),
   );
   clients.push(blocked);
@@ -644,7 +628,7 @@ test("library work makes no network requests", async () => {
 });
 
 /** Wrap a factory so every write fails like a full disk. */
-function quotaFactory(factory: IDBFactory): IDBFactory {
+function quotaFactory(factory: IDBFactory): Pick<IDBFactory, "open"> {
   return {
     open: (name: string, version?: number) => {
       const request = factory.open(name, version);
@@ -667,17 +651,11 @@ function quotaFactory(factory: IDBFactory): IDBFactory {
           return tx;
         }) as IDBDatabase["transaction"];
       };
-      Object.defineProperty(request, "onsuccess", {
-        set(handler: () => void) {
-          request.addEventListener("success", () => {
-            success();
-            handler();
-          });
-        },
-      });
+      // Registered first, so it runs before the library's success listener.
+      request.addEventListener("success", success);
       return request;
     },
-  } as unknown as IDBFactory;
+  };
 }
 
 test("copy names count up and keep their suffix when a long name is shortened", () => {

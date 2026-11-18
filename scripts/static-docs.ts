@@ -5,7 +5,12 @@ import { Effect } from "effect";
 import { fromCrossJSON, toJSONAsync } from "seroval";
 import { type Plugin, preview } from "vite";
 import { readHttpText, runHttpEffect } from "../src/lib/effect-http.ts";
-import { nodeFiles, toolFilesLayer, walkFiles } from "./lib/runtime.ts";
+import {
+  nodeFiles,
+  ToolError,
+  toolFilesLayer,
+  walkFiles,
+} from "./lib/runtime.ts";
 
 export const docsMetadataFunctionId = "docs-metadata";
 
@@ -21,6 +26,7 @@ export function docsFunctionId(options: {
   ) {
     return docsMetadataFunctionId;
   }
+  return undefined;
 }
 
 // Cloudflare prerenders in an isolated Worker, where TanStack's middleware cannot
@@ -38,12 +44,15 @@ export function staticDocsMetadata(): Plugin {
         if (!output) throw new Error("Client build output is unavailable");
         await Effect.runPromise(
           Effect.acquireUseRelease(
-            Effect.tryPromise(() =>
-              preview({
-                configFile: builder.config.configFile,
-                preview: { port: 0, open: false },
-              }),
-            ),
+            Effect.tryPromise({
+              try: () =>
+                preview({
+                  configFile: builder.config.configFile,
+                  preview: { port: 0, open: false },
+                }),
+              catch: (cause) =>
+                new ToolError({ operation: "start metadata preview", cause }),
+            }),
             (server) =>
               Effect.gen(function* () {
                 const origin = server.resolvedUrls?.local[0];
@@ -63,77 +72,94 @@ export function staticDocsMetadata(): Plugin {
                 yield* Effect.forEach(
                   pages,
                   (page) =>
-                    Effect.tryPromise(async () => {
-                      const { path: absolute, locale } = splitLocalePath(
-                        `/${page.slice(0, -".html".length)}`,
+                    Effect.gen(function* () {
+                      const snapshot = yield* Effect.tryPromise({
+                        try: async () => {
+                          const { path: absolute, locale } = splitLocalePath(
+                            `/${page.slice(0, -".html".length)}`,
+                          );
+                          const path = absolute.slice(1);
+                          const slugs =
+                            path === "docs"
+                              ? []
+                              : path
+                                  .slice("docs/".length)
+                                  .split("/")
+                                  .map(decodeURIComponent);
+                          const data = [locale, ...slugs];
+                          const payload = await toJSONAsync({ data });
+                          const url = new URL(
+                            `/_serverFn/${docsMetadataFunctionId}`,
+                            origin,
+                          );
+                          url.searchParams.set(
+                            "payload",
+                            JSON.stringify(payload),
+                          );
+                          const result = await runHttpEffect(
+                            readHttpText(
+                              url.href,
+                              {
+                                headers: {
+                                  "x-tsr-serverfn": "true",
+                                  accept: "application/json",
+                                  origin: new URL(origin).origin,
+                                  "sec-fetch-site": "same-origin",
+                                },
+                              },
+                              { timeoutMs: 30_000, maxBytes: 32 * 1024 * 1024 },
+                            ),
+                          );
+                          if (!result.ok)
+                            throw new Error(
+                              `Metadata request failed for /${path}: ${result.status}`,
+                            );
+                          const response = fromCrossJSON(
+                            JSON.parse(result.text),
+                            {},
+                          );
+                          if (
+                            !response ||
+                            typeof response !== "object" ||
+                            ("error" in response &&
+                              response.error !== undefined) ||
+                            !("result" in response) ||
+                            !response.result
+                          ) {
+                            throw new Error(
+                              `Cannot snapshot docs metadata for /${path}`,
+                            );
+                          }
+                          // Match the cache key of the pinned staticFunctionMiddleware.
+                          // Slugs are string arrays, so no object-key sorting is needed.
+                          const hash = JSON.stringify(data)
+                            .replaceAll(/[/\\?%*:|"<>]/g, "-")
+                            .replaceAll(/\s+/g, "_");
+                          const key = createHash("sha1")
+                            .update(`${docsMetadataFunctionId}__${hash}`)
+                            .digest("hex");
+                          const destination = join(
+                            output,
+                            "__tsr/staticServerFnCache",
+                            `${key}.json`,
+                          );
+                          const json = JSON.stringify(
+                            await toJSONAsync(response),
+                          );
+                          return { destination, json };
+                        },
+                        catch: (cause) =>
+                          new ToolError({
+                            operation: `snapshot docs metadata for ${page}`,
+                            cause,
+                          }),
+                      });
+                      yield* nodeFiles.makeDirectory(
+                        dirname(snapshot.destination),
                       );
-                      const path = absolute.slice(1);
-                      const slugs =
-                        path === "docs"
-                          ? []
-                          : path
-                              .slice("docs/".length)
-                              .split("/")
-                              .map(decodeURIComponent);
-                      const data = [locale, ...slugs];
-                      const payload = await toJSONAsync({ data });
-                      const url = new URL(
-                        `/_serverFn/${docsMetadataFunctionId}`,
-                        origin,
-                      );
-                      url.searchParams.set("payload", JSON.stringify(payload));
-                      const result = await runHttpEffect(
-                        readHttpText(
-                          url.href,
-                          {
-                            headers: {
-                              "x-tsr-serverfn": "true",
-                              accept: "application/json",
-                              origin: new URL(origin).origin,
-                              "sec-fetch-site": "same-origin",
-                            },
-                          },
-                          { timeoutMs: 30_000, maxBytes: 32 * 1024 * 1024 },
-                        ),
-                      );
-                      if (!result.ok)
-                        throw new Error(
-                          `Metadata request failed for /${path}: ${result.status}`,
-                        );
-                      const response = fromCrossJSON(
-                        JSON.parse(result.text),
-                        {},
-                      );
-                      if (
-                        !response ||
-                        typeof response !== "object" ||
-                        ("error" in response && response.error !== undefined) ||
-                        !("result" in response) ||
-                        !response.result
-                      ) {
-                        throw new Error(
-                          `Cannot snapshot docs metadata for /${path}`,
-                        );
-                      }
-                      // Match the cache key of the pinned staticFunctionMiddleware.
-                      // Slugs are string arrays, so no object-key sorting is needed.
-                      const hash = JSON.stringify(data)
-                        .replaceAll(/[/\\?%*:|"<>]/g, "-")
-                        .replaceAll(/\s+/g, "_");
-                      const key = createHash("sha1")
-                        .update(`${docsMetadataFunctionId}__${hash}`)
-                        .digest("hex");
-                      const destination = join(
-                        output,
-                        "__tsr/staticServerFnCache",
-                        `${key}.json`,
-                      );
-                      const json = JSON.stringify(await toJSONAsync(response));
-                      await Effect.runPromise(
-                        Effect.gen(function* () {
-                          yield* nodeFiles.makeDirectory(dirname(destination));
-                          yield* nodeFiles.writeText(destination, json);
-                        }),
+                      yield* nodeFiles.writeText(
+                        snapshot.destination,
+                        snapshot.json,
                       );
                     }),
                   { concurrency: 4 },

@@ -37,7 +37,7 @@ for (const { locale, title, query } of cases) {
     const originalFetch = globalThis.fetch;
     globalThis.fetch = Object.assign(
       (...args: Parameters<typeof fetch>) =>
-        String(args[0]) === from
+        (args[0] instanceof Request ? args[0].url : args[0].toString()) === from
           ? Promise.resolve(
               Response.json({ type: "i18n", data: { [locale]: data } }),
             )

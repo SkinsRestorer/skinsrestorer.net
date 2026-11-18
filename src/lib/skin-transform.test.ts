@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { SkinObject } from "skinview3d/libs/model.js";
-import { Box3, Vector3, type Mesh } from "three";
+import { Box3, Vector3, Mesh, type Object3D } from "three";
 import type { SkinVariant } from "./skin";
 import { checkSkin } from "./skin-check";
 import { createTemplate } from "./skin-document";
@@ -16,6 +16,11 @@ import {
   type SkinPart,
 } from "./skin-regions";
 import { convertArms, transformPart } from "./skin-transform";
+
+function asMesh(object: Object3D): Mesh {
+  assert.ok(object instanceof Mesh);
+  return object;
+}
 
 interface Surface {
   readonly part: SkinPart;
@@ -46,9 +51,9 @@ function surfaces(variant: SkinVariant) {
   const map = new Map<number, Surface>();
   for (const part of parts)
     for (const layer of ["base", "outer"] as const) {
-      const mesh = (
-        layer === "base" ? skin[part].innerLayer : skin[part].outerLayer
-      ) as Mesh;
+      const mesh = asMesh(
+        layer === "base" ? skin[part].innerLayer : skin[part].outerLayer,
+      );
       const center = new Box3().setFromObject(mesh).getCenter(new Vector3());
       const geometry = mesh.geometry;
       const index = geometry.index!;

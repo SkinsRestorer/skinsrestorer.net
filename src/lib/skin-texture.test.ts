@@ -55,8 +55,8 @@ test("a texture downloads without credentials or redirects and opens locally", a
   const png = await exportSkinPng(createTemplate("slim").pixels);
   let request: { url: string; init?: RequestInit } | undefined;
   const exit = await run(loadTextureEffect(hash), async (url, init) => {
-    request = { url: String(url), init };
-    return new Response(png as Uint8Array<ArrayBuffer>, {
+    request = { url: url instanceof Request ? url.url : url.toString(), init };
+    return new Response(png, {
       headers: { "content-type": "image/png" },
     });
   });
@@ -114,7 +114,7 @@ test("previews return the downloaded PNG after a header check", async () => {
   const png = await exportSkinPng(createTemplate("classic").pixels);
   const exit = await run(
     loadTexturePreviewEffect(hash),
-    async () => new Response(png as Uint8Array<ArrayBuffer>),
+    async () => new Response(png),
   );
   assert.ok(Exit.isSuccess(exit));
   assert.equal(exit.value.type, "image/png");
@@ -125,7 +125,7 @@ test("previews return the downloaded PNG after a header check", async () => {
   ]) {
     const rejected = await run(
       loadTexturePreviewEffect(hash),
-      async () => new Response(body as Uint8Array<ArrayBuffer>),
+      async () => new Response(body),
     );
     assert.ok(Exit.isFailure(rejected));
   }
@@ -143,7 +143,7 @@ test("preview downloads run at most six at a time", async () => {
       release.push(resolve);
     });
     active--;
-    return new Response(png as Uint8Array<ArrayBuffer>);
+    return new Response(png);
   };
   const pending = Promise.all(
     Array.from({ length: 10 }, () =>

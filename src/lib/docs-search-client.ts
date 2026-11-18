@@ -2,7 +2,7 @@ import type { SortedResult } from "fumadocs-core/search";
 import type { SearchClient } from "fumadocs-core/search/client";
 import { staticClient } from "fumadocs-core/search/client/orama-static";
 import { create, type Language } from "zbsearch";
-import type { Locale } from "./i18n";
+import { isLocale, type Locale } from "./i18n";
 
 export const searchLanguages: Record<Locale, Language> = {
   en: "english",
@@ -85,7 +85,9 @@ export function createDocsSearchClient(
     initDB: (language) =>
       create({
         schema: { _: "string" },
-        language: searchLanguages[language as Locale] ?? "english",
+        language:
+          (isLocale(language) ? searchLanguages[language] : undefined) ??
+          "english",
       }),
   });
   return {

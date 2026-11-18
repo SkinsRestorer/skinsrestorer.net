@@ -24,12 +24,12 @@ export function LanguageSuggestion() {
       answered = localStorage.getItem(answeredKey);
     } catch {
       // Without storage the offer would come back on every page.
-      return;
+      return undefined;
     }
-    if (answered) return;
+    if (answered) return undefined;
     const target = suggestedLocale(navigator.languages ?? [], locale);
     const { href } = router.state.location;
-    if (!target || !hasLocalizedPages(href)) return;
+    if (!target || !hasLocalizedPages(href)) return undefined;
     // Only the visitor's first answer counts; cleanup's own dismiss does not.
     let settled = false;
     const answer = (outcome: string) => {

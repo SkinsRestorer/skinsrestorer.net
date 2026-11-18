@@ -6,7 +6,6 @@ import {
   regionContains,
   sameRegion,
   SKIN_SIZE,
-  skinParts,
   skinRegions,
   type SkinLayer,
   type SkinPart,
@@ -58,9 +57,14 @@ export interface PixelRect {
 }
 
 export function allPartsVisible(): PartVisibility {
-  return Object.fromEntries(
-    skinParts.map((part) => [part, { base: true, outer: true }]),
-  ) as PartVisibility;
+  return {
+    head: { base: true, outer: true },
+    body: { base: true, outer: true },
+    rightArm: { base: true, outer: true },
+    leftArm: { base: true, outer: true },
+    rightLeg: { base: true, outer: true },
+    leftLeg: { base: true, outer: true },
+  };
 }
 
 /** The face a tool may write to, or undefined if the pixel is off limits. */

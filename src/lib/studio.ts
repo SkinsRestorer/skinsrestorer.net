@@ -44,7 +44,7 @@ export const MAX_GALLERY_QUERY = 100;
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
-function text(value: unknown) {
+function stringParam(value: unknown) {
   // The router decodes `?q=123` as a number, so accept plain scalars.
   if (typeof value === "number" || typeof value === "boolean")
     return String(value);
@@ -65,9 +65,9 @@ export function studioSearch(search: Record<string, unknown>): StudioSearch {
   const result: Mutable<StudioSearch> = {};
   if (search.intent === "skin-url" || search.intent === "createcustom")
     result.intent = search.intent;
-  const handoff = text(search.handoff)?.trim();
-  const texture = text(search.texture)?.trim();
-  const skin = text(search.skin);
+  const handoff = stringParam(search.handoff)?.trim();
+  const texture = stringParam(search.texture)?.trim();
+  const skin = stringParam(search.skin);
   if (handoff && handoff.length <= 128) result.handoff = handoff;
   else if (texture && texture.length <= 512) result.texture = texture;
   else if (isGalleryId(skin)) result.skin = skin;
@@ -77,7 +77,7 @@ export function studioSearch(search: Record<string, unknown>): StudioSearch {
       : undefined;
   const fallback = skinSource({ skin: result.skin });
   if (source && source !== fallback) result.source = source;
-  const q = text(search.q)?.trim().slice(0, MAX_GALLERY_QUERY).trim();
+  const q = stringParam(search.q)?.trim().slice(0, MAX_GALLERY_QUERY).trim();
   if (q && skinSource(result) === "gallery") result.q = q;
   return result;
 }
@@ -147,11 +147,16 @@ export function generatedCommand(
 export function textureUrlFromValue(value: string): string | null {
   try {
     const decoded: unknown = JSON.parse(atob(value));
-    const url =
+    const textures =
       decoded && typeof decoded === "object" && "textures" in decoded
-        ? (decoded as { textures?: { SKIN?: { url?: unknown } } }).textures
-            ?.SKIN?.url
+        ? decoded.textures
         : undefined;
+    const skin =
+      textures && typeof textures === "object" && "SKIN" in textures
+        ? textures.SKIN
+        : undefined;
+    const url =
+      skin && typeof skin === "object" && "url" in skin ? skin.url : undefined;
     return typeof url === "string"
       ? (ensureHttpsTextureUrl(url) ?? null)
       : null;
@@ -171,7 +176,11 @@ export function readSkinFileTexture(text: string): {
   let value: unknown;
   let legacy = false;
   try {
-    value = (JSON.parse(text) as { value?: unknown })?.value;
+    const parsed: unknown = JSON.parse(text);
+    value =
+      parsed && typeof parsed === "object" && "value" in parsed
+        ? parsed.value
+        : undefined;
   } catch {
     legacy = true;
     value = text.split("\n")[0]?.trim();

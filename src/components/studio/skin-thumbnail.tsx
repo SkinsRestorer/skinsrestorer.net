@@ -84,7 +84,7 @@ export function SkinThumbnail(props: {
   useEffect(() => {
     const target = canvas.current;
     const context = target?.getContext("2d");
-    if (!target || !context) return;
+    if (!target || !context) return undefined;
     let active = true;
     context.clearRect(0, 0, target.width, target.height);
     createImageBitmap(currentPng()).then(
@@ -120,6 +120,7 @@ export function SkinThumbnail(props: {
     return () => {
       active = false;
     };
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- `source` names the PNG content, so a re-read Blob with the same hash does not redraw.
   }, [source, props.variant, view]);
   return (
     <canvas

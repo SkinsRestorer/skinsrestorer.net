@@ -36,16 +36,16 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
       Effect.gen(function* () {
         const response = yield* Effect.tryPromise({
           try: async () => {
-            const response = await client.fetch(url, {
+            const fetched = await client.fetch(url, {
               ...init,
               signal: owner.controller.signal,
             });
             if (owner.controller.signal.aborted) {
-              await response.body?.cancel().catch(() => undefined);
+              await fetched.body?.cancel().catch(() => undefined);
               owner.controller.signal.throwIfAborted();
             }
-            owner.response = response;
-            return response;
+            owner.response = fetched;
+            return fetched;
           },
           catch: (cause) =>
             new HttpError({

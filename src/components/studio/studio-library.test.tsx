@@ -23,6 +23,7 @@ const render = (state: LibraryState) =>
     <LocaleProvider locale="en">
       <StudioLibrary
         library={
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Rendering reads only the state; the fake has no library actions.
           {
             client: undefined,
             state,

@@ -480,8 +480,8 @@ function isLibraryGone(cause: unknown) {
   );
 }
 
-function pngBlob(png: Uint8Array) {
-  return new Blob([png as Uint8Array<ArrayBuffer>], { type: "image/png" });
+function pngBlob(png: Uint8Array<ArrayBuffer>) {
+  return new Blob([png], { type: "image/png" });
 }
 
 /** Open a stored PNG with an explicit model. */

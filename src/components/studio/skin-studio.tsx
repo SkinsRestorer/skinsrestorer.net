@@ -118,7 +118,7 @@ import {
 } from "@/lib/studio-options";
 import type { GenerationResult } from "@/lib/studio-generation";
 import { useLocale, useNotificationT, useT } from "@/lib/i18n-react";
-import { cn } from "@/lib/utils";
+import { cn, findOption } from "@/lib/utils";
 import { SkinThumbnail } from "./skin-thumbnail";
 import { DraftRecovery } from "./draft-recovery";
 import { StudioGallery } from "./studio-gallery";
@@ -956,7 +956,10 @@ export function SkinStudio(props: {
       className="group/tabs"
       orientation={layout === "rail" ? "vertical" : "horizontal"}
       value={source}
-      onValueChange={(value) => changeSource(value as SkinSource)}
+      onValueChange={(value) => {
+        const next = findOption(["library", "gallery"], value);
+        if (next) changeSource(next);
+      }}
     >
       {close && <div className="flex justify-end">{close}</div>}
       <TabsList className="w-full" aria-label={t("common.skinSources")}>
@@ -1062,6 +1065,7 @@ export function SkinStudio(props: {
           </Suspense>
         ) : (
           <>
+            {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Dropping a file is a pointer shortcut; the file picker in this panel is the keyboard path. */}
             <section
               aria-label={t("common.skin")}
               className={cn(
@@ -1075,7 +1079,10 @@ export function SkinStudio(props: {
                 setDragging(true);
               }}
               onDragLeave={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget as Node))
+                const next = event.relatedTarget;
+                if (
+                  !(next instanceof Node && event.currentTarget.contains(next))
+                )
                   setDragging(false);
               }}
               onDrop={(event) => {
@@ -1184,17 +1191,6 @@ export function SkinStudio(props: {
               <form
                 noValidate
                 className="flex flex-col gap-4"
-                onKeyDown={(event) => {
-                  // Enter in the key field checks cape access. It never uploads.
-                  if (
-                    event.key !== "Enter" ||
-                    !(event.target instanceof HTMLInputElement) ||
-                    !keyField.current?.contains(event.target)
-                  )
-                    return;
-                  event.preventDefault();
-                  void capes.verify(form.getFieldValue("apiKey").trim());
-                }}
                 onSubmit={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -1220,8 +1216,11 @@ export function SkinStudio(props: {
                             className="grid w-full grid-cols-2"
                             value={[field.state.value]}
                             onValueChange={(value) => {
-                              if (value[0])
-                                field.handleChange(value[0] as StudioPurpose);
+                              const next = findOption(
+                                ["skin-url", "createcustom"],
+                                value[0],
+                              );
+                              if (next) field.handleChange(next);
                             }}
                           >
                             <ToggleGroupItem
@@ -1612,7 +1611,7 @@ function SelectedSkinView(props: {
   const editable = selectionEditable(selection);
   const [copied, setCopied] = useState(false);
   useEffect(() => {
-    if (!copied) return;
+    if (!copied) return undefined;
     const timer = setTimeout(() => setCopied(false), 1400);
     return () => clearTimeout(timer);
   }, [copied]);
@@ -1789,7 +1788,7 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   useEffect(() => {
-    if (!copied) return;
+    if (!copied) return undefined;
     const timer = setTimeout(() => setCopied(false), 1400);
     return () => clearTimeout(timer);
   }, [copied]);
@@ -1815,7 +1814,7 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
           aria-labelledby={id}
           title={props.oneLine ? props.value : undefined}
           className={cn(
-            "block rounded-lg border bg-muted py-2 pr-10 pl-2.5 font-mono text-xs leading-relaxed",
+            "block rounded-lg border bg-muted py-2 pr-10 pl-2.5 font-mono text-xs/relaxed",
             props.oneLine ? "truncate" : "break-all",
           )}
         >

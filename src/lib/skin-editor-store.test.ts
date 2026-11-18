@@ -31,8 +31,15 @@ function settings(overrides: Partial<PaintSettings> = {}): PaintSettings {
   };
 }
 
-const pixel = (store: SkinEditorStore, x: number, y: number) =>
-  Array.from(store.pixels.subarray(pixelOffset(x, y), pixelOffset(x, y) + 4));
+const pixel = (store: SkinEditorStore, x: number, y: number): Rgba => {
+  const at = pixelOffset(x, y);
+  return [
+    store.pixels[at],
+    store.pixels[at + 1],
+    store.pixels[at + 2],
+    store.pixels[at + 3],
+  ];
+};
 
 test("a fast stroke paints every pixel between samples and is one undo step", () => {
   const store = setup();
@@ -305,10 +312,7 @@ test("shade changes each pixel once per stroke, also where the mirror overlaps",
   const once = pixel(store, 11, 12);
   store.beginStroke("shade", shade, 11, 12);
   store.endStroke();
-  assert.deepEqual(
-    pixel(store, 11, 12),
-    shadeColor(once as unknown as [number, number, number, number], "darken"),
-  );
+  assert.deepEqual(pixel(store, 11, 12), shadeColor(once, "darken"));
 });
 
 test("shade keeps alpha, skips clear pixels, and works on the base layer", () => {
@@ -365,7 +369,7 @@ test("strong shade with mirror overlap changes each pixel once per stroke", () =
   store.strokeTo(12, 12);
   store.endStroke();
   assert.deepEqual(pixel(store, 12, 12), [
-    ...shadeColor(before as unknown as Rgba, "darken", SHADE_STEPS.strong)!,
+    ...shadeColor(before, "darken", SHADE_STEPS.strong)!,
   ]);
   assert.deepEqual(pixel(store, 11, 12), pixel(store, 12, 12));
   // A soft stroke darkens less than a strong one.
@@ -444,6 +448,6 @@ test("a shaded line changes each pixel once, also at the anchor", () => {
   store.endStroke();
   store.lineTo("shade", shade, 12, 10);
   assert.deepEqual(pixel(store, 10, 10), [
-    ...shadeColor(original as unknown as Rgba, "darken", SHADE_STEPS.strong)!,
+    ...shadeColor(original, "darken", SHADE_STEPS.strong)!,
   ]);
 });

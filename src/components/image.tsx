@@ -14,9 +14,11 @@ const transform = createStaticImageTransformer(images);
 
 export type ImageProps = Omit<
   ComponentProps<"img">,
-  "src" | "srcSet" | "width" | "height" | "style"
+  "src" | "srcSet" | "width" | "height" | "style" | "alt"
 > & {
   src: string;
+  /** Describe the image, or pass "" for a decorative one. */
+  alt: string;
   width?: number;
   height?: number;
   fill?: boolean;
@@ -30,6 +32,7 @@ export type ImageProps = Omit<
 
 export function Image({
   src,
+  alt,
   width,
   height,
   fill = false,
@@ -62,7 +65,7 @@ export function Image({
       "scale-down": "object-scale-down",
     }[objectFit],
     objectFit === "contain" && "bg-contain! bg-center",
-    fill && "h-full! w-full!",
+    fill && "size-full!",
     className,
   );
   const pixelated = className?.includes("image-rendering:pixelated");
@@ -75,6 +78,7 @@ export function Image({
       <img
         {...props}
         src={src}
+        alt={alt}
         width={resolvedWidth}
         height={resolvedHeight}
         loading={priority ? "eager" : (props.loading ?? "lazy")}
@@ -88,6 +92,7 @@ export function Image({
     <UnpicImage
       {...props}
       src={src}
+      alt={alt}
       {...(layout === "fullWidth" || fill || !resolvedWidth || !resolvedHeight
         ? { layout: "fullWidth" as const, aspectRatio }
         : {

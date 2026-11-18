@@ -243,7 +243,7 @@ test("a result is hidden for other choices and a superseded upload never publish
     { variant: "slim" as const },
     { method: "mineskin" },
     { capeUuid: "cape" },
-    { purpose: "createcustom" },
+    { purpose: "createcustom" as const },
     { name: "x" },
     { file: new File([first.file], "a.png") },
   ])
@@ -296,12 +296,18 @@ test("the Axolotl cape route posts the selected bytes without the user key", asy
   });
   assert.equal(requests.length, 1);
   const [url, init] = requests[0];
-  assert.equal(String(url), "https://axolotl.skinsrestorer.net/mineskin/skins");
+  assert.equal(
+    url instanceof Request ? url.url : url.toString(),
+    "https://axolotl.skinsrestorer.net/mineskin/skins",
+  );
   assert.equal(new Headers(init?.headers).get("Authorization"), null);
-  const form = init?.body as FormData;
+  const form = init?.body;
+  assert.ok(form instanceof FormData);
   assert.equal(form.get("capeUuid"), "cape-id");
+  const uploaded = form.get("file");
+  assert.ok(uploaded instanceof File);
   assert.deepEqual(
-    new Uint8Array(await (form.get("file") as File).arrayBuffer()),
+    new Uint8Array(await uploaded.arrayBuffer()),
     new Uint8Array(await chosen.file.arrayBuffer()),
   );
   const state = generation.for(chosen);
@@ -343,10 +349,15 @@ test("an empty custom name uses the filename default for every method", () => {
     file: new File([], "Forest ranger.png"),
   });
   // MineSkin may return a deduplicated skin with another user's name.
-  const official = {
+  const official: MineSkinCompletedResponse = {
     success: true,
-    skin: { ...response("abc", "https://minesk.in/abc").skin, name: "other" },
-  } as MineSkinCompletedResponse;
+    skin: {
+      uuid: "abc",
+      url: "https://minesk.in/abc",
+      name: "other",
+      texture: { data: { value, signature: "s" } },
+    },
+  };
   assert.equal(
     generationResult(chosen, official).command,
     '/sr createcustom forest_ranger "https://minesk.in/abc" classic',

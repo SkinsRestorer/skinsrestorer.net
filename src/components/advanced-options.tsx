@@ -15,6 +15,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useT } from "@/lib/i18n-react";
 import type { UploadMethod } from "@/lib/studio-options";
+import { findOption } from "@/lib/utils";
 
 /** Labels wrap in the narrow options column instead of overflowing. */
 const wrappingToggle =
@@ -43,6 +44,7 @@ export function AdvancedOptions(props: {
       <Collapsible open={props.open} onOpenChange={props.onOpenChange}>
         <CollapsibleTrigger
           render={
+            // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- The trigger's children become this button's content and label.
             <button
               type="button"
               className="group flex w-full items-center justify-between gap-3 rounded-md py-2.5 text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -52,7 +54,7 @@ export function AdvancedOptions(props: {
           <span className="flex items-center gap-1.5">
             <ChevronRight
               aria-hidden="true"
-              className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-90 motion-reduce:transition-none"
+              className="size-4 text-muted-foreground transition-transform group-data-panel-open:rotate-90 motion-reduce:transition-none"
             />
             {t("common.advancedOptions")}
           </span>
@@ -75,8 +77,11 @@ export function AdvancedOptions(props: {
                   className="grid w-full grid-cols-2"
                   value={[props.method]}
                   onValueChange={(value) => {
-                    if (value[0])
-                      props.onMethodChange(value[0] as UploadMethod);
+                    const method = findOption(
+                      ["axolotl", "mineskin"],
+                      value[0],
+                    );
+                    if (method) props.onMethodChange(method);
                   }}
                 >
                   <ToggleGroupItem value="axolotl" className={wrappingToggle}>

@@ -111,7 +111,10 @@ test("catalog requests are bounded credential-free GETs with no redirects", asyn
   let requests = 0;
   const result = await run(async (url, init) => {
     requests++;
-    assert.equal(String(url), GALLERY_URL);
+    assert.equal(
+      url instanceof Request ? url.url : url.toString(),
+      GALLERY_URL,
+    );
     assert.equal(init?.credentials, "omit");
     assert.equal(init?.redirect, "error");
     assert.equal(init?.body, undefined);

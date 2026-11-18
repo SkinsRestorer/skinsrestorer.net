@@ -164,7 +164,7 @@ test("HTTP cancellation waits for response reader cleanup", async () => {
   const pending = Effect.runPromiseExit(
     provide(readHttpText(url), async () => new Response(body)),
     { signal: controller.signal },
-  ).then(() => {
+  ).finally(() => {
     settled = true;
   });
   await started;

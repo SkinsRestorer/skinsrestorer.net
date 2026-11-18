@@ -55,9 +55,7 @@ async function keptSkin(library: LibraryClient, seed = 1) {
   const document = createTemplate("classic");
   document.pixels.set([seed, 0, 0, 255], pixelOffset(8, 8));
   const png = await exportSkinPng(document.pixels);
-  const content = await Effect.runPromise(
-    prepareSkinContent(new Blob([png as Uint8Array<ArrayBuffer>])),
-  );
+  const content = await Effect.runPromise(prepareSkinContent(new Blob([png])));
   const { skin } = await library.run(
     withLibrary((l) =>
       l.add(
@@ -448,7 +446,7 @@ test("when the library cannot open, saving returns the PNG without asking", asyn
         open: () => {
           throw new DOMException("blocked", "SecurityError");
         },
-      } as unknown as IDBFactory,
+      },
     }),
   );
   disposers.push(() => blocked.dispose());

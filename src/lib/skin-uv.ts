@@ -20,6 +20,9 @@ export const boxSideFaces: readonly SkinFace[] = [
   "back",
 ];
 
+const clamp = (value: number, min: number, size: number) =>
+  Math.min(min + size - 1, Math.max(min, value));
+
 /**
  * Convert a ray hit on a skin box to a texture pixel. A box side has two
  * triangles, so the triangle index gives the side. The side keeps the pixel
@@ -35,8 +38,6 @@ export function hitToPixel(
   const face = boxSideFaces[Math.floor(faceIndex / 2)];
   if (!face) return undefined;
   const region = findRegion(variant, part, layer, face);
-  const clamp = (value: number, min: number, size: number) =>
-    Math.min(min + size - 1, Math.max(min, value));
   return {
     x: clamp(Math.floor(uv.x * SKIN_SIZE), region.x, region.width),
     y: clamp(Math.floor((1 - uv.y) * SKIN_SIZE), region.y, region.height),

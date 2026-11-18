@@ -81,14 +81,12 @@ test("submitted values are trimmed without changing the form values", () => {
   assert.equal(value.customName, "  lobby ");
 });
 
+const route = (change: Partial<StudioOptions>) =>
+  uploadRoute(
+    normalizeStudioOptions(options({ apiKey: " key ", ...change }), "skin-url"),
+  );
+
 test("only Official uploads send the API key", () => {
-  const route = (change: Partial<StudioOptions>) =>
-    uploadRoute(
-      normalizeStudioOptions(
-        options({ apiKey: " key ", ...change }),
-        "skin-url",
-      ),
-    );
   assert.deepEqual(route({ method: "mineskin" }), {
     capeUuid: undefined,
     apiKey: "key",

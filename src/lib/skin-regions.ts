@@ -114,7 +114,7 @@ function boxFaces(
   const w = typeof box.width === "number" ? box.width : box.width(variant);
   const h = box.height;
   const d = box.depth;
-  const face = (
+  const region = (
     face: SkinFace,
     x: number,
     y: number,
@@ -122,12 +122,12 @@ function boxFaces(
     height: number,
   ): SkinRegion => ({ part, layer, face, x, y, width, height });
   return [
-    face("top", u + d, v, w, d),
-    face("bottom", u + d + w, v, w, d),
-    face("right", u, v + d, d, h),
-    face("front", u + d, v + d, w, h),
-    face("left", u + d + w, v + d, d, h),
-    face("back", u + d * 2 + w, v + d, w, h),
+    region("top", u + d, v, w, d),
+    region("bottom", u + d + w, v, w, d),
+    region("right", u, v + d, d, h),
+    region("front", u + d, v + d, w, h),
+    region("left", u + d + w, v + d, d, h),
+    region("back", u + d * 2 + w, v + d, w, h),
   ];
 }
 

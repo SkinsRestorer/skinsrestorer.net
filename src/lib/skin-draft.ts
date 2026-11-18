@@ -21,9 +21,9 @@ const draftSchema = Schema.Struct({
   version: Schema.Literal(DRAFT_VERSION),
   variant: variantSchema,
   png: Schema.String,
-  updatedAt: Schema.Number,
+  updatedAt: Schema.Finite,
 });
-const versionSchema = Schema.Struct({ version: Schema.Number });
+const versionSchema = Schema.Struct({ version: Schema.Finite });
 const handoffSchema = Schema.Struct({
   version: Schema.Literal(DRAFT_VERSION),
   id: Schema.String,

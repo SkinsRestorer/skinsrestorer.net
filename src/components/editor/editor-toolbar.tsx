@@ -31,6 +31,7 @@ import {
   useShortcutHints,
 } from "@/components/editor/editor-shortcuts";
 import { useT } from "@/lib/i18n-react";
+import { findOption } from "@/lib/utils";
 
 const toolIcons = {
   pencil: Brush,
@@ -75,7 +76,8 @@ export function EditorToolbar(props: {
         spacing={0}
         value={[props.tool]}
         onValueChange={(value) => {
-          if (value[0]) props.onTool(value[0] as PaintTool);
+          const tool = findOption(toolCommands, value[0]);
+          if (tool) props.onTool(tool);
         }}
       >
         {toolCommands.map((tool) => {
@@ -115,7 +117,8 @@ export function EditorToolbar(props: {
         spacing={0}
         value={[props.interaction]}
         onValueChange={(value) => {
-          if (value[0]) props.onInteraction(value[0] as EditorInteraction);
+          const interaction = findOption(["paint", "move"], value[0]);
+          if (interaction) props.onInteraction(interaction);
         }}
       >
         <HintTrigger

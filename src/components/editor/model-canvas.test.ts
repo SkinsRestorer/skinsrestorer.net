@@ -6,6 +6,9 @@ import { allPartsVisible, defaultBrush, toolFootprint } from "@/lib/skin-paint";
 import { SKIN_SIZE } from "@/lib/skin-regions";
 import { copyFlipped, paintOverlay } from "./model-overlay";
 
+// Rows are flipped in the GPU copy.
+const at = (x: number, y: number) => ((SKIN_SIZE - 1 - y) * SKIN_SIZE + x) * 4;
+
 test("the hover footprint changes only the GPU copy, never the document", () => {
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));
@@ -33,9 +36,6 @@ test("the hover footprint changes only the GPU copy, never the document", () => 
   assert.deepEqual(store.pixels, document);
   assert.equal(store.getSnapshot().revision, revision);
   assert.equal(store.getSnapshot().canUndo, false);
-  // Rows are flipped in the GPU copy.
-  const at = (x: number, y: number) =>
-    ((SKIN_SIZE - 1 - y) * SKIN_SIZE + x) * 4;
   const changed = (x: number, y: number) =>
     [0, 1, 2, 3].some((c) => gpu[at(x, y) + c] !== plain[at(x, y) + c]);
   // A clear outer pixel under the brush becomes visible on the model.

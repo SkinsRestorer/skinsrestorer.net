@@ -1,4 +1,4 @@
-import type { Locale } from "./i18n";
+import { locales, type Locale } from "./i18n";
 import {
   catalogs,
   messageFields,
@@ -101,8 +101,8 @@ const contentSchema = Schema.Struct({
   /** The pixels and the model. Finds a repeated import of the same skin. */
   key: Schema.String,
   variant: variantSchema,
-  width: Schema.Number,
-  height: Schema.Number,
+  width: Schema.Finite,
+  height: Schema.Finite,
 });
 const sourceSchema = Schema.Struct({
   kind: Schema.Literals([
@@ -121,20 +121,20 @@ const skinSchema = Schema.Struct({
   current: contentSchema,
   original: contentSchema,
   /** Changes with every pixel or model change. Saves compare it. */
-  revision: Schema.Number,
+  revision: Schema.Finite,
   source: sourceSchema,
-  createdAt: Schema.Number,
-  updatedAt: Schema.Number,
-  lastUsedAt: Schema.Number,
+  createdAt: Schema.Finite,
+  updatedAt: Schema.Finite,
+  lastUsedAt: Schema.Finite,
 });
 const sessionSchema = Schema.Struct({
   id: Schema.String,
   skinId: Schema.optional(Schema.String),
-  baseRevision: Schema.optional(Schema.Number),
+  baseRevision: Schema.optional(Schema.Finite),
   name: Schema.String,
   png: Schema.instanceOf(Blob),
   variant: variantSchema,
-  updatedAt: Schema.Number,
+  updatedAt: Schema.Finite,
 });
 
 export type SkinContent = typeof contentSchema.Type;
@@ -180,11 +180,8 @@ export function cleanSkinName(name: string, fallback = "Skin") {
   return clean || fallback;
 }
 
-async function sha256(bytes: Uint8Array | Uint8ClampedArray) {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    bytes as Uint8Array<ArrayBuffer>,
-  );
+async function sha256(bytes: Uint8Array<ArrayBuffer>) {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, "0"),
   ).join("");
@@ -221,9 +218,9 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
   });
   const size = yield* Effect.try({
     try: () => {
-      const size = readPngSize(bytes);
-      validateSkinDimensions(size.width, size.height);
-      return size;
+      const dimensions = readPngSize(bytes);
+      validateSkinDimensions(dimensions.width, dimensions.height);
+      return dimensions;
     },
     catch: (cause) =>
       libraryError(
@@ -249,7 +246,9 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
             : message(failureMessages.invalid),
         ),
     });
-    pixelKey = `pixels:${yield* Effect.promise(() => sha256(imported.document.pixels))}`;
+    // A copy in an ArrayBuffer, which the digest needs. The bytes are equal.
+    const pixels = new Uint8Array(imported.document.pixels);
+    pixelKey = `pixels:${yield* Effect.promise(() => sha256(pixels))}`;
     detected = imported.document.variant;
   }
   const model = variant ?? detected;
@@ -381,7 +380,7 @@ export interface LibraryChannel {
 }
 
 export interface LibraryOptions {
-  readonly factory: IDBFactory;
+  readonly factory: Pick<IDBFactory, "open">;
   readonly name?: string;
   readonly channel?: () => LibraryChannel | undefined;
   readonly now?: () => number;
@@ -390,7 +389,11 @@ export interface LibraryOptions {
 }
 
 /** Open the database. A newer version on disk is reported, never replaced. */
-function openDatabase(factory: IDBFactory, name: string, timeoutMs: number) {
+function openDatabase(
+  factory: Pick<IDBFactory, "open">,
+  name: string,
+  timeoutMs: number,
+) {
   return Effect.callback<IDBDatabase, SkinLibraryError>((resume) => {
     let request: IDBOpenDBRequest;
     let settled = false;
@@ -398,9 +401,9 @@ function openDatabase(factory: IDBFactory, name: string, timeoutMs: number) {
       request = factory.open(name, LIBRARY_VERSION);
     } catch (cause) {
       resume(Effect.fail(libraryError("unavailable", cause)));
-      return;
+      return undefined;
     }
-    request.onupgradeneeded = (event) => {
+    request.addEventListener("upgradeneeded", (event) => {
       const db = request.result;
       if (event.oldVersion < 1) {
         const skins = db.createObjectStore(SKINS, { keyPath: "id" });
@@ -409,12 +412,12 @@ function openDatabase(factory: IDBFactory, name: string, timeoutMs: number) {
         const sessions = db.createObjectStore(SESSIONS, { keyPath: "id" });
         sessions.createIndex("skinId", "skinId");
       }
-    };
-    request.onsuccess = () => {
+    });
+    const opened = () => {
       settled = true;
       resume(Effect.succeed(request.result));
     };
-    request.onerror = (event) => {
+    const failed = (event: Event) => {
       settled = true;
       event.preventDefault();
       const error = request.error;
@@ -426,11 +429,15 @@ function openDatabase(factory: IDBFactory, name: string, timeoutMs: number) {
         ),
       );
     };
+    request.addEventListener("success", opened);
+    request.addEventListener("error", failed);
     return Effect.sync(() => {
       if (settled) return;
       // The open may still finish after cancellation. Close it then.
-      request.onsuccess = () => request.result.close();
-      request.onerror = (event) => event.preventDefault();
+      request.removeEventListener("success", opened);
+      request.removeEventListener("error", failed);
+      request.addEventListener("success", () => request.result.close());
+      request.addEventListener("error", (event) => event.preventDefault());
     });
   }).pipe(
     Effect.timeoutOrElse({
@@ -448,7 +455,7 @@ function openDatabase(factory: IDBFactory, name: string, timeoutMs: number) {
  */
 function transaction<A, E = never>(
   db: () => IDBDatabase,
-  stores: readonly string[],
+  stores: string[],
   mode: IDBTransactionMode,
   body: (tx: IDBTransaction, fail: (error: E) => void) => () => A,
   durability: "default" | "strict" = "default",
@@ -463,10 +470,10 @@ function transaction<A, E = never>(
       resume(effect);
     };
     try {
-      tx = db().transaction(stores as string[], mode, { durability });
+      tx = db().transaction(stores, mode, { durability });
     } catch (cause) {
       finish(Effect.fail(storageError(cause)));
-      return;
+      return undefined;
     }
     const fail = (error: E) => {
       if (failure) return;
@@ -487,11 +494,12 @@ function transaction<A, E = never>(
         // The transaction already finished.
       }
       finish(Effect.fail(storageError(cause)));
-      return;
+      return undefined;
     }
-    tx.oncomplete = () => finish(Effect.sync(read));
-    tx.onabort = () =>
-      finish(Effect.fail(failure ? failure.error : storageError(tx.error)));
+    tx.addEventListener("complete", () => finish(Effect.sync(read)));
+    tx.addEventListener("abort", () =>
+      finish(Effect.fail(failure ? failure.error : storageError(tx.error))),
+    );
     return Effect.sync(() => {
       if (done) return;
       done = true;
@@ -539,11 +547,11 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   };
   const channel = yield* Effect.acquireRelease(
     Effect.sync(() => {
-      const channel = options.channel?.();
-      channel?.addEventListener("message", () => emit({ type: "changed" }));
-      return channel;
+      const opened = options.channel?.();
+      opened?.addEventListener("message", () => emit({ type: "changed" }));
+      return opened;
     }),
-    (channel) => Effect.sync(() => channel?.close()),
+    (opened) => Effect.sync(() => opened?.close()),
   );
   const changed = Effect.sync(() => {
     emit({ type: "changed" });
@@ -557,11 +565,11 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   const db = () => database;
 
   const read = <A, E = never>(
-    stores: readonly string[],
+    stores: string[],
     body: (tx: IDBTransaction, fail: (error: E) => void) => () => A,
   ) => transaction<A, E>(db, stores, "readonly", body);
   const write = <A, E = never>(
-    stores: readonly string[],
+    stores: string[],
     body: (tx: IDBTransaction, fail: (error: E) => void) => () => A,
     durability: "default" | "strict" = "default",
   ) =>
@@ -640,8 +648,9 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         });
         return () => result;
       }).pipe(
-        Effect.flatMap((skin) =>
-          skin ? Effect.succeed(skin) : Effect.fail(notFound(id)),
+        Effect.filterOrFail(
+          (skin): skin is StoredSkin => skin !== undefined,
+          () => notFound(id),
         ),
       ),
     add: (skin, { dedupe }) =>
@@ -919,7 +928,7 @@ export function copyName(name: string, locale: Locale = "en") {
   const pattern = copyPattern(locale);
   const parsed =
     parseCopyName(clean, pattern) ??
-    (Object.keys(catalogs) as Locale[])
+    locales
       .filter((other) => other !== locale)
       .map((other) => parseCopyName(clean, copyPattern(other)))
       .find((match) => match !== undefined);

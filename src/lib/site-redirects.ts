@@ -62,4 +62,5 @@ export function getSiteRedirect(pathname: string) {
   }
   if (aliases[path])
     return { destination: localizeHref(aliases[path], locale), status: 307 };
+  return undefined;
 }

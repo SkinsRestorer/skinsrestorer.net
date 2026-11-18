@@ -10,16 +10,27 @@ import {
 } from "./skin";
 
 function imageFixture(cached = false) {
+  const listeners = new Set<{ type: string; listener: () => void }>();
   const image = {
     naturalWidth: 64,
     naturalHeight: 64,
-    onload: null as (() => void) | null,
-    onerror: null as (() => void) | null,
+    listeners,
     crossOrigin: "",
     value: "",
+    addEventListener(
+      type: string,
+      listener: () => void,
+      options?: { signal?: AbortSignal },
+    ) {
+      const entry = { type, listener };
+      listeners.add(entry);
+      options?.signal?.addEventListener("abort", () => listeners.delete(entry));
+    },
     set src(value: string) {
       this.value = value;
-      if (cached && value) this.onload?.();
+      if (!cached || !value) return;
+      for (const entry of listeners)
+        if (entry.type === "load") entry.listener();
     },
     removeAttribute() {
       this.value = "";
@@ -29,6 +40,7 @@ function imageFixture(cached = false) {
     },
   };
   const service = {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- The fake implements only the image members the loader uses.
     create: () => image as unknown as HTMLImageElement,
     variant: () => "slim" as const,
   };
@@ -45,8 +57,7 @@ test("cached images have handlers before loading and release them after detectio
     ),
     "slim",
   );
-  assert.equal(image.onload, null);
-  assert.equal(image.onerror, null);
+  assert.equal(image.listeners.size, 0);
   assert.equal(image.src, "");
 });
 
@@ -62,8 +73,7 @@ test("cancelling image detection removes handlers before releasing the source", 
   await Promise.resolve();
   controller.abort();
   await pending;
-  assert.equal(image.onload, null);
-  assert.equal(image.onerror, null);
+  assert.equal(image.listeners.size, 0);
   assert.equal(image.src, "");
 });
 
@@ -82,7 +92,7 @@ test("canvas failures remain typed and release the loaded image", async () => {
     ),
     { _tag: "SkinImageError", message: "Failed to get canvas context" },
   );
-  assert.equal(image.onload, null);
+  assert.equal(image.listeners.size, 0);
 });
 
 test("preview URLs outlive image callbacks and are released after cancellation", async () => {
@@ -101,7 +111,7 @@ test("preview URLs outlive image callbacks and are released after cancellation",
           {
             create: () => "blob:owned",
             revoke: (url) => {
-              assert.equal(image.onload, null);
+              assert.equal(image.listeners.size, 0);
               assert.equal(image.src, "");
               observed.push(`revoke:${url}`);
             },
@@ -191,7 +201,7 @@ test("successful detection keeps the preview URL until its owner is cancelled", 
             create: () => "blob:preview",
             revoke: () => {
               revoked = true;
-              assert.equal(image.onload, null);
+              assert.equal(image.listeners.size, 0);
             },
           },
         ),
@@ -216,13 +226,14 @@ test("a superseded image load never reaches its user", async () => {
     { signal: controller.signal },
   );
   await Promise.resolve();
-  const onload = image.onload;
+  const loads = [...image.listeners].filter((entry) => entry.type === "load");
+  assert.equal(loads.length, 1);
   controller.abort();
   await pending;
   // A late load event from the browser finds no owner.
-  onload?.();
+  for (const entry of loads) entry.listener();
   assert.deepEqual(used, []);
-  assert.equal(image.onload, null);
+  assert.equal(image.listeners.size, 0);
   assert.equal(image.src, "");
 });
 
@@ -231,6 +242,7 @@ test("a loaded image is used while it is still attached", async () => {
   const seen = await Effect.runPromise(
     withSkinImageEffect(
       "https://textures.minecraft.net/texture/a",
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- The loader hands back the fake from `create`.
       (loaded) => (loaded as unknown as typeof image).src,
     ).pipe(Effect.provideService(SkinImages, service)),
   );

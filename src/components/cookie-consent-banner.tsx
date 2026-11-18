@@ -3,7 +3,13 @@
 import { Cookie, X } from "lucide-react";
 import { Link } from "fumadocs-core/link";
 import { posthog } from "posthog-js";
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,18 +31,26 @@ function openCookieSettings(opener: HTMLElement | null) {
   for (const listener of reopenListeners) listener(opener);
 }
 
+type ConsentState = ReturnType<typeof posthog.get_explicit_consent_status>;
+
+const subscribeNever = () => () => {};
+
 const CookieConsentBanner = () => {
   const t = useT();
   const titleId = useId();
   const section = useRef<HTMLElement>(null);
   const opener = useRef<HTMLElement | null>(null);
-  const [consentState, setConsentState] = useState<
-    ReturnType<typeof posthog.get_explicit_consent_status> | ""
-  >("");
+  // The stored choice is read after hydration. A choice made here replaces it.
+  const storedConsent = useSyncExternalStore<ConsentState | "">(
+    subscribeNever,
+    () => posthog.get_explicit_consent_status(),
+    () => "",
+  );
+  const [chosenConsent, setConsentState] = useState<ConsentState>();
+  const consentState = chosenConsent ?? storedConsent;
   const [reopened, setReopened] = useState(false);
 
   useEffect(() => {
-    setConsentState(posthog.get_explicit_consent_status());
     const reopen = (element: HTMLElement | null) => {
       opener.current = element;
       // Read the stored choice again so the banner shows the current value.
@@ -68,7 +82,7 @@ const CookieConsentBanner = () => {
   const dismissible = reopened && consentState !== "pending";
   const closeRef = useAsRef(close);
   useEffect(() => {
-    if (!dismissible) return;
+    if (!dismissible) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !event.defaultPrevented) {
         closeRef.current();
@@ -119,7 +133,7 @@ const CookieConsentBanner = () => {
                 <X aria-hidden="true" />
               </Button>
             ) : (
-              <Cookie aria-hidden="true" className="h-5 w-5" />
+              <Cookie aria-hidden="true" className="size-5" />
             )}
           </CardHeader>
           <CardContent className="flex flex-col gap-2">

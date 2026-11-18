@@ -215,6 +215,7 @@ function PricingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
+              {/* oxlint-disable-next-line react/iframe-missing-sandbox -- The Ko-fi checkout opens PayPal and Stripe flows that a sandbox can break, and it cannot be tested without a real payment. */}
               <iframe
                 src={`${koFiUrl}/?hidefeed=true&widget=true&embed=true&preview=true`}
                 className="w-full border-none"
@@ -240,6 +241,7 @@ function PricingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-1 items-center justify-center">
+              {/* oxlint-disable-next-line react/iframe-missing-sandbox -- The NOWPayments checkout opens wallet and payment flows that a sandbox can break, and it cannot be tested without a real payment. */}
               <iframe
                 src={nowPaymentsUrl}
                 width="346"

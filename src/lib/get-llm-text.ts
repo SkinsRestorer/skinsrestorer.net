@@ -1,7 +1,7 @@
 import { Data, Effect } from "effect";
 import type { InferPageType } from "fumadocs-core/source";
 import { flattenTree, type Node } from "fumadocs-core/page-tree";
-import type { Locale } from "@/lib/i18n";
+import { isLocale, type Locale } from "@/lib/i18n";
 import { absoluteDocsUrl, formatExportedMarkdown } from "@/lib/llm-markdown";
 import { source } from "@/lib/source";
 
@@ -19,7 +19,7 @@ export const getLLMTextEffect = Effect.fn("Docs.getText")(function* (
     try: () => page.data.getText("processed"),
     catch: (cause) => new DocumentTextError({ url: page.url, cause }),
   });
-  const locale = (page.locale ?? "en") as Locale;
+  const locale = isLocale(page.locale) ? page.locale : "en";
   return `# ${page.data.title}
 URL: ${absoluteDocsUrl(page.url, locale)}
 SkinsRestorer: ${page.data.version}
@@ -62,13 +62,14 @@ export const getFullLLMTextEffect = Effect.fn("Docs.getFullText")(function* () {
   return texts.join("\n\n");
 });
 
+const line = (page: DocsPage) =>
+  `- [${page.data.title}](${absoluteDocsUrl(`${page.url}.mdx`)}): ${page.data.description}`;
+
 /** The llms.txt index: sidebar sections with links to Markdown pages. */
 export function getLLMIndex() {
   const tree = source.getPageTree("en");
   const remaining = pagesByUrl("en");
   const home = remaining.get("/docs");
-  const line = (page: DocsPage) =>
-    `- [${page.data.title}](${absoluteDocsUrl(`${page.url}.mdx`)}): ${page.data.description}`;
   const sections: string[] = [];
   const topLevel = orderPages(
     tree.children.filter((node) => node.type !== "folder"),

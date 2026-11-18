@@ -52,7 +52,7 @@ export function SkinView(props: {
   useEffect(() => {
     const canvas = canvasRef.current;
     const frame = frameRef.current;
-    if (!canvas || !frame) return;
+    if (!canvas || !frame) return undefined;
     let current: SkinViewer;
     try {
       current = new SkinViewer({
@@ -66,7 +66,7 @@ export function SkinView(props: {
       });
     } catch {
       setNoWebGl(true);
-      return;
+      return undefined;
     }
     current.controls.enablePan = false;
     current.controls.enableZoom = false;
@@ -147,7 +147,7 @@ export function SkinView(props: {
   useEffect(() => {
     const viewer = viewerRef.current;
     const url = props.skinUrl;
-    if (!viewer || !url) return;
+    if (!viewer || !url) return undefined;
     const owner = new AbortController();
     const model = props.variant === "slim" ? "slim" : "default";
     runSkinEffect(
@@ -168,12 +168,12 @@ export function SkinView(props: {
   const capeUrl = ensureHttpsTextureUrl(props.capeUrl) ?? undefined;
   useEffect(() => {
     const viewer = viewerRef.current;
-    if (!viewer) return;
+    if (!viewer) return undefined;
     if (!capeUrl) {
       viewer.resetCape();
       viewer.playerWrapper.rotation.y = FRONT;
       redrawRef.current();
-      return;
+      return undefined;
     }
     const owner = new AbortController();
     viewer.playerWrapper.rotation.y = BACK;
@@ -195,8 +195,10 @@ export function SkinView(props: {
   }, [ready, capeUrl]);
 
   return (
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- The WebGL viewer is a named image that also rotates with the arrow keys; no native element fits.
     <div
       ref={frameRef}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- The image is drawn on a WebGL canvas, so it cannot be an <img>.
       role="img"
       aria-roledescription={t("studio.3dModel")}
       aria-label={props.label}

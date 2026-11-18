@@ -8,7 +8,7 @@ import {
 } from "@/lib/messages";
 
 import { posthog } from "posthog-js";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { browserStorage } from "../skin-draft";
 import {
@@ -76,6 +76,8 @@ export function downloadSkin(png: Blob, name: string) {
   posthog.capture("skin_library_action", { action: "download" });
 }
 
+const subscribeNever = () => () => {};
+
 /**
  * The skins kept in this browser. Reads refresh after every change in this
  * or another tab; a superseded read never replaces a newer one.
@@ -83,12 +85,15 @@ export function downloadSkin(png: Blob, name: string) {
 export function useSkinLibrary() {
   const t = useNotificationT();
   const locale = useLocale();
-  const [client, setClient] = useState<LibraryClient | undefined>();
+  // The library exists only in the browser, after hydration.
+  const client = useSyncExternalStore(
+    subscribeNever,
+    browserLibrary,
+    () => undefined,
+  );
   const [state, setState] = useState<LibraryState>({ status: "loading" });
   const [migrated, setMigrated] = useState<MigrationResult | undefined>();
   const task = useLatestTask();
-
-  useEffect(() => setClient(browserLibrary()), []);
 
   const reload = useCallback(() => {
     if (!client) return;
@@ -109,7 +114,7 @@ export function useSkinLibrary() {
   }, [client, task]);
 
   useEffect(() => {
-    if (!client) return;
+    if (!client) return undefined;
     let active = true;
     void migrateOnce(client, t, locale).then((result) => {
       if (!active) return;
@@ -162,7 +167,7 @@ export function useSkinLibrary() {
     remove: (id: string) =>
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed) => {
-          if (!removed) return;
+          if (!removed) return undefined;
           toast(t("library.skinRemoved"), {
             action: {
               label: t("common.undo"),
@@ -178,7 +183,7 @@ export function useSkinLibrary() {
     revert: (id: string) =>
       act("revert", (c) => c.run(withLibrary((l) => l.revert(id)))).then(
         (reverted) => {
-          if (!reverted) return;
+          if (!reverted) return undefined;
           toast(t("library.skinReverted"), {
             action: {
               label: t("common.undo"),

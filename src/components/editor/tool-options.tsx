@@ -24,6 +24,7 @@ import {
   type ShadeStrength,
 } from "@/lib/skin-paint";
 import { useT } from "@/lib/i18n-react";
+import { findOption } from "@/lib/utils";
 
 const shadeStrengths: ReadonlyArray<{
   value: ShadeStrength;
@@ -72,7 +73,8 @@ export function ToolOptions(props: {
           spacing={0}
           value={[props.fillScope]}
           onValueChange={(value) => {
-            if (value[0]) props.onFillScope(value[0] as FillScope);
+            const scope = findOption(["face", "everywhere"], value[0]);
+            if (scope) props.onFillScope(scope);
           }}
         >
           <HintTrigger
@@ -159,7 +161,8 @@ export function ToolOptions(props: {
           spacing={0}
           value={[props.shade]}
           onValueChange={(value) => {
-            if (value[0]) props.onShade(value[0] as ShadeMode);
+            const shade = findOption(["lighten", "darken"], value[0]);
+            if (shade) props.onShade(shade);
           }}
         >
           <ToggleGroupItem
@@ -188,7 +191,11 @@ export function ToolOptions(props: {
           spacing={0}
           value={[props.shadeStrength]}
           onValueChange={(value) => {
-            if (value[0]) props.onShadeStrength(value[0] as ShadeStrength);
+            const strength = findOption(
+              shadeStrengths.map((option) => option.value),
+              value[0],
+            );
+            if (strength) props.onShadeStrength(strength);
           }}
         >
           {shadeStrengths.map(({ value, label }) => (

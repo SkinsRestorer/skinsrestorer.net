@@ -16,9 +16,6 @@ export function parseHex(value: string): [number, number, number] | undefined {
           .map((c) => c + c)
           .join("")
       : match[1];
-  return [0, 2, 4].map((i) => Number.parseInt(hex.slice(i, i + 2), 16)) as [
-    number,
-    number,
-    number,
-  ];
+  const channel = (i: number) => Number.parseInt(hex.slice(i, i + 2), 16);
+  return [channel(0), channel(2), channel(4)];
 }

@@ -283,7 +283,7 @@ function SectionHeading({
           id={id}
           className={cn(
             headingFontClassName(locale),
-            "text-3xl leading-tight tracking-tight sm:text-4xl",
+            "text-3xl/tight tracking-tight sm:text-4xl",
           )}
         >
           {title}
@@ -326,7 +326,7 @@ export default function IndexPage() {
             {t("home.playerSkinsMinecraftServer")}
           </h1>
           <div className="flex max-w-lg flex-col gap-3 text-muted-foreground">
-            <p className="text-lg leading-relaxed">
+            <p className="text-lg/relaxed">
               {t("home.skinsrestorerFreePluginServerModShowsReal")}
             </p>
             <p className="text-sm">{t("home.worksWithPlatforms")}</p>

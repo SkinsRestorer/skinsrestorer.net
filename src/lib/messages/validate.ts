@@ -1,3 +1,9 @@
+const parameters = (text: string) =>
+  [...text.matchAll(/\{(\w+)\}/g)]
+    .map((match) => match[1])
+    .toSorted()
+    .join(",");
+
 /** Check catalog contracts without relying on English fallback text. */
 export function validateCatalogs(
   catalogs: Record<string, Record<string, string>>,
@@ -6,11 +12,6 @@ export function validateCatalogs(
   const english = catalogs.en;
   if (!english) return ["Missing English catalog."];
   const keys = Object.keys(english);
-  const parameters = (text: string) =>
-    [...text.matchAll(/\{(\w+)\}/g)]
-      .map((match) => match[1])
-      .toSorted()
-      .join(",");
   for (const key of keys) {
     if (!/^[a-z][a-z0-9]*(?:\.[a-zA-Z0-9]+)+$/.test(key))
       errors.push(`Invalid translation key: ${key}`);

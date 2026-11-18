@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "fumadocs-core/link";
 import { ArrowUpRight } from "lucide-react";
 import { CookieSettingsButton } from "@/components/cookie-consent-banner";
@@ -5,11 +6,11 @@ import { useT } from "@/lib/i18n-react";
 
 export function SiteFooter() {
   const t = useT();
-  const year = new Date().getFullYear();
+  const [year] = useState(() => new Date().getFullYear());
 
   return (
     <footer className="mt-auto border-t py-6 text-sm text-fd-muted-foreground">
-      <div className="mx-auto flex w-full max-w-[var(--fd-layout-width)] flex-col items-center gap-3 px-4 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
+      <div className="mx-auto flex w-full max-w-(--fd-layout-width) flex-col items-center gap-3 px-4 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
         <p>
           &copy; {year} {"SkinsRestorer"}
         </p>

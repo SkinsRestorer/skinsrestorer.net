@@ -1,21 +1,31 @@
 const textureParam = /([?&](?:texture|handoff)=)[^&#\s"'\\]*/gi;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function redactValue(value: unknown): unknown {
+  if (typeof value === "string") return redactEditorParams(value);
+  if (isRecord(value)) redactEditorParams(value);
+  return value;
+}
+
 /**
  * Remove editor texture hashes and handoff ids from every string in an
- * analytics event, including page URLs inside session replay data.
+ * analytics event, including page URLs inside session replay data. Objects
+ * and arrays change in place.
  */
-export function redactEditorParams<T>(value: T): T {
+export function redactEditorParams(value: string): string;
+export function redactEditorParams<T extends object>(value: T): T;
+export function redactEditorParams(value: string | object): string | object {
   if (typeof value === "string")
-    return value.replaceAll(textureParam, "$1redacted") as T;
+    return value.replaceAll(textureParam, "$1redacted");
   if (Array.isArray(value)) {
-    for (let i = 0; i < value.length; i++)
-      value[i] = redactEditorParams(value[i]);
+    for (let i = 0; i < value.length; i++) value[i] = redactValue(value[i]);
     return value;
   }
-  if (value && typeof value === "object") {
-    const record = value as Record<string, unknown>;
-    for (const key of Object.keys(record))
-      record[key] = redactEditorParams(record[key]);
+  if (isRecord(value)) {
+    for (const key of Object.keys(value)) value[key] = redactValue(value[key]);
   }
   return value;
 }

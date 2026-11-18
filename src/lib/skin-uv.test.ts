@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { SkinObject } from "skinview3d/libs/model.js";
-import { Box3, Raycaster, Vector3, type Mesh } from "three";
+import { Box3, Raycaster, Vector3, Mesh, type Object3D } from "three";
 import type { SkinVariant } from "./skin";
 import {
   mirrorPixel,
@@ -10,6 +10,11 @@ import {
   type SkinFace,
 } from "./skin-regions";
 import { hitToPixel } from "./skin-uv";
+
+function asMesh(object: Object3D): Mesh {
+  assert.ok(object instanceof Mesh);
+  return object;
+}
 
 const directions: Record<SkinFace, Vector3> = {
   front: new Vector3(0, 0, 1),
@@ -39,9 +44,9 @@ for (const variant of ["classic", "slim"] as const) {
     const skin = model(variant);
     for (const part of skinParts)
       for (const layer of ["base", "outer"] as const) {
-        const mesh = (
-          layer === "base" ? skin[part].innerLayer : skin[part].outerLayer
-        ) as Mesh;
+        const mesh = asMesh(
+          layer === "base" ? skin[part].innerLayer : skin[part].outerLayer,
+        );
         const box = new Box3().setFromObject(mesh);
         const center = box.getCenter(new Vector3());
         const size = box.getSize(new Vector3());
@@ -72,7 +77,7 @@ for (const variant of ["classic", "slim"] as const) {
 
 test("3D hits keep the texture orientation of the face", () => {
   const skin = model("classic");
-  const head = skin.head.innerLayer as Mesh;
+  const head = asMesh(skin.head.innerLayer);
   // The front faces +z. The player's right side is at -x, which is the first
   // texture column of the front face.
   const front = castAt(head, directions.front, new Vector3(-3.5, 7.5, 4));
@@ -114,9 +119,9 @@ for (const variant of ["classic", "slim"] as const) {
     for (const part of skinParts)
       for (const layer of ["base", "outer"] as const) {
         const meshOf = (name: (typeof skinParts)[number]) =>
-          (layer === "base"
-            ? skin[name].innerLayer
-            : skin[name].outerLayer) as Mesh;
+          asMesh(
+            layer === "base" ? skin[name].innerLayer : skin[name].outerLayer,
+          );
         const mesh = meshOf(part);
         const other = meshOf(counterpart[part]);
         const box = new Box3().setFromObject(mesh);

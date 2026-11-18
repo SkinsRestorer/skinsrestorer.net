@@ -8,7 +8,7 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
-import type { ComponentProps, FC } from "react";
+import type { ComponentProps } from "react";
 
 type HeadingLevel = "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -45,7 +45,10 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...TabsComponents,
     ...FilesComponents,
     ...touchAnchorHeadings,
-    blockquote: Callout as unknown as FC<ComponentProps<"blockquote">>,
+    // Markdown quotes carry only children, so the callout takes those.
+    blockquote: ({ children }: ComponentProps<"blockquote">) => (
+      <Callout>{children}</Callout>
+    ),
     img: ImageZoom,
     // HTML `ref` attribute conflicts with `forwardRef`
     pre: ({ ref: _ref, ...props }) => (

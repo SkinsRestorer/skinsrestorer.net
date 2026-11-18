@@ -308,9 +308,9 @@ const focusableSelector = [
 function SidebarDrawerFocus() {
   const { open, mode } = useSidebar();
   useEffect(() => {
-    if (!open || mode !== "drawer") return;
+    if (!open || mode !== "drawer") return undefined;
     const drawer = document.getElementById("nd-sidebar-mobile");
-    if (!drawer) return;
+    if (!drawer) return undefined;
     const active = document.activeElement;
     const opener =
       active instanceof HTMLElement && !drawer.contains(active)

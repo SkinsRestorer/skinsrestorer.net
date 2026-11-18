@@ -3,7 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { SkinVariant } from "@/lib/skin";
 import { useT } from "@/lib/i18n-react";
-import { cn } from "@/lib/utils";
+import { cn, findOption } from "@/lib/utils";
 
 const models = [
   {
@@ -85,7 +85,11 @@ export function ModelSelector(props: {
       className={cn("grid w-full grid-cols-2", props.className)}
       value={[props.value]}
       onValueChange={(value) => {
-        if (value[0]) props.onValueChange(value[0] as SkinVariant);
+        const variant = findOption(
+          models.map((model) => model.value),
+          value[0],
+        );
+        if (variant) props.onValueChange(variant);
       }}
     >
       {models.map((model) => (
@@ -103,7 +107,7 @@ export function ModelSelector(props: {
         >
           {stacked ? (
             <span className="flex flex-col items-center gap-1 pt-2 pb-1.5">
-              <ModelIcon arm={model.arm} className="h-10 w-10" />
+              <ModelIcon arm={model.arm} className="size-10" />
               <span className="text-xs font-medium">{t(model.label)}</span>
             </span>
           ) : (

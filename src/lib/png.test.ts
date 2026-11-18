@@ -117,10 +117,11 @@ test("palette images with transparency decode to RGBA", async () => {
   );
 });
 
+// 2×4 RGB image. Every row decodes to [10,20,30] and [40,50,60].
+const average = (left: number, up: number, value: number) =>
+  value - ((left + up) >> 1);
+
 test("RGB rows with Sub, Up, Average and Paeth filters decode exactly", async () => {
-  // 2×4 RGB image. Every row decodes to [10,20,30] and [40,50,60].
-  const average = (left: number, up: number, value: number) =>
-    value - ((left + up) >> 1);
   const raw = [
     [1, 10, 20, 30, 30, 30, 30], // Sub: second pixel adds the left pixel
     [2, 0, 0, 0, 0, 0, 0], // Up: copies the row above

@@ -14,7 +14,7 @@ import {
   TOUCH,
   UnsignedByteType,
   Vector2,
-  type Mesh,
+  type Object3D,
 } from "three";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { Button } from "@/components/ui/button";
@@ -107,17 +107,17 @@ export function ModelCanvas(
     const raycaster = new Raycaster();
     raycaster.setFromCamera(pointer, viewer.camera);
     viewer.scene.updateMatrixWorld(true);
-    const meshes = new Map<Mesh, { part: SkinPart; layer: SkinLayer }>();
+    const meshes = new Map<Object3D, { part: SkinPart; layer: SkinLayer }>();
     for (const part of skinParts) {
       const bodyPart = viewer.playerObject.skin[part];
       if (bodyPart.innerLayer.visible)
-        meshes.set(bodyPart.innerLayer as Mesh, { part, layer: "base" });
+        meshes.set(bodyPart.innerLayer, { part, layer: "base" });
       if (bodyPart.outerLayer.visible)
-        meshes.set(bodyPart.outerLayer as Mesh, { part, layer: "outer" });
+        meshes.set(bodyPart.outerLayer, { part, layer: "outer" });
     }
     const { variant } = store.getSnapshot();
     for (const hit of raycaster.intersectObjects([...meshes.keys()], false)) {
-      const owner = meshes.get(hit.object as Mesh);
+      const owner = meshes.get(hit.object);
       if (!owner || !hit.uv || hit.faceIndex == null) continue;
       const pixel = hitToPixel(
         variant,
@@ -147,7 +147,7 @@ export function ModelCanvas(
   useEffect(() => {
     const canvas = canvasRef.current;
     const frame = frameRef.current;
-    if (!canvas || !frame) return;
+    if (!canvas || !frame) return undefined;
     let viewer: SkinViewer;
     try {
       viewer = new SkinViewer({
@@ -162,7 +162,7 @@ export function ModelCanvas(
       });
     } catch {
       setFailure(message("editor.webglUnavailable"));
-      return;
+      return undefined;
     }
     viewerRef.current = viewer;
     viewer.controls.enablePan = false;
@@ -440,6 +440,7 @@ export function ModelCanvas(
           key={attempt}
           ref={canvasRef}
           hidden={!!failure}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- The model is drawn on a WebGL canvas, so it cannot be an <img>.
           role="img"
           aria-label={
             painting

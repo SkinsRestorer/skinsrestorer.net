@@ -68,6 +68,16 @@ export class MessageError extends Error implements LocalizedErrorFields {
   }
 }
 
+function isMessageValues(value: unknown): value is MessageValues {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.values(value).every(
+      (item) => typeof item === "string" || typeof item === "number",
+    )
+  );
+}
+
 export function errorMessage(
   cause: unknown,
   fallback: MessageKey = "errors.unexpected",
@@ -76,7 +86,9 @@ export function errorMessage(
     if ("messageKey" in cause && isMessageKey(cause.messageKey)) {
       return message(
         cause.messageKey,
-        (cause as LocalizedErrorFields).messageValues,
+        "messageValues" in cause && isMessageValues(cause.messageValues)
+          ? cause.messageValues
+          : undefined,
       );
     }
     if ("message" in cause) return String(cause.message);

@@ -6,13 +6,14 @@ import { TestClock } from "effect/testing";
 import { HttpClient } from "./effect-http";
 import { cachedLatestReleaseEffect, latestReleaseEffect } from "./releases";
 
+const run = (fetcher: HttpFetch) =>
+  Effect.runPromise(
+    latestReleaseEffect.pipe(
+      Effect.provideService(HttpClient, { fetch: fetcher }),
+    ),
+  );
+
 test("release reads decode GitHub data and return a safe fallback", async () => {
-  const run = (fetcher: HttpFetch) =>
-    Effect.runPromise(
-      latestReleaseEffect.pipe(
-        Effect.provideService(HttpClient, { fetch: fetcher }),
-      ),
-    );
   const result = await run(async () => {
     return Response.json({
       html_url:

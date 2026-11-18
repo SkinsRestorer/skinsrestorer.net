@@ -10,6 +10,23 @@ import {
 import { useNotificationT } from "@/lib/i18n-react";
 
 import type { CapeStatus } from "@/lib/studio-options";
+import type { LatestTask } from "@/lib/latest-task";
+
+function loadPublicCapes(
+  task: LatestTask,
+  setCapes: (capes: MineSkinCape[]) => void,
+  setStatus: (status: "ready" | "failed") => void,
+) {
+  void task.run(
+    (signal) => fetchMineSkinSupportedCapes(undefined, signal),
+    (capes) => {
+      setCapes(capes);
+      setStatus("ready");
+    },
+    // The picker shows the failure next to a retry button.
+    () => setStatus("failed"),
+  );
+}
 
 /**
  * The capes MineSkin offers and whether the entered API key may apply them.
@@ -28,7 +45,6 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
   const [publicStatus, setPublicStatus] = useState<
     "loading" | "ready" | "failed"
   >("loading");
-  const [listAttempt, setListAttempt] = useState(0);
 
   // Axolotl applies capes without a key, from the public list. Official uses
   // the checked key's capes once the key passes.
@@ -40,17 +56,9 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
     status !== "granted" || supportedCapes.length === 0;
 
   useEffect(() => {
-    void availableCapes.run(
-      (signal) => fetchMineSkinSupportedCapes(undefined, signal),
-      (capes) => {
-        setPublicCapes(capes);
-        setPublicStatus("ready");
-      },
-      // The picker shows the failure next to a retry button.
-      () => setPublicStatus("failed"),
-    );
+    loadPublicCapes(availableCapes, setPublicCapes, setPublicStatus);
     return () => availableCapes.cancel();
-  }, [availableCapes, listAttempt]);
+  }, [availableCapes]);
 
   /** The key changed: its earlier check and capes no longer apply. */
   const reset = () => {
@@ -102,7 +110,7 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
     /** Load the public cape list again after a failure. */
     retryList: () => {
       setPublicStatus("loading");
-      setListAttempt((attempt) => attempt + 1);
+      loadPublicCapes(availableCapes, setPublicCapes, setPublicStatus);
     },
     reset,
     verify,

@@ -28,31 +28,31 @@ export function validateConfig(
   const errors: string[] = [];
   const keys = new Map(properties.map((property) => [property.key, property]));
 
-  function visit(value: unknown, key: string) {
+  function visit(node: unknown, key: string) {
     const property = keys.get(key);
     if (property) {
       const valid = (() => {
         switch (property.type) {
           case "Boolean":
-            return typeof value === "boolean";
+            return typeof node === "boolean";
           case "Integer":
             return (
-              typeof value === "number" &&
-              Number.isInteger(value) &&
-              (property.min === undefined || value >= property.min) &&
-              (property.max === undefined || value <= property.max)
+              typeof node === "number" &&
+              Number.isInteger(node) &&
+              (property.min === undefined || node >= property.min) &&
+              (property.max === undefined || node <= property.max)
             );
           case "List<String>":
             return (
-              Array.isArray(value) && value.every((v) => typeof v === "string")
+              Array.isArray(node) && node.every((v) => typeof v === "string")
             );
           case "DatabaseType":
-            return ["FILE", "MYSQL", "POSTGRESQL"].includes(String(value));
+            return ["FILE", "MYSQL", "POSTGRESQL"].includes(String(node));
           case "ProxyMode":
-            return ["ENABLED", "DISABLED", "AUTO"].includes(String(value));
+            return ["ENABLED", "DISABLED", "AUTO"].includes(String(node));
           case "String":
           case "Locale":
-            return typeof value === "string";
+            return typeof node === "string";
           default:
             throw new Error(`Unknown inventory type: ${property.type}`);
         }
@@ -61,14 +61,14 @@ export function validateConfig(
       return;
     }
     if (
-      !isRecord(value) ||
+      !isRecord(node) ||
       (key &&
-        !properties.some((property) => property.key.startsWith(`${key}.`)))
+        !properties.some((candidate) => candidate.key.startsWith(`${key}.`)))
     ) {
       errors.push(`${key || "configuration"}: unknown key or invalid section`);
       return;
     }
-    for (const [name, child] of Object.entries(value)) {
+    for (const [name, child] of Object.entries(node)) {
       visit(child, key ? `${key}.${name}` : name);
     }
   }

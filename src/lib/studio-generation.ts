@@ -9,7 +9,6 @@ import {
   defaultSkinName,
   generatedCommand,
   textureUrlFromValue,
-  type StudioPurpose,
 } from "./studio";
 
 export interface GenerationResult {
@@ -58,7 +57,7 @@ export function generationResult(
   return {
     url: result.url,
     command: generatedCommand(
-      input.purpose as StudioPurpose,
+      input.purpose,
       { url: result.url, name },
       input.variant,
     ),

@@ -34,15 +34,16 @@ function expectedAlternatives(path: string) {
   };
 }
 
+const request = (path: string) =>
+  fetch(new URL(path, baseUrl), {
+    redirect: "manual",
+    signal: AbortSignal.timeout(15_000),
+  });
+
 void test(
   "Studio preserves distinct localized entry pages and search metadata",
   { skip: !baseUrl, timeout: 30_000 },
   async () => {
-    const request = (path: string) =>
-      fetch(new URL(path, baseUrl), {
-        redirect: "manual",
-        signal: AbortSignal.timeout(15_000),
-      });
     const pages = await Promise.all(
       languages.flatMap((language) =>
         entryPaths.map(async (entry) => {

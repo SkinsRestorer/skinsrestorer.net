@@ -7,7 +7,8 @@ test("the rating buttons form a group named by the question and expose their sta
   const html = renderToStaticMarkup(
     <Feedback url="/docs/installation" version="15.12.6" />,
   );
-  const group = /<div[^>]*role="group"[^>]*>/.exec(html)?.[0] ?? "";
+  // A fieldset has the group role.
+  const group = /<fieldset[^>]*>/.exec(html)?.[0] ?? "";
   const labelledBy = /aria-labelledby="([^"]+)"/.exec(group)?.[1];
   assert.ok(labelledBy);
   const question = new RegExp(`<p[^>]*id="${labelledBy}"[^>]*>([^<]*)<`).exec(

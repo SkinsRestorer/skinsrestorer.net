@@ -34,7 +34,7 @@ function settings(overrides: Partial<PaintSettings> = {}): PaintSettings {
   };
 }
 
-const xy = (index: number) => [
+const xy = (index: number): [number, number] => [
   index % SKIN_SIZE,
   Math.floor(index / SKIN_SIZE),
 ];
@@ -156,10 +156,7 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
     22,
   );
   const sources = new Set(
-    pixels.filter(
-      (i) =>
-        regionAt("slim", ...(xy(i) as [number, number]))?.part === "rightArm",
-    ),
+    pixels.filter((i) => regionAt("slim", ...xy(i))?.part === "rightArm"),
   );
   for (const index of pixels.filter((i) => !sources.has(i))) {
     const [x, y] = xy(index);
@@ -197,11 +194,12 @@ test("the mirror skips hidden counterparts and the inactive layer", () => {
   );
 });
 
+const hue = (c: Rgba) => {
+  const [r, g, b] = c;
+  return Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b);
+};
+
 test("shading keeps hue and alpha, clamps at black and white, and skips clear pixels", () => {
-  const hue = (c: Rgba) => {
-    const [r, g, b] = c;
-    return Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b);
-  };
   const base: Rgba = [180, 60, 40, 200];
   const darker = shadeColor(base, "darken")!;
   const lighter = shadeColor(base, "lighten")!;
@@ -295,6 +293,9 @@ test("Everywhere ignores mirror, so no pixel of another color changes", () => {
   assert.deepEqual(face.mirror, [other.y * SKIN_SIZE + other.x]);
 });
 
+const lightness = (c: Rgba) =>
+  (Math.max(c[0], c[1], c[2]) + Math.min(c[0], c[1], c[2])) / 510;
+
 test("shade strength keeps hue and alpha, skips clear pixels, clamps, and medium is the old step", () => {
   const color: Rgba = [180, 90, 60, 170];
   assert.equal(SHADE_STEPS.medium, SHADE_STEP);
@@ -303,8 +304,6 @@ test("shade strength keeps hue and alpha, skips clear pixels, clamps, and medium
     shadeColor(color, "darken"),
     shadeColor(color, "darken", SHADE_STEPS.medium),
   );
-  const lightness = (c: Rgba) =>
-    (Math.max(c[0], c[1], c[2]) + Math.min(c[0], c[1], c[2])) / 510;
   const deltas = (["soft", "medium", "strong"] as const).map(
     (strength) =>
       lightness(color) -
@@ -343,10 +342,7 @@ test("the 3D footprint matches the brush, face lock, mirror, and fill", () => {
     new Set(brushPixels("classic", brush, 44, 20)),
   );
   assert.ok(
-    area.source.every(
-      (i) =>
-        regionAt("classic", ...(xy(i) as [number, number]))?.face === "front",
-    ),
+    area.source.every((i) => regionAt("classic", ...xy(i))?.face === "front"),
   );
   assert.equal(
     toolFootprint(pixels, "classic", "eraser", brush, 44, 20),

@@ -1,7 +1,14 @@
 "use client";
 
 import { ImageOff, LoaderCircle, Search } from "lucide-react";
-import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -247,23 +254,35 @@ function watchVisibility(
  * catalog holds at most 1000 entries, and each PNG is a few kilobytes.
  */
 const thumbnails = new Map<string, Blob>();
+const thumbnailListeners = new Set<() => void>();
+
+function subscribeThumbnails(listener: () => void) {
+  thumbnailListeners.add(listener);
+  return () => {
+    thumbnailListeners.delete(listener);
+  };
+}
+
+function storeThumbnail(textureUrl: string, png: Blob) {
+  thumbnails.set(textureUrl, png);
+  for (const listener of thumbnailListeners) listener();
+}
 
 /** Offscreen catalog entries do not download a PNG or decode a thumbnail. */
 function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
   const t = useT();
   const frame = useRef<HTMLSpanElement>(null);
-  const [png, setPng] = useState(() => thumbnails.get(skin.textureUrl));
+  // Another entry with the same texture may load it first.
+  const png = useSyncExternalStore(
+    subscribeThumbnails,
+    () => thumbnails.get(skin.textureUrl),
+    () => undefined,
+  );
   const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    // Another entry with the same texture may have loaded it meanwhile.
-    const cached = thumbnails.get(skin.textureUrl);
-    if (cached) {
-      setPng(cached);
-      return;
-    }
+    if (png || failed) return undefined;
     const element = frame.current;
-    if (!element) return;
+    if (!element) return undefined;
     let controller: AbortController | undefined;
     const stop = watchVisibility(element, (visible) => {
       if (!visible) {
@@ -283,8 +302,7 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
         (blob) => {
           if (current.signal.aborted) return;
           stop();
-          thumbnails.set(skin.textureUrl, blob);
-          setPng(blob);
+          storeThumbnail(skin.textureUrl, blob);
         },
         () => {
           if (current.signal.aborted) return;
@@ -297,14 +315,11 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
       stop();
       controller?.abort();
     };
-  }, [skin.textureUrl, attempt]);
+  }, [skin.textureUrl, png, failed]);
   useEffect(() => {
-    if (!failed) return;
+    if (!failed) return undefined;
     // Previews that failed while offline load again once the connection returns.
-    const retry = () => {
-      setFailed(false);
-      setAttempt((value) => value + 1);
-    };
+    const retry = () => setFailed(false);
     window.addEventListener("online", retry);
     return () => window.removeEventListener("online", retry);
   }, [failed]);

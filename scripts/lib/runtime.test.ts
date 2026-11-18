@@ -5,6 +5,7 @@ import { test } from "node:test";
 import { Effect, Fiber } from "effect";
 import {
   runChild,
+  ToolError,
   ToolFiles,
   toolFilesLayer,
   walkFiles,
@@ -27,7 +28,12 @@ test("temporary directories are removed after successful and failed programs", a
           "example",
         );
         assert.equal((yield* walkFiles(value)).length, 1);
-        if (fail) return yield* Effect.fail(new Error("example failure"));
+        return yield* fail
+          ? new ToolError({
+              operation: "example",
+              cause: new Error("example failure"),
+            })
+          : Effect.void;
       }),
     );
     if (fail) await assert.rejects(run(program), /example failure/);

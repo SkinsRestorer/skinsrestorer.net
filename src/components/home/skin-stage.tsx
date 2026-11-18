@@ -116,22 +116,23 @@ export function SkinStage() {
     ]);
   }
 
-  const advance = useEffectEvent(() => {
-    const index = demoCommands.indexOf(latest.command);
+  const advance = useEffectEvent((from: ChatEntry) => {
+    const index = demoCommands.indexOf(from.command);
     run(demoCommands[(index + 1) % demoCommands.length]);
   });
 
+  // Every new entry, typed or automatic, restarts the wait for the next one.
   useEffect(() => {
-    if (!autoplay || reduceMotion || !inView) return;
-    const timer = setTimeout(advance, autoplayDelay);
+    if (!autoplay || reduceMotion || !inView) return undefined;
+    const timer = setTimeout(() => advance(latest), autoplayDelay);
     return () => clearTimeout(timer);
-  }, [autoplay, reduceMotion, inView, entries]);
+  }, [autoplay, reduceMotion, inView, latest]);
 
   return (
     <div className="flex flex-col gap-3">
       <div
         ref={stageRef}
-        className={`${styles.stage} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-[5/4] lg:aspect-[4/5]`}
+        className={`${styles.stage} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-5/4 lg:aspect-4/5`}
       >
         {webGl2 ? (
           <Dithering
@@ -172,7 +173,7 @@ export function SkinStage() {
         >
           <motion.div
             key={cleared ? "cleared" : lastSkinChange?.id}
-            className="relative aspect-[640/760] h-full"
+            className="relative aspect-640/760 h-full"
             initial={
               animateLatest && !cleared
                 ? { clipPath: "inset(0% 0% 100% 0%)" }

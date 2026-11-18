@@ -19,6 +19,6 @@ export function galleryKeyTarget(
               : key === "End"
                 ? count - 1
                 : undefined;
-  if (target === undefined || target < 0 || target >= count) return;
+  if (target === undefined || target < 0 || target >= count) return undefined;
   return target;
 }

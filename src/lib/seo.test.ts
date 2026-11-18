@@ -22,6 +22,7 @@ const pages = [
 for (const locale of locales) {
   for (const [route, titleKey, descriptionKey] of pages) {
     test(`${locale} ${titleKey} uses translated search and social metadata`, async () => {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- The page heads read only `params`; a full TanStack head context needs a running router.
       const head = route.options.head as (context: {
         params: { lang: Locale };
       }) => ReturnType<typeof getPageHead>;

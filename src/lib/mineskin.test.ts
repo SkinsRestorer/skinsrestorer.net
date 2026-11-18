@@ -45,11 +45,13 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
   assert.deepEqual(result.skin, skin);
   assert.equal(fetchMock.length, 3);
   const [enqueue, ...polls] = fetchMock;
-  const options = enqueue[1] as RequestInit;
-  const form = options.body as FormData;
+  const form = enqueue[1]?.body;
+  assert.ok(form instanceof FormData);
   assert.equal(form.get("cape"), "cape-id");
   assert.equal(form.get("variant"), "slim");
-  assert.equal(await (form.get("file") as File).text(), await file.text());
+  const uploaded = form.get("file");
+  assert.ok(uploaded instanceof File);
+  assert.equal(await uploaded.text(), await file.text());
   for (const call of polls) {
     assert.equal(call[0], "https://api.mineskin.org/v2/queue/job-id");
     assert.equal(

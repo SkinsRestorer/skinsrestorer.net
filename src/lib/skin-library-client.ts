@@ -101,11 +101,11 @@ export function browserLibrary(): LibraryClient | undefined {
   return browserClient;
 }
 
-const unavailableFactory = {
+const unavailableFactory: Pick<IDBFactory, "open"> = {
   open: () => {
     throw new DOMException("IndexedDB is not available.", "SecurityError");
   },
-} as unknown as IDBFactory;
+};
 
 export type MigrationResult =
   | { readonly status: "none" | "migrated" | "unavailable" }
@@ -147,7 +147,7 @@ export async function migrateLegacyDraft(
         exportSkinPng(draft.document.pixels),
       );
       const content = yield* prepareSkinContent(
-        new Blob([png as Uint8Array<ArrayBuffer>], { type: "image/png" }),
+        new Blob([png], { type: "image/png" }),
         draft.document.variant,
       );
       return yield* library.migrate({

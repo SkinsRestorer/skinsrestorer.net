@@ -7,7 +7,7 @@ import {
 } from "fumadocs-ui/components/ui/collapsible";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { posthog } from "posthog-js";
-import { type SubmitEvent, useEffect, useId, useState } from "react";
+import { type SubmitEvent, useId, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
@@ -28,31 +28,59 @@ interface FeedbackData {
   message: string;
 }
 
+const subscribeNever = () => () => {};
+
+function readStoredFeedback(key: string) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    // Feedback remains usable when browser storage is unavailable.
+    return null;
+  }
+}
+
+function parseFeedback(item: string | null): FeedbackData | null {
+  if (!item) return null;
+  try {
+    const feedback: unknown = JSON.parse(item);
+    if (
+      typeof feedback === "object" &&
+      feedback !== null &&
+      "opinion" in feedback &&
+      (feedback.opinion === "good" || feedback.opinion === "bad") &&
+      "message" in feedback &&
+      typeof feedback.message === "string"
+    ) {
+      return { opinion: feedback.opinion, message: feedback.message };
+    }
+  } catch {
+    // Invalid stored feedback is ignored.
+  }
+  return null;
+}
+
 export function Feedback({ url, version }: { url: string; version: string }) {
   const t = useT();
   const messageId = useId();
   const questionId = useId();
-  const [previous, setPrevious] = useState<FeedbackData | null>(null);
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
   const [message, setMessage] = useState("");
   const storageKey = `docs-feedback-${version}-${url}`;
-
-  useEffect(() => {
-    try {
-      const item = localStorage.getItem(storageKey);
-      if (item) {
-        const feedback = JSON.parse(item);
-        if (
-          (feedback.opinion === "good" || feedback.opinion === "bad") &&
-          typeof feedback.message === "string"
-        ) {
-          setPrevious(feedback);
-        }
-      }
-    } catch {
-      // Feedback remains usable when browser storage is unavailable or invalid.
-    }
-  }, [storageKey]);
+  // Stored feedback is read after hydration. A choice made on this page
+  // replaces it, also when browser storage is unavailable.
+  const stored = useSyncExternalStore(
+    subscribeNever,
+    () => readStoredFeedback(storageKey),
+    () => null,
+  );
+  const [choice, setChoice] = useState<{
+    key: string;
+    feedback: FeedbackData | null;
+  }>();
+  const previous =
+    choice?.key === storageKey ? choice.feedback : parseFeedback(stored);
+  const setPrevious = (feedback: FeedbackData | null) =>
+    setChoice({ key: storageKey, feedback });
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,10 +108,9 @@ export function Feedback({ url, version }: { url: string; version: string }) {
       }}
       className="border-y py-3"
     >
-      <div
-        role="group"
+      <fieldset
         aria-labelledby={questionId}
-        className="flex flex-row flex-wrap items-center gap-2"
+        className="flex min-w-0 flex-row flex-wrap items-center gap-2"
       >
         <p id={questionId} className="pe-2 text-sm font-medium">
           {t("feedback.didPageHelp")}
@@ -120,7 +147,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
           <ThumbsDown aria-hidden="true" />
           {t("feedback.no")}
         </button>
-      </div>
+      </fieldset>
       <CollapsibleContent className="mt-3">
         {previous ? (
           <div className="flex flex-col items-center gap-3 rounded-xl bg-fd-card px-3 py-6 text-center text-sm text-fd-muted-foreground">

@@ -1,6 +1,6 @@
 import { docFileInfo, localizePath, splitLocalePath } from "../src/lib/i18n";
 import { localizedSitePages } from "../src/lib/site-pages";
-import { Effect, Schema } from "effect";
+import { Effect, Result, Schema } from "effect";
 import {
   runTool,
   ToolFiles,
@@ -24,10 +24,55 @@ import { remarkDocsStringify } from "../src/lib/docs-stringify";
 import { parseYaml, validateConfig } from "../src/lib/docs-validation";
 
 const root = path.resolve("content/docs");
+
+function parseDocument(
+  parser: ReturnType<typeof createParser>,
+  file: string,
+  raw: string,
+) {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(raw);
+  if (!match) throw new Error("Missing front matter");
+  const metadata = Schema.decodeUnknownSync(docsSchema)(parseYaml(match[1]));
+  if (!(metadata.icon in icons)) {
+    throw new Error(`Unknown sidebar icon ${metadata.icon}`);
+  }
+  if (metadata.version !== release.version) {
+    throw new Error(
+      `Page version differs from verified release ${release.version}`,
+    );
+  }
+  const body = match[2];
+  if (body.includes("—"))
+    throw new Error("Replace em dashes with plain punctuation");
+  const tree = parser.parse(body);
+  const data = structure(body, [remarkMdx, remarkGfm, remarkDocsStringify]);
+  const relative = path.relative(root, file).replaceAll(path.sep, "/");
+  const info = docFileInfo(relative);
+  return {
+    route: localizePath(info.path, info.locale),
+    document: {
+      file,
+      tree,
+      headings: new Set(data.headings.map((heading) => heading.id)),
+      body,
+    },
+  };
+}
+
+function createParser() {
+  return remark().use(remarkMdx).use(remarkGfm);
+}
+function walk(node: Nodes, visitor: (node: Nodes) => void) {
+  visitor(node);
+  if ("children" in node) {
+    for (const child of node.children) walk(child, visitor);
+  }
+}
+
 export const checkDocs = Effect.fn("Docs.check")(function* () {
   const fs = yield* ToolFiles;
   const errors: string[] = [];
-  const parser = remark().use(remarkMdx).use(remarkGfm);
+  const parser = createParser();
 
   for (const [file, expected] of Object.entries(release.websiteSources)) {
     const content = yield* fs.readBytes(file);
@@ -39,50 +84,23 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     }
   }
 
-  function walk(node: Nodes, visitor: (node: Nodes) => void) {
-    visitor(node);
-    if ("children" in node) {
-      for (const child of node.children) walk(child, visitor);
-    }
-  }
-
   const documents = new Map<
     string,
     { file: string; tree: Root; headings: Set<string>; body: string }
   >();
   const documentFiles = yield* walkFiles(root);
-  for (const file of documentFiles.filter((file) => file.endsWith(".mdx"))) {
+  for (const file of documentFiles.filter((entry) => entry.endsWith(".mdx"))) {
     const raw = yield* fs.readText(file);
-    const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(raw);
-    try {
-      if (!match) throw new Error("Missing front matter");
-      const metadata = Schema.decodeUnknownSync(docsSchema)(
-        parseYaml(match[1]),
-      );
-      if (!(metadata.icon in icons)) {
-        throw new Error(`Unknown sidebar icon ${metadata.icon}`);
-      }
-      if (metadata.version !== release.version) {
-        throw new Error(
-          `Page version differs from verified release ${release.version}`,
-        );
-      }
-      const body = match[2];
-      if (body.includes("—"))
-        throw new Error("Replace em dashes with plain punctuation");
-      const tree = parser.parse(body);
-      const data = structure(body, [remarkMdx, remarkGfm, remarkDocsStringify]);
-      const relative = path.relative(root, file).replaceAll(path.sep, "/");
-      const info = docFileInfo(relative);
-      const route = localizePath(info.path, info.locale);
-      documents.set(route, {
-        file,
-        tree,
-        headings: new Set(data.headings.map((heading) => heading.id)),
-        body,
-      });
-    } catch (error) {
-      errors.push(`${path.relative(root, file)}: ${String(error)}`);
+    const parsed = yield* Effect.result(
+      Effect.try({
+        try: () => parseDocument(parser, file, raw),
+        catch: (error) => String(error),
+      }),
+    );
+    if (Result.isFailure(parsed)) {
+      errors.push(`${path.relative(root, file)}: ${parsed.failure}`);
+    } else {
+      documents.set(parsed.success.route, parsed.success.document);
     }
   }
 
@@ -185,7 +203,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
   }
 
   for (const property of release.config) {
-    const row = tableRows.find((row) => row[0] === property.key);
+    const row = tableRows.find((candidate) => candidate[0] === property.key);
     if (!row) errors.push(`Missing reference row for ${property.key}`);
     else if (
       JSON.stringify(JSON.parse(row[2])) !== JSON.stringify(property.default)
@@ -205,8 +223,8 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
       errors.push(`Missing command reference: ${syntax}`);
   }
 
-  for (const file of documentFiles.filter((file) =>
-    /meta(?:\.(ru|es|pt-BR))?\.json$/.test(file),
+  for (const file of documentFiles.filter((entry) =>
+    /meta(?:\.(ru|es|pt-BR))?\.json$/.test(entry),
   )) {
     const raw = yield* fs.readText(file);
     const metadata = yield* toolTry("parse navigation", () =>

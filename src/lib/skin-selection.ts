@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { LatestTask } from "./latest-task";
 import { readPngSize } from "./png";
 import type { SkinImageError, SkinVariant } from "./skin";
+import type { StudioPurpose } from "./studio";
 import { withLibrary, type LibraryClient } from "./skin-library-client";
 import {
   cleanSkinName,
@@ -199,9 +200,9 @@ export class SkinSelectionStore {
       previewUrl: null,
     });
     const fail = (cause: unknown) => {
-      const message = errorMessage(cause, "common.failedLoadImage");
-      this.update(token, { status: "invalid", error: message });
-      this.deps.events?.failed?.(token, message);
+      const error = errorMessage(cause, "common.failedLoadImage");
+      this.update(token, { status: "invalid", error });
+      this.deps.events?.failed?.(token, error);
     };
     void this.detection.run(
       async (signal) => {
@@ -421,7 +422,7 @@ function pngSize(bytes: Uint8Array) {
 /** Everything a generation result depends on. */
 export interface GenerationInput {
   /** `/skin url` or `/sr createcustom`. */
-  readonly purpose: string;
+  readonly purpose: StudioPurpose;
   readonly file: File;
   readonly variant: SkinVariant;
   readonly method: string;

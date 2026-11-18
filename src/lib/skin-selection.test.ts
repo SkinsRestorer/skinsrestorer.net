@@ -42,7 +42,7 @@ async function skinFile(seed: number, name = `skin-${seed}.png`) {
   const document = createTemplate("classic");
   document.pixels.set([seed, 2, 3, 255], pixelOffset(8, 8));
   const png = await exportSkinPng(document.pixels);
-  return new File([png as Uint8Array<ArrayBuffer>], name, {
+  return new File([png], name, {
     type: "image/png",
   });
 }
@@ -373,7 +373,7 @@ test("a skin selected from the library is the stored current version", async () 
 test("a generation result belongs to the exact snapshot and options", async () => {
   const file = await skinFile(1);
   const input = {
-    purpose: "skin-url",
+    purpose: "skin-url" as const,
     file,
     variant: "classic" as const,
     method: "axolotl",
@@ -382,7 +382,7 @@ test("a generation result belongs to the exact snapshot and options", async () =
   };
   assert.equal(sameGenerationInput(input, { ...input }), true);
   for (const change of [
-    { purpose: "createcustom" },
+    { purpose: "createcustom" as const },
     { file: new File([file], file.name) },
     { variant: "slim" as const },
     { method: "mineskin" },

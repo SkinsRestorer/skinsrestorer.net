@@ -58,17 +58,17 @@ export function MineSkinKeyField(props: {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-muted-foreground"
+                className="size-6 text-muted-foreground"
               />
             }
           >
-            <InfoIcon className="h-4 w-4" aria-hidden />
+            <InfoIcon className="size-4" aria-hidden />
             <span className="sr-only">{t("capes.mineskinApiKeyInfo")}</span>
           </PopoverTrigger>
           <PopoverContent
             align="start"
             sideOffset={8}
-            className="flex w-72 flex-col gap-2 text-sm leading-relaxed text-muted-foreground"
+            className="flex w-72 flex-col gap-2 text-sm/relaxed text-muted-foreground"
           >
             <p>{t("capes.needApiKeyAllMineskinPlansExcept")}</p>
             <p>
@@ -102,6 +102,12 @@ export function MineSkinKeyField(props: {
           value={props.value}
           onChange={(event) => props.onChange(event.target.value)}
           onBlur={props.onBlur}
+          onKeyDown={(event) => {
+            // Enter checks cape access. It never submits the form.
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            props.onCheckCapeAccess();
+          }}
         />
         <InputGroupAddon align="block-end">
           <InputGroupButton
@@ -212,7 +218,7 @@ export function CapePicker(props: {
               ) : (
                 <span
                   aria-hidden="true"
-                  className="flex h-10 w-[1.5625rem] items-center justify-center rounded-xs border border-dashed border-muted-foreground text-muted-foreground"
+                  className="flex h-10 w-6.25 items-center justify-center rounded-xs border border-dashed border-muted-foreground text-muted-foreground"
                 >
                   <XIcon className="size-3.5" />
                 </span>
@@ -261,12 +267,12 @@ function CapePreview({ texture }: { texture: string }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      return;
+      return undefined;
     }
 
     const context = canvas.getContext("2d");
     if (!context) {
-      return;
+      return undefined;
     }
 
     const width = 10;
@@ -278,18 +284,19 @@ function CapePreview({ texture }: { texture: string }) {
     context.clearRect(0, 0, width, height);
 
     if (!texture) {
-      return;
+      return undefined;
     }
 
     const image = new Image();
     image.crossOrigin = "anonymous";
-    image.onload = () => {
+    const draw = () => {
       context.drawImage(image, 1, 1, width, height, 0, 0, width, height);
     };
+    image.addEventListener("load", draw);
     image.src = texture;
 
     return () => {
-      image.onload = null;
+      image.removeEventListener("load", draw);
     };
   }, [texture]);
 
@@ -299,7 +306,7 @@ function CapePreview({ texture }: { texture: string }) {
       width={10}
       height={16}
       aria-hidden="true"
-      className="h-10 w-[1.5625rem] shrink-0 [image-rendering:pixelated]"
+      className="h-10 w-6.25 shrink-0 [image-rendering:pixelated]"
     />
   );
 }

@@ -100,6 +100,16 @@ type Confirm =
   | { readonly kind: "changed" | "removed" | "leave" }
   | { readonly kind: "failed"; readonly message: Message };
 
+// Shortcuts work on the whole page, including popups, but not while the
+// user types in a field or another control already handled the key.
+const run = (command: EditorCommand, action: () => void, repeat = false) =>
+  editorShortcuts[command].map((hotkey): UseHotkeyDefinition => ({
+    hotkey,
+    callback: action,
+    // Toggles need a new key press; holding a size or undo key repeats.
+    options: { requireReset: !repeat },
+  }));
+
 /**
  * Edit mode of the Studio. It fills the center and options columns while the
  * library stays visible but inert. The store keeps the skin as RGBA pixels;
@@ -234,8 +244,8 @@ export function StudioEditor(props: {
   );
   // Without drafts, closing the tab loses the work, so the browser asks.
   const unsafeToClose = useCallback(() => {
-    const work = session.getSnapshot();
-    return work.dirty && work.drafts.kind === "off";
+    const state = session.getSnapshot();
+    return state.dirty && state.drafts.kind === "off";
   }, [session]);
   const navigation = useBlocker({
     shouldBlockFn: shouldBlock,
@@ -286,16 +296,6 @@ export function StudioEditor(props: {
     },
     [layer, showStatus, t],
   );
-
-  // Shortcuts work on the whole page, including popups, but not while the
-  // user types in a field or another control already handled the key.
-  const run = (command: EditorCommand, action: () => void, repeat = false) =>
-    editorShortcuts[command].map((hotkey): UseHotkeyDefinition => ({
-      hotkey,
-      callback: action,
-      // Toggles need a new key press; holding a size or undo key repeats.
-      options: { requireReset: !repeat },
-    }));
   const announce = (setting: MessageKey, value: string) =>
     setShortcutNote(t("editor.settingValue", { setting: t(setting), value }));
   const resize = (step: number) => {
@@ -372,7 +372,7 @@ export function StudioEditor(props: {
 
   useEffect(() => {
     const frame = textureFrame.current;
-    if (!frame) return;
+    if (!frame) return undefined;
     const observer = new ResizeObserver(() => {
       const width = frame.clientWidth;
       if (width > 0)
@@ -386,7 +386,7 @@ export function StudioEditor(props: {
     try {
       const bytes = await exportSkinPng(store.pixels);
       downloadSkin(
-        new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "image/png" }),
+        new Blob([bytes], { type: "image/png" }),
         props.isNew ? t("common.newSkin") : work.target.name,
       );
       posthog.capture("editor_exported_png");

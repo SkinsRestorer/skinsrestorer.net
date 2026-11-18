@@ -265,7 +265,7 @@ export function StudioLibrary(props: {
         ))}
         {listing?.damaged.map((record) => (
           <li
-            key={`${record.store}:${String(record.key)}`}
+            key={`${record.store}:${typeof record.key === "object" ? JSON.stringify(record.key) : String(record.key)}`}
             className="col-span-full flex flex-col gap-1.5 rounded-lg border border-dashed p-2 text-xs text-muted-foreground"
           >
             {record.store === "skins"

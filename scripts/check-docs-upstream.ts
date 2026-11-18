@@ -28,12 +28,12 @@ export const checkDocsUpstream = Effect.fn("Docs.checkUpstream")(function* (
   const tree = yield* toolTry("read upstream source tree", () => {
     if (!treeResponse.ok)
       throw new Error(`${treeResponse.status} while reading the source tree`);
-    const tree = Schema.decodeUnknownSync(treeSchema)(
+    const decoded = Schema.decodeUnknownSync(treeSchema)(
       JSON.parse(treeResponse.text),
     );
-    if (tree.truncated)
+    if (decoded.truncated)
       throw new Error("GitHub returned an incomplete source tree");
-    return tree;
+    return decoded;
   });
   const known = new Set(Object.keys(release.sources));
   const changed = tree.tree

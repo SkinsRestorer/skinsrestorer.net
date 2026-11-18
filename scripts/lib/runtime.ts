@@ -50,7 +50,10 @@ export const nodeFiles = {
       })),
     ),
   exists: (file: string) =>
-    Effect.tryPromise(() => access(file)).pipe(Effect.isSuccess),
+    Effect.tryPromise({
+      try: () => access(file),
+      catch: (cause) => new ToolError({ operation: "check file", cause }),
+    }).pipe(Effect.isSuccess),
   makeTemp: (prefix: string) =>
     toolOperation("create temporary directory", () =>
       mkdtemp(path.join(tmpdir(), prefix)),

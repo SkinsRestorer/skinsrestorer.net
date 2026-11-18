@@ -92,20 +92,22 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const pinch = useRef<{ distance: number; scale: number } | null>(null);
   /**
    * The texture point under the pinch center, as a fraction of the canvas
-   * size, and where it was on screen. A new scale keeps it there.
+   * size, where it was on screen, and the scale it was measured at. A new
+   * scale keeps it there.
    */
   const anchor = useRef<{
     u: number;
     v: number;
     x: number;
     y: number;
+    from: number;
   } | null>(null);
 
   useLayoutEffect(() => {
     const point = anchor.current;
     const canvas = canvasRef.current;
     anchor.current = null;
-    if (!point || !canvas) return;
+    if (!point || !canvas || point.from === scale) return;
     const rect = canvas.getBoundingClientRect();
     panBy(
       canvas,
@@ -365,6 +367,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
       <canvas
         ref={canvasRef}
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role -- The paint canvas handles its own arrow and paint keys, which needs the application role.
         role="application"
         aria-label={t("editor.skinTexture6464Pixels")}
         aria-describedby={instructionsId}
@@ -391,15 +394,15 @@ export function TextureCanvas(props: TextureCanvasProps) {
           const step = steps[event.key];
           if (step) {
             event.preventDefault();
-            const distance = event.shiftKey ? 4 : 1;
+            const stride = event.shiftKey ? 4 : 1;
             const next = {
               x: Math.min(
                 SKIN_SIZE - 1,
-                Math.max(0, cursor.x + step[0] * distance),
+                Math.max(0, cursor.x + step[0] * stride),
               ),
               y: Math.min(
                 SKIN_SIZE - 1,
-                Math.max(0, cursor.y + step[1] * distance),
+                Math.max(0, cursor.y + step[1] * stride),
               ),
             };
             setCursor(next);
@@ -483,6 +486,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
                     v: (y - rect.top) / rect.height,
                     x,
                     y,
+                    from: current,
                   };
                   onZoom(zoomed);
                 }
