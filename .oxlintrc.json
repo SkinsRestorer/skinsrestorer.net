@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "extends": ["./node_modules/@effect/tsgo/oxlint-presets/recommended.json"],
+  "extends": ["./node_modules/@effect/tsgo/oxlint-presets/strict.json"],
   "plugins": [
     "react",
     "jsx-a11y",
