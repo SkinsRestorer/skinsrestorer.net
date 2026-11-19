@@ -85,7 +85,7 @@ test("rejected hosts never reach the network and missing textures explain why", 
     Promise.resolve(new Response("", { status: 404 })),
   );
   assert.ok(Exit.isFailure(missing));
-  assert.match(String(missing.cause), /No texture exists/);
+  assert.match(String(missing.cause), /No texture exists/u);
 });
 
 test("cancelling a texture read aborts the request", async () => {
@@ -159,12 +159,14 @@ test("preview downloads run at most six at a time", async () => {
   assert.equal(peak, 6);
   // oxlint-disable-next-line eslint/no-unmodified-loop-condition -- the released loads decrement `active` between iterations.
   while (release.length > 0 || active > 0) {
-    release.splice(0).forEach((resolve) => resolve());
+    release.splice(0).forEach((resolve) => {
+      resolve();
+    });
     await new Promise((resolve) => {
       setTimeout(resolve);
     });
   }
   const exits = await pending;
-  assert.ok(exits.every(Exit.isSuccess));
+  assert.ok(exits.every((exit) => Exit.isSuccess(exit)));
   assert.equal(peak, 6);
 });

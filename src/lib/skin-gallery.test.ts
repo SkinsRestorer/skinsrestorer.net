@@ -136,7 +136,7 @@ test("catalog requests are bounded credential-free GETs with no redirects", asyn
   ]) {
     const failed = await run(() => Promise.resolve(response));
     assert.ok(Exit.isFailure(failed));
-    assert.match(String(failed.cause), /The gallery could not be loaded/);
+    assert.match(String(failed.cause), /The gallery could not be loaded/u);
   }
 });
 

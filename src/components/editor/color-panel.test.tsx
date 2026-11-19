@@ -30,11 +30,11 @@ test("the recent swatch of the current color is marked as pressed", () => {
   // Same RGB at another opacity is a different color.
   assert.match(
     html,
-    /aria-label="Use #ff0000 at 100% opacity" aria-pressed="false"/,
+    /aria-label="Use #ff0000 at 100% opacity" aria-pressed="false"/u,
   );
   assert.match(
     html,
-    /aria-label="Use #ff0000 at 50% opacity" aria-pressed="true"/,
+    /aria-label="Use #ff0000 at 50% opacity" aria-pressed="true"/u,
   );
-  assert.match(html, /maxLength="7"/);
+  assert.match(html, /maxLength="7"/u);
 });

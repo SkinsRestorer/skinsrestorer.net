@@ -28,9 +28,9 @@ test("see-through base pixels are reported, kept, and repaired as one undo step"
   assert.deepEqual(ids(store.pixels, "classic"), ["transparent-base"]);
   // Checking alone never changes pixels.
   assert.deepEqual(store.pixels, imported);
-  store.apply((pixels, builder) =>
-    repairSkin("transparent-base", pixels, "classic", builder),
-  );
+  store.apply((pixels, builder) => {
+    repairSkin("transparent-base", pixels, "classic", builder);
+  });
   assert.deepEqual(
     [...store.pixels.subarray(pixelOffset(10, 10), pixelOffset(10, 10) + 4)],
     [30, 40, 50, 255],
@@ -45,19 +45,19 @@ test("see-through base pixels are reported, kept, and repaired as one undo step"
 });
 
 test("pixels outside every body part can be cleared", () => {
-  const store = storeWith("classic", (p) =>
-    p.set([1, 2, 3, 255], pixelOffset(0, 0)),
-  );
+  const store = storeWith("classic", (p) => {
+    p.set([1, 2, 3, 255], pixelOffset(0, 0));
+  });
   assert.deepEqual(ids(store.pixels, "classic"), ["unused-pixels"]);
-  store.apply((pixels, builder) =>
-    repairSkin("unused-pixels", pixels, "classic", builder),
-  );
+  store.apply((pixels, builder) => {
+    repairSkin("unused-pixels", pixels, "classic", builder);
+  });
   assert.deepEqual(ids(store.pixels, "classic"), []);
 });
 
 test("a possible model mismatch only suggests a model and never offers to erase arm pixels", () => {
   // A classic skin opened as slim: the fourth arm column has pixels.
-  const store = storeWith("classic", () => undefined);
+  const store = storeWith("classic", () => {});
   store.setVariant("slim");
   const issues = checkSkin(store.pixels, "slim");
   assert.deepEqual(
@@ -67,9 +67,9 @@ test("a possible model mismatch only suggests a model and never offers to erase 
   assert.equal(issues[0]?.repair, undefined);
   assert.equal(issues[0]?.switchVariant, "classic");
   const before = store.pixels.slice();
-  store.apply((pixels, builder) =>
-    repairSkin("unused-pixels", pixels, "slim", builder),
-  );
+  store.apply((pixels, builder) => {
+    repairSkin("unused-pixels", pixels, "slim", builder);
+  });
   assert.deepEqual(store.pixels, before);
 
   // A slim skin opened as classic gets the opposite hint, not a base repair.

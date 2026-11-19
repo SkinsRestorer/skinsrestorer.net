@@ -10,7 +10,7 @@ export interface ConfigProperty {
 
 export function parseYaml(text: string): unknown {
   const document = parseDocument(text, { uniqueKeys: true });
-  if (document.errors.length) {
+  if (document.errors.length > 0) {
     throw new Error(document.errors.map((error) => error.message).join("\n"));
   }
   return document.toJS();

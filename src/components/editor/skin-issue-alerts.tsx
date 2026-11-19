@@ -44,7 +44,9 @@ export function SkinIssueAlerts(props: {
                 <Button
                   size="sm"
                   className="h-auto min-h-8 max-w-full whitespace-normal"
-                  onClick={() => props.onRepair(issue.id)}
+                  onClick={() => {
+                    props.onRepair(issue.id);
+                  }}
                 >
                   {t(issue.repair.label)}
                 </Button>
@@ -54,7 +56,9 @@ export function SkinIssueAlerts(props: {
                   size="sm"
                   className="h-auto min-h-8 max-w-full whitespace-normal"
                   variant="outline"
-                  onClick={() => props.onVariant(switchVariant)}
+                  onClick={() => {
+                    props.onVariant(switchVariant);
+                  }}
                 >
                   {t(
                     switchVariant === "slim"
@@ -68,9 +72,9 @@ export function SkinIssueAlerts(props: {
                 className="h-auto min-h-8 max-w-full whitespace-normal"
                 variant="ghost"
                 aria-pressed={highlighted === issue.id}
-                onClick={() =>
-                  props.onHighlight(highlighted === issue.id ? null : issue.id)
-                }
+                onClick={() => {
+                  props.onHighlight(highlighted === issue.id ? null : issue.id);
+                }}
               >
                 {t("editor.showPixels")}
               </Button>

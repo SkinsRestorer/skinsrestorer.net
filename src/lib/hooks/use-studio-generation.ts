@@ -10,6 +10,11 @@ export function useStudioGeneration() {
     generation.getSnapshot,
     generation.getSnapshot,
   );
-  useEffect(() => () => generation.cancel(), [generation]);
+  useEffect(
+    () => () => {
+      generation.cancel();
+    },
+    [generation],
+  );
   return generation;
 }

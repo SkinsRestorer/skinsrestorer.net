@@ -23,6 +23,7 @@ import {
   SkinLibraryError,
   type DamagedRecord,
   type LibraryListing,
+  type RemovedSkin,
   type StoredSkin,
 } from "../skin-library";
 import { useLatestTask } from "./use-latest-task";
@@ -72,7 +73,9 @@ export function downloadSkin(png: Blob, name: string) {
   link.href = url;
   link.download = skinFileName(name);
   link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 0);
   posthog.capture("skin_library_action", { action: "download" });
 }
 
@@ -89,7 +92,7 @@ export function useSkinLibrary() {
   const client = useSyncExternalStore(
     subscribeNever,
     browserLibrary,
-    () => undefined,
+    (): undefined => undefined,
   );
   const [state, setState] = useState<LibraryState>({ status: "loading" });
   const [migrated, setMigrated] = useState<MigrationResult | undefined>();
@@ -103,17 +106,20 @@ export function useSkinLibrary() {
           withLibrary((l) => l.list),
           signal,
         ),
-      (listing) => setState({ status: "ready", listing }),
-      (cause) =>
+      (listing) => {
+        setState({ status: "ready", listing });
+      },
+      (cause) => {
         setState({
           status: "unavailable",
           message: errorMessage(cause),
           reload: needsReload(cause),
-        }),
+        });
+      },
     );
   }, [client, task]);
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!client) return undefined;
     let active = true;
     void migrateOnce(client, t, locale).then((result) => {
@@ -166,7 +172,7 @@ export function useSkinLibrary() {
       }),
     remove: (id: string) =>
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
-        (removed) => {
+        (removed): RemovedSkin | undefined => {
           if (!removed) return undefined;
           toast(t("library.skinRemoved"), {
             action: {
@@ -182,7 +188,7 @@ export function useSkinLibrary() {
       ),
     revert: (id: string) =>
       act("revert", (c) => c.run(withLibrary((l) => l.revert(id)))).then(
-        (reverted) => {
+        (reverted): StoredSkin | undefined => {
           if (!reverted) return undefined;
           toast(t("library.skinReverted"), {
             action: {

@@ -41,12 +41,11 @@ function renderLanguageButton(locale: (typeof locales)[number]) {
 for (const locale of locales) {
   test(`the ${locale} language button name starts with its visible text`, () => {
     const html = renderLanguageButton(locale);
-    const button = /<button[^>]*aria-label="([^"]*)"[^>]*>(.*?)<\/button>/.exec(
-      html,
-    );
+    const button =
+      /<button[^>]*aria-label="([^"]*)"[^>]*>(.*?)<\/button>/u.exec(html);
     assert.ok(button, "language button not rendered");
     const [, name = "", content = ""] = button;
-    const visibleText = content.replaceAll(/<[^>]+>/g, "");
+    const visibleText = content.replaceAll(/<[^>]+>/gu, "");
     assert.equal(visibleText, localeNames[locale]);
     assert.ok(
       name.startsWith(visibleText),

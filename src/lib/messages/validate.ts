@@ -1,5 +1,5 @@
 const parameters = (text: string) =>
-  [...text.matchAll(/\{(\w+)\}/g)]
+  [...text.matchAll(/\{(\w+)\}/gu)]
     .map(([, name = ""]) => name)
     .toSorted()
     .join(",");
@@ -13,7 +13,7 @@ export function validateCatalogs(
   if (!english) return ["Missing English catalog."];
   const keys = Object.keys(english);
   for (const key of keys) {
-    if (!/^[a-z][a-z0-9]*(?:\.[a-zA-Z0-9]+)+$/.test(key))
+    if (!/^[a-z][a-z0-9]*(?:\.[a-zA-Z0-9]+)+$/u.test(key))
       errors.push(`Invalid translation key: ${key}`);
   }
   for (const [locale, catalog] of Object.entries(catalogs)) {

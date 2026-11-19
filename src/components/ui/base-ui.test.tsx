@@ -15,7 +15,7 @@ test("vertical tabs pass their orientation to the accessible tab list", () => {
       <TabsContent value="gallery">Catalog</TabsContent>
     </Tabs>,
   );
-  assert.match(html, /aria-orientation="vertical"/);
+  assert.match(html, /aria-orientation="vertical"/u);
 });
 import { Button } from "./button";
 import { Select, SelectTrigger, SelectValue } from "./select";
@@ -55,6 +55,6 @@ test("vertical toggle groups give Base UI their orientation", () => {
   );
   assert.match(
     html,
-    /role="group"[^>]*data-orientation="vertical"|data-orientation="vertical"[^>]*role="group"/,
+    /role="group"[^>]*data-orientation="vertical"|data-orientation="vertical"[^>]*role="group"/u,
   );
 });

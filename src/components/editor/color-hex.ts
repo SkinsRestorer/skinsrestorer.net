@@ -8,7 +8,7 @@ export function toHex(color: Rgba) {
 }
 
 export function parseHex(value: string): [number, number, number] | undefined {
-  const match = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(value.trim());
+  const match = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/iu.exec(value.trim());
   if (!match) return undefined;
   const [, digits = ""] = match;
   const hex =

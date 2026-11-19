@@ -243,13 +243,17 @@ export function StudioLibrary(props: {
             selected={skin.id === props.selectedId}
             draft={drafts.has(skin.id)}
             renaming={renaming === skin.id}
-            onRename={() => setRenaming(skin.id)}
+            onRename={() => {
+              setRenaming(skin.id);
+            }}
             onRenamed={(name) => {
               setRenaming(null);
               if (name && name !== skin.name)
                 void actions.rename(skin.id, name);
             }}
-            onSelect={() => props.onSelect(skin)}
+            onSelect={() => {
+              props.onSelect(skin);
+            }}
             onDuplicate={() =>
               void actions.duplicate(skin.id).then((copy) => {
                 if (copy) requestFocus({ target: copy.id, appear: copy.id });
@@ -260,7 +264,9 @@ export function StudioLibrary(props: {
                 if (reverted) props.onReverted(reverted);
               })
             }
-            onRemove={() => remove(skin.id)}
+            onRemove={() => {
+              remove(skin.id);
+            }}
           />
         ))}
         {listing?.damaged.map((record) => (
@@ -290,7 +296,9 @@ export function StudioLibrary(props: {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                window.location.reload();
+              }}
             >
               <RotateCcw data-icon="inline-start" />
               {t("common.reloadPage")}
@@ -447,7 +455,9 @@ function LibraryItem(props: {
                 {t("library.duplicate")}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => downloadSkin(skin.current.png, skin.name)}
+                onClick={() => {
+                  downloadSkin(skin.current.png, skin.name);
+                }}
               >
                 <Download />
                 {t("common.downloadPng")}
@@ -496,9 +506,15 @@ function RenameField(props: {
         autoComplete="off"
         // oxlint-disable-next-line jsx-a11y/no-autofocus -- the user asked to rename this item.
         autoFocus
-        onFocus={(event) => event.currentTarget.select()}
-        onChange={(event) => setValue(event.target.value)}
-        onBlur={() => finish(value.trim() || null)}
+        onFocus={(event) => {
+          event.currentTarget.select();
+        }}
+        onChange={(event) => {
+          setValue(event.target.value);
+        }}
+        onBlur={() => {
+          finish(value.trim() || null);
+        }}
         onKeyDown={(event) => {
           if (event.key === "Enter") finish(value.trim() || null, true);
           if (event.key === "Escape") {

@@ -81,7 +81,7 @@ const CookieConsentBanner = () => {
   // A first-time visitor must still pick an option.
   const dismissible = reopened && consentState !== "pending";
   const closeRef = useAsRef(close);
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!dismissible) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !event.defaultPrevented) {
@@ -89,7 +89,9 @@ const CookieConsentBanner = () => {
       }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [closeRef, dismissible]);
 
   const handleAcceptCookies = () => {
@@ -190,7 +192,9 @@ function CookieSettingsButton({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      onClick={(event) => openCookieSettings(event.currentTarget)}
+      onClick={(event) => {
+        openCookieSettings(event.currentTarget);
+      }}
       className={cn("cursor-pointer", className)}
     >
       {t("footer.cookieSettings")}

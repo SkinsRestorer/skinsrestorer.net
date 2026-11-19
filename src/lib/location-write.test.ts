@@ -12,7 +12,9 @@ function setup() {
   const writes: (string | undefined)[] = [];
   const write = new LocationWrite<string | undefined>(
     () => location.key,
-    (value) => writes.push(value),
+    (value) => {
+      writes.push(value);
+    },
     20,
   );
   return { location, writes, write };

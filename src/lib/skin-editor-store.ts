@@ -302,9 +302,9 @@ export class SkinEditorStore {
     settings: Pick<PaintSettings, "layer" | "visibility">,
     action: PartAction,
   ) {
-    return this.apply((pixels, builder) =>
-      transformPart(pixels, builder, this.variant, settings, action),
-    );
+    return this.apply((pixels, builder) => {
+      transformPart(pixels, builder, this.variant, settings, action);
+    });
   }
 
   /**

@@ -174,8 +174,8 @@ export type LibraryEvent = { readonly type: "changed" | "closed" };
 
 export function cleanSkinName(name: string, fallback = "Skin") {
   const clean = name
-    .replace(/\.png$/i, "")
-    .replaceAll(/\s+/g, " ")
+    .replace(/\.png$/iu, "")
+    .replaceAll(/\s+/gu, " ")
     .trim()
     .slice(0, MAX_SKIN_NAME_LENGTH);
   return clean || fallback;
@@ -395,52 +395,58 @@ function openDatabase(
   name: string,
   timeoutMs: number,
 ) {
-  return Effect.callback<IDBDatabase, SkinLibraryError>((resume) => {
-    let request: IDBOpenDBRequest;
-    let settled = false;
-    try {
-      request = factory.open(name, LIBRARY_VERSION);
-    } catch (cause) {
-      resume(Effect.fail(libraryError("unavailable", cause)));
-      return undefined;
-    }
-    request.addEventListener("upgradeneeded", (event) => {
-      const db = request.result;
-      if (event.oldVersion < 1) {
-        const skins = db.createObjectStore(SKINS, { keyPath: "id" });
-        skins.createIndex("key", "current.key");
-        skins.createIndex("lastUsedAt", "lastUsedAt");
-        const sessions = db.createObjectStore(SESSIONS, { keyPath: "id" });
-        sessions.createIndex("skinId", "skinId");
+  return Effect.callback<IDBDatabase, SkinLibraryError>(
+    (resume): Effect.Effect<void> | undefined => {
+      let request: IDBOpenDBRequest;
+      let settled = false;
+      try {
+        request = factory.open(name, LIBRARY_VERSION);
+      } catch (cause) {
+        resume(Effect.fail(libraryError("unavailable", cause)));
+        return undefined;
       }
-    });
-    const opened = () => {
-      settled = true;
-      resume(Effect.succeed(request.result));
-    };
-    const failed = (event: Event) => {
-      settled = true;
-      event.preventDefault();
-      const error = request.error;
-      resume(
-        Effect.fail(
-          error?.name === "VersionError"
-            ? libraryError("newer", error)
-            : libraryError("unavailable", error),
-        ),
-      );
-    };
-    request.addEventListener("success", opened);
-    request.addEventListener("error", failed);
-    return Effect.sync(() => {
-      if (settled) return;
-      // The open may still finish after cancellation. Close it then.
-      request.removeEventListener("success", opened);
-      request.removeEventListener("error", failed);
-      request.addEventListener("success", () => request.result.close());
-      request.addEventListener("error", (event) => event.preventDefault());
-    });
-  }).pipe(
+      request.addEventListener("upgradeneeded", (event) => {
+        const db = request.result;
+        if (event.oldVersion < 1) {
+          const skins = db.createObjectStore(SKINS, { keyPath: "id" });
+          skins.createIndex("key", "current.key");
+          skins.createIndex("lastUsedAt", "lastUsedAt");
+          const sessions = db.createObjectStore(SESSIONS, { keyPath: "id" });
+          sessions.createIndex("skinId", "skinId");
+        }
+      });
+      const opened = () => {
+        settled = true;
+        resume(Effect.succeed(request.result));
+      };
+      const failed = (event: Event) => {
+        settled = true;
+        event.preventDefault();
+        const error = request.error;
+        resume(
+          Effect.fail(
+            error?.name === "VersionError"
+              ? libraryError("newer", error)
+              : libraryError("unavailable", error),
+          ),
+        );
+      };
+      request.addEventListener("success", opened);
+      request.addEventListener("error", failed);
+      return Effect.sync(() => {
+        if (settled) return;
+        // The open may still finish after cancellation. Close it then.
+        request.removeEventListener("success", opened);
+        request.removeEventListener("error", failed);
+        request.addEventListener("success", () => {
+          request.result.close();
+        });
+        request.addEventListener("error", (event) => {
+          event.preventDefault();
+        });
+      });
+    },
+  ).pipe(
     Effect.timeoutOrElse({
       duration: timeoutMs,
       orElse: () => Effect.fail(libraryError("unavailable")),
@@ -461,60 +467,74 @@ function transaction<A, E = never>(
   body: (tx: IDBTransaction, fail: (error: E) => void) => () => A,
   durability: "default" | "strict" = "default",
 ) {
-  return Effect.callback<A, E | SkinLibraryError>((resume) => {
-    let tx: IDBTransaction;
-    let done = false;
-    let failure: { readonly error: E } | undefined;
-    const finish = (effect: Effect.Effect<A, E | SkinLibraryError>) => {
-      if (done) return;
-      done = true;
-      resume(effect);
-    };
-    try {
-      tx = db().transaction(stores, mode, { durability });
-    } catch (cause) {
-      finish(Effect.fail(storageError(cause)));
-      return undefined;
-    }
-    const fail = (error: E) => {
-      if (failure) return;
-      failure = { error };
+  return Effect.callback<A, E | SkinLibraryError>(
+    (resume): Effect.Effect<void> | undefined => {
+      let tx: IDBTransaction;
+      let done = false;
+      let failure: { readonly error: E } | undefined;
+      const finish = (effect: Effect.Effect<A, E | SkinLibraryError>) => {
+        if (done) return;
+        done = true;
+        resume(effect);
+      };
       try {
-        tx.abort();
-      } catch {
-        // The transaction already finished.
+        tx = db().transaction(stores, mode, { durability });
+      } catch (cause) {
+        finish(Effect.fail(storageError(cause)));
+        return undefined;
       }
-    };
-    let read: () => A;
-    try {
-      read = body(tx, fail);
-    } catch (cause) {
+      const fail = (error: E) => {
+        if (failure) return;
+        failure = { error };
+        try {
+          tx.abort();
+        } catch {
+          // The transaction already finished.
+        }
+      };
+      let read: () => A;
       try {
-        tx.abort();
-      } catch {
-        // The transaction already finished.
+        read = body(tx, fail);
+      } catch (cause) {
+        try {
+          tx.abort();
+        } catch {
+          // The transaction already finished.
+        }
+        finish(Effect.fail(storageError(cause)));
+        return undefined;
       }
-      finish(Effect.fail(storageError(cause)));
-      return undefined;
-    }
-    tx.addEventListener("complete", () => finish(Effect.sync(read)));
-    tx.addEventListener("abort", () =>
-      finish(Effect.fail(failure ? failure.error : storageError(tx.error))),
-    );
-    return Effect.sync(() => {
-      if (done) return;
-      done = true;
-      try {
-        tx.abort();
-      } catch {
-        // The transaction already finished.
-      }
-    });
-  });
+      tx.addEventListener("complete", () => {
+        finish(Effect.sync(read));
+      });
+      tx.addEventListener("abort", () => {
+        finish(Effect.fail(failure ? failure.error : storageError(tx.error)));
+      });
+      return Effect.sync(() => {
+        if (done) return;
+        done = true;
+        try {
+          tx.abort();
+        } catch {
+          // The transaction already finished.
+        }
+      });
+    },
+  );
 }
 
-function onResult<T>(request: IDBRequest<T>, use: (value: T) => void) {
-  request.onsuccess = () => use(request.result);
+/** The `id` key path of a stored record, also when the record is damaged. */
+function recordKey(value: unknown): string | number | undefined {
+  if (typeof value !== "object" || value === null || !("id" in value))
+    return undefined;
+  const { id } = value;
+  return typeof id === "string" || typeof id === "number" ? id : undefined;
+}
+
+function onResult<T>(request: IDBRequest<T>, handle: (value: T) => void) {
+  request.onsuccess = () => {
+    handle(request.result);
+  };
 }
 
 const notFound = (id: string) =>
@@ -538,7 +558,10 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
       options.name ?? LIBRARY_DB,
       options.openTimeoutMs ?? 5000,
     ),
-    (db) => Effect.sync(() => db.close()),
+    (db) =>
+      Effect.sync(() => {
+        db.close();
+      }),
   );
   // A newer page wants to upgrade the database. Close this connection so it
   // is not blocked; later calls fail with a "reload" message.
@@ -549,7 +572,9 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   const channel = yield* Effect.acquireRelease(
     Effect.sync(() => {
       const opened = options.channel?.();
-      opened?.addEventListener("message", () => emit({ type: "changed" }));
+      opened?.addEventListener("message", () => {
+        emit({ type: "changed" });
+      });
       return opened;
     }),
     (opened) => Effect.sync(() => opened?.close()),
@@ -589,9 +614,15 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         let result: StoredSkin | undefined;
         const store = tx.objectStore(SKINS);
         onResult(store.get(id), (value) => {
-          if (value === undefined) return fail(notFound(id));
+          if (value === undefined) {
+            fail(notFound(id));
+            return;
+          }
           const skin = decodeSkin(value);
-          if (skin._tag === "None") return fail(libraryError("damaged"));
+          if (skin._tag === "None") {
+            fail(libraryError("damaged"));
+            return;
+          }
           result = change(skin.value, now());
           store.put(result);
         });
@@ -618,20 +649,27 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         sessions: [] as EditSession[],
         damaged: [] as DamagedRecord[],
       };
-      onResult(tx.objectStore(SKINS).getAll(), (values) => {
+      onResult(tx.objectStore(SKINS).getAll(), (values: readonly unknown[]) => {
         for (const value of values) {
           const skin = decodeSkin(value);
+          const key = recordKey(value);
           if (skin._tag === "Some") listing.skins.push(skin.value);
-          else listing.damaged.push({ store: "skins", key: value?.id });
+          else if (key !== undefined)
+            listing.damaged.push({ store: "skins", key });
         }
       });
-      onResult(tx.objectStore(SESSIONS).getAll(), (values) => {
-        for (const value of values) {
-          const session = decodeSession(value);
-          if (session._tag === "Some") listing.sessions.push(session.value);
-          else listing.damaged.push({ store: "sessions", key: value?.id });
-        }
-      });
+      onResult(
+        tx.objectStore(SESSIONS).getAll(),
+        (values: readonly unknown[]) => {
+          for (const value of values) {
+            const session = decodeSession(value);
+            const key = recordKey(value);
+            if (session._tag === "Some") listing.sessions.push(session.value);
+            else if (key !== undefined)
+              listing.damaged.push({ store: "sessions", key });
+          }
+        },
+      );
       return () => {
         listing.skins.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
         listing.sessions.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -673,7 +711,10 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
                 decoded._tag === "Some" ? [decoded.value] : [],
               )
               .toSorted((a, b) => b.lastUsedAt - a.lastUsedAt)[0];
-            if (!match) return insert();
+            if (!match) {
+              insert();
+              return;
+            }
             const used = { ...match, lastUsedAt: at };
             store.put(used);
             result = { skin: used, created: false };
@@ -688,7 +729,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           if (skin._tag === "Some")
             store.put({ ...skin.value, lastUsedAt: now() });
         });
-        return () => undefined;
+        return () => {};
       }),
     rename: (id, name) =>
       updateSkin(id, (skin) => ({
@@ -737,9 +778,15 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           const store = tx.objectStore(SKINS);
           let result: StoredSkin | undefined;
           onResult(store.get(id), (value) => {
-            if (value === undefined) return fail(notFound(id));
+            if (value === undefined) {
+              fail(notFound(id));
+              return;
+            }
             const skin = decodeSkin(value);
-            if (skin._tag === "None") return fail(libraryError("damaged"));
+            if (skin._tag === "None") {
+              fail(libraryError("damaged"));
+              return;
+            }
             result = create(
               {
                 name: copyName(skin.value.name, locale),
@@ -762,19 +809,30 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           let skin: StoredSkin | undefined;
           const removedSessions: EditSession[] = [];
           onResult(skins.get(id), (value) => {
-            if (value === undefined) return fail(notFound(id));
+            if (value === undefined) {
+              fail(notFound(id));
+              return;
+            }
             const decoded = decodeSkin(value);
-            if (decoded._tag === "None") return fail(libraryError("damaged"));
+            if (decoded._tag === "None") {
+              fail(libraryError("damaged"));
+              return;
+            }
             skin = decoded.value;
             skins.delete(id);
           });
-          onResult(sessions.index("skinId").getAll(id), (values) => {
-            for (const value of values) {
-              const session = decodeSession(value);
-              if (session._tag === "Some") removedSessions.push(session.value);
-              sessions.delete(value.id);
-            }
-          });
+          onResult(
+            sessions.index("skinId").getAll(id),
+            (values: readonly unknown[]) => {
+              for (const value of values) {
+                const session = decodeSession(value);
+                const key = recordKey(value);
+                if (session._tag === "Some")
+                  removedSessions.push(session.value);
+                if (key !== undefined) sessions.delete(key);
+              }
+            },
+          );
           return () => ({
             skin: required(skin, "removed skin"),
             sessions: removedSessions,
@@ -792,32 +850,35 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           onResult(sessions.getKey(session.id), (key) => {
             if (key === undefined) sessions.add(session);
           });
-        return () => undefined;
+        return () => {};
       }),
     removeDamaged: (record) =>
       write([record.store], (tx) => {
         tx.objectStore(record.store).delete(record.key);
-        return () => undefined;
+        return () => {};
       }),
     saveSession: (session) =>
       write([SESSIONS], (tx) => {
         tx.objectStore(SESSIONS).put(session);
-        return () => undefined;
+        return () => {};
       }),
     deleteSession: (id) =>
       write([SESSIONS], (tx) => {
         tx.objectStore(SESSIONS).delete(id);
-        return () => undefined;
+        return () => {};
       }),
     continueSession: (fromId, next) =>
       write<void, SkinNotFoundError>([SESSIONS], (tx, fail) => {
         const store = tx.objectStore(SESSIONS);
         onResult(store.getKey(fromId), (key) => {
-          if (key === undefined) return fail(notFound(fromId));
+          if (key === undefined) {
+            fail(notFound(fromId));
+            return;
+          }
           store.delete(fromId);
           store.add(next);
         });
-        return () => undefined;
+        return () => {};
       }),
     commitSession: (input) =>
       write<
@@ -829,17 +890,25 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           const skins = tx.objectStore(SKINS);
           let result: StoredSkin | undefined;
           onResult(skins.get(input.skinId), (value) => {
-            if (value === undefined) return fail(notFound(input.skinId));
+            if (value === undefined) {
+              fail(notFound(input.skinId));
+              return;
+            }
             const decoded = decodeSkin(value);
-            if (decoded._tag === "None") return fail(libraryError("damaged"));
+            if (decoded._tag === "None") {
+              fail(libraryError("damaged"));
+              return;
+            }
             const skin = decoded.value;
-            if (skin.revision !== input.baseRevision && !input.replace)
-              return fail(
+            if (skin.revision !== input.baseRevision && !input.replace) {
+              fail(
                 new SkinChangedError({
                   skin,
                   ...messageFields("library.skinChangedAnotherTab"),
                 }),
               );
+              return;
+            }
             const at = now();
             result = {
               ...skin,
@@ -905,10 +974,13 @@ function copyPattern(locale: Locale): CopyPattern {
 }
 
 const escapeRegExp = (text: string) =>
-  text.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  text.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 
 /** Read "Harbor copy 2" as base "Harbor" and number 2, or undefined. */
-function parseCopyName(name: string, pattern: CopyPattern) {
+function parseCopyName(
+  name: string,
+  pattern: CopyPattern,
+): { base: string; number: number } | undefined {
   for (const [template, numbered] of [
     [pattern.numbered, true],
     [pattern.first, false],
@@ -948,7 +1020,7 @@ export function copyName(name: string, locale: Locale = "en") {
     template.replace("{name}", () => value).replace("{number}", number);
   const room = MAX_SKIN_NAME_LENGTH - fill("").length;
   // Do not cut a character that takes two UTF-16 units in half.
-  const cut = base.slice(0, room).replace(/[\ud800-\udbff]$/, "");
+  const cut = base.slice(0, room).replace(/[\uD800-\uDBFF]$/u, "");
   return fill(cut.trimEnd());
 }
 
@@ -965,12 +1037,12 @@ export function skinFileName(name: string) {
   const clean = name
     .normalize("NFC")
     // Control characters and text direction overrides can disguise a name.
-    .replaceAll(/[\p{Cc}\u202a-\u202e\u2066-\u2069]/gu, "")
-    .replaceAll(/[<>:"/\\|?*]/g, "_")
-    .replaceAll(/\s+/g, " ")
+    .replaceAll(/[\p{Cc}\u202A-\u202E\u2066-\u2069]/gu, "")
+    .replaceAll(/[<>:"/\\|?*]/gu, "_")
+    .replaceAll(/\s+/gu, " ")
     .trim()
     // Windows drops trailing dots and spaces.
-    .replace(/[. ]+$/, "");
+    .replace(/[. ]+$/u, "");
   const safe = RESERVED_FILE_NAME.test(clean) ? `${clean}_` : clean;
   return `${safe || "skin"}.png`;
 }

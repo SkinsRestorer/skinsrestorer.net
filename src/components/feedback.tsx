@@ -79,8 +79,9 @@ export function Feedback({ url, version }: { url: string; version: string }) {
   }>();
   const previous =
     choice?.key === storageKey ? choice.feedback : parseFeedback(stored);
-  const setPrevious = (feedback: FeedbackData | null) =>
+  const setPrevious = (feedback: FeedbackData | null) => {
     setChoice({ key: storageKey, feedback });
+  };
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -188,7 +189,9 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               // oxlint-disable-next-line jsx-a11y/no-autofocus -- Focus the feedback field when it opens.
               autoFocus
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+              }}
               className="resize-none rounded-lg border bg-fd-secondary p-3 text-fd-secondary-foreground placeholder:text-fd-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               placeholder={t(
                 "feedback.includeStepSetupResultKeepCredentialsPrivate",

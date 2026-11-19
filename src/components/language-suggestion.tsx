@@ -18,7 +18,7 @@ const answeredKey = "skinsrestorer:language-suggestion";
 export function LanguageSuggestion() {
   const locale = useLocale();
   const router = useRouter();
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     let answered: string | null = null;
     try {
       answered = localStorage.getItem(answeredKey);
@@ -57,8 +57,12 @@ export function LanguageSuggestion() {
           void router.navigate({ href: localizePath(href, target) });
         },
       },
-      onDismiss: () => answer("dismissed"),
-      onAutoClose: () => answer("ignored"),
+      onDismiss: () => {
+        answer("dismissed");
+      },
+      onAutoClose: () => {
+        answer("ignored");
+      },
     });
     return () => {
       settled = true;

@@ -100,7 +100,9 @@ export function MineSkinKeyField(props: {
           aria-invalid={invalid || undefined}
           aria-describedby={hasStatus ? statusId : undefined}
           value={props.value}
-          onChange={(event) => props.onChange(event.target.value)}
+          onChange={(event) => {
+            props.onChange(event.target.value);
+          }}
           onBlur={props.onBlur}
           onKeyDown={(event) => {
             // Enter checks cape access. It never submits the form.
@@ -264,7 +266,7 @@ export function CapePicker(props: {
 function CapePreview({ texture }: { texture: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const canvas = canvasRef.current;
     if (!canvas) {
       return undefined;

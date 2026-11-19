@@ -217,7 +217,7 @@ test("the official MineSkin route still requires full skin metadata", async () =
   );
   await assert.rejects(
     uploadMineSkinFile({ file, variant: "classic" }),
-    /invalid response/,
+    /invalid response/u,
   );
   assert.equal(calls.length, 1);
 });

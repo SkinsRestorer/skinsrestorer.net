@@ -46,8 +46,10 @@ function LatestRelease() {
       .then((release) => {
         if (!controller.signal.aborted) setData(release);
       })
-      .catch(() => undefined);
-    return () => controller.abort();
+      .catch(() => {});
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   // The label stays the same and the tag fills a reserved slot, so the row does not shift.

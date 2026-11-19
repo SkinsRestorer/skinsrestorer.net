@@ -5,5 +5,5 @@ export function ensureHttpsTextureUrl(
     return url;
   }
 
-  return url.replace(/^http:\/\//i, "https://");
+  return url.replace(/^http:\/\//iu, "https://");
 }

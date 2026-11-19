@@ -125,8 +125,12 @@ export class SkinSelectionStore {
   /** Watch the library for changes to the selected skin. */
   connect() {
     this.stopLibrary?.();
-    this.stopLibrary = this.deps.library?.subscribe(() => this.refresh());
-    return () => this.dispose();
+    this.stopLibrary = this.deps.library?.subscribe(() => {
+      this.refresh();
+    });
+    return () => {
+      this.dispose();
+    };
   }
 
   dispose() {
@@ -158,12 +162,12 @@ export class SkinSelectionStore {
     if (!first) return;
     this.select(first, { origin: "file" });
     if (rest.length === 0) return;
-    void Promise.allSettled(
-      rest.map((file) => this.keepFile(file, undefined)),
-    ).then((results) => {
-      const failed = results.filter((r) => r.status === "rejected").length;
-      this.deps.events?.imported?.(results.length - failed + 1, failed);
-    });
+    void Promise.allSettled(rest.map((file) => this.keepFile(file))).then(
+      (results) => {
+        const failed = results.filter((r) => r.status === "rejected").length;
+        this.deps.events?.imported?.(results.length - failed + 1, failed);
+      },
+    );
   }
 
   select(file: File, options: SelectOptions) {
@@ -244,7 +248,7 @@ export class SkinSelectionStore {
           signal,
         );
       },
-      () => undefined,
+      () => {},
       fail,
     );
   }
@@ -319,14 +323,14 @@ export class SkinSelectionStore {
             keep: { kind: "changed", latest: skin },
           });
       },
-      () => undefined,
+      () => {},
     );
   }
 
   private touch(id: string) {
     void this.deps.library
       ?.run(withLibrary((library) => library.touch(id)))
-      .catch(() => undefined);
+      .catch(() => {});
   }
 
   private syncVariant(token: number, skinId: string, variant: SkinVariant) {

@@ -30,13 +30,13 @@ function library(factory = new IDBFactory()) {
 /** A library whose calls never finish or always fail. */
 const stalled: LibraryClient = {
   run: () => new Promise(() => {}),
-  subscribe: () => () => undefined,
-  dispose: () => Promise.resolve(undefined),
+  subscribe: () => () => {},
+  dispose: () => Promise.resolve(),
 };
 const failing: LibraryClient = {
   run: () => Promise.reject(new Error("Browser storage is full.")),
-  subscribe: () => () => undefined,
-  dispose: () => Promise.resolve(undefined),
+  subscribe: () => () => {},
+  dispose: () => Promise.resolve(),
 };
 
 async function skinFile(seed: number, name = `skin-${seed}.png`) {
@@ -62,10 +62,10 @@ function manualPreview() {
       pending.push({ file, events, signal });
       for (const wake of waiting.splice(0)) wake();
       return new Promise<void>((_, reject) => {
-        signal.addEventListener("abort", () =>
+        signal.addEventListener("abort", () => {
           // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- an abort reason is typed any; the signal rejects with its DOMException
-          reject(signal.reason),
-        );
+          reject(signal.reason);
+        });
       });
     },
     async next(count = 1) {
@@ -82,10 +82,10 @@ function autoPreview(variant: SkinVariant = "classic") {
     events.preview(`blob:${file.name}`);
     events.detected(variant);
     return new Promise<void>((_, reject) => {
-      signal.addEventListener("abort", () =>
+      signal.addEventListener("abort", () => {
         // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- an abort reason is typed any; the signal rejects with its DOMException
-        reject(signal.reason),
-      );
+        reject(signal.reason);
+      });
     });
   };
 }
@@ -272,7 +272,11 @@ test("multi-file drops keep every valid skin but select only the first", async (
   const store = new SkinSelectionStore({
     preview: autoPreview(),
     library: client,
-    events: { imported: (kept, failed) => imported.push([kept, failed]) },
+    events: {
+      imported: (kept, failed) => {
+        imported.push([kept, failed]);
+      },
+    },
   });
   store.selectFiles([
     await skinFile(1, "a.png"),
@@ -339,7 +343,11 @@ test("a populated library stays unselected on startup and library updates", asyn
   const seed = new SkinSelectionStore({
     preview: autoPreview(),
     library: client,
-    events: { imported: () => (imported = true) },
+    events: {
+      imported: () => {
+        imported = true;
+      },
+    },
   });
   seed.selectFiles([await skinFile(1), await skinFile(2)]);
   await until(() => imported);

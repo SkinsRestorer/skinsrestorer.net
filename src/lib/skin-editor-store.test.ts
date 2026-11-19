@@ -423,9 +423,15 @@ test("a line never jumps to another face, tool, layer, or document", () => {
   );
   for (const reset of [
     () => store.undo(),
-    () => store.resetLineAnchor(),
-    () => store.setVariant("slim"),
-    () => store.load(createTemplate("classic")),
+    () => {
+      store.resetLineAnchor();
+    },
+    () => {
+      store.setVariant("slim");
+    },
+    () => {
+      store.load(createTemplate("classic"));
+    },
     () => store.fill(brush, 20, 20),
     () => {
       store.beginStroke("pencil", brush, 9, 9);

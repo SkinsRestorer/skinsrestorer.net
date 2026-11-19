@@ -112,10 +112,12 @@ export const runChild = Effect.fn("Docs.runChild")(function* (
       const child = spawn(command, args, { cwd, stdio: "inherit" });
       const exit = new Promise<number>((resolve, reject) => {
         child.once("error", reject);
-        child.once("close", (code) => resolve(code ?? 1));
+        child.once("close", (code) => {
+          resolve(code ?? 1);
+        });
       });
       // Register rejection handling before an early spawn error can escape.
-      void exit.catch(() => undefined);
+      void exit.catch(() => {});
       return { child, exit };
     }),
     ({ exit }) =>
@@ -127,7 +129,7 @@ export const runChild = Effect.fn("Docs.runChild")(function* (
       Effect.promise(async () => {
         if (child.exitCode === null && child.signalCode === null)
           child.kill("SIGKILL");
-        await exit.catch(() => undefined);
+        await exit.catch(() => {});
       }),
   );
 });

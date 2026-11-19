@@ -206,9 +206,16 @@ export function StudioEditor(props: {
   const showStatus = useCallback((message: Message) => {
     setStatus(message);
     clearTimeout(statusTimer.current);
-    statusTimer.current = setTimeout(() => setStatus(""), 6000);
+    statusTimer.current = setTimeout(() => {
+      setStatus("");
+    }, 6000);
   }, []);
-  useEffect(() => () => clearTimeout(statusTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(statusTimer.current);
+    },
+    [],
+  );
 
   const exit = useCallback(() => {
     if (exited.current) return;
@@ -296,8 +303,9 @@ export function StudioEditor(props: {
     },
     [layer, showStatus, t],
   );
-  const announce = (setting: MessageKey, value: string) =>
+  const announce = (setting: MessageKey, value: string) => {
     setShortcutNote(t("editor.settingValue", { setting: t(setting), value }));
+  };
   const resize = (step: number) => {
     const next = Math.max(
       BRUSH_SIZES.min,
@@ -337,8 +345,20 @@ export function StudioEditor(props: {
         setMirror(!mirror);
         announce("editor.mirror", t(mirror ? "editor.off" : "editor.on"));
       }),
-      ...run("smaller", () => resize(-1), true),
-      ...run("larger", () => resize(1), true),
+      ...run(
+        "smaller",
+        () => {
+          resize(-1);
+        },
+        true,
+      ),
+      ...run(
+        "larger",
+        () => {
+          resize(1);
+        },
+        true,
+      ),
       ...run("layer", () => {
         const next = layer === "base" ? "outer" : "base";
         changeLayer(next);
@@ -347,10 +367,26 @@ export function StudioEditor(props: {
           t(next === "base" ? "common.base" : "common.outer"),
         );
       }),
-      ...run("paint", () => pointerAction("paint")),
-      ...run("move", () => pointerAction("move")),
-      ...run("undo", () => store.undo(), true),
-      ...run("redo", () => store.redo(), true),
+      ...run("paint", () => {
+        pointerAction("paint");
+      }),
+      ...run("move", () => {
+        pointerAction("move");
+      }),
+      ...run(
+        "undo",
+        () => {
+          store.undo();
+        },
+        true,
+      ),
+      ...run(
+        "redo",
+        () => {
+          store.redo();
+        },
+        true,
+      ),
       ...editorShortcuts.close.map((hotkey): UseHotkeyDefinition => ({
         hotkey,
         callback: () => {
@@ -370,7 +406,7 @@ export function StudioEditor(props: {
     },
   );
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const frame = textureFrame.current;
     if (!frame) return undefined;
     const observer = new ResizeObserver(() => {
@@ -379,7 +415,9 @@ export function StudioEditor(props: {
         setFitScale(Math.max(3, Math.min(8, Math.floor(width / SKIN_SIZE))));
     });
     observer.observe(frame);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const download = async () => {
@@ -420,9 +458,12 @@ export function StudioEditor(props: {
     }
     handle(await session.save({ replace }), "save");
   };
-  const saveCopy = async () => handle(await session.saveCopy(), "copy");
-  const saveUnkept = async () =>
+  const saveCopy = async () => {
+    handle(await session.saveCopy(), "copy");
+  };
+  const saveUnkept = async () => {
     handle(await session.save({ keep: false }), "save");
+  };
   const discardAndLeave = async () => {
     await session.discard();
     leave();
@@ -449,11 +490,12 @@ export function StudioEditor(props: {
     else setStatus("");
   };
 
-  const zoomTo = useCallback(
-    (next: number) => setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next))),
-    [],
-  );
-  const zoomBy = (step: number) => zoomTo(scale + step);
+  const zoomTo = useCallback((next: number) => {
+    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next)));
+  }, []);
+  const zoomBy = (step: number) => {
+    zoomTo(scale + step);
+  };
 
   // One confirmation for Cancel, Escape, Back, and links.
   const shown: Confirm | null = confirm ?? (blocked ? { kind: "leave" } : null);
@@ -525,8 +567,12 @@ export function StudioEditor(props: {
             canRedo={snapshot.canRedo}
             onTool={changeTool}
             onInteraction={setInteraction}
-            onUndo={() => store.undo()}
-            onRedo={() => store.redo()}
+            onUndo={() => {
+              store.undo();
+            }}
+            onRedo={() => {
+              store.redo();
+            }}
           />
           <LayerToggle layer={layer} onLayerChange={changeLayer} />
           <span className="ml-auto flex items-center">
@@ -539,7 +585,9 @@ export function StudioEditor(props: {
                     aria-label={t("studio.zoomTextureOut")}
                     disabled={scale <= MIN_ZOOM}
                     focusableWhenDisabled
-                    onClick={() => zoomBy(-2)}
+                    onClick={() => {
+                      zoomBy(-2);
+                    }}
                   />
                 }
               >
@@ -556,7 +604,9 @@ export function StudioEditor(props: {
                     aria-label={t("studio.zoomTexture")}
                     disabled={scale >= MAX_ZOOM}
                     focusableWhenDisabled
-                    onClick={() => zoomBy(2)}
+                    onClick={() => {
+                      zoomBy(2);
+                    }}
                   />
                 }
               >
@@ -572,7 +622,9 @@ export function StudioEditor(props: {
                     size="icon-sm"
                     aria-label={t("studio.fit")}
                     aria-pressed={zoom === "fit"}
-                    onClick={() => setZoom("fit")}
+                    onClick={() => {
+                      setZoom("fit");
+                    }}
                   />
                 }
               >
@@ -671,7 +723,9 @@ export function StudioEditor(props: {
                 className="pointer-coarse:size-9"
                 aria-label={t("common.undo")}
                 disabled={!snapshot.canUndo}
-                onClick={() => store.undo()}
+                onClick={() => {
+                  store.undo();
+                }}
               >
                 <Undo2 />
               </Button>
@@ -681,7 +735,9 @@ export function StudioEditor(props: {
                 className="pointer-coarse:size-9"
                 aria-label={t("common.redo")}
                 disabled={!snapshot.canRedo}
-                onClick={() => store.redo()}
+                onClick={() => {
+                  store.redo();
+                }}
               >
                 <Redo2 />
               </Button>
@@ -716,13 +772,15 @@ export function StudioEditor(props: {
           highlighted={highlight}
           onHighlight={setHighlight}
           onRepair={(id) => {
-            store.apply((pixels, builder) =>
-              repairSkin(id, pixels, store.getSnapshot().variant, builder),
-            );
+            store.apply((pixels, builder) => {
+              repairSkin(id, pixels, store.getSnapshot().variant, builder);
+            });
             setHighlight(null);
             posthog.capture("editor_check_fix_applied", { issue: id });
           }}
-          onVariant={(variant) => store.setVariant(variant)}
+          onVariant={(variant) => {
+            store.setVariant(variant);
+          }}
         />
         <div className="flex flex-col gap-1.5">
           <span id={modelId} className="text-sm font-medium">
@@ -732,7 +790,9 @@ export function StudioEditor(props: {
             aria-labelledby={modelId}
             layout="stacked"
             value={snapshot.variant}
-            onValueChange={(variant) => store.setVariant(variant)}
+            onValueChange={(variant) => {
+              store.setVariant(variant);
+            }}
           />
           <Tooltip>
             <TooltipTrigger

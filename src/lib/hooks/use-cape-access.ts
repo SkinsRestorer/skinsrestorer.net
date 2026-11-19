@@ -24,7 +24,9 @@ function loadPublicCapes(
       setStatus("ready");
     },
     // The picker shows the failure next to a retry button.
-    () => setStatus("failed"),
+    () => {
+      setStatus("failed");
+    },
   );
 }
 
@@ -57,7 +59,9 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
 
   useEffect(() => {
     loadPublicCapes(availableCapes, setPublicCapes, setPublicStatus);
-    return () => availableCapes.cancel();
+    return () => {
+      availableCapes.cancel();
+    };
   }, [availableCapes]);
 
   /** The key changed: its earlier check and capes no longer apply. */

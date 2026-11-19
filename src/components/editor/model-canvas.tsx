@@ -144,7 +144,7 @@ export function ModelCanvas(
   };
   const pickRef = useAsRef(pick);
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const canvas = canvasRef.current;
     const frame = frameRef.current;
     if (!canvas || !frame) return undefined;
@@ -354,7 +354,9 @@ export function ModelCanvas(
           size="icon-sm"
           aria-label={t("editor.turnModelLeft")}
           disabled={!!failure}
-          onClick={() => rotate(-Math.PI / 4)}
+          onClick={() => {
+            rotate(-Math.PI / 4);
+          }}
         >
           <RotateCcw />
         </Button>
@@ -363,7 +365,9 @@ export function ModelCanvas(
           size="icon-sm"
           aria-label={t("editor.turnModelRight")}
           disabled={!!failure}
-          onClick={() => rotate(Math.PI / 4)}
+          onClick={() => {
+            rotate(Math.PI / 4);
+          }}
         >
           <RotateCw />
         </Button>
@@ -372,7 +376,9 @@ export function ModelCanvas(
           size="icon-sm"
           aria-label={t("editor.zoomModelOut")}
           disabled={!!failure}
-          onClick={() => zoom(1 / 1.2)}
+          onClick={() => {
+            zoom(1 / 1.2);
+          }}
         >
           <ZoomOut />
         </Button>
@@ -381,7 +387,9 @@ export function ModelCanvas(
           size="icon-sm"
           aria-label={t("editor.zoomModelIn")}
           disabled={!!failure}
-          onClick={() => zoom(1.2)}
+          onClick={() => {
+            zoom(1.2);
+          }}
         >
           <ZoomIn />
         </Button>
@@ -453,7 +461,9 @@ export function ModelCanvas(
               ? "cursor-crosshair"
               : "cursor-grab active:cursor-grabbing",
           )}
-          onContextMenu={(event) => event.preventDefault()}
+          onContextMenu={(event) => {
+            event.preventDefault();
+          }}
           onPointerDown={(event) => {
             // Touch has no hover, so a finger never leaves a footprint.
             if (event.pointerType === "touch") hover.current?.leave();
@@ -502,7 +512,7 @@ export function ModelCanvas(
             const native = event.nativeEvent;
             const samples =
               "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
-            for (const sample of samples.length ? samples : [event]) {
+            for (const sample of samples.length > 0 ? samples : [event]) {
               const target = pick(sample.clientX, sample.clientY);
               if (target && !("covered" in target))
                 store.strokeTo(target.x, target.y);

@@ -23,7 +23,7 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
           "src/main/java/example/ExampleSkinPlugin.java",
         ]);
         for (const match of source.matchAll(
-          /```(?:xml|yaml|java) title="([^"]+)"\n([\s\S]*?)\n```/g,
+          /```(?:xml|yaml|java) title="([^"]+)"\n([\s\S]*?)\n```/gu,
         )) {
           const [, name = "", contents = ""] = match;
           yield* toolTry("validate example files", () => {
@@ -35,7 +35,7 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
           yield* files.writeText(file, contents);
         }
         yield* toolTry("validate example files", () => {
-          if (expected.size)
+          if (expected.size > 0)
             throw new Error(
               `Missing example files: ${[...expected].join(", ")}`,
             );
@@ -56,8 +56,8 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
   },
 );
 if (import.meta.main)
-  await runTool(checkJavaExample(), () =>
+  await runTool(checkJavaExample(), () => {
     console.log(
       "Compiled and packaged the documentation's complete Java example.",
-    ),
-  );
+    );
+  });

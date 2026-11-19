@@ -22,7 +22,7 @@ export class TextureImportError extends Data.TaggedError("TextureImportError")<{
   readonly cause?: unknown;
 }> {}
 
-const hashPattern = /^[0-9a-f]{32,64}$/i;
+const hashPattern = /^[0-9a-f]{32,64}$/iu;
 
 /**
  * Accept a texture hash or a textures.minecraft.net texture URL. Every other
@@ -55,7 +55,7 @@ export function parseTextureReference(input: string): {
     throw new TextureImportError({
       ...messageFields("common.onlyTexturesMinecraftNetTextureUrlsCan"),
     });
-  const match = /^\/texture\/([0-9a-f]{32,64})$/i.exec(url.pathname);
+  const match = /^\/texture\/([0-9a-f]{32,64})$/iu.exec(url.pathname);
   if (!match || url.search !== "" || url.hash !== "")
     throw new TextureImportError({
       ...messageFields("common.texturesMinecraftNetUrlDoesNotPoint"),

@@ -182,8 +182,8 @@ const SKIN_FILE_ACCEPT = ".playerskin,.urlskin,.customskin,.legacyskin,.skin";
 function skinFileAccept() {
   const { userAgent, maxTouchPoints } = navigator;
   const appleTouch =
-    /iPad|iPhone|iPod/.test(userAgent) ||
-    (/Macintosh/.test(userAgent) && maxTouchPoints > 1);
+    /iPad|iPhone|iPod/u.test(userAgent) ||
+    (userAgent.includes("Macintosh") && maxTouchPoints > 1);
   return appleTouch ? "" : SKIN_FILE_ACCEPT;
 }
 
@@ -240,7 +240,7 @@ export function SkinStudio(props: {
   // Fetch the 3D view early so it is ready when someone picks a skin.
   useEffect(() => {
     // A failed prefetch is retried when the view renders.
-    loadSkinView().catch(() => undefined);
+    loadSkinView().catch(() => {});
   }, []);
   const importTask = useLatestTask();
   /** Only URL-owned reads are cancelled when their reference is removed. */
@@ -272,7 +272,9 @@ export function SkinStudio(props: {
         : focusAfter.current === "selection"
           ? selectionHeadingId
           : undefined;
-    const target = id ? document.getElementById(id) : null;
+    // useId() values contain characters that CSS selectors must escape.
+    const element = id ? document.querySelector(`#${CSS.escape(id)}`) : null;
+    const target = element instanceof HTMLElement ? element : null;
     if (mode.kind === "edit") return;
     // Without an Edit skin button there is nothing to return to.
     if (!target && focusAfter.current === "edit") focusAfter.current = null;
@@ -335,7 +337,12 @@ export function SkinStudio(props: {
         QUERY_WRITE_MS,
       ),
   );
-  useEffect(() => () => queryWrite.cancel(), [queryWrite]);
+  useEffect(
+    () => () => {
+      queryWrite.cancel();
+    },
+    [queryWrite],
+  );
   useEffect(() => {
     const moved = previousQueryLocation.current !== queryLocation;
     previousQueryLocation.current = queryLocation;
@@ -368,7 +375,9 @@ export function SkinStudio(props: {
       if (wide.matches) setDrawer(false);
     };
     wide.addEventListener("change", close);
-    return () => wide.removeEventListener("change", close);
+    return () => {
+      wide.removeEventListener("change", close);
+    };
   }, []);
 
   const cancelImport = () => {
@@ -531,7 +540,9 @@ export function SkinStudio(props: {
         onOpened?.();
         posthog.capture("editor_opened", { source: "texture_url" });
       },
-      (cause) => toast.error(t.error(cause)),
+      (cause) => {
+        toast.error(t.error(cause));
+      },
     );
   };
 
@@ -598,7 +609,9 @@ export function SkinStudio(props: {
         // The handoff is used once; other URL state stays.
         void updateSearch(({ handoff: _used, ...rest }) => rest);
       },
-      () => toast.error(notify("studio.skinEditorCouldNotRead")),
+      () => {
+        toast.error(notify("studio.skinEditorCouldNotRead"));
+      },
     );
   };
 
@@ -664,7 +677,9 @@ export function SkinStudio(props: {
       input.accept = skinFileAccept();
       input.click();
     },
-    openTexture: () => setTextureDialog(true),
+    openTexture: () => {
+      setTextureDialog(true);
+    },
   };
 
   const choose = (skin: StoredSkin) => {
@@ -677,13 +692,13 @@ export function SkinStudio(props: {
 
   const selectFiles = (files: readonly File[]) => {
     const pngs = files.filter(
-      (file) => file.type === "image/png" || /\.png$/i.test(file.name),
+      (file) => file.type === "image/png" || /\.png$/iu.test(file.name),
     );
     const rejected = files.length - pngs.length;
     const fitting = pngs.filter((file) => file.size <= MAX_SKIN_FILE_BYTES);
     if (rejected || fitting.length < pngs.length)
       toast.error(t("studio.choosePngFilesUp5Mb"));
-    if (fitting.length) {
+    if (fitting.length > 0) {
       cancelImport();
       setDrawer(false);
       // The button that opened the file picker can unmount with the empty
@@ -737,7 +752,9 @@ export function SkinStudio(props: {
         store.selectSkin(skin);
         dropSkinReference();
       },
-      (cause) => toast.error(t.error(cause)),
+      (cause) => {
+        toast.error(t.error(cause));
+      },
     );
   };
   const editSelected = () => {
@@ -757,7 +774,9 @@ export function SkinStudio(props: {
         openEditor(current.origin === "gallery");
         posthog.capture("skin_edit_opened", { page: props.entry });
       },
-      (cause) => toast.error(t.error(cause)),
+      (cause) => {
+        toast.error(t.error(cause));
+      },
     );
   };
 
@@ -800,7 +819,7 @@ export function SkinStudio(props: {
       purpose: purposeRef.current,
       capeStatus: capeStatusRef.current,
     });
-    return Object.keys(fields).length ? { fields } : undefined;
+    return Object.keys(fields).length > 0 ? { fields } : undefined;
   }
   const options = useSelector(form.store, (formState) => formState.values);
   const submitting = useSelector(
@@ -859,7 +878,9 @@ export function SkinStudio(props: {
       .customName !== undefined;
   // Any change to the inputs stops waiting for a pending upload.
   useEffect(
-    () => () => generation.cancel(),
+    () => () => {
+      generation.cancel();
+    },
     [
       generation,
       purpose,
@@ -956,7 +977,7 @@ export function SkinStudio(props: {
       className="group/tabs"
       orientation={layout === "rail" ? "vertical" : "horizontal"}
       value={source}
-      onValueChange={(value) => {
+      onValueChange={(value: unknown) => {
         const next = findOption(["library", "gallery"], value);
         if (next) changeSource(next);
       }}
@@ -1031,7 +1052,9 @@ export function SkinStudio(props: {
             variant="outline"
             disabled={editing}
             aria-expanded={drawer}
-            onClick={() => setDrawer(true)}
+            onClick={() => {
+              setDrawer(true);
+            }}
           >
             <PanelLeft data-icon="inline-start" />
             {t(source === "gallery" ? "common.gallery" : "common.library")}
@@ -1060,7 +1083,9 @@ export function SkinStudio(props: {
               session={editor.session}
               isNew={mode.isNew}
               onSaved={saved}
-              onExit={() => exitEdit()}
+              onExit={() => {
+                exitEdit();
+              }}
             />
           </Suspense>
         ) : (
@@ -1119,9 +1144,9 @@ export function SkinStudio(props: {
               )}
               <DraftRecovery
                 session={editor.session}
-                onContinue={() =>
-                  openEditor(!editor.session.getSnapshot().target.skinId)
-                }
+                onContinue={() => {
+                  openEditor(!editor.session.getSnapshot().target.skinId);
+                }}
               />
               {current ? (
                 <SelectedSkinView
@@ -1134,7 +1159,9 @@ export function SkinStudio(props: {
                     )?.url
                   }
                   onEdit={editSelected}
-                  onUseLatest={() => store.useLatest()}
+                  onUseLatest={() => {
+                    store.useLatest();
+                  }}
                   headingId={selectionHeadingId}
                   editButtonId={editButtonId}
                   onKeep={
@@ -1283,7 +1310,9 @@ export function SkinStudio(props: {
                         aria-labelledby={labelId}
                         layout="stacked"
                         value={state.variant}
-                        onValueChange={(value) => store.setVariant(value)}
+                        onValueChange={(value) => {
+                          store.setVariant(value);
+                        }}
                       />
                     )}
                   </ChoiceSet>
@@ -1343,9 +1372,9 @@ export function SkinStudio(props: {
                   {(methodField) => (
                     <AdvancedOptions
                       method={methodField.state.value}
-                      onMethodChange={(value: UploadMethod) =>
-                        methodField.handleChange(value)
-                      }
+                      onMethodChange={(value: UploadMethod) => {
+                        methodField.handleChange(value);
+                      }}
                       open={advancedOpen}
                       onOpenChange={setAdvancedOpen}
                       officialFields={
@@ -1568,7 +1597,9 @@ function TextField(props: {
         spellCheck={false}
         aria-invalid={invalid || undefined}
         aria-describedby={props.description ? descriptionId : undefined}
-        onChange={(event) => props.onChange(event.target.value)}
+        onChange={(event) => {
+          props.onChange(event.target.value);
+        }}
         onBlur={props.onBlur}
       />
       {props.description && (
@@ -1610,10 +1641,14 @@ function SelectedSkinView(props: {
   const { selection, galleryLink } = props;
   const editable = selectionEditable(selection);
   const [copied, setCopied] = useState(false);
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!copied) return undefined;
-    const timer = setTimeout(() => setCopied(false), 1400);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      setCopied(false);
+    }, 1400);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [copied]);
   return (
     <>
@@ -1705,7 +1740,9 @@ function SelectedSkinView(props: {
                 void navigator.clipboard
                   .writeText(new URL(galleryLink, window.location.origin).href)
                   .then(
-                    () => setCopied(true),
+                    () => {
+                      setCopied(true);
+                    },
                     () => toast.error(t("common.failedCopy")),
                   )
               }
@@ -1718,7 +1755,9 @@ function SelectedSkinView(props: {
               disabled={selection.status !== "ready"}
               aria-label={t("common.downloadPng")}
               title={t("common.downloadPng")}
-              onClick={() => downloadSkin(selection.file, selection.name)}
+              onClick={() => {
+                downloadSkin(selection.file, selection.name);
+              }}
             >
               <Download />
             </Button>
@@ -1785,10 +1824,14 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
   const t = useT();
   const id = useId();
   const [copied, setCopied] = useState(false);
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!copied) return undefined;
-    const timer = setTimeout(() => setCopied(false), 1400);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      setCopied(false);
+    }, 1400);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [copied]);
   const copy = async () => {
     try {
@@ -1872,7 +1915,9 @@ function TextureDialog(props: {
   const id = useId();
   const form = useForm({
     defaultValues: { reference: "" },
-    onSubmit: ({ value }) => props.onOpen(value.reference.trim()),
+    onSubmit: ({ value }) => {
+      props.onOpen(value.reference.trim());
+    },
   });
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -1913,7 +1958,9 @@ function TextureDialog(props: {
                     spellCheck={false}
                     autoComplete="off"
                     placeholder="https://textures.minecraft.net/texture/…"
-                    onChange={(event) => field.handleChange(event.target.value)}
+                    onChange={(event) => {
+                      field.handleChange(event.target.value);
+                    }}
                     onBlur={field.handleBlur}
                   />
                 </InputGroup>

@@ -49,7 +49,7 @@ export function SkinView(props: {
   const [onScreen, setOnScreen] = useState(true);
   const reduceMotion = useReducedMotion() ?? false;
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const canvas = canvasRef.current;
     const frame = frameRef.current;
     if (!canvas || !frame) return undefined;
@@ -92,9 +92,9 @@ export function SkinView(props: {
     resize.observe(frame);
     // A new pixel ratio resizes the drawing buffer, which clears it.
     window.addEventListener("resize", redraw);
-    const visibility = new IntersectionObserver(([entry]) =>
-      setOnScreen(entry?.isIntersecting ?? true),
-    );
+    const visibility = new IntersectionObserver(([entry]) => {
+      setOnScreen(entry?.isIntersecting ?? true);
+    });
     visibility.observe(frame);
     // Preventing the default lets the browser restore the context. three.js
     // uploads the textures again, and the viewer restarts its own loop.
@@ -144,7 +144,7 @@ export function SkinView(props: {
 
   // Each load owns its image. A superseded load is cancelled before it can
   // draw, so only the latest skin and cape reach the viewer.
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const viewer = viewerRef.current;
     const url = props.skinUrl;
     if (!viewer || !url) return undefined;
@@ -162,11 +162,13 @@ export function SkinView(props: {
     ).catch(() => {
       if (!owner.signal.aborted) setBadSkin(url);
     });
-    return () => owner.abort();
+    return () => {
+      owner.abort();
+    };
   }, [ready, props.skinUrl, props.variant]);
 
   const capeUrl = ensureHttpsTextureUrl(props.capeUrl) ?? undefined;
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const viewer = viewerRef.current;
     if (!viewer) return undefined;
     if (!capeUrl) {
@@ -191,7 +193,9 @@ export function SkinView(props: {
       viewer.resetCape();
       redrawRef.current();
     });
-    return () => owner.abort();
+    return () => {
+      owner.abort();
+    };
   }, [ready, capeUrl]);
 
   return (

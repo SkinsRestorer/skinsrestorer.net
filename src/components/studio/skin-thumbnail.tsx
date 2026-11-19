@@ -81,7 +81,7 @@ export function SkinThumbnail(props: {
   const view = props.view ?? "body";
   const currentPng = useEffectEvent(() => props.png);
   const source = props.hash ?? props.png;
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const target = canvas.current;
     const context = target?.getContext("2d");
     if (!target || !context) return undefined;
@@ -89,7 +89,10 @@ export function SkinThumbnail(props: {
     context.clearRect(0, 0, target.width, target.height);
     createImageBitmap(currentPng()).then(
       (image) => {
-        if (!active) return image.close();
+        if (!active) {
+          image.close();
+          return;
+        }
         const scale = image.width / 64;
         const legacy = image.height * 2 === image.width;
         context.imageSmoothingEnabled = false;
@@ -115,7 +118,7 @@ export function SkinThumbnail(props: {
         // The canvas keeps the pixels; free the decoded image now.
         image.close();
       },
-      () => undefined,
+      () => {},
     );
     return () => {
       active = false;

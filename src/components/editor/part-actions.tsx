@@ -68,7 +68,9 @@ export function PartActions(props: {
             <DropdownMenuItem
               key={part}
               disabled={!visibility[part][layer]}
-              onClick={() => props.onAction({ kind: "flip", part })}
+              onClick={() => {
+                props.onAction({ kind: "flip", part });
+              }}
             >
               {t(skinPartLabels[part])}
             </DropdownMenuItem>
@@ -87,7 +89,9 @@ export function PartActions(props: {
             <DropdownMenuItem
               key={`${from} ${to}`}
               disabled={!visibility[to][layer]}
-              onClick={() => props.onAction({ kind: "copy", from, to })}
+              onClick={() => {
+                props.onAction({ kind: "copy", from, to });
+              }}
             >
               {t(copyLabels[from])}
             </DropdownMenuItem>

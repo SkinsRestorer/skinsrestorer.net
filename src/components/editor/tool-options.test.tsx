@@ -34,33 +34,33 @@ function render(
 test("only the active tool's options show", () => {
   assert.equal(render("eyedropper"), "");
   const fill = render("fill");
-  assert.match(fill, /aria-label="Mirror"/);
-  assert.match(fill, /aria-pressed="true"/);
-  assert.doesNotMatch(fill, /Size|Lighten|Strong/);
-  assert.match(fill, />Face</);
-  assert.match(fill, />Everywhere</);
+  assert.match(fill, /aria-label="Mirror"/u);
+  assert.match(fill, /aria-pressed="true"/u);
+  assert.doesNotMatch(fill, /Size|Lighten|Strong/u);
+  assert.match(fill, />Face</u);
+  assert.match(fill, />Everywhere</u);
   // Everywhere replaces one exact color, so Mirror has no effect and hides.
   const everywhere = render("fill", "en", "everywhere");
-  assert.doesNotMatch(everywhere, /aria-label="Mirror"/);
-  assert.match(everywhere, /aria-label="Fill area"/);
+  assert.doesNotMatch(everywhere, /aria-label="Mirror"/u);
+  assert.match(everywhere, /aria-label="Fill area"/u);
   const pencil = render("pencil");
-  assert.match(pencil, />Size</);
-  assert.match(pencil, />3 px</);
-  assert.doesNotMatch(pencil, /Lighten|Strong|Everywhere/);
+  assert.match(pencil, />Size</u);
+  assert.match(pencil, />3 px</u);
+  assert.doesNotMatch(pencil, /Lighten|Strong|Everywhere/u);
   const shade = render("shade");
-  assert.match(shade, /Lighten/);
-  assert.match(shade, /Darken/);
-  assert.match(shade, />Size</);
-  assert.match(shade, /aria-label="Shade strength"/);
+  assert.match(shade, /Lighten/u);
+  assert.match(shade, /Darken/u);
+  assert.match(shade, />Size</u);
+  assert.match(shade, /aria-label="Shade strength"/u);
   for (const label of ["Soft", "Medium", "Strong"])
-    assert.match(shade, new RegExp(`>${label}<`));
-  assert.doesNotMatch(shade, /Everywhere/);
+    assert.match(shade, new RegExp(`>${label}<`, "u"));
+  assert.doesNotMatch(shade, /Everywhere/u);
 });
 
 test("tool options are translated", () => {
   const html = render("shade", "ru");
-  assert.match(html, /aria-label="Зеркальное рисование"/);
-  assert.match(html, />Размер</);
-  assert.match(html, /3 пикс\./);
-  assert.match(html, /Темнее/);
+  assert.match(html, /aria-label="Зеркальное рисование"/u);
+  assert.match(html, />Размер</u);
+  assert.match(html, /3 пикс\./u);
+  assert.match(html, /Темнее/u);
 });

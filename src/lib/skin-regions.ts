@@ -251,7 +251,12 @@ function pixelMap(variant: SkinVariant, kind: PixelMap): Int16Array {
   return table;
 }
 
-function mapPixel(variant: SkinVariant, kind: PixelMap, x: number, y: number) {
+function mapPixel(
+  variant: SkinVariant,
+  kind: PixelMap,
+  x: number,
+  y: number,
+): { x: number; y: number } | undefined {
   if (!regionAt(variant, x, y)) return undefined;
   const index = pixelMap(variant, kind)[y * SKIN_SIZE + x];
   if (index === undefined || index < 0) return undefined;

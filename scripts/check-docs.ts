@@ -30,7 +30,7 @@ function parseDocument(
   file: string,
   raw: string,
 ) {
-  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(raw);
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/u.exec(raw);
   if (!match) throw new Error("Missing front matter");
   const [, frontMatter = "", body = ""] = match;
   const metadata = Schema.decodeUnknownSync(docsSchema)(parseYaml(frontMatter));
@@ -94,7 +94,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     const parsed = yield* Effect.result(
       Effect.try({
         try: () => parseDocument(parser, file, raw),
-        catch: (error) => String(error),
+        catch: String,
       }),
     );
     if (Result.isFailure(parsed)) {
@@ -120,10 +120,10 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     current: string,
     location: string,
   ) {
-    if (/^(?:https?:|mailto:|tel:)/.test(href)) return;
+    if (/^(?:https?:|mailto:|tel:)/u.test(href)) return;
     if (!href) return;
     const url = new URL(href, `https://skinsrestorer.net${current}`);
-    const route = decodeURI(url.pathname).replace(/\/$/, "") || "/";
+    const route = decodeURI(url.pathname).replace(/\/$/u, "") || "/";
     const bare = splitLocalePath(route);
     const target = redirects.get(route) ?? route;
     const resolvedTarget = documents.has(target) ? target : bare.path;
@@ -139,7 +139,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
       }
     } else if (
       route.startsWith("/assets/") ||
-      /\.(png|jpg|jpeg|webp|svg|gif)$/.test(route)
+      /\.(png|jpg|jpeg|webp|svg|gif)$/u.test(route)
     ) {
       if (!(yield* fs.exists(path.join("public", route))))
         errors.push(`${location}: missing asset ${href}`);
@@ -227,7 +227,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
   }
 
   for (const file of documentFiles.filter((entry) =>
-    /meta(?:\.(ru|es|pt-BR))?\.json$/.test(entry),
+    /meta(?:\.(ru|es|pt-BR))?\.json$/u.test(entry),
   )) {
     const raw = yield* fs.readText(file);
     const metadata = yield* toolTry("parse navigation", () =>
@@ -255,7 +255,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     }
     for (const entry of metadata.pages ?? []) {
       if (entry.startsWith("---") || entry === "...") continue;
-      const link = /^(?:\[([^\]]+)\])?\[[^\]]+\]\(([^)]+)\)$/.exec(entry);
+      const link = /^(?:\[([^\]]+)\])?\[[^\]]+\]\(([^)]+)\)$/u.exec(entry);
       if (link) {
         if (!link[1] || !(link[1] in icons)) {
           errors.push(
@@ -290,7 +290,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
 
 if (import.meta.main)
   await runTool(checkDocs(), ({ errors, summary }) => {
-    if (errors.length) {
+    if (errors.length > 0) {
       console.error(errors.join("\n"));
       process.exitCode = 1;
     } else console.log(summary);

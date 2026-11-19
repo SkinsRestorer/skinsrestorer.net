@@ -162,7 +162,7 @@ test("untranslated docs use the English canonical and never claim a missing tran
 });
 
 const placeholders = (text: string) =>
-  [...text.matchAll(/\{(\w+)\}/g)].map(([, name = ""]) => name).toSorted();
+  [...text.matchAll(/\{(\w+)\}/gu)].map(([, name = ""]) => name).toSorted();
 
 test("translation catalogs keep every message and interpolation parameter in each locale", () => {
   const keys = Object.keys(catalogs.en).toSorted();
@@ -199,7 +199,7 @@ test("translated model controls retain identities and accessible arm-width label
       html.includes("Clásica, brazos de 4 píxeles"),
   );
   assert.ok(html.includes("Delgada"));
-  const slim = [...html.matchAll(/<button\b[^>]*>/g)].find((match) =>
+  const slim = [...html.matchAll(/<button\b[^>]*>/gu)].find((match) =>
     match[0].includes('aria-label="Delgada,'),
   );
   assert.ok(slim?.[0].includes('aria-pressed="true"'));
@@ -230,7 +230,7 @@ test("the translator uses stable keys and never interprets external text as keys
   assert.throws(() => {
     // @ts-expect-error English text is not a translation key.
     t("Cancel");
-  }, /Unknown translation key/);
+  }, /Unknown translation key/u);
   const cause = new MessageError("errors.imageDimensions", {
     width: 20,
     height: 10,

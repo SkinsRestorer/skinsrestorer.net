@@ -33,11 +33,27 @@ const catalogSchema = Schema.Struct({
   ),
 });
 
+// The base64 `value` of a gallery entry: Minecraft's textures property.
+const decodeTextures = Schema.decodeUnknownSync(
+  Schema.fromJsonString(
+    Schema.Struct({
+      textures: Schema.Struct({
+        SKIN: Schema.Struct({
+          url: Schema.String,
+          metadata: Schema.optional(
+            Schema.Struct({ model: Schema.optional(Schema.Unknown) }),
+          ),
+        }),
+      }),
+    }),
+  ),
+);
+
 export function isGalleryId(value: unknown): value is string {
   return (
     typeof value === "string" &&
     value.length <= 100 &&
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(value)
   );
 }
 
@@ -63,10 +79,9 @@ function galleryEntries(
     )
       throw new Error("Invalid gallery entry.");
     ids.add(skin.skinId);
-    const value = JSON.parse(atob(skin.value));
-    const texture = value?.textures?.SKIN;
-    const { url } = parseTextureReference(texture?.url);
-    const model: unknown = texture?.metadata?.model;
+    const texture = decodeTextures(atob(skin.value)).textures.SKIN;
+    const { url } = parseTextureReference(texture.url);
+    const model = texture.metadata?.model;
     if (model !== undefined && model !== "slim" && model !== "classic")
       throw new Error("Invalid gallery model.");
     return {
@@ -114,7 +129,7 @@ export const loadGalleryEffect = Effect.fn("Skin.loadGallery")(function* () {
 function normalizeSearch(text: string) {
   return text
     .normalize("NFKD")
-    .replaceAll(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[\u0300-\u036F]/gu, "")
     .toLowerCase();
 }
 
@@ -138,7 +153,7 @@ const searchNames = new WeakMap<GallerySkin, SearchName>();
 export function searchGallery(skins: readonly GallerySkin[], query: string) {
   const words = normalizeSearch(query)
     .trim()
-    .split(/\s+/)
+    .split(/\s+/u)
     .filter(Boolean)
     .map((word) => ({ word, compact: compactSearch(word) }));
   if (words.length === 0) return skins;

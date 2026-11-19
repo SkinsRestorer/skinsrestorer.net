@@ -41,7 +41,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
               signal: owner.controller.signal,
             });
             if (owner.controller.signal.aborted) {
-              await fetched.body?.cancel().catch(() => undefined);
+              await fetched.body?.cancel().catch(() => {});
               owner.controller.signal.throwIfAborted();
             }
             owner.response = fetched;
@@ -54,7 +54,8 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
               cause,
             }),
         });
-        const reader = response.body?.getReader();
+        const reader: ReadableStreamDefaultReader<Uint8Array> | undefined =
+          response.body?.getReader();
         owner.reader = reader;
         let size = 0;
         const parts: Uint8Array[] = [];
@@ -106,10 +107,9 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
         // Close pending body reads normally before anything can error the stream.
         let cancellation: Promise<void> | undefined;
         if (owner.reader) {
-          cancellation = owner.reader.cancel().catch(() => undefined);
+          cancellation = owner.reader.cancel().catch(() => {});
           owner.reader.releaseLock();
-        } else
-          cancellation = owner.response?.body?.cancel().catch(() => undefined);
+        } else cancellation = owner.response?.body?.cancel().catch(() => {});
         if (!cancellation) {
           // Without a response, only an abort stops the request.
           owner.controller.abort();
@@ -159,7 +159,7 @@ export function readHttpJson<A>(
   return Effect.gen(function* () {
     const response = yield* readHttpText(url, init, options);
     const value: unknown = yield* Effect.try({
-      try: () => JSON.parse(response.text),
+      try: (): unknown => JSON.parse(response.text),
       catch: (cause) =>
         new HttpError({
           reason: "response",

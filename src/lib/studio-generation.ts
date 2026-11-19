@@ -105,18 +105,20 @@ export class StudioGeneration {
     this.set({ status: "pending", input });
     return this.task.run(
       (signal) => this.upload(options, signal),
-      (response) =>
+      (response) => {
         this.set({
           status: "done",
           input,
           result: generationResult(input, response),
-        }),
-      (cause) =>
+        });
+      },
+      (cause) => {
         this.set({
           status: "failed",
           input,
           message: errorMessage(cause),
-        }),
+        });
+      },
     );
   }
 

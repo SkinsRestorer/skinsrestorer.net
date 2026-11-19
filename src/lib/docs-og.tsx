@@ -3,8 +3,9 @@ import cyrillicFont from "@fontsource-variable/geist/files/geist-cyrillic-wght-n
 
 // The inline import is a data URL, so the font bytes follow the comma.
 const [, cyrillicBase64 = ""] = cyrillicFont.split(",");
-const cyrillic = Uint8Array.from(atob(cyrillicBase64), (char) =>
-  char.charCodeAt(0),
+const cyrillic = Uint8Array.from(
+  atob(cyrillicBase64),
+  (char) => char.codePointAt(0) ?? 0,
 );
 
 export function generateDocsImage({

@@ -22,7 +22,7 @@ import * as MdxConfig from "./source.config.ts";
 function getDocsPrerenderPages() {
   const directory = resolve(MdxConfig.docs.dir);
   const docs = readdirSync(directory, { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile() && /\.mdx?$/.test(entry.name))
+    .filter((entry) => entry.isFile() && /\.mdx?$/u.test(entry.name))
     .map((entry) =>
       docFileInfo(relative(directory, join(entry.parentPath, entry.name))),
     );
@@ -61,7 +61,7 @@ export default defineConfig(({ command }) => ({
         concurrency: 4,
         filter: ({ path }) =>
           path === "/api/search" ||
-          (!/[?#]/.test(path) &&
+          (!/[?#]/u.test(path) &&
             (localizedSitePages.includes(path) ||
               ((splitLocalePath(path).path === "/docs" ||
                 splitLocalePath(path).path.startsWith("/docs/")) &&

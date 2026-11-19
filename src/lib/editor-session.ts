@@ -156,9 +156,10 @@ export class EditorSession {
 
   private enqueue<A>(task: () => Promise<A>) {
     const result = this.queue.then(task);
+    // The queue only orders tasks. Each caller handles its own result.
     this.queue = result.then(
-      () => undefined,
-      () => undefined,
+      (): undefined => undefined,
+      (): undefined => undefined,
     );
     return result;
   }
@@ -268,7 +269,7 @@ export class EditorSession {
    * Keep a draft as a new skin without opening it, for example when its skin
    * was removed. The draft ends; the editor's own work does not change.
    */
-  async saveDraftAsSkin(draft: EditSession) {
+  async saveDraftAsSkin(draft: EditSession): Promise<StoredSkin | undefined> {
     const library = this.library;
     if (!library) return undefined;
     const content = await Effect.runPromise(
@@ -421,7 +422,7 @@ export class EditorSession {
     await this.enqueue(() =>
       library
         .run(withLibrary((l) => l.deleteSession(sessionId)))
-        .catch(() => undefined),
+        .catch(() => {}),
     );
   }
 

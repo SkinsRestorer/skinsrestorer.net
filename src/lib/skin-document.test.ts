@@ -73,9 +73,9 @@ test("other image sizes are rejected with a reason", async () => {
     importSkinPng(
       await encodePng(new Uint8ClampedArray(128 * 128 * 4), 128, 128),
     ),
-    /128×128.*Resize HD skins/,
+    /128×128.*Resize HD skins/u,
   );
-  await assert.rejects(importSkinPng(new Uint8Array(6 * 1024 * 1024)), /5 MB/);
+  await assert.rejects(importSkinPng(new Uint8Array(6 * 1024 * 1024)), /5 MB/u);
 });
 
 test("templates are valid skins of the chosen model with an empty outer layer", () => {

@@ -74,11 +74,12 @@ export function VisibleParts(props: {
 }) {
   const t = useT();
   const { visibility } = props;
-  const toggle = (part: (typeof skinParts)[number], target: SkinLayer) =>
+  const toggle = (part: (typeof skinParts)[number], target: SkinLayer) => {
     props.onVisibilityChange({
       ...visibility,
       [part]: { ...visibility[part], [target]: !visibility[part][target] },
     });
+  };
   const allShown = skinParts.every(
     (part) => visibility[part].base && visibility[part].outer,
   );
@@ -132,7 +133,9 @@ export function VisibleParts(props: {
                         <FieldLabel>
                           <Checkbox
                             checked={visibility[part][target]}
-                            onCheckedChange={() => toggle(part, target)}
+                            onCheckedChange={() => {
+                              toggle(part, target);
+                            }}
                           />
                           <span className="sr-only">
                             {t("editor.showPartLayerLayer", {
@@ -156,7 +159,9 @@ export function VisibleParts(props: {
               size="sm"
               className="self-start"
               disabled={allShown}
-              onClick={() => props.onVisibilityChange(allPartsVisible())}
+              onClick={() => {
+                props.onVisibilityChange(allPartsVisible());
+              }}
             >
               {t("editor.showAll")}
             </Button>

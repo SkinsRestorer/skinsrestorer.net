@@ -263,7 +263,9 @@ test("an unread cloned body is aborted only after the deadline", async () => {
         start(controller) {
           init?.signal?.addEventListener(
             "abort",
-            () => controller.error(init.signal?.reason),
+            () => {
+              controller.error(init.signal?.reason);
+            },
             { once: true },
           );
         },
@@ -295,6 +297,6 @@ test("an unread cloned body is aborted only after the deadline", async () => {
     );
     assert.equal(transportSignal?.aborted, true);
   } finally {
-    await wrapperBody?.cancel().catch(() => undefined);
+    await wrapperBody?.cancel().catch(() => {});
   }
 });

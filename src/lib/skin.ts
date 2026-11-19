@@ -37,13 +37,13 @@ export function validateSkinDimensions(width: number, height: number): void {
 }
 
 /**
- * Load an image and pass it to `use` while it is still owned here. `use` runs
+ * Load an image and pass it to `read` while it is still owned here. `read` runs
  * synchronously after the load and never after interruption. Handlers are
  * removed before the source is released, so a caller can revoke its URL.
  */
 export function withSkinImageEffect<A>(
   imageUrl: string,
-  use: (image: HTMLImageElement) => A,
+  read: (image: HTMLImageElement) => A,
   failure: MessageKey = "common.failedLoadImage",
 ) {
   return Effect.gen(function* () {
@@ -66,29 +66,31 @@ export function withSkinImageEffect<A>(
           image.crossOrigin = "Anonymous";
           image.addEventListener(
             "load",
-            () =>
+            () => {
               resume(
                 Effect.try({
-                  try: () => use(image),
+                  try: () => read(image),
                   catch: (cause) =>
                     new SkinImageError({
                       ...errorFields(cause, failure),
                       cause,
                     }),
                 }),
-              ),
+              );
+            },
             { signal },
           );
           image.addEventListener(
             "error",
-            () =>
+            () => {
               resume(
                 Effect.fail(
                   new SkinImageError({
                     ...messageFields("common.failedLoadImage"),
                   }),
                 ),
-              ),
+              );
+            },
             { signal },
           );
           // Cached images can finish synchronously when src is assigned.
@@ -142,6 +144,13 @@ const browserImages: Context.Service.Shape<typeof SkinImages> = {
   },
 };
 
+const browserObjectUrls = {
+  create: (blob: File) => URL.createObjectURL(blob),
+  revoke: (url: string) => {
+    URL.revokeObjectURL(url);
+  },
+};
+
 /** Keep the preview URL alive until image callbacks finish or are cancelled. */
 export function previewSkinFileEffect(
   file: File,
@@ -150,10 +159,7 @@ export function previewSkinFileEffect(
     detected: (variant: SkinVariant) => void;
     failed: (cause: SkinImageError) => void;
   },
-  urls = {
-    create: (blob: File) => URL.createObjectURL(blob),
-    revoke: (url: string) => URL.revokeObjectURL(url),
-  },
+  urls = browserObjectUrls,
 ) {
   return Effect.acquireUseRelease(
     Effect.try({
@@ -176,9 +182,16 @@ export function previewSkinFileEffect(
             return yield* Effect.never;
           }),
         ),
-        Effect.catch((cause) => Effect.sync(() => events.failed(cause))),
+        Effect.catch((cause) =>
+          Effect.sync(() => {
+            events.failed(cause);
+          }),
+        ),
       ),
-    (url) => Effect.sync(() => urls.revoke(url)),
+    (url) =>
+      Effect.sync(() => {
+        urls.revoke(url);
+      }),
   );
 }
 
@@ -200,5 +213,5 @@ export const detectSkinVariant = (imageUrl: string, signal?: AbortSignal) =>
   runSkinEffect(detectSkinVariantEffect(imageUrl), signal);
 
 export function isValidSkinName(name: string): boolean {
-  return /^[a-z0-9_]+$/.test(name);
+  return /^[a-z0-9_]+$/u.test(name);
 }

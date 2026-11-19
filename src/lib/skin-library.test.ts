@@ -65,7 +65,7 @@ function browser() {
   return { factory, tab };
 }
 
-const use = <A, E>(
+const runIn = <A, E>(
   client: LibraryClient,
   f: (library: SkinLibrary["Service"]) => Effect.Effect<A, E>,
 ) =>
@@ -95,7 +95,7 @@ async function addSkin(
   content: SkinContent,
   name = "Harbor",
 ) {
-  return use(client, (library) =>
+  return runIn(client, (library) =>
     library.add({ name, content, source: { kind: "file" } }, { dedupe: true }),
   );
 }
@@ -113,7 +113,7 @@ test("prepares exact bytes, hashes, and canonical keys outside transactions", as
   const png = await skinPng(1);
   const content = await prepare(png);
   assert.deepEqual(await bytes(content.png), await bytes(png));
-  assert.match(content.hash, /^[0-9a-f]{64}$/);
+  assert.match(content.hash, /^[0-9a-f]{64}$/u);
   assert.equal(content.variant, "classic");
   assert.equal(content.key, `${content.pixelKey}:classic`);
   // The same pixels in another PNG encoding have the same canonical key.
@@ -141,12 +141,12 @@ test("rejects files that are not skin PNGs or are larger than 5 MB", async () =>
     ),
   );
   assert.ok(wide instanceof SkinLibraryError);
-  assert.match(wide.message, /64×16/);
+  assert.match(wide.message, /64×16/u);
   const large = await failure(
     prepare(new Blob([new Uint8Array(5 * 1024 * 1024 + 1)])),
   );
   assert.ok(large instanceof SkinLibraryError);
-  assert.match(large.message, /5 MB/);
+  assert.match(large.message, /5 MB/u);
 });
 
 test("repeated imports reuse one skin, while duplicates are always new", async () => {
@@ -162,12 +162,14 @@ test("repeated imports reuse one skin, while duplicates are always new", async (
   // The same pixels with the other model are a different skin.
   const slim = await addSkin(client, await prepare(await skinPng(1), "slim"));
   assert.equal(slim.created, true);
-  const copy = await use(client, (library) => library.duplicate(first.skin.id));
+  const copy = await runIn(client, (library) =>
+    library.duplicate(first.skin.id),
+  );
   assert.notEqual(copy.id, first.skin.id);
   assert.equal(copy.name, "Harbor copy");
   assert.equal(copy.source.copiedFrom, first.skin.id);
   assert.equal(copy.current.key, first.skin.current.key);
-  const listing = await use(client, (library) => library.list);
+  const listing = await runIn(client, (library) => library.list);
   assert.equal(listing.skins.length, 3);
 });
 
@@ -176,7 +178,7 @@ test("skins survive a reload with the exact bytes", async () => {
   const png = await skinPng(3);
   const { skin } = await addSkin(tab(), await prepare(png));
   const reloaded = tab();
-  const stored = await use(reloaded, (library) => library.get(skin.id));
+  const stored = await runIn(reloaded, (library) => library.get(skin.id));
   assert.deepEqual(await bytes(stored.current.png), await bytes(png));
   assert.deepEqual(await bytes(stored.original.png), await bytes(png));
 });
@@ -187,7 +189,7 @@ test("save keeps the original, and revert restores its bytes and model", async (
   const original = await prepare(await skinPng(1));
   const { skin } = await addSkin(client, original);
   const edited = await prepare(await skinPng(9), "slim");
-  const saved = await use(client, (library) =>
+  const saved = await runIn(client, (library) =>
     library.commitSession({
       sessionId: "s1",
       skinId: skin.id,
@@ -200,7 +202,7 @@ test("save keeps the original, and revert restores its bytes and model", async (
   assert.equal(saved.current.variant, "slim");
   assert.equal(saved.original.hash, original.hash);
   assert.equal(saved.revision, skin.revision + 1);
-  const { skin: reverted, previous } = await use(client, (library) =>
+  const { skin: reverted, previous } = await runIn(client, (library) =>
     library.revert(skin.id),
   );
   assert.deepEqual(
@@ -209,7 +211,7 @@ test("save keeps the original, and revert restores its bytes and model", async (
   );
   assert.equal(reverted.current.variant, "classic");
   assert.equal(previous.hash, edited.hash);
-  const undone = await use(client, (library) =>
+  const undone = await runIn(client, (library) =>
     library.setContent(skin.id, previous),
   );
   assert.equal(undone.current.variant, "slim");
@@ -221,7 +223,7 @@ test("save as copy leaves the source byte-identical", async () => {
   const client = tab();
   const png = await skinPng(1);
   const { skin } = await addSkin(client, await prepare(png));
-  await use(client, (library) =>
+  await runIn(client, (library) =>
     library.saveSession({
       id: "s1",
       skinId: skin.id,
@@ -232,7 +234,7 @@ test("save as copy leaves the source byte-identical", async () => {
       updatedAt: 1,
     }),
   );
-  const copy = await use(client, (library) =>
+  const copy = await runIn(client, (library) =>
     library.createFromSession({
       sessionId: "s1",
       skin: {
@@ -242,7 +244,7 @@ test("save as copy leaves the source byte-identical", async () => {
       },
     }),
   );
-  const listing = await use(client, (library) => library.list);
+  const listing = await runIn(client, (library) => library.list);
   const source = required(
     listing.skins.find((entry) => entry.id === skin.id),
     "find result",
@@ -270,19 +272,19 @@ test("two tabs keep separate drafts and saves conflict on pixels and on model", 
     }));
   const draftA = await draft("a", 2);
   const draftB = await draft("b", 3);
-  await use(a, (library) => library.saveSession(draftA));
-  await use(b, (library) => library.saveSession(draftB));
-  const both = await use(b, (library) => library.list);
+  await runIn(a, (library) => library.saveSession(draftA));
+  await runIn(b, (library) => library.saveSession(draftB));
+  const both = await runIn(b, (library) => library.list);
   assert.deepEqual(both.sessions.map((session) => session.id).toSorted(), [
     "a",
     "b",
   ]);
 
   // Tab B changes only the model. Tab A's save must not silently win.
-  await use(b, (library) => library.setVariant(skin.id, "slim"));
+  await runIn(b, (library) => library.setVariant(skin.id, "slim"));
   const content = await prepare(await skinPng(2));
   const conflict = await failure(
-    use(a, (library) =>
+    runIn(a, (library) =>
       library.commitSession({
         sessionId: "a",
         skinId: skin.id,
@@ -295,10 +297,10 @@ test("two tabs keep separate drafts and saves conflict on pixels and on model", 
   assert.ok(conflict instanceof SkinChangedError);
   assert.equal(conflict.skin.current.variant, "slim");
   // The failed save left tab A's draft in place.
-  const after = await use(a, (library) => library.list);
+  const after = await runIn(a, (library) => library.list);
   assert.equal(after.sessions.length, 2);
   // Replace is an explicit choice.
-  const replaced = await use(a, (library) =>
+  const replaced = await runIn(a, (library) =>
     library.commitSession({
       sessionId: "a",
       skinId: skin.id,
@@ -308,7 +310,7 @@ test("two tabs keep separate drafts and saves conflict on pixels and on model", 
     }),
   );
   assert.equal(replaced.current.hash, content.hash);
-  const final = await use(b, (library) => library.list);
+  const final = await runIn(b, (library) => library.list);
   assert.deepEqual(
     final.sessions.map((session) => session.id),
     ["b"],
@@ -326,17 +328,17 @@ test("a recovered draft moves to a new session owned by the editor", async () =>
     variant: "slim" as const,
     updatedAt: 1,
   };
-  await use(client, (library) => library.saveSession(old));
-  await use(client, (library) =>
+  await runIn(client, (library) => library.saveSession(old));
+  await runIn(client, (library) =>
     library.continueSession("old", { ...old, id: "new", updatedAt: 2 }),
   );
-  const listing = await use(client, (library) => library.list);
+  const listing = await runIn(client, (library) => library.list);
   assert.deepEqual(
     listing.sessions.map((session) => session.id),
     ["new"],
   );
   const missing = await failure(
-    use(client, (library) =>
+    runIn(client, (library) =>
       library.continueSession("old", { ...old, id: "x" }),
     ),
   );
@@ -349,7 +351,7 @@ test("removing a skin removes its sessions, and undo restores both", async () =>
   const b = tab();
   const { skin } = await addSkin(a, await prepare(await skinPng(1)));
   const draftPng = await skinPng(2);
-  await use(a, (library) =>
+  await runIn(a, (library) =>
     library.saveSession({
       id: "s1",
       skinId: skin.id,
@@ -360,11 +362,11 @@ test("removing a skin removes its sessions, and undo restores both", async () =>
       updatedAt: 1,
     }),
   );
-  const removed = await use(b, (library) => library.remove(skin.id));
+  const removed = await runIn(b, (library) => library.remove(skin.id));
   assert.equal(removed.sessions.length, 1);
   // The editor in tab A can no longer save into the removed skin.
   const missing = await failure(
-    use(a, (library) =>
+    runIn(a, (library) =>
       library.commitSession({
         sessionId: "s1",
         skinId: skin.id,
@@ -375,8 +377,8 @@ test("removing a skin removes its sessions, and undo restores both", async () =>
     ),
   );
   assert.ok(missing instanceof SkinNotFoundError);
-  await use(b, (library) => library.restore(removed));
-  const listing = await use(a, (library) => library.list);
+  await runIn(b, (library) => library.restore(removed));
+  const listing = await runIn(a, (library) => library.list);
   assert.equal(listing.skins[0]?.id, skin.id);
   assert.equal(listing.sessions[0]?.id, "s1");
 });
@@ -385,9 +387,11 @@ test("other tabs are told about committed changes", async () => {
   const { tab } = browser();
   const a = tab();
   const b = tab();
-  await use(b, (library) => library.list);
+  await runIn(b, (library) => library.list);
   const events: string[] = [];
-  const stop = b.subscribe((event) => events.push(event.type));
+  const stop = b.subscribe((event) => {
+    events.push(event.type);
+  });
   await new Promise((resolve) => {
     setTimeout(resolve, 0);
   });
@@ -412,24 +416,24 @@ test("damaged records are reported and can be removed, never overwritten", async
         open.result.close();
         resolve();
       };
-      tx.addEventListener("error", () =>
-        reject(tx.error ?? new Error("The IndexedDB transaction failed.")),
-      );
+      tx.addEventListener("error", () => {
+        reject(tx.error ?? new Error("The IndexedDB transaction failed."));
+      });
     };
   });
-  const listing = await use(client, (library) => library.list);
+  const listing = await runIn(client, (library) => library.list);
   assert.equal(listing.skins.length, 1);
   assert.deepEqual(listing.damaged, [{ store: "skins", key: "broken" }]);
   const damaged = await failure(
-    use(client, (library) => library.get("broken")),
+    runIn(client, (library) => library.get("broken")),
   );
   assert.ok(damaged instanceof SkinLibraryError);
   assert.equal(damaged.reason, "damaged");
   const [record] = listing.damaged;
   assert.ok(record);
-  await use(client, (library) => library.removeDamaged(record));
+  await runIn(client, (library) => library.removeDamaged(record));
   assert.equal(
-    (await use(client, (library) => library.list)).damaged.length,
+    (await runIn(client, (library) => library.list)).damaged.length,
     0,
   );
 });
@@ -445,7 +449,7 @@ test("unavailable, newer, and full storage fail with typed errors", async () => 
     }),
   );
   clients.push(blocked);
-  const unavailable = await failure(use(blocked, (library) => library.list));
+  const unavailable = await failure(runIn(blocked, (library) => library.list));
   assert.ok(unavailable instanceof SkinLibraryError);
   assert.equal(unavailable.reason, "unavailable");
 
@@ -457,7 +461,7 @@ test("unavailable, newer, and full storage fail with typed errors", async () => 
       resolve();
     };
   });
-  const newer = await failure(use(tab(), (library) => library.list));
+  const newer = await failure(runIn(tab(), (library) => library.list));
   assert.ok(newer instanceof SkinLibraryError);
   assert.equal(newer.reason, "newer");
 
@@ -467,14 +471,14 @@ test("unavailable, newer, and full storage fail with typed errors", async () => 
   assert.ok(error instanceof SkinLibraryError);
   assert.equal(error.reason, "full");
   // Nothing was half written.
-  const listing = await use(full.tab(), (library) => library.list);
+  const listing = await runIn(full.tab(), (library) => library.list);
   assert.equal(listing.skins.length, 0);
 });
 
 test("an interrupted write aborts its transaction", async () => {
   const { tab } = browser();
   const client = tab();
-  await use(client, (library) => library.list);
+  await runIn(client, (library) => library.list);
   const content = await prepare(await skinPng(1));
   const controller = new AbortController();
   const pending = client.run(
@@ -489,7 +493,7 @@ test("an interrupted write aborts its transaction", async () => {
   );
   controller.abort();
   await failure(pending);
-  const listing = await use(client, (library) => library.list);
+  const listing = await runIn(client, (library) => library.list);
   assert.equal(listing.skins.length, 0);
 });
 
@@ -511,7 +515,7 @@ function legacyDraft(variant: SkinVariant = "slim") {
   const document = createTemplate("classic");
   const png = encodePngSync(document.pixels, 64, 64);
   let binary = "";
-  for (const byte of png) binary += String.fromCharCode(byte);
+  for (const byte of png) binary += String.fromCodePoint(byte);
   return JSON.stringify({
     version: 1,
     variant,
@@ -539,7 +543,7 @@ test("the old editor draft migrates once, even from two tabs", async () => {
   ]);
   assert.equal(storage.data.has(DRAFT_KEY), false);
   assert.equal(second.data.has(DRAFT_KEY), false);
-  const listing = await use(tab(), (library) => library.list);
+  const listing = await runIn(tab(), (library) => library.list);
   assert.equal(listing.skins.length, 1);
   assert.equal(listing.skins[0]?.source.kind, "migrated-draft");
   assert.equal(listing.skins[0].current.variant, "slim");
@@ -568,7 +572,7 @@ test("migration preserves a newer legacy draft written while the old one decodes
     "migrated",
   );
   assert.equal(storage.getItem(DRAFT_KEY), after);
-  let listing = await use(client, (library) => library.list);
+  let listing = await runIn(client, (library) => library.list);
   assert.equal(listing.skins.length, 1);
   assert.equal(listing.skins[0]?.current.variant, "classic");
   assert.equal(
@@ -576,7 +580,7 @@ test("migration preserves a newer legacy draft written while the old one decodes
     "migrated",
   );
   assert.equal(storage.getItem(DRAFT_KEY), null);
-  listing = await use(client, (library) => library.list);
+  listing = await runIn(client, (library) => library.list);
   assert.equal(listing.skins.length, 2);
   assert.deepEqual(
     listing.skins.map((skin) => skin.current.variant).toSorted(),
@@ -625,11 +629,11 @@ test("library work makes no network requests", async () => {
     const { tab } = browser();
     const client = tab();
     const { skin } = await addSkin(client, await prepare(await skinPng(1)));
-    await use(client, (library) => library.rename(skin.id, "Moss"));
-    await use(client, (library) => library.duplicate(skin.id));
-    await use(client, (library) => library.revert(skin.id));
-    await use(client, (library) => library.remove(skin.id));
-    await use(client, (library) => library.list);
+    await runIn(client, (library) => library.rename(skin.id, "Moss"));
+    await runIn(client, (library) => library.duplicate(skin.id));
+    await runIn(client, (library) => library.revert(skin.id));
+    await runIn(client, (library) => library.remove(skin.id));
+    await runIn(client, (library) => library.list);
   } finally {
     globalThis.fetch = original;
   }
@@ -703,7 +707,7 @@ test("duplicate names the copy in the requested language", async () => {
   const { tab } = browser();
   const client = tab();
   const first = await addSkin(client, await prepare(await skinPng(1)));
-  const copy = await use(client, (library) =>
+  const copy = await runIn(client, (library) =>
     library.duplicate(first.skin.id, "es"),
   );
   assert.equal(copy.name, "Harbor (copia)");
@@ -717,7 +721,7 @@ test("download names drop characters that file systems reject", () => {
   assert.equal(skinFileName("CON"), "CON_.png");
   assert.equal(skinFileName("lpt1.txt"), "lpt1.txt_.png");
   assert.equal(skinFileName("console"), "console.png");
-  assert.equal(skinFileName("a\u202egnp.exe"), "agnp.exe.png");
+  assert.equal(skinFileName("a\u202Egnp.exe"), "agnp.exe.png");
   assert.equal(skinFileName("tab\tname\n"), "tabname.png");
   assert.equal(skinFileName("..."), "skin.png");
   assert.equal(skinFileName("  "), "skin.png");

@@ -15,7 +15,8 @@
   "categories": {
     "correctness": "error",
     "suspicious": "error",
-    "perf": "error"
+    "perf": "error",
+    "pedantic": "error"
   },
   "options": {
     "typeAware": true,
@@ -40,6 +41,29 @@
     }
   },
   "rules": {
+    // Pedantic rules that only measure size, encode opinion, or duplicate other rules.
+    "typescript/prefer-readonly-parameter-types": "off",
+    "eslint/max-lines": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-depth": "off",
+    "eslint/max-nested-callbacks": "off",
+    "eslint/max-classes-per-file": "off",
+    "import/max-dependencies": "off",
+    "eslint/no-inline-comments": "off",
+    "eslint/no-warning-comments": "off",
+    "eslint/no-negated-condition": "off",
+    "unicorn/no-negated-condition": "off",
+    // Duplicates typescript/require-await, which is type-aware and scoped per file.
+    "eslint/require-await": "off",
+    // Conflicts with the prefer-nullish-coalescing ignorePrimitives setup.
+    "typescript/strict-boolean-expressions": "off",
+    // Tests pass undefined to required `T | undefined` parameters on purpose.
+    "unicorn/no-useless-undefined": [
+      "error",
+      {
+        "checkArguments": false
+      }
+    ],
     "react/react-in-jsx-scope": "off",
     "typescript/no-floating-promises": [
       "error",
@@ -323,7 +347,11 @@
         "typescript/prefer-optional-chain": "off",
         "typescript/prefer-nullish-coalescing": "off",
         "typescript/no-unnecessary-condition": "off",
-        "eslint/eqeqeq": "off"
+        "eslint/eqeqeq": "off",
+        "typescript/no-confusing-void-expression": "off",
+        "typescript/strict-void-return": "off",
+        "unicorn/explicit-length-check": "off",
+        "unicorn/new-for-builtins": "off"
       }
     },
     {
@@ -352,6 +380,17 @@
       "files": ["src/routes/**"],
       "rules": {
         "react/only-export-components": "off"
+      }
+    },
+    {
+      // The service worker is plain JavaScript outside the TypeScript project.
+      // `self` resolves to the DOM Window there, so the ServiceWorkerGlobalScope
+      // members it uses have no types.
+      "files": ["public/service-worker.js"],
+      "rules": {
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off"
       }
     }
   ]

@@ -21,13 +21,14 @@ export function useSkinSelection() {
         preview: (file, events, signal) =>
           runSkinEffect(previewSkinFileEffect(file, events), signal),
         events: {
-          failed: (_token, message) =>
+          failed: (_token, message) => {
             toast.error(
               t("common.failedDetectSkinTypeError", {
                 error: t.message(message),
               }),
-            ),
-          imported: (kept, failed) =>
+            );
+          },
+          imported: (kept, failed) => {
             toast.info(
               t("common.addedCountSkinsFirstOneSelected", {
                 count: kept,
@@ -39,7 +40,8 @@ export function useSkinSelection() {
                     }),
                   }
                 : undefined,
-            ),
+            );
+          },
         },
       }),
   );

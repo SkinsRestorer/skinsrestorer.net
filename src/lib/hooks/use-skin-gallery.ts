@@ -27,7 +27,7 @@ export function useSkinGallery(enabled: boolean) {
   );
   const task = useLatestTask();
   const status = state.status;
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!enabled || status !== "idle") return undefined;
     void task.run(
       (signal) => runHttpEffect(loadGalleryEffect(), signal),
@@ -35,18 +35,28 @@ export function useSkinGallery(enabled: boolean) {
         loadedCatalog = skins;
         setState({ status: "ready", skins });
       },
-      () => setState({ status: "error" }),
+      () => {
+        setState({ status: "error" });
+      },
     );
-    return () => task.cancel();
+    return () => {
+      task.cancel();
+    };
   }, [enabled, status, task]);
-  const retry = () => setState({ status: "idle" });
+  const retry = () => {
+    setState({ status: "idle" });
+  };
   const failed = enabled && status === "error";
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!failed) return undefined;
     // A read is safe to repeat, so a restored connection loads it again.
-    const reload = () => setState({ status: "idle" });
+    const reload = () => {
+      setState({ status: "idle" });
+    };
     window.addEventListener("online", reload);
-    return () => window.removeEventListener("online", reload);
+    return () => {
+      window.removeEventListener("online", reload);
+    };
   }, [failed]);
   return {
     state: enabled && status === "idle" ? loading : state,

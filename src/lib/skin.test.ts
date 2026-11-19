@@ -24,7 +24,9 @@ function imageFixture(cached = false) {
     ) {
       const entry = { type, listener };
       listeners.add(entry);
-      options?.signal?.addEventListener("abort", () => listeners.delete(entry));
+      options?.signal?.addEventListener("abort", () => {
+        listeners.delete(entry);
+      });
     },
     set src(value: string) {
       this.value = value;
@@ -104,9 +106,15 @@ test("preview URLs outlive image callbacks and are released after cancellation",
         previewSkinFileEffect(
           new File([], "skin.png"),
           {
-            preview: (url) => observed.push(url),
-            detected: () => observed.push("detected"),
-            failed: () => observed.push("failed"),
+            preview: (url) => {
+              observed.push(url);
+            },
+            detected: () => {
+              observed.push("detected");
+            },
+            failed: () => {
+              observed.push("failed");
+            },
           },
           {
             create: () => "blob:owned",
@@ -133,7 +141,9 @@ test("skin dimensions preserve square, legacy, and scaled textures", () => {
     [128, 128],
     [128, 64],
   ] as const) {
-    assert.doesNotThrow(() => validateSkinDimensions(width, height));
+    assert.doesNotThrow(() => {
+      validateSkinDimensions(width, height);
+    });
   }
   for (const [width, height] of [
     [0, 0],
@@ -141,9 +151,14 @@ test("skin dimensions preserve square, legacy, and scaled textures", () => {
     [1920, 1080],
     [1402, 1122],
   ] as const) {
-    assert.throws(() => validateSkinDimensions(width, height), {
-      _tag: "SkinImageError",
-    });
+    assert.throws(
+      () => {
+        validateSkinDimensions(width, height);
+      },
+      {
+        _tag: "SkinImageError",
+      },
+    );
   }
 });
 
@@ -176,8 +191,8 @@ test("invalid images never reach the preview or variant detector and release the
       }),
     ),
   );
-  assert.match(message, /1920×1080/);
-  assert.match(message, /64×64/);
+  assert.match(message, /1920×1080/u);
+  assert.match(message, /64×64/u);
   assert.equal(revoked, true);
 });
 
@@ -191,7 +206,7 @@ test("successful detection keeps the preview URL until its owner is cancelled", 
         previewSkinFileEffect(
           new File([], "skin.png"),
           {
-            preview: () => undefined,
+            preview: () => {},
             detected: () => {
               detected = true;
             },

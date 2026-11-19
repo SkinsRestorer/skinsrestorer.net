@@ -12,8 +12,13 @@ import {
 import { hitToPixel } from "./skin-uv";
 import { required } from "./utils";
 
+// `instanceof Mesh` narrows to Mesh<any, any, any>. This guard keeps the defaults.
+function isMesh(object: Object3D): object is Mesh {
+  return object instanceof Mesh;
+}
+
 function asMesh(object: Object3D): Mesh {
-  assert.ok(object instanceof Mesh);
+  assert.ok(isMesh(object));
   return object;
 }
 
@@ -34,6 +39,11 @@ function model(variant: SkinVariant) {
 }
 
 /** Cast a ray at a point on one side of a mesh, from outside the model. */
+/** Drop the region so a hit compares by its pixel coordinates only. */
+function pixelOf({ x, y }: { x: number; y: number }) {
+  return { x, y };
+}
+
 function castAt(mesh: Mesh, outward: Vector3, point: Vector3) {
   const origin = point.clone().addScaledVector(outward, 100);
   const ray = new Raycaster(origin, outward.clone().negate());
@@ -86,7 +96,7 @@ test("3D hits keep the texture orientation of the face", () => {
     "front hit",
   );
   assert.deepEqual(
-    (({ x, y }) => ({ x, y }))(
+    pixelOf(
       required(
         hitToPixel(
           "classic",
@@ -106,7 +116,7 @@ test("3D hits keep the texture orientation of the face", () => {
     "left hit",
   );
   assert.deepEqual(
-    (({ x, y }) => ({ x, y }))(
+    pixelOf(
       required(
         hitToPixel(
           "classic",

@@ -123,10 +123,14 @@ export function SkinStage() {
   });
 
   // Every new entry, typed or automatic, restarts the wait for the next one.
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!autoplay || reduceMotion || !inView) return undefined;
-    const timer = setTimeout(() => advance(latest), autoplayDelay);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      advance(latest);
+    }, autoplayDelay);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [autoplay, reduceMotion, inView, latest]);
 
   return (
@@ -207,7 +211,9 @@ export function SkinStage() {
           type="button"
           variant="secondary"
           size="icon-sm"
-          onClick={() => setAutoplay((value) => !value)}
+          onClick={() => {
+            setAutoplay((value) => !value);
+          }}
           aria-label={
             autoplay ? t("home.pauseAnimation") : t("home.playAnimation")
           }

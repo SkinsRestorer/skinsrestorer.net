@@ -33,7 +33,7 @@ export function translate(
   if (!isMessageKey(key))
     throw new Error(`Unknown translation key: ${String(key)}`);
   const text = catalogs[locale][key];
-  return text.replaceAll(/\{(\w+)\}/g, (match, name: string) =>
+  return text.replaceAll(/\{(\w+)\}/gu, (match, name: string) =>
     String(values[name] ?? match),
   );
 }

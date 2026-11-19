@@ -25,8 +25,12 @@ function surface(tool: PaintTool) {
       ...defaultBrush,
     },
     interaction: "paint",
-    onPick: (color) => picked.push(color),
-    onPainted: () => painted++,
+    onPick: (color) => {
+      picked.push(color);
+    },
+    onPainted: () => {
+      painted++;
+    },
     onStatus: () => {},
   };
   return { store, props, picked, painted: () => painted };

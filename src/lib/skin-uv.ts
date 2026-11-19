@@ -5,6 +5,7 @@ import {
   type SkinFace,
   type SkinLayer,
   type SkinPart,
+  type SkinRegion,
 } from "./skin-regions";
 
 /**
@@ -34,7 +35,7 @@ export function hitToPixel(
   layer: SkinLayer,
   faceIndex: number,
   uv: { readonly x: number; readonly y: number },
-) {
+): { x: number; y: number; region: SkinRegion } | undefined {
   const face = boxSideFaces[Math.floor(faceIndex / 2)];
   if (!face) return undefined;
   const region = findRegion(variant, part, layer, face);

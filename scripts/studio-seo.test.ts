@@ -11,15 +11,16 @@ function localized(path: string, language: string) {
 }
 
 function attribute(tag: string, name: string) {
-  return tag.match(new RegExp(`\\s${name}\\s*=\\s*(["'])(.*?)\\1`, "i"))?.[2];
+  return tag.match(new RegExp(`\\s${name}\\s*=\\s*(["'])(.*?)\\1`, "iu"))?.[2];
 }
 
 function languageLinks(markup: string) {
-  return Object.fromEntries(
-    [...markup.matchAll(/<(?:\w+:)?link\b[^>]*>/gi)]
-      .map(([tag]) => [attribute(tag, "hreflang"), attribute(tag, "href")])
-      .filter(([language]) => language),
-  );
+  const links: Record<string, string | undefined> = {};
+  for (const [tag] of markup.matchAll(/<(?:\w+:)?link\b[^>]*>/giu)) {
+    const language = attribute(tag, "hreflang");
+    if (language) links[language] = attribute(tag, "href");
+  }
+  return links;
 }
 
 function expectedAlternatives(path: string) {
@@ -53,14 +54,14 @@ void test(
           );
           assert.equal(response.status, 200, path);
           const html = await response.text();
-          const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
+          const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/iu)?.[1];
           assert.ok(head, `Missing server-rendered head: ${path}`);
           assert.equal(
-            attribute(html.match(/<html\b[^>]*>/i)?.[0] ?? "", "lang"),
+            attribute(html.match(/<html\b[^>]*>/iu)?.[0] ?? "", "lang"),
             language,
             path,
           );
-          const canonical = [...head.matchAll(/<link\b[^>]*>/gi)]
+          const canonical = [...head.matchAll(/<link\b[^>]*>/giu)]
             .map(([tag]) => ({
               rel: attribute(tag, "rel"),
               href: attribute(tag, "href"),
@@ -76,17 +77,18 @@ void test(
             expectedAlternatives(entry),
             path,
           );
-          const meta = Object.fromEntries(
-            [...head.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) => [
+          const meta = new Map(
+            [...head.matchAll(/<meta\b[^>]*>/giu)].map(([tag]) => [
               attribute(tag, "name") ?? attribute(tag, "property"),
               attribute(tag, "content"),
             ]),
           );
-          assert.equal(meta["og:url"], siteUrl + path, path);
-          assert.ok(meta.description, `Missing description: ${path}`);
-          const title = head.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1];
+          assert.equal(meta.get("og:url"), siteUrl + path, path);
+          const description = meta.get("description");
+          assert.ok(description, `Missing description: ${path}`);
+          const title = head.match(/<title\b[^>]*>([\s\S]*?)<\/title>/iu)?.[1];
           assert.ok(title, `Missing title: ${path}`);
-          return { language, entry, title, description: meta.description };
+          return { language, entry, title, description };
         }),
       ),
     );
@@ -123,8 +125,8 @@ void test(
     assert.equal(sitemapResponse.status, 200);
     const sitemap = await sitemapResponse.text();
     const entries = new Map(
-      [...sitemap.matchAll(/<url\b[^>]*>([\s\S]*?)<\/url>/g)].map(
-        ([, markup = ""]) => [markup.match(/<loc>(.*?)<\/loc>/)?.[1], markup],
+      [...sitemap.matchAll(/<url\b[^>]*>([\s\S]*?)<\/url>/gu)].map(
+        ([, markup = ""]) => [markup.match(/<loc>(.*?)<\/loc>/u)?.[1], markup],
       ),
     );
     for (const language of languages) {

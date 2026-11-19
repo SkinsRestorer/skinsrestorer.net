@@ -36,7 +36,7 @@ test("temporary directories are removed after successful and failed programs", a
           : Effect.void;
       }),
     );
-    if (fail) await assert.rejects(run(program), /example failure/);
+    if (fail) await assert.rejects(run(program), /example failure/u);
     else await run(program);
     await assert.rejects(access(directory));
   }

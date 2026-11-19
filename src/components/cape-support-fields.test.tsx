@@ -17,8 +17,8 @@ function render(status: CapeStatus) {
       onCheckCapeAccess={noop}
     />,
   );
-  const input = /<input[^>]*>/.exec(html)?.[0] ?? "";
-  const describedBy = /aria-describedby="([^"]+)"/.exec(input)?.[1];
+  const input = /<input[^>]*>/u.exec(html)?.[0] ?? "";
+  const describedBy = /aria-describedby="([^"]+)"/u.exec(input)?.[1];
   return { html, input, describedBy };
 }
 
@@ -26,9 +26,10 @@ test("a key without the capes grant marks the field invalid and names the error"
   const { html, input, describedBy } = render("denied");
   assert.ok(input.includes('aria-invalid="true"'));
   assert.ok(describedBy);
-  const error = new RegExp(`<div[^>]*id="${describedBy}"[^>]*>([^<]*)<`).exec(
-    html,
-  );
+  const error = new RegExp(
+    `<div[^>]*id="${describedBy}"[^>]*>([^<]*)<`,
+    "u",
+  ).exec(html);
   assert.ok(error?.[0].includes('role="alert"'));
   assert.equal(
     error?.[1],
@@ -44,6 +45,7 @@ test("a granted key keeps a visible confirmation tied to the field", () => {
     html,
     new RegExp(
       `id="${describedBy}"[^>]*>Cape support enabled for this API key.<`,
+      "u",
     ),
   );
 });
@@ -69,15 +71,15 @@ function renderPicker(listStatus: "loading" | "ready" | "failed") {
 
 test("a loading cape list says so instead of looking empty", () => {
   const html = renderPicker("loading");
-  assert.match(html, /aria-busy="true"/);
-  assert.match(html, /<output[^>]*>Loading capes…<\/output>/);
+  assert.match(html, /aria-busy="true"/u);
+  assert.match(html, /<output[^>]*>Loading capes…<\/output>/u);
   assert.ok(html.includes('aria-label="No cape"'));
 });
 
 test("a failed cape list explains it and offers a retry", () => {
   const html = renderPicker("failed");
   assert.ok(html.includes("Failed to load available capes"));
-  assert.match(html, /<button[^>]*>Try again<\/button>/);
+  assert.match(html, /<button[^>]*>Try again<\/button>/u);
   assert.ok(!html.includes("Loading capes"));
 });
 

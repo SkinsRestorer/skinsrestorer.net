@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { decodePng, encodePng, encodePngSync } from "./png";
 
-const any = () => undefined;
+const any = () => {};
 
 test("encoded PNGs decode to the same straight RGBA bytes", async () => {
   const pixels = new Uint8ClampedArray(64 * 64 * 4);
@@ -35,7 +35,7 @@ test("the size check runs before image data is inflated", async () => {
     decodePng(png, (w, h) => {
       throw new Error(`rejected ${w}x${h}`);
     }),
-    /rejected 128x128/,
+    /rejected 128x128/u,
   );
 });
 
@@ -43,9 +43,9 @@ test("damaged and non-PNG input is rejected", async () => {
   const png = await encodePng(new Uint8ClampedArray(4 * 4 * 4), 4, 4);
   const broken = png.slice();
   broken[40] = (broken[40] ?? 0) ^ 0xff;
-  await assert.rejects(decodePng(broken, any), /damaged/);
-  await assert.rejects(decodePng(new Uint8Array([1, 2, 3]), any), /not a PNG/);
-  await assert.rejects(decodePng(png.slice(0, 30), any), /incomplete/);
+  await assert.rejects(decodePng(broken, any), /damaged/u);
+  await assert.rejects(decodePng(new Uint8Array([1, 2, 3]), any), /not a PNG/u);
+  await assert.rejects(decodePng(png.slice(0, 30), any), /incomplete/u);
 });
 
 // Build other PNG color types to check the decoder against known pixels.

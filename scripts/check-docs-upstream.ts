@@ -14,10 +14,10 @@ const headers = { "User-Agent": "SkinsRestorer-Documentation-Check" };
 
 /** Changed upstream declarations still require semantic review. */
 export const checkDocsUpstream = Effect.fn("Docs.checkUpstream")(function* (
-  version = release.version,
+  version: string = release.version,
 ) {
   yield* toolTry("validate release version", () => {
-    if (!/^\d+\.\d+\.\d+$/.test(version))
+    if (!/^\d+\.\d+\.\d+$/u.test(version))
       throw new Error("Pass a release version, such as 15.12.6");
   });
   const treeResponse = yield* readHttpText(
@@ -76,7 +76,7 @@ if (import.meta.main)
   await runTool(
     checkDocsUpstream(process.argv[2]),
     ({ changed, count, version }) => {
-      if (changed.length) {
+      if (changed.length > 0) {
         console.error(changed.join("\n"));
         console.error(
           "Review these declarations and update the inventory and affected pages together.",

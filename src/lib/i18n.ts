@@ -24,10 +24,10 @@ export function splitLocalePath(pathname: string): {
   locale: Locale;
   path: string;
 } {
-  const [first, ...rest] = pathname.replace(/^\//, "").split("/");
+  const [first, ...rest] = pathname.replace(/^\//u, "").split("/");
   return isLocale(first)
-    ? { locale: first, path: `/${rest.join("/")}`.replace(/\/$/, "") || "/" }
-    : { locale: "en", path: pathname.replace(/\/$/, "") || "/" };
+    ? { locale: first, path: `/${rest.join("/")}`.replace(/\/$/u, "") || "/" }
+    : { locale: "en", path: pathname.replace(/\/$/u, "") || "/" };
 }
 
 export function localizePath(path: string, locale: Locale): string {
@@ -40,7 +40,7 @@ export function localizePath(path: string, locale: Locale): string {
 
 /** Legal text and service endpoints remain at their existing English URLs. */
 export function hasLocalizedPages(href: string): boolean {
-  const [pathname = ""] = href.split(/[?#]/);
+  const [pathname = ""] = href.split(/[?#]/u);
   const path = splitLocalePath(pathname).path;
   return (
     path === "/" ||
@@ -63,13 +63,13 @@ export function localizeHref(href: string, locale: Locale): string {
 
 /** Parse Fumadocs' dot convention without treating the locale as a slug. */
 export function docFileInfo(file: string) {
-  const match = /^(.*?)(?:\.(en|ru|es|pt-BR))?\.mdx?$/.exec(
+  const match = /^(.*?)(?:\.(en|ru|es|pt-BR))?\.mdx?$/u.exec(
     file.replaceAll("\\", "/"),
   );
   if (!match) throw new Error(`Invalid documentation file: ${file}`);
   const [, name = "", suffix] = match;
   const locale: Locale = isLocale(suffix) ? suffix : "en";
-  const slug = name.replace(/(^|\/)index$/, "");
-  const path = `/docs/${slug}`.replace(/\/$/, "");
+  const slug = name.replace(/(^|\/)index$/u, "");
+  const path = `/docs/${slug}`.replace(/\/$/u, "");
   return { locale, path, slugs: slug.split("/").filter(Boolean) };
 }

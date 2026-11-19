@@ -48,7 +48,7 @@ async function transform(
   const written = writer
     .write(bytes)
     .then(() => writer.close())
-    .catch(() => undefined);
+    .catch(() => {});
   const parts: Uint8Array[] = [];
   let size = 0;
   try {
@@ -60,7 +60,7 @@ async function transform(
       parts.push(value);
     }
   } catch (cause) {
-    await reader.cancel().catch(() => undefined);
+    await reader.cancel().catch(() => {});
     if (cause instanceof PngError) throw cause;
     throw new PngError("png.dataDamaged");
   } finally {
@@ -79,7 +79,7 @@ function chunk(type: string, data: Uint8Array) {
   const out = new Uint8Array(12 + data.length);
   const view = new DataView(out.buffer);
   view.setUint32(0, data.length);
-  for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+  for (let i = 0; i < 4; i++) out[4 + i] = type.codePointAt(i) ?? 0;
   out.set(data, 8);
   view.setUint32(8 + data.length, crc32(out, 4, 8 + data.length));
   return out;
@@ -263,7 +263,7 @@ export function readPngSize(bytes: Uint8Array) {
   if (
     bytes.length < 33 ||
     signature.some((value, i) => bytes[i] !== value) ||
-    String.fromCharCode(...bytes.subarray(12, 16)) !== "IHDR"
+    String.fromCodePoint(...bytes.subarray(12, 16)) !== "IHDR"
   )
     throw new PngError("png.notPng");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -296,7 +296,9 @@ export async function decodePng(
   let ended = false;
   while (offset + 12 <= bytes.length) {
     const length = view.getUint32(offset);
-    const type = String.fromCharCode(...bytes.subarray(offset + 4, offset + 8));
+    const type = String.fromCodePoint(
+      ...bytes.subarray(offset + 4, offset + 8),
+    );
     const start = offset + 8;
     const end = start + length;
     if (end + 4 > bytes.length) throw new PngError("png.fileIncomplete");

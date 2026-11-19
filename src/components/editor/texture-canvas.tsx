@@ -32,7 +32,7 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
  */
 function panBy(element: Element, dx: number, dy: number) {
   let parent = element.parentElement;
-  while (parent && !/auto|scroll/.test(getComputedStyle(parent).overflow))
+  while (parent && !/auto|scroll/u.test(getComputedStyle(parent).overflow))
     parent = parent.parentElement;
   let restX = dx;
   let restY = dy;
@@ -125,12 +125,16 @@ export function TextureCanvas(props: TextureCanvasProps) {
   );
 
   useEffect(() => {
-    const observer = new MutationObserver(() => setThemeRevision((n) => n + 1));
+    const observer = new MutationObserver(() => {
+      setThemeRevision((n) => n + 1);
+    });
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // Browser zoom and a move to another screen change the pixel ratio. Redraw
@@ -339,7 +343,10 @@ export function TextureCanvas(props: TextureCanvasProps) {
     ratio,
   ]);
 
-  const toPixel = (event: { clientX: number; clientY: number }) => {
+  const toPixel = (event: {
+    clientX: number;
+    clientY: number;
+  }): { x: number; y: number } | undefined => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
     const rect = canvas.getBoundingClientRect();
@@ -385,7 +392,9 @@ export function TextureCanvas(props: TextureCanvasProps) {
             describePixel(store.getSnapshot().variant, cursor.x, cursor.y, t),
           );
         }}
-        onBlur={() => setFocused(false)}
+        onBlur={() => {
+          setFocused(false);
+        }}
         onKeyDown={(event) => {
           const steps: Record<string, [number, number]> = {
             ArrowLeft: [-1, 0],
@@ -510,7 +519,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
           const native = event.nativeEvent;
           const samples =
             "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
-          for (const sample of samples.length ? samples : [event]) {
+          for (const sample of samples.length > 0 ? samples : [event]) {
             const point = toPixel(sample);
             if (point) store.strokeTo(point.x, point.y);
           }
@@ -542,7 +551,9 @@ export function TextureCanvas(props: TextureCanvasProps) {
           tap.current = null;
           store.cancelStroke();
         }}
-        onPointerLeave={() => setHover(null)}
+        onPointerLeave={() => {
+          setHover(null);
+        }}
         onLostPointerCapture={finishStroke}
       />
       <p id={instructionsId} className="sr-only">

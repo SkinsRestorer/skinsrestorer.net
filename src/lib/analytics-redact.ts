@@ -1,4 +1,4 @@
-const textureParam = /([?&](?:texture|handoff)=)[^&#\s"'\\]*/gi;
+const textureParam = /([?&](?:texture|handoff)=)[^&#\s"'\\]*/giu;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -21,8 +21,9 @@ export function redactEditorParams(value: string | object): string | object {
   if (typeof value === "string")
     return value.replaceAll(textureParam, "$1redacted");
   if (Array.isArray(value)) {
-    for (let i = 0; i < value.length; i++) value[i] = redactValue(value[i]);
-    return value;
+    const items: unknown[] = value;
+    for (let i = 0; i < items.length; i++) items[i] = redactValue(items[i]);
+    return items;
   }
   if (isRecord(value)) {
     for (const key of Object.keys(value)) value[key] = redactValue(value[key]);

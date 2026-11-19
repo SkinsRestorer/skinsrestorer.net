@@ -57,7 +57,7 @@ export function createLibraryClient(
             if (active) unsubscribe = stop;
             else stop();
           },
-          () => undefined,
+          () => {},
         );
       return () => {
         active = false;

@@ -202,7 +202,7 @@ test("skin files reveal their HTTPS texture, in current and legacy formats", () 
     url: texture,
     legacy: true,
   });
-  assert.throws(() => readSkinFileTexture("{}"), /No skin URL/);
+  assert.throws(() => readSkinFileTexture("{}"), /No skin URL/u);
 });
 
 test("generation sends the exact selected file once and builds the command", async () => {

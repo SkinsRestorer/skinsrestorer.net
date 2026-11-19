@@ -28,7 +28,9 @@ export function CopyCommand({ command }: { command: string }) {
       await navigator.clipboard.writeText(command);
       setCopied(true);
       if (timeout.current) clearTimeout(timeout.current);
-      timeout.current = setTimeout(() => setCopied(false), 2000);
+      timeout.current = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     } catch {
       toast.error(t("home.copyFailedSelectCommandCopyManually"));
     }

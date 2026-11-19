@@ -1,8 +1,8 @@
 import { splitLocalePath } from "../src/lib/i18n.ts";
 import { createHash } from "node:crypto";
 import { dirname, join, relative } from "node:path";
-import { Effect } from "effect";
-import { fromCrossJSON, toJSONAsync } from "seroval";
+import { Effect, Schema } from "effect";
+import { fromCrossJSON, toJSONAsync, type SerovalNode } from "seroval";
 import { type Plugin, preview } from "vite";
 import { readHttpText, runHttpEffect } from "../src/lib/effect-http.ts";
 import {
@@ -14,10 +14,24 @@ import {
 
 export const docsMetadataFunctionId = "docs-metadata";
 
+// Server function responses are seroval nodes. fromCrossJSON validates the
+// node tree, so this only checks that the JSON holds a tagged node.
+const decodeSerovalJson = Schema.decodeUnknownSync(
+  Schema.fromJsonString(
+    Schema.declare(
+      (input): input is SerovalNode =>
+        typeof input === "object" &&
+        input !== null &&
+        "t" in input &&
+        typeof input.t === "number",
+    ),
+  ),
+);
+
 export function docsFunctionId(options: {
   filename: string;
   functionName: string;
-}) {
+}): typeof docsMetadataFunctionId | undefined {
   if (
     options.filename
       .replaceAll("\\", "/")
@@ -64,10 +78,10 @@ export function staticDocsMetadata(): Plugin {
                 const pages = files
                   .map((file) => relative(output, file).replaceAll("\\", "/"))
                   .filter((file) =>
-                    /^(?:(?:ru|es|pt-BR)\/)?docs(?:\/.*)?\.html$/.test(file),
+                    /^(?:(?:ru|es|pt-BR)\/)?docs(?:\/.*)?\.html$/u.test(file),
                   )
                   .toSorted();
-                if (!pages.length)
+                if (pages.length === 0)
                   throw new Error("No prerendered documentation pages found");
                 yield* Effect.forEach(
                   pages,
@@ -85,7 +99,7 @@ export function staticDocsMetadata(): Plugin {
                               : path
                                   .slice("docs/".length)
                                   .split("/")
-                                  .map(decodeURIComponent);
+                                  .map((part) => decodeURIComponent(part));
                           const data = [locale, ...slugs];
                           const payload = await toJSONAsync({ data });
                           const url = new URL(
@@ -115,7 +129,7 @@ export function staticDocsMetadata(): Plugin {
                               `Metadata request failed for /${path}: ${result.status}`,
                             );
                           const response = fromCrossJSON(
-                            JSON.parse(result.text),
+                            decodeSerovalJson(result.text),
                             {},
                           );
                           if (
@@ -133,8 +147,8 @@ export function staticDocsMetadata(): Plugin {
                           // Match the cache key of the pinned staticFunctionMiddleware.
                           // Slugs are string arrays, so no object-key sorting is needed.
                           const hash = JSON.stringify(data)
-                            .replaceAll(/[/\\?%*:|"<>]/g, "-")
-                            .replaceAll(/\s+/g, "_");
+                            .replaceAll(/[/\\?%*:|"<>]/gu, "-")
+                            .replaceAll(/\s+/gu, "_");
                           const key = createHash("sha1")
                             .update(`${docsMetadataFunctionId}__${hash}`)
                             .digest("hex");

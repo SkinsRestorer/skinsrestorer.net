@@ -119,7 +119,11 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   neighbours: { previous?: FooterLink; next?: FooterLink };
 }>({
   id: "docs-page",
-  component({ default: MDX, toc, frontmatter }, page) {
+  // fumadocs calls this as a hook (`useRenderer`) inside its page renderer.
+  component: function useDocsPageContent(
+    { default: MDX, toc, frontmatter },
+    page,
+  ) {
     const t = useT();
     const locale = useLocale();
     return (
@@ -240,7 +244,7 @@ export const Route = createFileRoute("/{-$lang}/docs/$")({
         {
           rel: "discord:component-embed",
           type: "application/json",
-          href: `https://skinsrestorer.net/discord-embed/${loaderData.locale === "en" ? "" : `${loaderData.locale}/`}${loaderData.url.replace(/^\/(?:ru\/|es\/|pt-BR\/)?docs\/?/, "")}`,
+          href: `https://skinsrestorer.net/discord-embed/${loaderData.locale === "en" ? "" : `${loaderData.locale}/`}${loaderData.url.replace(/^\/(?:ru\/|es\/|pt-BR\/)?docs\/?/u, "")}`,
         },
       ],
     };
@@ -307,9 +311,9 @@ const focusableSelector = [
 // control that opened it.
 function SidebarDrawerFocus() {
   const { open, mode } = useSidebar();
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!open || mode !== "drawer") return undefined;
-    const drawer = document.getElementById("nd-sidebar-mobile");
+    const drawer = document.querySelector("#nd-sidebar-mobile");
     if (!drawer) return undefined;
     const active = document.activeElement;
     const opener =

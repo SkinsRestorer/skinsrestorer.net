@@ -66,10 +66,10 @@ test("an empty library explains where skins come from and offers ways to add one
     status: "ready",
     listing: { skins: [], sessions: [], damaged: [] },
   });
-  assert.match(html, /No skins yet\./);
-  assert.match(html, /Upload a PNG or create a skin\./);
-  assert.match(html, /<button[^>]*>.*Upload PNG<\/button>/);
-  assert.match(html, /<button[^>]*>.*Create skin<\/button>/);
+  assert.match(html, /No skins yet\./u);
+  assert.match(html, /Upload a PNG or create a skin\./u);
+  assert.match(html, /<button[^>]*>.*Upload PNG<\/button>/u);
+  assert.match(html, /<button[^>]*>.*Create skin<\/button>/u);
 });
 
 test("blocked storage shows its reason as visible text", () => {
@@ -77,8 +77,8 @@ test("blocked storage shows its reason as visible text", () => {
     status: "unavailable",
     message: message("library.browserDoesNotLetSiteKeepSkins"),
   });
-  assert.match(html, /<p[^>]*>This browser does not let the site keep skins/);
-  assert.doesNotMatch(html, /No skins yet/);
+  assert.match(html, /<p[^>]*>This browser does not let the site keep skins/u);
+  assert.doesNotMatch(html, /No skins yet/u);
 });
 
 test("blocked storage shows a short status and its reason only once", () => {
@@ -86,9 +86,9 @@ test("blocked storage shows a short status and its reason only once", () => {
     status: "unavailable",
     message: message("library.browserDoesNotLetSiteKeepSkins"),
   });
-  assert.match(html, /<output[^>]*title="Not saving"/);
+  assert.match(html, /<output[^>]*title="Not saving"/u);
   assert.equal(
-    html.match(/This browser does not let the site keep skins/g)?.length,
+    html.match(/This browser does not let the site keep skins/gu)?.length,
     1,
   );
 });
@@ -99,12 +99,12 @@ test("a library closed by another tab offers a page reload", () => {
     message: message("library.anotherTabUpdatedSkinsReloadPage"),
     reload: true,
   });
-  assert.match(html, /<button[^>]*>.*Reload page<\/button>/);
+  assert.match(html, /<button[^>]*>.*Reload page<\/button>/u);
   const blocked = render({
     status: "unavailable",
     message: message("library.browserDoesNotLetSiteKeepSkins"),
   });
-  assert.doesNotMatch(blocked, /Reload page/);
+  assert.doesNotMatch(blocked, /Reload page/u);
 });
 
 test("a long skin name is truncated with the full name on hover", () => {
@@ -113,6 +113,6 @@ test("a long skin name is truncated with the full name on hover", () => {
     status: "ready",
     listing: { skins: [skin("a", name)], sessions: [], damaged: [] },
   });
-  assert.match(html, new RegExp(`<span title="${name}" class="truncate`));
-  assert.doesNotMatch(html, /No skins yet/);
+  assert.match(html, new RegExp(`<span title="${name}" class="truncate`, "u"));
+  assert.doesNotMatch(html, /No skins yet/u);
 });

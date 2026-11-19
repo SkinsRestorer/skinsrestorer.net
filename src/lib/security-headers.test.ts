@@ -18,7 +18,7 @@ function parseHeadersFile(source: string): Rule[] {
   const rules: Rule[] = [];
   for (const line of source.split("\n")) {
     if (!line.trim() || line.trimStart().startsWith("#")) continue;
-    if (!/^\s/.test(line)) {
+    if (!/^\s/u.test(line)) {
       rules.push({ pattern: line.trim(), headers: [] });
       continue;
     }
@@ -46,7 +46,7 @@ function headerFor(rules: Rule[], path: string, name: string) {
     .flatMap((rule) => rule.headers)
     .filter(([header]) => header.toLowerCase() === name.toLowerCase())
     .map(([, value]) => value);
-  return values.length ? values.join(", ") : undefined;
+  return values.length > 0 ? values.join(", ") : undefined;
 }
 
 function directives() {
@@ -114,7 +114,7 @@ test("violation reports go to the PostHog report endpoint", () => {
   const csp = directives();
   const url = new URL(cspReportUrl);
   assert.equal(url.pathname, "/report/");
-  assert.match(url.searchParams.get("token") ?? "", /^phc_/);
+  assert.match(url.searchParams.get("token") ?? "", /^phc_/u);
   assert.deepEqual(csp.get("report-uri"), [cspReportUrl]);
   assert.deepEqual(csp.get("report-to"), ["posthog"]);
   assert.equal(

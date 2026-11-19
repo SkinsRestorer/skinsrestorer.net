@@ -9,9 +9,14 @@ test("required returns present values, including falsy ones", () => {
 });
 
 test("required names the missing value", () => {
-  assert.throws(() => required(undefined, "skin id"), {
-    message: "Missing skin id",
-  });
+  assert.throws(
+    () => {
+      required(undefined, "skin id");
+    },
+    {
+      message: "Missing skin id",
+    },
+  );
   assert.throws(() => required(null, "canvas context"), {
     message: "Missing canvas context",
   });

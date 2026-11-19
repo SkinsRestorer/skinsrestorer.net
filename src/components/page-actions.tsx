@@ -43,7 +43,12 @@ export function LLMCopyButton({
   const [checked, setChecked] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  useEffect(() => () => clearTimeout(timeout.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(timeout.current);
+    },
+    [],
+  );
 
   async function copy() {
     setLoading(true);
@@ -70,7 +75,9 @@ export function LLMCopyButton({
       }
       setChecked(true);
       clearTimeout(timeout.current);
-      timeout.current = setTimeout(() => setChecked(false), 1500);
+      timeout.current = setTimeout(() => {
+        setChecked(false);
+      }, 1500);
     } catch {
       toast.error(t("common.failedCopy"));
     } finally {

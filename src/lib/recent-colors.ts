@@ -57,7 +57,11 @@ export function readRecentColors(
   const { version, colors } = value as { version?: unknown; colors?: unknown };
   if (typeof version === "number" && version > VERSION)
     return { status: "newer" };
-  if (version !== VERSION || !Array.isArray(colors) || !colors.every(isRgba))
+  if (
+    version !== VERSION ||
+    !Array.isArray(colors) ||
+    !colors.every((color) => isRgba(color))
+  )
     return { status: "corrupt" };
   let list: Rgba[] = [];
   for (const color of colors.toReversed())

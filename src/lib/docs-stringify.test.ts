@@ -32,19 +32,22 @@ test("related guide links retain their title, URL, and content in Markdown", () 
 </Cards>`);
   assert.match(
     String(result["markdown"]),
-    /\[Upload a skin\]\(\/docs\/features\/skin-upload\)/,
+    /\[Upload a skin\]\(\/docs\/features\/skin-upload\)/u,
   );
-  assert.match(String(result["markdown"]), /Choose a PNG file\./);
-  assert.doesNotMatch(String(result["markdown"]), /import |<Cards|<Card/);
+  assert.match(String(result["markdown"]), /Choose a PNG file\./u);
+  assert.doesNotMatch(String(result["markdown"]), /import |<Cards|<Card/u);
   assert.ok(result.structuredData);
   assert.deepEqual(result.structuredData.headings, [
     { id: "skin-guides", content: "Skin guides" },
   ]);
-  assert.match(JSON.stringify(result.structuredData.contents), /Upload a skin/);
+  assert.match(
+    JSON.stringify(result.structuredData.contents),
+    /Upload a skin/u,
+  );
 });
 
 test("related guides without titles preserve the fallback label", () => {
   const result = extract('<Card href="/docs">Read the guide.</Card>');
-  assert.match(String(result["markdown"]), /\[Related guide\]\(\/docs\)/);
-  assert.match(String(result["markdown"]), /Read the guide\./);
+  assert.match(String(result["markdown"]), /\[Related guide\]\(\/docs\)/u);
+  assert.match(String(result["markdown"]), /Read the guide\./u);
 });

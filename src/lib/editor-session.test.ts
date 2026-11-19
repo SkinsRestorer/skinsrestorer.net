@@ -48,9 +48,9 @@ function editor(
 }
 
 const paint = (store: SkinEditorStore, value: number) =>
-  store.apply((_pixels, builder) =>
-    builder.write(pixelOffset(9, 9) / 4, [value, 0, 0, 255]),
-  );
+  store.apply((_pixels, builder) => {
+    builder.write(pixelOffset(9, 9) / 4, [value, 0, 0, 255]);
+  });
 
 async function keptSkin(library: LibraryClient, seed = 1) {
   const document = createTemplate("classic");

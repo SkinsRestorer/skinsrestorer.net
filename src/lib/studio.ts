@@ -117,11 +117,11 @@ export function fixedPurpose(
 export function suggestSkinName(name: string) {
   return name
     .normalize("NFKD")
-    .replaceAll(/[̀-ͯ]/g, "")
+    .replaceAll(/[̀-ͯ]/gu, "")
     .toLowerCase()
-    .replace(/\.png$/, "")
-    .replaceAll(/[^a-z0-9]+/g, "_")
-    .replaceAll(/^_+|_+$/g, "");
+    .replace(/\.png$/u, "")
+    .replaceAll(/[^a-z0-9]+/gu, "_")
+    .replaceAll(/^_+|_+$/gu, "");
 }
 
 /**

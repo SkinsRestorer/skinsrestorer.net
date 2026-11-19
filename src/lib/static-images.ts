@@ -29,7 +29,10 @@ export function getStaticImageWidths(
   ];
 }
 
-export function getStaticImage(manifest: StaticImageManifest, src: string) {
+export function getStaticImage(
+  manifest: StaticImageManifest,
+  src: string,
+): StaticImageMetadata | undefined {
   if (
     !src.startsWith("/") ||
     src.startsWith("//") ||

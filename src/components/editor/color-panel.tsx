@@ -55,7 +55,9 @@ export function ColorControls(props: {
           // Enter confirms: the field shows the applied color in full form.
           if (event.key === "Enter") setHexDraft(null);
         }}
-        onBlur={() => setHexDraft(null)}
+        onBlur={() => {
+          setHexDraft(null);
+        }}
         className="h-8 w-24 pointer-coarse:h-9"
       />
       {layer === "outer" && (
@@ -70,8 +72,9 @@ export function ColorControls(props: {
             step={1}
             format={{ style: "unit", unit: "percent" }}
             value={[opacity]}
-            onValueChange={(value) => {
-              const next = Array.isArray(value) ? value[0] : value;
+            onValueChange={(value: number | readonly number[]) => {
+              const next =
+                typeof value === "number" ? value : (value[0] ?? opacity);
               onChange([
                 color[0],
                 color[1],
@@ -102,7 +105,9 @@ export function ColorControls(props: {
                     color: hex,
                     opacity: Math.round((swatch[3] / 255) * 100),
                   })}
-                  onSelect={() => onChange(swatch)}
+                  onSelect={() => {
+                    onChange(swatch);
+                  }}
                 />
               </li>
             );

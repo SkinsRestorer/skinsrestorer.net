@@ -23,13 +23,21 @@ test("a superseded credential verification cannot publish or clear the new reque
       oldSignal = signal;
       return previous.promise;
     },
-    (v) => observed.push(v),
-    () => observed.push("old error"),
+    (v) => {
+      observed.push(v);
+    },
+    () => {
+      observed.push("old error");
+    },
   );
   const current = task.run(
     () => next.promise,
-    (v) => observed.push(v),
-    () => observed.push("new error"),
+    (v) => {
+      observed.push(v);
+    },
+    () => {
+      observed.push("new error");
+    },
   );
   previous.resolve("old credentials");
   await old;

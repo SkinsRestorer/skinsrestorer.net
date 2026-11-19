@@ -81,11 +81,15 @@ export function getLLMIndex() {
     const [first] = pages;
     if (!first) continue;
     const name = typeof node.name === "string" ? node.name : first.data.title;
-    sections.push(`## ${name}\n\n${pages.map(line).join("\n")}`);
+    sections.push(
+      `## ${name}\n\n${pages.map((page) => line(page)).join("\n")}`,
+    );
   }
   const other = [...topLevel, ...remaining.values()];
-  if (other.length)
-    sections.unshift(`## Overview\n\n${other.map(line).join("\n")}`);
+  if (other.length > 0)
+    sections.unshift(
+      `## Overview\n\n${other.map((page) => line(page)).join("\n")}`,
+    );
   return [
     "# SkinsRestorer documentation",
     `> ${home?.data.description ?? "Install, configure, and extend SkinsRestorer."}`,

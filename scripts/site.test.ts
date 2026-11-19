@@ -52,13 +52,13 @@ test(
       );
       assert.match(
         response.headers.get("content-type") ?? "",
-        /text\/html/,
+        /text\/html/u,
         path,
       );
       const html = await response.text();
       const title = html
-        .match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1]
-        ?.replaceAll(/<[^>]+>/g, "")
+        .match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/u)?.[1]
+        ?.replaceAll(/<[^>]+>/gu, "")
         .trim();
       assert.equal(title, heading, `Missing page heading: ${path}`);
       assert.ok(
@@ -87,7 +87,7 @@ test(
       for (const language of ["en", "ru", "es", "pt-BR", "x-default"]) {
         assert.ok(html.includes(`hrefLang="${language}"`));
       }
-      assert.ok(!html.match(/rel="canonical"[^>]+handoff/));
+      assert.ok(!/rel="canonical"[^>]+handoff/u.test(html));
       const translated = await (
         await request(`/${locale}/docs/installation`)
       ).text();
@@ -129,13 +129,13 @@ test(
       assert.equal(response.status, 200, path);
       assert.match(
         response.headers.get("content-type") ?? "",
-        /text\/markdown/,
+        /text\/markdown/u,
         path,
       );
       // Copied Markdown links absolutely, so it works outside the site.
       assert.match(
         await response.text(),
-        /^# .+\nURL: https:\/\/skinsrestorer\.net\/docs/,
+        /^# .+\nURL: https:\/\/skinsrestorer\.net\/docs/u,
       );
       const head = await request(path, { method: "HEAD" });
       assert.equal(head.status, 200, `HEAD ${path}`);
@@ -149,7 +149,7 @@ test(
     assert.ok(full.includes("Reviewed:"));
     assert.match(
       await (await request("/robots.txt")).text(),
-      /Sitemap: https:\/\/skinsrestorer.net\/sitemap.xml/,
+      /Sitemap: https:\/\/skinsrestorer.net\/sitemap.xml/u,
     );
     const sitemap = await (await request("/sitemap.xml")).text();
     // One URL per site page and per docs file in its own locale, so adding
@@ -158,7 +158,7 @@ test(
       (file) => String(file).endsWith(".mdx"),
     ).length;
     assert.equal(
-      (sitemap.match(/<url>/g) ?? []).length,
+      (sitemap.match(/<url>/gu) ?? []).length,
       localizedSitePages.length + docFiles,
     );
     assert.ok(sitemap.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"'));
@@ -225,7 +225,7 @@ test(
     for (const slugs of [[], ["installation"]]) {
       const key = createHash("sha1")
         .update(
-          `docs-metadata__${JSON.stringify(["en", ...slugs]).replaceAll(/[/\\?%*:|"<>]/g, "-")}`,
+          `docs-metadata__${JSON.stringify(["en", ...slugs]).replaceAll(/[/\\?%*:|"<>]/gu, "-")}`,
         )
         .digest("hex");
       const response = await request(`/__tsr/staticServerFnCache/${key}.json`);
@@ -236,7 +236,7 @@ test(
       }>(await response.json());
       assert.equal(
         metadata.result.url,
-        `/docs${slugs.length ? `/${slugs.join("/")}` : ""}`,
+        `/docs${slugs.length > 0 ? `/${slugs.join("/")}` : ""}`,
       );
       assert.ok(metadata.result.title);
       assert.ok(metadata.result.pageTree);
@@ -244,7 +244,7 @@ test(
 
     const embed = await request("/discord-embed/installation");
     assert.equal(embed.status, 200);
-    assert.match(embed.headers.get("content-type") ?? "", /application\/json/);
+    assert.match(embed.headers.get("content-type") ?? "", /application\/json/u);
     assert.ok(
       JSON.stringify(await embed.json()).includes("Install SkinsRestorer"),
     );

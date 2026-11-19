@@ -18,8 +18,13 @@ import {
 import { convertArms, transformPart } from "./skin-transform";
 import { required } from "./utils";
 
+// `instanceof Mesh` narrows to Mesh<any, any, any>. This guard keeps the defaults.
+function isMesh(object: Object3D): object is Mesh {
+  return object instanceof Mesh;
+}
+
 function asMesh(object: Object3D): Mesh {
-  assert.ok(object instanceof Mesh);
+  assert.ok(isMesh(object));
   return object;
 }
 

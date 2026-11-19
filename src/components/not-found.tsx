@@ -40,7 +40,12 @@ export default function RootComponent() {
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             {searchEnabled ? (
-              <Button type="button" onClick={() => setOpenSearch(true)}>
+              <Button
+                type="button"
+                onClick={() => {
+                  setOpenSearch(true);
+                }}
+              >
                 <Search aria-hidden="true" />
                 {t("notfound.searchDocumentation")}
               </Button>

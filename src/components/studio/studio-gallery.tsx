@@ -92,7 +92,9 @@ export function StudioGallery(props: {
             placeholder={t("gallery.search")}
             maxLength={MAX_GALLERY_QUERY}
             value={props.query}
-            onChange={(event) => props.onQuery(event.target.value)}
+            onChange={(event) => {
+              props.onQuery(event.target.value);
+            }}
           />
         </InputGroup>
       </Field>
@@ -157,9 +159,13 @@ export function StudioGallery(props: {
                       ),
                     })}
                     title={skin.name}
-                    onFocus={() => setFocusedId(skin.id)}
+                    onFocus={() => {
+                      setFocusedId(skin.id);
+                    }}
                     onKeyDown={moveFocus}
-                    onClick={() => props.onSelect(skin)}
+                    onClick={() => {
+                      props.onSelect(skin);
+                    }}
                     className="group flex w-full min-w-0 flex-col gap-1.5 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                   >
                     <span
@@ -276,10 +282,10 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
   const png = useSyncExternalStore(
     subscribeThumbnails,
     () => thumbnails.get(skin.textureUrl),
-    () => undefined,
+    (): undefined => undefined,
   );
   const [failed, setFailed] = useState(false);
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (png || failed) return undefined;
     const element = frame.current;
     if (!element) return undefined;
@@ -316,12 +322,16 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
       controller?.abort();
     };
   }, [skin.textureUrl, png, failed]);
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!failed) return undefined;
     // Previews that failed while offline load again once the connection returns.
-    const retry = () => setFailed(false);
+    const retry = () => {
+      setFailed(false);
+    };
     window.addEventListener("online", retry);
-    return () => window.removeEventListener("online", retry);
+    return () => {
+      window.removeEventListener("online", retry);
+    };
   }, [failed]);
   return (
     <span ref={frame} className="grid size-full place-items-center">

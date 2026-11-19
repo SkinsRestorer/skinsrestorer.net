@@ -143,9 +143,11 @@ export function ToolOptions(props: {
               max={BRUSH_SIZES.max}
               step={1}
               value={[props.size]}
-              onValueChange={(value) =>
-                props.onSize(Array.isArray(value) ? value[0] : value)
-              }
+              onValueChange={(value: number | readonly number[]) => {
+                props.onSize(
+                  typeof value === "number" ? value : (value[0] ?? props.size),
+                );
+              }}
             />
           </div>
           <span className="min-w-8 text-xs whitespace-nowrap text-muted-foreground tabular-nums">

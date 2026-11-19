@@ -17,7 +17,7 @@ export function formatExportedMarkdown(markdown: string, locale: Locale) {
   return markdown
     .split("\n")
     .map((line) => {
-      const marker = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
+      const marker = /^\s*(`{3,}|~{3,})/u.exec(line)?.[1];
       if (marker) {
         if (!fence) fence = marker;
         else if (marker[0] === fence[0] && marker.length >= fence.length)
@@ -26,9 +26,9 @@ export function formatExportedMarkdown(markdown: string, locale: Locale) {
       }
       if (fence) return line;
       return line
-        .replace(/^(#{1,6}\s.*?)\s+\[#[^\]\s]+\]\s*$/, "$1")
+        .replace(/^(#{1,6}\s.*?)\s+\[#[^\]\s]+\]\s*$/u, "$1")
         .replaceAll(
-          /\]\((\/(?!\/)[^)\s]*)\)/g,
+          /\]\((\/(?!\/)[^)\s]*)\)/gu,
           (_, href: string) => `](${absoluteDocsUrl(href, locale)})`,
         );
     })

@@ -33,7 +33,9 @@ export function useRecentColors() {
       if (event.key === RECENT_COLORS_KEY) load();
     };
     window.addEventListener("storage", changed);
-    return () => window.removeEventListener("storage", changed);
+    return () => {
+      window.removeEventListener("storage", changed);
+    };
   }, []);
 
   const add = useCallback((color: Rgba) => {

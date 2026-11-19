@@ -127,7 +127,7 @@ test("a mirrored brush is the reflection of the clipped square, with each pixel 
     10,
   );
   assert.deepEqual(
-    overlap.map(xy).toSorted(byPoint),
+    overlap.map((index) => xy(index)).toSorted(byPoint),
     (
       [
         [11, 9],
