@@ -10,7 +10,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Context, Effect, Layer, Schema } from "effect";
+import { Console, Context, Effect, Layer, Schema } from "effect";
 import type { HttpClient } from "../../src/lib/effect-http";
 import { httpClientLayer } from "../../src/lib/effect-http";
 
@@ -32,13 +32,13 @@ export function toolOperation<A>(
 ) {
   return Effect.tryPromise({
     try: async () => work(),
-    catch: (cause) => new ToolError({ operation, cause }),
+    catch: (cause) => ToolError.make({ operation, cause }),
   }).pipe(Effect.uninterruptible);
 }
 export const toolTry = <A>(operation: string, work: () => A) =>
   Effect.try({
     try: work,
-    catch: (cause) => new ToolError({ operation, cause }),
+    catch: (cause) => ToolError.make({ operation, cause }),
   });
 
 export const nodeFiles = {
@@ -56,7 +56,7 @@ export const nodeFiles = {
   exists: (file: string) =>
     Effect.tryPromise({
       try: () => access(file),
-      catch: (cause) => new ToolError({ operation: "check file", cause }),
+      catch: (cause) => ToolError.make({ operation: "check file", cause }),
     }).pipe(Effect.isSuccess),
   makeTemp: (prefix: string) =>
     toolOperation("create temporary directory", () =>
@@ -76,7 +76,7 @@ export const nodeFiles = {
     ),
 };
 export class ToolFiles extends Context.Service<ToolFiles, typeof nodeFiles>()(
-  "skinsrestorer/ToolFiles",
+  "skinsrestorer.net/scripts/lib/runtime/ToolFiles",
 ) {}
 export const toolFilesLayer = Layer.succeed(ToolFiles, nodeFiles);
 
@@ -127,7 +127,7 @@ export const runChild = Effect.fn("Docs.runChild")(function* (
     ({ exit }) =>
       Effect.tryPromise({
         try: () => exit,
-        catch: (cause) => new ToolError({ operation: "run compiler", cause }),
+        catch: (cause) => ToolError.make({ operation: "run compiler", cause }),
       }),
     ({ child, exit }) =>
       Effect.promise(async () => {
@@ -145,13 +145,13 @@ export async function runTool<A, E>(
   try {
     report(
       await Effect.runPromise(
-        program.pipe(
-          Effect.provide(Layer.mergeAll(toolFilesLayer, httpClientLayer)),
-        ),
+        program.pipe(Effect.provide([toolFilesLayer, httpClientLayer])),
       ),
     );
   } catch (cause) {
-    console.error(cause instanceof Error ? cause.message : String(cause));
+    await Effect.runPromise(
+      Console.error(cause instanceof Error ? cause.message : String(cause)),
+    );
     process.exitCode = 1;
   }
 }

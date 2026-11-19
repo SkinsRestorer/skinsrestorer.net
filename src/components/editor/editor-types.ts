@@ -31,7 +31,7 @@ export const toolLabels: Record<PaintTool, MessageKey> = {
   eyedropper: "editor.pickColor",
 };
 
-export function blockedMessage(settings: PaintSettings) {
+function blockedMessage(settings: PaintSettings) {
   return message(
     settings.layer === "base"
       ? "common.pixelNotVisiblePartBaseLayer"

@@ -17,11 +17,12 @@ export function CopyCommand({ command }: { command: string }) {
   const [copied, setCopied] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (timeout.current) clearTimeout(timeout.current);
-    };
-  }, []);
+    },
+    [],
+  );
 
   async function copy() {
     try {

@@ -13,7 +13,7 @@ import {
 } from "@/components/editor/editor-shortcuts";
 
 /** A quiet key hint for tooltips, such as "B" or "Ctrl+Z". */
-export function ShortcutKeys(props: { commands: readonly EditorCommand[] }) {
+function ShortcutKeys(props: { commands: readonly EditorCommand[] }) {
   const format = useFormatForDisplay();
   return (
     <KbdGroup aria-hidden="true">
@@ -27,7 +27,7 @@ export function ShortcutKeys(props: { commands: readonly EditorCommand[] }) {
 }
 
 /** Tooltip text with its key hint. */
-export function ShortcutHint(props: {
+function ShortcutHint(props: {
   label: string;
   commands: readonly EditorCommand[];
 }) {

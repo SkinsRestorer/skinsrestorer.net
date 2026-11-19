@@ -20,7 +20,7 @@ export interface GallerySkin {
 }
 
 // oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
-export class GalleryError extends Schema.TaggedError<
+class GalleryError extends Schema.TaggedError<
   GalleryError,
   { readonly brand: unique symbol }
 >()("GalleryError", {
@@ -113,22 +113,21 @@ export const loadGalleryEffect = Effect.fn("Skin.loadGallery")(function* () {
     catalogSchema,
     { timeoutMs: 15_000, maxBytes: 2 * 1024 * 1024 },
   ).pipe(
-    Effect.mapError(
-      () =>
-        new GalleryError({
-          ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
-        }),
+    Effect.mapError(() =>
+      GalleryError.make({
+        ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
+      }),
     ),
   );
   if (!response.ok)
-    return yield* new GalleryError({
+    return yield* GalleryError.make({
       ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
     });
   return yield* Effect.try({
     // readHttpJson already decoded the schema, so only entries are checked.
     try: () => galleryEntries(response.data),
     catch: () =>
-      new GalleryError({
+      GalleryError.make({
         ...messageFields("gallery.galleryCouldNotLoadedTryAgain"),
       }),
   });

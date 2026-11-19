@@ -23,7 +23,7 @@ export type SelectionOrigin =
   | "gallery";
 
 /** Whether the selected skin is also kept in this browser. */
-export type KeepState =
+type KeepState =
   | { readonly kind: "saving" | "kept" | "removed" | "catalog" }
   | { readonly kind: "changed"; readonly latest: StoredSkin }
   | { readonly kind: "off"; readonly message: Message };
@@ -38,12 +38,12 @@ export interface SelectedSkin {
   readonly file: File;
   readonly name: string;
   readonly origin: SelectionOrigin;
-  readonly galleryId?: string;
+  readonly galleryId?: string | undefined;
   readonly status: "checking" | "ready" | "invalid";
   readonly error?: Message;
-  readonly skinId?: string;
-  readonly revision?: number;
-  readonly hash?: string;
+  readonly skinId?: string | undefined;
+  readonly revision?: number | undefined;
+  readonly hash?: string | undefined;
   readonly width?: number;
   readonly height?: number;
   readonly keep: KeepState;
@@ -68,7 +68,7 @@ export interface SkinSelectionDeps {
     events: PreviewEvents,
     signal: AbortSignal,
   ) => Promise<void>;
-  readonly library?: LibraryClient;
+  readonly library?: LibraryClient | undefined;
   readonly events?: {
     readonly failed?: (token: number, message: Message) => void;
     readonly imported?: (kept: number, failed: number) => void;
@@ -77,7 +77,7 @@ export interface SkinSelectionDeps {
 
 export interface SelectOptions {
   readonly origin: SelectionOrigin;
-  readonly galleryId?: string;
+  readonly galleryId?: string | undefined;
   /** A model chosen by the user, for example in the editor or the library. */
   readonly variant?: SkinVariant;
   readonly name?: string;

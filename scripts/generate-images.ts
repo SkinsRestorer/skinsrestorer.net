@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Console, Effect } from "effect";
 import { generateStaticImages } from "./lib/static-images";
 
 const result = await Effect.runPromise(
@@ -11,6 +11,8 @@ const result = await Effect.runPromise(
     ],
   }),
 );
-console.log(
-  `Generated ${result.variants} static image variants for ${result.images} images.`,
+Effect.runSync(
+  Console.log(
+    `Generated ${result.variants} static image variants for ${result.images} images.`,
+  ),
 );

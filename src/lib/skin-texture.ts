@@ -17,7 +17,7 @@ import {
 export const TEXTURE_HOST = "textures.minecraft.net";
 
 // oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
-export class TextureImportError extends Schema.TaggedError<
+class TextureImportError extends Schema.TaggedError<
   TextureImportError,
   { readonly brand: unique symbol }
 >()("TextureImportError", {
@@ -46,7 +46,7 @@ export function parseTextureReference(input: string): {
   try {
     url = new URL(value);
   } catch {
-    throw new TextureImportError({
+    throw TextureImportError.make({
       ...messageFields("texture.enterTextureHashHttpsTexturesMinecraftNet"),
     });
   }
@@ -57,12 +57,12 @@ export function parseTextureReference(input: string): {
     url.username !== "" ||
     url.password !== ""
   )
-    throw new TextureImportError({
+    throw TextureImportError.make({
       ...messageFields("common.onlyTexturesMinecraftNetTextureUrlsCan"),
     });
   const match = /^\/texture\/([0-9a-f]{32,64})$/iu.exec(url.pathname);
   if (!match || url.search !== "" || url.hash !== "")
-    throw new TextureImportError({
+    throw TextureImportError.make({
       ...messageFields("common.texturesMinecraftNetUrlDoesNotPoint"),
     });
   const [, digits = ""] = match;
@@ -79,7 +79,7 @@ const downloadTextureEffect = Effect.fn("Skin.downloadTexture")(function* (
     catch: (cause) =>
       cause instanceof TextureImportError
         ? cause
-        : new TextureImportError({
+        : TextureImportError.make({
             ...messageFields("texture.invalidTexture"),
             cause,
           }),
@@ -94,22 +94,21 @@ const downloadTextureEffect = Effect.fn("Skin.downloadTexture")(function* (
     },
     { timeoutMs: 15_000, maxBytes: MAX_SKIN_FILE_BYTES },
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new TextureImportError({
-          ...messageFields(
-            cause.reason === "timeout"
-              ? "texture.textureDownloadTookTooLongTryAgain"
-              : cause.reason === "response"
-                ? "texture.textureLargerThan5Mb"
-                : "texture.textureCouldNotDownloadedCheckHashConnection",
-          ),
-          cause,
-        }),
+    Effect.mapError((cause) =>
+      TextureImportError.make({
+        ...messageFields(
+          cause.reason === "timeout"
+            ? "texture.textureDownloadTookTooLongTryAgain"
+            : cause.reason === "response"
+              ? "texture.textureLargerThan5Mb"
+              : "texture.textureCouldNotDownloadedCheckHashConnection",
+        ),
+        cause,
+      }),
     ),
   );
   if (!response.ok)
-    return yield* new TextureImportError({
+    return yield* TextureImportError.make({
       ...messageFields(
         response.status === 404
           ? "texture.noTextureExistsHash"
@@ -128,7 +127,7 @@ export const loadTextureEffect = Effect.fn("Skin.loadTexture")(function* (
   const imported = yield* Effect.tryPromise({
     try: () => importSkinPng(bytes),
     catch: (cause) =>
-      new TextureImportError({
+      TextureImportError.make({
         ...(cause instanceof SkinFileError
           ? errorFields(cause, "texture.textureNotValidSkinPng")
           : messageFields("texture.textureNotValidSkinPng")),
@@ -157,7 +156,7 @@ export const loadTexturePreviewEffect = Effect.fn("Skin.loadTexturePreview")(
         validateEditorSkinSize(width, height);
       },
       catch: (cause) =>
-        new TextureImportError({
+        TextureImportError.make({
           ...errorFields(cause, "texture.textureNotValidSkinPng"),
           cause,
         }),

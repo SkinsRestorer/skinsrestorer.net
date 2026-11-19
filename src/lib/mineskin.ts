@@ -10,7 +10,7 @@ import { ensureHttpsTextureUrl } from "./textures";
 
 const MINESKIN_API_BASE_URL = "https://api.mineskin.org/v2";
 const AXOLOTL_API_BASE_URL = "https://axolotl.skinsrestorer.net/mineskin";
-export const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
+const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
 const errorsSchema = Schema.optional(
   Schema.Array(Schema.Struct({ message: Schema.optional(Schema.String) })),
 );
@@ -71,8 +71,7 @@ const grantsSchema = Schema.Struct({
   grants: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
 });
 export type MineSkinCape = typeof capeSchema.Type;
-export type MineSkinCapeResponse = typeof capesSchema.Type;
-export type MineSkinMeResponse = typeof grantsSchema.Type;
+
 type MineSkinResponse = typeof responseSchema.Type;
 export type MineSkinCompletedResponse =
   | (MineSkinResponse & { skin: typeof skinSchema.Type })
@@ -81,7 +80,7 @@ export type MineSkinCompletedResponse =
     });
 
 // oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
-export class MineSkinError extends Schema.TaggedError<
+class MineSkinError extends Schema.TaggedError<
   MineSkinError,
   { readonly brand: unique symbol }
 >()("MineSkinError", {
@@ -103,9 +102,9 @@ function createMineSkinHeaders(apiKey?: string): Record<string, string> {
 
 function mineSkinRequest<
   A extends {
-    success?: boolean;
-    errors?: readonly { message?: string }[];
-    error?: string;
+    success?: boolean | undefined;
+    errors?: readonly { message?: string | undefined }[] | undefined;
+    error?: string | undefined;
   },
 >(url: string, init: RequestInit, schema: Schema.Decoder<A>) {
   return readHttpJson(url, init, schema).pipe(
@@ -117,7 +116,7 @@ function mineSkinRequest<
         response.data.success === false
       )
         return Effect.fail(
-          new MineSkinError({
+          MineSkinError.make({
             reason: "request",
             ...(detail !== undefined
               ? { message: detail }
@@ -132,10 +131,10 @@ function mineSkinRequest<
 export interface MineSkinUploadOptions {
   file: File;
   variant: SkinVariant;
-  name?: string;
+  name?: string | undefined;
   waitMs?: number;
-  capeUuid?: string;
-  apiKey?: string;
+  capeUuid?: string | undefined;
+  apiKey?: string | undefined;
   useCapeProxy?: boolean;
 }
 
@@ -163,7 +162,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
         axolotlResponseSchema,
       );
       if (!data.skin)
-        return yield* new MineSkinError({
+        return yield* MineSkinError.make({
           reason: "result",
           ...messageFields("errors.resultMissing"),
         });
@@ -176,13 +175,13 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
     );
     for (;;) {
       if (data.job?.status === "failed")
-        return yield* new MineSkinError({
+        return yield* MineSkinError.make({
           reason: "job",
           ...messageFields("errors.jobIncomplete"),
         });
       if (data.skin) return { ...data, skin: data.skin };
       if (!data.job)
-        return yield* new MineSkinError({
+        return yield* MineSkinError.make({
           reason: "job",
           ...messageFields("errors.jobMissing"),
         });
@@ -195,7 +194,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
           );
           if (result.skin) return { ...data, skin: result.skin };
         }
-        return yield* new MineSkinError({
+        return yield* MineSkinError.make({
           reason: "result",
           ...messageFields("errors.resultMissing"),
         });
@@ -207,52 +206,49 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
   },
 );
 
-export const fetchMineSkinCapeGrantEffect = Effect.fn("MineSkin.capeGrant")(
-  function* (apiKey: string) {
-    const data = yield* mineSkinRequest(
-      `${MINESKIN_API_BASE_URL}/me`,
-      { headers: createMineSkinHeaders(apiKey) },
-      grantsSchema,
-    );
-    return Boolean(data.grants?.["capes"]);
-  },
-);
-export const fetchMineSkinSupportedCapesEffect = Effect.fn(
-  "MineSkin.supportedCapes",
-)(function* (apiKey?: string) {
+const fetchMineSkinCapeGrantEffect = Effect.fn("MineSkin.capeGrant")(function* (
+  apiKey: string,
+) {
   const data = yield* mineSkinRequest(
-    `${MINESKIN_API_BASE_URL}/capes`,
+    `${MINESKIN_API_BASE_URL}/me`,
     { headers: createMineSkinHeaders(apiKey) },
-    capesSchema,
+    grantsSchema,
   );
-  return (data.capes ?? [])
-    .filter((cape) => cape.supported)
-    .map((cape) =>
-      // The decoded capes are fresh objects that only this function owns.
-      Object.assign(cape, {
-        url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
-      }),
-    );
+  return Boolean(data.grants?.["capes"]);
 });
-export const fetchCapeSupportEffect = Effect.fn("MineSkin.capeSupport")(
-  function* (apiKey: string) {
-    const hasCapeGrant = yield* fetchMineSkinCapeGrantEffect(apiKey);
-    return {
-      hasCapeGrant,
-      capes: hasCapeGrant
-        ? yield* fetchMineSkinSupportedCapesEffect(apiKey)
-        : [],
-    };
+const fetchMineSkinSupportedCapesEffect = Effect.fn("MineSkin.supportedCapes")(
+  function* (apiKey?: string) {
+    const data = yield* mineSkinRequest(
+      `${MINESKIN_API_BASE_URL}/capes`,
+      { headers: createMineSkinHeaders(apiKey) },
+      capesSchema,
+    );
+    return (data.capes ?? [])
+      .filter((cape) => cape.supported)
+      .map((cape) =>
+        // The decoded capes are fresh objects that only this function owns.
+        Object.assign(cape, {
+          url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
+        }),
+      );
   },
 );
+const fetchCapeSupportEffect = Effect.fn("MineSkin.capeSupport")(function* (
+  apiKey: string,
+) {
+  const hasCapeGrant = yield* fetchMineSkinCapeGrantEffect(apiKey);
+  return {
+    hasCapeGrant,
+    capes: hasCapeGrant ? yield* fetchMineSkinSupportedCapesEffect(apiKey) : [],
+  };
+});
 // React event handlers and external callers consume Promises at this boundary.
 export const uploadMineSkinFile = (
   options: MineSkinUploadOptions,
   signal?: AbortSignal,
 ): Promise<MineSkinCompletedResponse> =>
   runHttpEffect(uploadMineSkinFileEffect(options), signal);
-export const fetchMineSkinCapeGrant = (apiKey: string, signal?: AbortSignal) =>
-  runHttpEffect(fetchMineSkinCapeGrantEffect(apiKey), signal);
+
 export const fetchMineSkinSupportedCapes = (
   apiKey?: string,
   signal?: AbortSignal,

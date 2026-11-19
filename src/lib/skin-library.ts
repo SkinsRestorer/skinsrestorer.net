@@ -21,7 +21,7 @@ import { required } from "./utils";
  * editor work). Nothing here uses the network.
  */
 export const LIBRARY_DB = "skinsrestorer-skins";
-export const LIBRARY_VERSION = 1;
+const LIBRARY_VERSION = 1;
 export const LIBRARY_CHANNEL = "skinsrestorer-skins";
 export const MAX_SKIN_NAME_LENGTH = 80;
 const SKINS = "skins";
@@ -76,7 +76,7 @@ export function libraryError(
   cause?: unknown,
   detail: Message = message(failureMessages[reason]),
 ) {
-  return new SkinLibraryError({
+  return SkinLibraryError.make({
     reason,
     ...(typeof detail === "string"
       ? { message: detail }
@@ -142,7 +142,7 @@ const sessionSchema = Schema.Struct({
 });
 
 export type SkinContent = typeof contentSchema.Type;
-export type SkinSource = typeof sourceSchema.Type;
+type SkinSource = typeof sourceSchema.Type;
 export type StoredSkin = typeof skinSchema.Type;
 
 /** Another tab saved this skin after the edit session started. */
@@ -282,10 +282,7 @@ export const prepareSkinContent = Effect.fn("SkinLibrary.prepare")(function* (
   } satisfies SkinContent;
 });
 
-export function withVariant(
-  content: SkinContent,
-  variant: SkinVariant,
-): SkinContent {
+function withVariant(content: SkinContent, variant: SkinVariant): SkinContent {
   return { ...content, variant, key: `${content.pixelKey}:${variant}` };
 }
 
@@ -389,7 +386,7 @@ export class SkinLibrary extends Context.Service<
     }) => Effect.Effect<{ readonly created: boolean }, SkinLibraryError>;
     readonly subscribe: (listener: (event: LibraryEvent) => void) => () => void;
   }
->()("skinsrestorer/SkinLibrary") {}
+>()("skinsrestorer.net/lib/skin-library/SkinLibrary") {}
 
 /** The parts of BroadcastChannel the library uses. */
 export interface LibraryChannel {
@@ -556,12 +553,12 @@ function onResult<T>(request: IDBRequest<T>, handle: (value: T) => void) {
 }
 
 const notFound = (id: string) =>
-  new SkinNotFoundError({
+  SkinNotFoundError.make({
     id,
     ...messageFields("library.skinNoLongerKeptBrowser"),
   });
 
-export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
+const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   options: LibraryOptions,
 ) {
   const now = options.now ?? Date.now;
@@ -920,7 +917,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
             const skin = decoded.value;
             if (skin.revision !== input.baseRevision && !input.replace) {
               fail(
-                new SkinChangedError({
+                SkinChangedError.make({
                   skin,
                   ...messageFields("library.skinChangedAnotherTab"),
                 }),

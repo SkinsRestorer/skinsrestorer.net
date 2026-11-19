@@ -5,10 +5,12 @@ export interface SkinPatch {
   readonly indices: Uint16Array;
   readonly before: Uint8ClampedArray;
   readonly after: Uint8ClampedArray;
-  readonly variant?: {
-    readonly before: SkinVariant;
-    readonly after: SkinVariant;
-  };
+  readonly variant?:
+    | {
+        readonly before: SkinVariant;
+        readonly after: SkinVariant;
+      }
+    | undefined;
 }
 
 /** Collect pixel writes. A pixel keeps the value it had before the first write. */

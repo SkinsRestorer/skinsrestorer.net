@@ -117,7 +117,7 @@ export const partCopies: readonly { from: LimbPart; to: SkinPart }[] =
   });
 
 /** The part whose pixels an action changes. */
-export function actionTarget(action: PartAction) {
+function actionTarget(action: PartAction) {
   return action.kind === "flip" ? action.part : action.to;
 }
 

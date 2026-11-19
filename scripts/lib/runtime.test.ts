@@ -29,7 +29,7 @@ test("temporary directories are removed after successful and failed programs", a
         );
         assert.equal((yield* walkFiles(value)).length, 1);
         return yield* fail
-          ? new ToolError({
+          ? ToolError.make({
               operation: "example",
               cause: new Error("example failure"),
             })

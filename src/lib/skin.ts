@@ -31,11 +31,11 @@ export class SkinImages extends Context.Service<
     readonly create: () => HTMLImageElement;
     readonly variant: (image: HTMLImageElement) => SkinVariant;
   }
->()("skinsrestorer/SkinImages") {}
+>()("skinsrestorer.net/lib/skin/SkinImages") {}
 
 export function validateSkinDimensions(width: number, height: number): void {
   if (width <= 0 || height <= 0 || (width !== height && width !== height * 2)) {
-    throw new SkinImageError({
+    throw SkinImageError.make({
       ...messageFields("errors.imageDimensions", { width, height }),
     });
   }
@@ -60,7 +60,7 @@ export function withSkinImageEffect<A>(
           listeners: new AbortController(),
         }),
         catch: (cause) =>
-          new SkinImageError({
+          SkinImageError.make({
             ...messageFields("common.failedLoadImage"),
             cause,
           }),
@@ -76,7 +76,7 @@ export function withSkinImageEffect<A>(
                 Effect.try({
                   try: () => read(image),
                   catch: (cause) =>
-                    new SkinImageError({
+                    SkinImageError.make({
                       ...errorFields(cause, failure),
                       cause,
                     }),
@@ -90,7 +90,7 @@ export function withSkinImageEffect<A>(
             () => {
               resume(
                 Effect.fail(
-                  new SkinImageError({
+                  SkinImageError.make({
                     ...messageFields("common.failedLoadImage"),
                   }),
                 ),
@@ -104,7 +104,7 @@ export function withSkinImageEffect<A>(
           } catch (cause) {
             resume(
               Effect.fail(
-                new SkinImageError({
+                SkinImageError.make({
                   ...messageFields("common.failedLoadImage"),
                   cause,
                 }),
@@ -170,7 +170,7 @@ export function previewSkinFileEffect(
     Effect.try({
       try: () => urls.create(file),
       catch: (cause) =>
-        new SkinImageError({
+        SkinImageError.make({
           ...messageFields("common.failedLoadImage"),
           cause,
         }),
@@ -214,8 +214,6 @@ export async function runSkinEffect<A, E>(
     throw cause;
   }
 }
-export const detectSkinVariant = (imageUrl: string, signal?: AbortSignal) =>
-  runSkinEffect(detectSkinVariantEffect(imageUrl), signal);
 
 export function isValidSkinName(name: string): boolean {
   return /^[a-z0-9_]+$/u.test(name);

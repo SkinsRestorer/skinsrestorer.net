@@ -6,10 +6,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    // exactOptionalPropertyTypes stays off. React's DOM and CSS prop types
-    // allow `undefined` on every optional prop, while TanStack Router, unpic,
-    // Fumadocs and Motion props do not, so passing props through to those
-    // components fails without casts.
+    "exactOptionalPropertyTypes": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,

@@ -13,7 +13,7 @@ export type HttpFetch = (
 export class HttpClient extends Context.Service<
   HttpClient,
   { readonly fetch: HttpFetch }
->()("skinsrestorer/HttpClient") {}
+>()("skinsrestorer.net/lib/effect-http/HttpClient") {}
 
 // oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
 export class HttpError extends Schema.TaggedError<
@@ -56,7 +56,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
             return fetched;
           },
           catch: (cause) =>
-            new HttpError({
+            HttpError.make({
               reason: "transport",
               ...messageFields("errors.serviceCouldNotReached"),
               cause,
@@ -72,7 +72,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
             const part = yield* Effect.tryPromise({
               try: () => reader.read(),
               catch: (cause) =>
-                new HttpError({
+                HttpError.make({
                   reason: "transport",
                   ...messageFields("errors.serviceResponseCouldNotRead"),
                   cause,
@@ -81,7 +81,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
             if (part.done) break;
             size += part.value.byteLength;
             if (size > (options.maxBytes ?? 2 * 1024 * 1024))
-              return yield* new HttpError({
+              return yield* HttpError.make({
                 reason: "response",
                 ...messageFields("errors.serviceResponseExceedsSizeLimit"),
               });
@@ -103,7 +103,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
           duration: options.timeoutMs ?? 10_000,
           orElse: () =>
             Effect.fail(
-              new HttpError({
+              HttpError.make({
                 reason: "timeout",
                 ...messageFields("errors.serviceRequestTimedOut"),
               }),
@@ -169,23 +169,21 @@ export function readHttpJson<A>(
     const value: unknown = yield* Schema.decodeEffect(
       Schema.fromJsonString(Schema.Unknown),
     )(response.text).pipe(
-      Effect.mapError(
-        (cause) =>
-          new HttpError({
-            reason: "response",
-            ...messageFields("errors.serviceReturnedInvalidJson"),
-            cause,
-          }),
+      Effect.mapError((cause) =>
+        HttpError.make({
+          reason: "response",
+          ...messageFields("errors.serviceReturnedInvalidJson"),
+          cause,
+        }),
       ),
     );
     const data = yield* Schema.decodeUnknownEffect(schema)(value).pipe(
-      Effect.mapError(
-        (cause) =>
-          new HttpError({
-            reason: "response",
-            ...messageFields("errors.serviceReturnedInvalidResponse"),
-            cause,
-          }),
+      Effect.mapError((cause) =>
+        HttpError.make({
+          reason: "response",
+          ...messageFields("errors.serviceReturnedInvalidResponse"),
+          cause,
+        }),
       ),
     );
     return { ok: response.ok, status: response.status, data };

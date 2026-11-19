@@ -269,7 +269,7 @@ test("failure messages keep their keys through Effect and async generation state
   const { HttpError, runHttpEffect } = await import("./effect-http");
   const { messageFields } = await import("./messages");
   const { StudioGeneration } = await import("./studio-generation");
-  const failure = new HttpError({
+  const failure = HttpError.make({
     reason: "response",
     ...messageFields("errors.serviceReturnedInvalidResponse"),
   });

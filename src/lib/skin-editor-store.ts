@@ -43,7 +43,7 @@ interface Stroke {
   readonly settings: PaintSettings;
   readonly builder: PatchBuilder;
   /** With surface lock, the stroke stays on the face where it started. */
-  readonly lock?: SkinRegion;
+  readonly lock?: SkinRegion | undefined;
   /** Pixels the stroke already changed. Each pixel changes once per stroke. */
   readonly touched: Set<number>;
   last?: readonly [number, number];

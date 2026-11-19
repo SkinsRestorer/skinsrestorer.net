@@ -8,7 +8,7 @@ import { source } from "@/lib/source";
 type DocsPage = InferPageType<typeof source>;
 
 // oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
-export class DocumentTextError extends Schema.TaggedError<
+class DocumentTextError extends Schema.TaggedError<
   DocumentTextError,
   { readonly brand: unique symbol }
 >()("DocumentTextError", {
@@ -16,12 +16,10 @@ export class DocumentTextError extends Schema.TaggedError<
   cause: Schema.Unknown,
 }) {}
 
-export const getLLMTextEffect = Effect.fn("Docs.getText")(function* (
-  page: DocsPage,
-) {
+const getLLMTextEffect = Effect.fn("Docs.getText")(function* (page: DocsPage) {
   const processed = yield* Effect.tryPromise({
     try: () => page.data.getText("processed"),
-    catch: (cause) => new DocumentTextError({ url: page.url, cause }),
+    catch: (cause) => DocumentTextError.make({ url: page.url, cause }),
   });
   const locale = isLocale(page.locale) ? page.locale : "en";
   return `# ${page.data.title}
@@ -54,7 +52,7 @@ function pagesByUrl(locale: Locale) {
   return new Map(source.getPages(locale).map((page) => [page.url, page]));
 }
 
-export const getFullLLMTextEffect = Effect.fn("Docs.getFullText")(function* () {
+const getFullLLMTextEffect = Effect.fn("Docs.getFullText")(function* () {
   const remaining = pagesByUrl("en");
   const pages = [
     ...orderPages(source.getPageTree("en").children, remaining),

@@ -180,6 +180,7 @@ function getFallbackTitle(
 function LocaleLink({
   href = "",
   prefetch = true,
+  target,
   ...props
 }: React.ComponentProps<"a"> & { prefetch?: boolean }) {
   const locale = useLocale();
@@ -187,6 +188,7 @@ function LocaleLink({
     <Link
       to={localizeHref(href, locale)}
       preload={prefetch ? "intent" : false}
+      {...(target === undefined ? {} : { target })}
       {...props}
     />
   );

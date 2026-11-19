@@ -118,7 +118,7 @@ export function AddSkinMenu(props: {
  */
 export function StudioLibrary(props: {
   library: ReturnType<typeof useSkinLibrary>;
-  selectedId?: string;
+  selectedId?: string | undefined;
   commands: LibraryCommands;
   onSelect: (skin: StoredSkin) => void;
   onReverted: (skin: StoredSkin) => void;

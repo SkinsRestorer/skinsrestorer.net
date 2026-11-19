@@ -12,7 +12,7 @@ import {
  * three.js BoxGeometry groups its faces as +x, -x, +y, -y, +z, -z. skinview3d
  * turns the player toward +z, so +x is the player's left side.
  */
-export const boxSideFaces: readonly SkinFace[] = [
+const boxSideFaces: readonly SkinFace[] = [
   "left",
   "right",
   "top",

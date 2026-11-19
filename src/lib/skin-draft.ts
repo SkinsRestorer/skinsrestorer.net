@@ -7,7 +7,7 @@ import {
 } from "./skin-document";
 
 export const DRAFT_KEY = "skinsrestorer:editor:draft";
-export const DRAFT_VERSION = 1;
+const DRAFT_VERSION = 1;
 export const HANDOFF_KEY = "skinsrestorer:editor:handoff";
 
 /** The storage methods the editor uses. Every call can throw in a browser. */
@@ -38,7 +38,7 @@ export function bytesToBase64(bytes: Uint8Array) {
   return btoa(binary);
 }
 
-export function base64ToBytes(value: string) {
+function base64ToBytes(value: string) {
   const binary = atob(value);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.codePointAt(i) ?? 0;

@@ -24,13 +24,13 @@ import {
 
 /** The skin an editor works on. Without `skinId`, saving creates a skin. */
 export interface EditTarget {
-  readonly skinId?: string;
+  readonly skinId?: string | undefined;
   /** The skin revision this work started from. */
-  readonly baseRevision?: number;
+  readonly baseRevision?: number | undefined;
   readonly name: string;
 }
 
-export type DraftStatus =
+type DraftStatus =
   | { readonly kind: "idle" | "saved" }
   | { readonly kind: "off"; readonly message: Message };
 
@@ -56,7 +56,7 @@ export type SaveResult =
       readonly name: string;
       readonly variant: SkinVariant;
       /** Undefined when the browser could not keep the skin. */
-      readonly skin?: StoredSkin;
+      readonly skin?: StoredSkin | undefined;
     }
   | { readonly kind: "changed"; readonly skin: StoredSkin }
   | { readonly kind: "removed" }
@@ -69,7 +69,7 @@ interface EditorSessionOptions {
   readonly now?: () => number;
   readonly saveDelayMs?: number;
   /** The visitor's language, for copy names. English by default. */
-  readonly locale?: Locale;
+  readonly locale?: Locale | undefined;
 }
 
 /**
@@ -197,7 +197,7 @@ export class EditorSession {
   }
 
   /** List drafts that are not this editor's own work. */
-  async loadRecovery(filter?: { readonly skinId?: string }) {
+  async loadRecovery(filter?: { readonly skinId?: string | undefined }) {
     if (!this.library) return [];
     try {
       const listing = await this.library.run(withLibrary((l) => l.list));

@@ -58,7 +58,7 @@ const cspDirectives = {
   "report-to": ["posthog"],
 };
 
-export const contentSecurityPolicy = Object.entries(cspDirectives)
+const contentSecurityPolicy = Object.entries(cspDirectives)
   .map(([name, sources]) => `${name} ${sources.join(" ")}`)
   .join("; ");
 

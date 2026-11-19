@@ -25,7 +25,7 @@ import { required } from "@/lib/utils";
 interface DemoCommand {
   command: string;
   reply: MessageKey;
-  replyClassName?: string;
+  replyClassName?: string | undefined;
   showHead: boolean;
   skin: "applied" | "cleared" | "unchanged";
   description: MessageKey;

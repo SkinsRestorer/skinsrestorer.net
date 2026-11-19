@@ -1,3 +1,4 @@
+import { DateTime } from "effect";
 import { createFileRoute } from "@tanstack/react-router";
 import { localizedSitePages } from "@/lib/site-pages";
 import { siteUrl, getLanguageAlternates } from "@/lib/seo";
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         ];
         const entries = urls.map(
           ({ path, lastModified, languages }) =>
-            `<url><loc>${new URL(path, siteUrl).href}</loc>${lastModified ? `<lastmod>${new Date(lastModified).toISOString()}</lastmod>` : ""}${getLanguageAlternates(
+            `<url><loc>${new URL(path, siteUrl).href}</loc>${lastModified ? `<lastmod>${DateTime.formatIso(DateTime.makeUnsafe(lastModified))}</lastmod>` : ""}${getLanguageAlternates(
               splitLocalePath(path).path,
               languages,
             )

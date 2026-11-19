@@ -33,11 +33,11 @@ export interface StudioSearch {
   /** A textures.minecraft.net URL or hash. */
   readonly texture?: string;
   /** A public gallery skin ID. */
-  readonly skin?: string;
+  readonly skin?: string | undefined;
   /** Omitted when it is the default for the other values. */
   readonly source?: SkinSource;
   /** The gallery search text. Only kept with the gallery shown. */
-  readonly q?: string;
+  readonly q?: string | undefined;
 }
 
 export const MAX_GALLERY_QUERY = 100;

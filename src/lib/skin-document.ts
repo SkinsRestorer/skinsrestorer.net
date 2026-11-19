@@ -9,7 +9,7 @@ export interface SkinDocument {
   readonly variant: SkinVariant;
 }
 
-export const SKIN_BYTES = SKIN_SIZE * SKIN_SIZE * 4;
+const SKIN_BYTES = SKIN_SIZE * SKIN_SIZE * 4;
 export const MAX_SKIN_FILE_BYTES = 5 * 1024 * 1024;
 
 export class SkinFileError extends MessageError {

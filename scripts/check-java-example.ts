@@ -1,5 +1,5 @@
 import path from "node:path";
-import { Effect } from "effect";
+import { Console, Effect } from "effect";
 import {
   runChild,
   runTool,
@@ -57,7 +57,9 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
 );
 if (import.meta.main)
   await runTool(checkJavaExample(), () => {
-    console.log(
-      "Compiled and packaged the documentation's complete Java example.",
+    Effect.runSync(
+      Console.log(
+        "Compiled and packaged the documentation's complete Java example.",
+      ),
     );
   });

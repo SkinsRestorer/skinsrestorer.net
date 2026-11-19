@@ -1,6 +1,6 @@
 import { docFileInfo, localizePath, splitLocalePath } from "../src/lib/i18n";
 import { localizedSitePages } from "../src/lib/site-pages";
-import { Effect, Result, Schema } from "effect";
+import { Console, Effect, Result, Schema } from "effect";
 import {
   runTool,
   ToolFiles,
@@ -234,7 +234,9 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
   )) {
     const raw = yield* fs.readText(file);
     const metadata = yield* toolTry("parse navigation", () =>
-      metaSchema.parse(JSON.parse(raw)),
+      metaSchema.parse(
+        Schema.decodeSync(Schema.fromJsonString(Schema.Unknown))(raw),
+      ),
     );
     const directory = path.dirname(file);
     const location = path.relative(root, file);
@@ -294,7 +296,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
 if (import.meta.main)
   await runTool(checkDocs(), ({ errors, summary }) => {
     if (errors.length > 0) {
-      console.error(errors.join("\n"));
+      Effect.runSync(Console.error(errors.join("\n")));
       process.exitCode = 1;
-    } else console.log(summary);
+    } else Effect.runSync(Console.log(summary));
   });

@@ -36,7 +36,7 @@ socialLinks.push({
   external: true,
 });
 
-export const baseOptions: BaseLayoutProps = {
+const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
       <>

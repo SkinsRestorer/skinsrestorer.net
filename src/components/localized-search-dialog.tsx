@@ -27,8 +27,8 @@ export default function LocalizedSearchDialog(props: SharedProps) {
       search={search}
       onSearchChange={onSearchChange}
       isLoading={isLoading}
-      data={data}
-      error={error}
+      {...(data === undefined ? {} : { data })}
+      {...(error === undefined ? {} : { error })}
     >
       <SearchDialogOverlay />
       <SearchDialogContent>

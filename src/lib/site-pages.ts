@@ -1,7 +1,7 @@
 /** Public HTML pages, shared by the sitemap and documentation link checker. */
 import { locales, localizePath } from "./i18n.ts";
 
-export const sitePages = [
+const sitePages = [
   "/",
   "/studio",
   "/upload",

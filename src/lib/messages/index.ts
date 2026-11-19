@@ -12,7 +12,7 @@ export const messageValuesSchema = Schema.declare(isMessageValues);
 
 export interface MessageDescriptor {
   readonly key: MessageKey;
-  readonly values?: MessageValues;
+  readonly values?: MessageValues | undefined;
 }
 /** Plain strings are external text, never translation keys. */
 export type Message = string | MessageDescriptor;
@@ -42,7 +42,7 @@ export function translate(
   );
 }
 
-export function translateMessage(locale: Locale, value: Message): string {
+function translateMessage(locale: Locale, value: Message): string {
   return typeof value === "string"
     ? value
     : translate(locale, value.key, value.values);
@@ -57,7 +57,7 @@ export function messageFields(key: MessageKey, values?: MessageValues) {
   };
 }
 
-export interface LocalizedErrorFields {
+interface LocalizedErrorFields {
   readonly messageKey?: MessageKey;
   readonly messageValues?: MessageValues;
 }
@@ -69,7 +69,7 @@ export class MessageError extends Error implements LocalizedErrorFields {
   constructor(key: MessageKey, values?: MessageValues) {
     super(translate("en", key, values));
     this.messageKey = key;
-    this.messageValues = values;
+    if (values !== undefined) this.messageValues = values;
   }
 }
 

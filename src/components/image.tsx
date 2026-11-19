@@ -19,8 +19,8 @@ export type ImageProps = Omit<
   src: string;
   /** Describe the image, or pass "" for a decorative one. */
   alt: string;
-  width?: number;
-  height?: number;
+  width?: number | undefined;
+  height?: number | undefined;
   fill?: boolean;
   objectFit?: "contain" | "cover" | "fill" | "none" | "scale-down";
   breakpoints?: number[];
@@ -94,15 +94,18 @@ export function Image({
       src={src}
       alt={alt}
       {...(layout === "fullWidth" || fill || !resolvedWidth || !resolvedHeight
-        ? { layout: "fullWidth" as const, aspectRatio }
+        ? {
+            layout: "fullWidth" as const,
+            ...(aspectRatio === undefined ? {} : { aspectRatio }),
+          }
         : {
             layout: layout ?? "constrained",
             width: resolvedWidth,
             height: resolvedHeight,
           })}
-      priority={priority}
+      {...(priority === undefined ? {} : { priority })}
       objectFit={objectFit}
-      background={placeholder}
+      {...(placeholder === undefined ? {} : { background: placeholder })}
       breakpoints={getStaticImageWidths(metadata, breakpoints)}
       transformer={transform}
       className={classes}

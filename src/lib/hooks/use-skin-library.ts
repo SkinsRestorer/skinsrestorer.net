@@ -212,5 +212,3 @@ export function useSkinLibrary() {
 
   return { client, state, migrated, actions };
 }
-
-export type SkinLibraryActions = ReturnType<typeof useSkinLibrary>["actions"];

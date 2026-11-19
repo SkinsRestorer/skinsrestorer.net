@@ -1,9 +1,13 @@
 import * as entrypoint from "./src/server.ts" with { type: "cf-worker" };
+import { Config, Effect } from "effect";
 import { defineConfig } from "cf/config";
 
 export default defineConfig({
-  accountId:
-    process.env["CLOUDFLARE_ACCOUNT_ID"] ?? "ba673a702aa9c7a8f9a68449adf70951",
+  accountId: Effect.runSync(
+    Config.String("CLOUDFLARE_ACCOUNT_ID").pipe(
+      Config.withDefault("ba673a702aa9c7a8f9a68449adf70951"),
+    ),
+  ),
   worker: {
     name: "skinsrestorer-website",
     domains: ["skinsrestorer.net", "www.skinsrestorer.net"],

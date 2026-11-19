@@ -1,3 +1,4 @@
+import { Config, Effect, Option } from "effect";
 import { docsFunctionId, staticDocsMetadata } from "./scripts/static-docs.ts";
 import { readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -32,66 +33,76 @@ function getDocsPrerenderPages() {
   );
 }
 
-export default defineConfig(({ command }) => ({
-  server: { port: 3000, headers: securityHeaders },
-  preview: { port: 3000, headers: securityHeaders },
-  resolve: { tsconfigPaths: true },
-  build: { sourcemap: true },
-  environments: { ssr: { build: { sourcemap: true } } },
-  plugins: [
-    mdx(MdxConfig),
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
-    tailwindcss(),
-    tanstackStart({
-      serverFns: { generateFunctionId: docsFunctionId },
-      pages: [
-        ...getDocsPrerenderPages(),
-        ...localizedSitePages.map((path) => ({ path })),
-        {
-          path: "/api/search",
-          prerender: { enabled: true, outputPath: "/api/search" },
-          sitemap: { exclude: true },
-        },
-      ],
-      prerender: {
-        enabled: true,
-        crawlLinks: true,
-        autoSubfolderIndex: false,
-        failOnError: true,
-        concurrency: 4,
-        filter: ({ path }) =>
-          path === "/api/search" ||
-          (!/[?#]/u.test(path) &&
-            (localizedSitePages.includes(path) ||
-              ((splitLocalePath(path).path === "/docs" ||
-                splitLocalePath(path).path.startsWith("/docs/")) &&
-                !path.includes(".")))),
-      },
-    }),
-    staticDocsMetadata(),
-    react(),
-    ...(command === "build" && process.env["POSTHOG_PERSONAL_API_KEY"]
-      ? [
+export default defineConfig(({ command }) => {
+  const posthogKey =
+    command === "build"
+      ? Effect.runSync(Config.option(Config.String("POSTHOG_PERSONAL_API_KEY")))
+      : Option.none();
+  return {
+    server: { port: 3000, headers: securityHeaders },
+    preview: { port: 3000, headers: securityHeaders },
+    resolve: { tsconfigPaths: true },
+    build: { sourcemap: true },
+    environments: { ssr: { build: { sourcemap: true } } },
+    plugins: [
+      mdx(MdxConfig),
+      cloudflare({ viteEnvironment: { name: "ssr" } }),
+      tailwindcss(),
+      tanstackStart({
+        serverFns: { generateFunctionId: docsFunctionId },
+        pages: [
+          ...getDocsPrerenderPages(),
+          ...localizedSitePages.map((path) => ({ path })),
           {
-            ...posthog({
-              personalApiKey: process.env["POSTHOG_PERSONAL_API_KEY"],
-              projectId: "101544",
-              host: "https://eu.posthog.com",
-              sourcemaps: {
-                enabled: true,
-                releaseName: "skinsrestorer.net",
-                releaseVersion:
-                  process.env["GITHUB_SHA"] ??
-                  execFileSync("git", ["rev-parse", "HEAD"], {
-                    encoding: "utf8",
-                  }).trim(),
-                deleteAfterUpload: true,
-              },
-            }),
-            applyToEnvironment: (environment: { name: string }) =>
-              environment.name === "client",
+            path: "/api/search",
+            prerender: { enabled: true, outputPath: "/api/search" },
+            sitemap: { exclude: true },
           },
-        ]
-      : []),
-  ],
-}));
+        ],
+        prerender: {
+          enabled: true,
+          crawlLinks: true,
+          autoSubfolderIndex: false,
+          failOnError: true,
+          concurrency: 4,
+          filter: ({ path }) =>
+            path === "/api/search" ||
+            (!/[?#]/u.test(path) &&
+              (localizedSitePages.includes(path) ||
+                ((splitLocalePath(path).path === "/docs" ||
+                  splitLocalePath(path).path.startsWith("/docs/")) &&
+                  !path.includes(".")))),
+        },
+      }),
+      staticDocsMetadata(),
+      react(),
+      ...(Option.isSome(posthogKey) && posthogKey.value !== ""
+        ? [
+            {
+              ...posthog({
+                personalApiKey: posthogKey.value,
+                projectId: "101544",
+                host: "https://eu.posthog.com",
+                sourcemaps: {
+                  enabled: true,
+                  releaseName: "skinsrestorer.net",
+                  releaseVersion:
+                    Option.getOrUndefined(
+                      Effect.runSync(
+                        Config.option(Config.String("GITHUB_SHA")),
+                      ),
+                    ) ??
+                    execFileSync("git", ["rev-parse", "HEAD"], {
+                      encoding: "utf8",
+                    }).trim(),
+                  deleteAfterUpload: true,
+                },
+              }),
+              applyToEnvironment: (environment: { name: string }) =>
+                environment.name === "client",
+            },
+          ]
+        : []),
+    ],
+  };
+});

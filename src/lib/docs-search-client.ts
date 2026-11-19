@@ -92,7 +92,7 @@ export function createDocsSearchClient(
       }),
   });
   return {
-    deps: client.deps,
+    ...(client.deps === undefined ? {} : { deps: client.deps }),
     search: async (query) => rankDocsResults(await client.search(query), query),
   };
 }

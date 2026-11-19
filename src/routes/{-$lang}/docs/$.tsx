@@ -104,6 +104,8 @@ const serverLoader = createServerFn({ method: "GET" })
           }
         : undefined;
     };
+    const previous = footerLink(-1);
+    const next = footerLink(1);
     return {
       path: page.path,
       url: localizePath(page.url, locale),
@@ -115,7 +117,10 @@ const serverLoader = createServerFn({ method: "GET" })
       image: getPageImage(page).url,
       pageTree: await source.serializePageTree(pageTree),
       links,
-      neighbours: { previous: footerLink(-1), next: footerLink(1) },
+      neighbours: {
+        ...(previous === undefined ? {} : { previous }),
+        ...(next === undefined ? {} : { next }),
+      },
     };
   });
 
@@ -124,7 +129,10 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   url: string;
   links: Record<string, ResolvedLink>;
   contentLocale: Locale;
-  neighbours: { previous?: FooterLink; next?: FooterLink };
+  neighbours: {
+    previous?: FooterLink;
+    next?: FooterLink;
+  };
 }>({
   id: "docs-page",
   // fumadocs calls this as a hook (`useRenderer`) inside its page renderer.
@@ -372,7 +380,10 @@ function DocsContent(props: {
   url: string;
   links: Record<string, ResolvedLink>;
   contentLocale: Locale;
-  neighbours: { previous?: FooterLink; next?: FooterLink };
+  neighbours: {
+    previous?: FooterLink;
+    next?: FooterLink;
+  };
 }) {
   return clientLoader.useContent(props.path, props);
 }

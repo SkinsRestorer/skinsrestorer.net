@@ -3,7 +3,7 @@ import { translate, type MessageKey } from "./messages";
 
 export const siteUrl = "https://skinsrestorer.net";
 export const siteTitleKey = "seo.siteTitle";
-export const siteDescriptionKey = "seo.siteDescription";
+const siteDescriptionKey = "seo.siteDescription";
 
 export function getPageHead(
   path: string,

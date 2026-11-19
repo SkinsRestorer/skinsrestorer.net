@@ -36,8 +36,8 @@ export function StudioGallery(props: {
   onQuery: (query: string) => void;
   onRetry: () => void;
   onSelect: (skin: GallerySkin) => void;
-  selectedId?: string;
-  pendingId?: string;
+  selectedId?: string | undefined;
+  pendingId?: string | undefined;
   layout: "rail" | "drawer";
 }) {
   const t = useT();

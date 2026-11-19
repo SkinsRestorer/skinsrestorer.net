@@ -54,7 +54,7 @@ const run = <A, E>(
 
 test("a texture downloads without credentials or redirects and opens locally", async () => {
   const png = await exportSkinPng(createTemplate("slim").pixels);
-  let request: { url: string; init?: RequestInit } | undefined;
+  let request: { url: string; init?: RequestInit | undefined } | undefined;
   const exit = await run(loadTextureEffect(hash), (url, init) => {
     request = { url: url instanceof Request ? url.url : url.toString(), init };
     return Promise.resolve(

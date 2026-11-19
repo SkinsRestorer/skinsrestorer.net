@@ -2,7 +2,7 @@ import type { KeyValueStorage } from "./skin-draft";
 import type { Rgba } from "./skin-paint";
 
 /** The editor shows this many recent colors. */
-export const RECENT_COLOR_LIMIT = 8;
+const RECENT_COLOR_LIMIT = 8;
 export const RECENT_COLORS_KEY = "skinsrestorer:editor-recent-colors";
 const VERSION = 1;
 

@@ -1562,7 +1562,7 @@ export function SkinStudio(props: {
  */
 function ChoiceSet(props: {
   label: string;
-  errors?: readonly unknown[];
+  errors?: readonly unknown[] | undefined;
   children: (labelId: string) => React.ReactNode;
 }) {
   const id = useId();
@@ -1581,7 +1581,7 @@ function TextField(props: {
   description?: string;
   value: string;
   placeholder?: string;
-  errors?: readonly unknown[];
+  errors?: readonly unknown[] | undefined;
   onChange: (value: string) => void;
   onBlur?: () => void;
 }) {
@@ -1615,26 +1615,25 @@ function TextField(props: {
 }
 
 /** Validation messages use stable keys; show them in the page language. */
-function LocalizedFieldError(props: { errors?: readonly unknown[] }) {
+function LocalizedFieldError(props: {
+  errors?: readonly unknown[] | undefined;
+}) {
   const t = useT();
-  return (
-    <FieldError
-      errors={props.errors
-        ?.filter(isMessageKey)
-        .map((message) => ({ message: t(message) }))}
-    />
-  );
+  const errors = props.errors
+    ?.filter(isMessageKey)
+    .map((message) => ({ message: t(message) }));
+  return <FieldError {...(errors === undefined ? {} : { errors })} />;
 }
 
 function SelectedSkinView(props: {
   selection: SelectedSkin;
   variant: "classic" | "slim";
   previewUrl: string | null;
-  capeUrl?: string;
+  capeUrl?: string | undefined;
   onEdit: () => void;
   onUseLatest: () => void;
-  onKeep?: () => void;
-  galleryLink?: string;
+  onKeep?: (() => void) | undefined;
+  galleryLink?: string | undefined;
   /** Element ids, so the Studio can move focus here after a view change. */
   headingId?: string;
   editButtonId?: string;
@@ -1877,7 +1876,7 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
   );
 }
 
-function LegacyDraftAlerts(props: { migrated?: string }) {
+function LegacyDraftAlerts(props: { migrated?: string | undefined }) {
   const t = useT();
   const [hidden, setHidden] = useState(false);
   if (props.migrated === "newer")

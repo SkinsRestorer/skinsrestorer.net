@@ -1,6 +1,6 @@
 import { localizeHref, type Locale } from "./i18n";
 
-export const siteOrigin = "https://skinsrestorer.net";
+const siteOrigin = "https://skinsrestorer.net";
 
 /** Resolve a site path to an absolute URL in the reader's language. */
 export function absoluteDocsUrl(href: string, locale: Locale = "en") {

@@ -65,7 +65,7 @@ export function generateStaticImages({
           const width = rotated ? info.height : info.width;
           const height = rotated ? info.width : info.height;
           if (!width || !height) {
-            return yield* new StaticImageError({
+            return yield* StaticImageError.make({
               operation: "read image dimensions",
               cause: source,
             });

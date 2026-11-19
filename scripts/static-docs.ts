@@ -63,11 +63,13 @@ export function staticDocsMetadata(): Plugin {
             Effect.tryPromise({
               try: () =>
                 preview({
-                  configFile: builder.config.configFile,
+                  ...(builder.config.configFile === undefined
+                    ? {}
+                    : { configFile: builder.config.configFile }),
                   preview: { port: 0, open: false },
                 }),
               catch: (cause) =>
-                new ToolError({ operation: "start metadata preview", cause }),
+                ToolError.make({ operation: "start metadata preview", cause }),
             }),
             (server) =>
               Effect.gen(function* () {
@@ -160,7 +162,7 @@ export function staticDocsMetadata(): Plugin {
                           return { destination, json };
                         },
                         catch: (cause) =>
-                          new ToolError({
+                          ToolError.make({
                             operation: `snapshot docs metadata for ${page}`,
                             cause,
                           }),

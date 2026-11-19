@@ -1,8 +1,8 @@
 export interface StaticImageMetadata {
   width: number;
   height: number;
-  background?: string;
-  variants?: { width: number; src: string }[];
+  background?: string | undefined;
+  variants?: { width: number; src: string }[] | undefined;
 }
 
 export type StaticImageManifest = Record<string, StaticImageMetadata>;

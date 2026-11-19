@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { Effect, Schema } from "effect";
+import { Console, Effect, Schema } from "effect";
 import release from "../documentation/verified-release.json";
 import { readHttpText } from "../src/lib/effect-http";
 import { runTool, toolTry } from "./lib/runtime";
@@ -28,8 +28,8 @@ export const checkDocsUpstream = Effect.fn("Docs.checkUpstream")(function* (
   const tree = yield* toolTry("read upstream source tree", () => {
     if (!treeResponse.ok)
       throw new Error(`${treeResponse.status} while reading the source tree`);
-    const decoded = Schema.decodeUnknownSync(treeSchema)(
-      JSON.parse(treeResponse.text),
+    const decoded = Schema.decodeSync(Schema.fromJsonString(treeSchema))(
+      treeResponse.text,
     );
     if (decoded.truncated)
       throw new Error("GitHub returned an incomplete source tree");
@@ -77,14 +77,18 @@ if (import.meta.main)
     checkDocsUpstream(process.argv[2]),
     ({ changed, count, version }) => {
       if (changed.length > 0) {
-        console.error(changed.join("\n"));
-        console.error(
-          "Review these declarations and update the inventory and affected pages together.",
+        Effect.runSync(Console.error(changed.join("\n")));
+        Effect.runSync(
+          Console.error(
+            "Review these declarations and update the inventory and affected pages together.",
+          ),
         );
         process.exitCode = 1;
       } else
-        console.log(
-          `Verified ${count} source files against release ${version}.`,
+        Effect.runSync(
+          Console.log(
+            `Verified ${count} source files against release ${version}.`,
+          ),
         );
     },
   );

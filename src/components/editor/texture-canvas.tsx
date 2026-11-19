@@ -17,7 +17,7 @@ interface TextureCanvasProps extends EditorSurfaceProps {
   readonly scale: number;
   readonly showGrid: boolean;
   /** Pixel indexes to outline, for example from the skin check. */
-  readonly highlight?: readonly number[];
+  readonly highlight?: readonly number[] | undefined;
   /** Asks for a new scale when two fingers pinch the texture. */
   readonly onZoom?: (scale: number) => void;
 }

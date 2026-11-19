@@ -42,7 +42,7 @@ export const skinPartLabels: Record<SkinPart, MessageKey> = {
   leftLeg: "editor.leftLeg",
 };
 
-export const skinFaceLabels: Record<SkinFace, MessageKey> = {
+const skinFaceLabels: Record<SkinFace, MessageKey> = {
   top: "editor.face.top",
   bottom: "editor.face.bottom",
   right: "editor.face.right",

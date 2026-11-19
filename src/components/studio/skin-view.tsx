@@ -23,7 +23,7 @@ const BACK = Math.PI + 0.5;
  */
 export function SkinView(props: {
   skinUrl: string | null;
-  capeUrl?: string;
+  capeUrl?: string | undefined;
   variant: SkinVariant;
   label: string;
   fallback?: ReactNode;

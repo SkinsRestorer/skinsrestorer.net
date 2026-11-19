@@ -9,8 +9,10 @@ import {
 import type { KeyValueStorage } from "./skin-draft";
 import type { Rgba } from "./skin-paint";
 
-function memory(initial?: string): KeyValueStorage & { value?: string } {
-  const store: KeyValueStorage & { value?: string } = {
+function memory(
+  initial?: string,
+): KeyValueStorage & { value?: string | undefined } {
+  const store: KeyValueStorage & { value?: string | undefined } = {
     value: initial,
     getItem: (key) =>
       key === RECENT_COLORS_KEY ? (store.value ?? null) : null,

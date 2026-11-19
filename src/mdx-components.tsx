@@ -49,7 +49,13 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     blockquote: ({ children }: ComponentProps<"blockquote">) => (
       <Callout>{children}</Callout>
     ),
-    img: ImageZoom,
+    img: ({ src, sizes, ...props }: ComponentProps<"img">) => (
+      <ImageZoom
+        {...props}
+        {...(src === undefined ? {} : { src })}
+        {...(sizes === undefined ? {} : { sizes })}
+      />
+    ),
     // HTML `ref` attribute conflicts with `forwardRef`
     pre: ({ ref: _ref, ...props }) => (
       // Keep horizontal swipes inside wide code from triggering browser
