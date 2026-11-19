@@ -392,17 +392,6 @@
       "rules": {
         "react/only-export-components": "off"
       }
-    },
-    {
-      // The service worker is plain JavaScript outside the TypeScript project.
-      // `self` resolves to the DOM Window there, so the ServiceWorkerGlobalScope
-      // members it uses have no types.
-      "files": ["public/service-worker.js"],
-      "rules": {
-        "typescript/no-unsafe-call": "off",
-        "typescript/no-unsafe-member-access": "off",
-        "typescript/no-unsafe-return": "off"
-      }
     }
   ]
 }

@@ -1,0 +1,24 @@
+{
+  // public/service-worker.js is served as plain JavaScript, so it stays JS.
+  // It runs in a service worker, which needs the WebWorker globals instead
+  // of the DOM globals the main project uses. The root tsconfig.json
+  // references this project so Oxlint's type check uses these settings.
+  // Project references cannot disable emit, so the declarations go to an
+  // ignored cache directory.
+  "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "outDir": "node_modules/.cache/tsc-service-worker",
+    "target": "ES2022",
+    "lib": ["ES2022", "WebWorker"],
+    "types": [],
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
+  },
+  "include": ["public/service-worker.js"]
+}
