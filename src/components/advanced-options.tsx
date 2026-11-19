@@ -85,7 +85,7 @@ export function AdvancedOptions(props: {
                   }}
                 >
                   <ToggleGroupItem value="axolotl" className={wrappingToggle}>
-                    <span className="py-1">{"Axolotl"}</span>
+                    <span className="py-1">Axolotl</span>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="mineskin" className={wrappingToggle}>
                     <span className="py-1">{t("common.official")}</span>

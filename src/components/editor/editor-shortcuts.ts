@@ -59,6 +59,7 @@ export function ariaShortcuts(
 /** `aria-keyshortcuts` for these commands on this device. */
 export function useAriaShortcuts(...commands: readonly EditorCommand[]) {
   // The editor renders only in the browser, after the user opens it.
+  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
   const [platform] = useState(() => detectPlatform());
   return ariaShortcuts(commands, platform);
 }
@@ -80,6 +81,7 @@ export const HINT_DELAY = 400;
 
 /** A handle that connects many hint triggers to one shared tooltip. */
 export function useShortcutHints(): ShortcutHintHandle {
+  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
   const [handle] = useState(() =>
     TooltipPrimitive.createHandle<ShortcutHintPayload>(),
   );

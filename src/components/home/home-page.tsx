@@ -209,7 +209,7 @@ function useFaqItems() {
         <>
           {t("home.yesFreeLicensedUnderGpl30")}{" "}
           <a className={inlineLinkClassName} href={githubLink}>
-            {"GitHub"}
+            GitHub
           </a>
           {t("home.paid")}{" "}
           <Link className={inlineLinkClassName} href="/pricing">
@@ -253,7 +253,7 @@ function useFaqItems() {
           </Link>
           {t("home.ifDoesNotFixAsk")}{" "}
           <a className={inlineLinkClassName} href={discordLink}>
-            {"Discord"}
+            Discord
           </a>{" "}
           {t("home.includeServerVersionRecentLogReportBugs")}{" "}
           <a className={inlineLinkClassName} href={`${githubLink}/issues`}>
@@ -315,7 +315,7 @@ export default function IndexPage() {
         <div className="flex flex-col items-start gap-6">
           <p className="flex items-center gap-2.5 text-sm font-medium">
             <Image src="/logo.png" alt="" width={28} height={28} priority />
-            {"SkinsRestorer"}
+            SkinsRestorer
           </p>
           <h1
             id="home-title"
@@ -448,7 +448,7 @@ export default function IndexPage() {
             </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <a href={downloadLink} className={linkClassName}>
-                {"Modrinth"}
+                Modrinth
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
               <a href={releasesLink} className={linkClassName}>
@@ -557,7 +557,7 @@ export default function IndexPage() {
                 render={
                   <a href={githubLink}>
                     <SiGithub aria-hidden="true" />
-                    {"GitHub"}
+                    GitHub
                   </a>
                 }
                 nativeButton={false}
@@ -567,7 +567,7 @@ export default function IndexPage() {
                 render={
                   <a href={discordLink}>
                     <SiDiscord aria-hidden="true" />
-                    {"Discord"}
+                    Discord
                   </a>
                 }
                 nativeButton={false}

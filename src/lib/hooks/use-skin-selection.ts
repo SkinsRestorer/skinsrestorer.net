@@ -14,6 +14,7 @@ import { SkinSelectionStore } from "../skin-selection";
  */
 export function useSkinSelection() {
   const t = useNotificationT();
+  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
   const [store] = useState(
     () =>
       new SkinSelectionStore({

@@ -71,7 +71,8 @@ const runIn = <A, E>(
 ) =>
   client.run(
     Effect.gen(function* () {
-      return yield* f(yield* SkinLibrary);
+      const library = yield* SkinLibrary;
+      return yield* f(library);
     }),
   );
 
@@ -715,7 +716,10 @@ test("duplicate names the copy in the requested language", async () => {
 
 test("download names drop characters that file systems reject", () => {
   assert.equal(skinFileName("Harbor"), "Harbor.png");
-  assert.equal(skinFileName('a:b*c?"d<e>f|g/h\\i'), "a_b_c__d_e_f_g_h_i.png");
+  assert.equal(
+    skinFileName(String.raw`a:b*c?"d<e>f|g/h\i`),
+    "a_b_c__d_e_f_g_h_i.png",
+  );
   assert.equal(skinFileName("Гавань 港口 ñ"), "Гавань 港口 ñ.png");
   assert.equal(skinFileName("Harbor. . "), "Harbor.png");
   assert.equal(skinFileName("CON"), "CON_.png");

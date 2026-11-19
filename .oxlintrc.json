@@ -41,6 +41,50 @@
     }
   },
   "rules": {
+    "typescript/no-unsafe-type-assertion": "error",
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    "typescript/no-invalid-void-type": "error",
+    "typescript/no-redundant-type-constituents": "error",
+    "typescript/no-misused-spread": "error",
+    "typescript/no-dynamic-delete": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "unicorn/error-message": "error",
+    "unicorn/throw-new-error": "error",
+    "eslint/no-param-reassign": "error",
+    "eslint/no-shadow": "error",
+    "eslint/prefer-const": "error",
+    "eslint/prefer-object-has-own": "error",
+    "eslint/no-alert": "error",
+    "eslint/no-script-url": "error",
+    "unicorn/no-document-cookie": "error",
+    "eslint/object-shorthand": "error",
+    "eslint/prefer-template": "error",
+    "eslint/logical-assignment-operators": "error",
+    "react/self-closing-comp": "error",
+    "react/jsx-boolean-value": "error",
+    "react/jsx-curly-brace-presence": "error",
+    "react/jsx-fragments": "error",
+    "react/hook-use-state": "error",
+    "unicorn/numeric-separators-style": "error",
+    "unicorn/prefer-string-raw": "error",
+    "unicorn/prefer-structured-clone": "error",
+    "unicorn/prefer-response-static-json": "error",
+    "unicorn/prefer-optional-catch-binding": "error",
+    "unicorn/text-encoding-identifier-case": "error",
+    "oxc/no-map-spread": "error",
+    "oxc/no-barrel-file": "error",
+    "effecttsgo/global-date-in-effect": "error",
+    "effecttsgo/global-json-in-effect": "error",
+    "effecttsgo/process-env-in-effect": "error",
+    "effecttsgo/crypto-random-uuid-in-effect": "error",
+    "effecttsgo/global-console-in-effect": "error",
+    "effecttsgo/global-random-in-effect": "error",
+    "effecttsgo/global-fetch-in-effect": "error",
+    "effecttsgo/global-timers-in-effect": "error",
+    "effecttsgo/prefer-schema-over-json": "error",
+    "effecttsgo/prefer-schema-tagged-error": "error",
+    "effecttsgo/extends-native-error": "error",
+    "effecttsgo/yield-in-call-argument": "error",
     // Pedantic rules that only measure size, encode opinion, or duplicate other rules.
     "typescript/prefer-readonly-parameter-types": "off",
     "eslint/max-lines": "off",
@@ -314,6 +358,20 @@
   },
   "overrides": [
     {
+      // Vite targets Safari 16.4, which lacks the static Response.json method.
+      "files": ["src/**/*.{js,jsx,ts,tsx}", "public/**/*.js"],
+      "rules": {
+        "unicorn/prefer-response-static-json": "off"
+      }
+    },
+    {
+      // Tests run in Bun, and the server entry runs in Cloudflare Workers.
+      "files": ["src/**/*.test.{ts,tsx}", "src/server.ts"],
+      "rules": {
+        "unicorn/prefer-response-static-json": "error"
+      }
+    },
+    {
       "files": ["src/lib/docs-og.tsx"],
       "rules": {
         "shadcn/no-inline-styles": "off"
@@ -325,6 +383,10 @@
       "files": ["src/components/ui/**"],
       "rules": {
         "better-tailwindcss/enforce-canonical-classes": "off",
+        "eslint/object-shorthand": "off",
+        "eslint/prefer-template": "off",
+        "react/jsx-curly-brace-presence": "off",
+        "typescript/no-import-type-side-effects": "off",
         "better-tailwindcss/no-deprecated-classes": "off",
         "eslint/no-shadow": "off",
         "eslint/no-underscore-dangle": "off",

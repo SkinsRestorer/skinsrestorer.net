@@ -191,6 +191,7 @@ function skinFileAccept() {
 function useEditorSession() {
   const t = useT();
   const locale = useLocale();
+  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
   const [editor] = useState(() => {
     const store = new SkinEditorStore();
     // The server renders without a library; the browser opens it.
@@ -324,6 +325,7 @@ export function SkinStudio(props: {
     search.handoff,
   ]);
   const previousQueryLocation = useRef(queryLocation);
+  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
   const [queryWrite] = useState(
     () =>
       new LocationWrite<string | undefined>(

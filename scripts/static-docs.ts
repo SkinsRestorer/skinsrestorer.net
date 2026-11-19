@@ -1,7 +1,7 @@
 import { splitLocalePath } from "../src/lib/i18n.ts";
 import { createHash } from "node:crypto";
 import { dirname, join, relative } from "node:path";
-import { Effect, Schema } from "effect";
+import { Console, Effect, Schema } from "effect";
 import { fromCrossJSON, toJSONAsync, type SerovalNode } from "seroval";
 import { type Plugin, preview } from "vite";
 import { readHttpText, runHttpEffect } from "../src/lib/effect-http.ts";
@@ -11,6 +11,8 @@ import {
   toolFilesLayer,
   walkFiles,
 } from "./lib/runtime.ts";
+
+const encodeJson = Schema.encodeSync(Schema.fromJsonString(Schema.Unknown));
 
 export const docsMetadataFunctionId = "docs-metadata";
 
@@ -106,10 +108,7 @@ export function staticDocsMetadata(): Plugin {
                             `/_serverFn/${docsMetadataFunctionId}`,
                             origin,
                           );
-                          url.searchParams.set(
-                            "payload",
-                            JSON.stringify(payload),
-                          );
+                          url.searchParams.set("payload", encodeJson(payload));
                           const result = await runHttpEffect(
                             readHttpText(
                               url.href,
@@ -146,7 +145,7 @@ export function staticDocsMetadata(): Plugin {
                           }
                           // Match the cache key of the pinned staticFunctionMiddleware.
                           // Slugs are string arrays, so no object-key sorting is needed.
-                          const hash = JSON.stringify(data)
+                          const hash = encodeJson(data)
                             .replaceAll(/[/\\?%*:|"<>]/gu, "-")
                             .replaceAll(/\s+/gu, "_");
                           const key = createHash("sha1")
@@ -157,9 +156,7 @@ export function staticDocsMetadata(): Plugin {
                             "__tsr/staticServerFnCache",
                             `${key}.json`,
                           );
-                          const json = JSON.stringify(
-                            await toJSONAsync(response),
-                          );
+                          const json = encodeJson(await toJSONAsync(response));
                           return { destination, json };
                         },
                         catch: (cause) =>
@@ -178,7 +175,7 @@ export function staticDocsMetadata(): Plugin {
                     }),
                   { concurrency: 4 },
                 );
-                console.info(
+                yield* Console.info(
                   `[static-docs] Wrote ${pages.length} metadata snapshots`,
                 );
               }),

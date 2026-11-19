@@ -41,7 +41,7 @@ export const baseOptions: BaseLayoutProps = {
     title: (
       <>
         <Image
-          src={"/logo.png"}
+          src="/logo.png"
           width={32}
           height={32}
           alt="SkinsRestorer Logo"

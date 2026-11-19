@@ -1,5 +1,9 @@
-import { messageFields, type LocalizedErrorFields } from "./messages";
-import { Data, Effect, Schema } from "effect";
+import {
+  messageFields,
+  messageKeySchema,
+  messageValuesSchema,
+} from "./messages";
+import { Effect, Schema } from "effect";
 import { readHttpJson, runHttpEffect } from "./effect-http";
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
@@ -76,12 +80,16 @@ export type MineSkinCompletedResponse =
       skin: typeof axolotlSkinSchema.Type;
     });
 
-export class MineSkinError extends Data.TaggedError("MineSkinError")<{
-  readonly reason: "request" | "job" | "result";
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class MineSkinError extends Schema.TaggedError<
+  MineSkinError,
+  { readonly brand: unique symbol }
+>()("MineSkinError", {
+  reason: Schema.Literals(["request", "job", "result"]),
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+}) {}
 
 function createMineSkinHeaders(apiKey?: string): Record<string, string> {
   const headers: Record<string, string> = { "User-Agent": MINESKIN_USER_AGENT };

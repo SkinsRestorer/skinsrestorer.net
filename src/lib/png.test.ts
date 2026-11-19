@@ -51,13 +51,13 @@ test("damaged and non-PNG input is rejected", async () => {
 // Build other PNG color types to check the decoder against known pixels.
 const table = Array.from({ length: 256 }, (_, n) => {
   let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xed_b8_83_20 ^ (c >>> 1) : c >>> 1;
   return c >>> 0;
 });
 function crc(bytes: Uint8Array) {
-  let c = 0xffffffff;
+  let c = 0xff_ff_ff_ff;
   for (const b of bytes) c = (table[(c ^ b) & 0xff] ?? 0) ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
+  return (c ^ 0xff_ff_ff_ff) >>> 0;
 }
 function chunk(type: string, data: Uint8Array) {
   const out = new Uint8Array(12 + data.length);
@@ -107,7 +107,7 @@ test("palette images with transparency decode to RGBA", async () => {
     2,
     2,
     3,
-    [0, 0b01000000, 0, 0b00010000],
+    [0, 0b0100_0000, 0, 0b0001_0000],
     [palette, alpha],
   );
   const { pixels } = await decodePng(png, any);

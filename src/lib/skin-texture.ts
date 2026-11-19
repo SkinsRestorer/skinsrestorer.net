@@ -1,9 +1,10 @@
 import {
   errorFields,
   messageFields,
-  type LocalizedErrorFields,
+  messageKeySchema,
+  messageValuesSchema,
 } from "./messages";
-import { Data, Effect, Semaphore } from "effect";
+import { Effect, Semaphore, Schema } from "effect";
 import { readHttpBytes } from "./effect-http";
 import { readPngSize } from "./png";
 import {
@@ -15,12 +16,16 @@ import {
 
 export const TEXTURE_HOST = "textures.minecraft.net";
 
-export class TextureImportError extends Data.TaggedError("TextureImportError")<{
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-  readonly cause?: unknown;
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class TextureImportError extends Schema.TaggedError<
+  TextureImportError,
+  { readonly brand: unique symbol }
+>()("TextureImportError", {
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+  cause: Schema.optional(Schema.Unknown),
+}) {}
 
 const hashPattern = /^[0-9a-f]{32,64}$/iu;
 

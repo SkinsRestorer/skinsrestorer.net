@@ -1,3 +1,4 @@
+import { Schema } from "effect";
 import en from "./en.json";
 import ru from "./ru.json";
 import es from "./es.json";
@@ -6,6 +7,9 @@ import type { Locale } from "../i18n";
 
 export type MessageKey = keyof typeof en;
 export type MessageValues = Readonly<Record<string, string | number>>;
+export const messageKeySchema = Schema.declare(isMessageKey);
+export const messageValuesSchema = Schema.declare(isMessageValues);
+
 export interface MessageDescriptor {
   readonly key: MessageKey;
   readonly values?: MessageValues;
@@ -58,6 +62,7 @@ export interface LocalizedErrorFields {
   readonly messageValues?: MessageValues;
 }
 
+// oxlint-disable-next-line effecttsgo/extends-native-error -- This is the base for synchronous UI errors and preserves subclass identity.
 export class MessageError extends Error implements LocalizedErrorFields {
   readonly messageKey: MessageKey;
   readonly messageValues?: MessageValues;

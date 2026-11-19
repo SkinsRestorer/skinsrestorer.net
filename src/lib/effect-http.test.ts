@@ -132,6 +132,20 @@ test("oversized and invalid responses fail with typed errors and release readers
   );
 });
 
+test("malformed JSON keeps its distinct localized HTTP error", async () => {
+  await assert.rejects(
+    Effect.runPromise(
+      provide(readHttpJson(url, {}, Schema.Struct({ id: Schema.String })), () =>
+        Promise.resolve(new Response("{")),
+      ),
+    ),
+    {
+      reason: "response",
+      messageKey: "errors.serviceReturnedInvalidJson",
+    },
+  );
+});
+
 test("HTTP cancellation waits for response reader cleanup", async () => {
   let start!: () => void;
   let cancelling!: () => void;
@@ -287,7 +301,7 @@ test("an unread cloned body is aborted only after the deadline", async () => {
           const read = yield* Effect.forkChild(readHttpText(url));
           yield* Effect.promise(() => started);
           const stopping = yield* Effect.forkChild(Fiber.interrupt(read));
-          yield* TestClock.adjust(9_999);
+          yield* TestClock.adjust(9999);
           assert.equal(transportSignal?.aborted, false);
           yield* TestClock.adjust(1);
           yield* Fiber.join(stopping);

@@ -6,9 +6,10 @@ import {
   message,
   type Message,
   type MessageKey,
-  type LocalizedErrorFields,
+  messageKeySchema,
+  messageValuesSchema,
 } from "./messages";
-import { Context, Data, Effect, Layer, Schema } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { PngError, readPngSize } from "./png";
 import { validateSkinDimensions, type SkinVariant } from "./skin";
 import { importSkinPng, MAX_SKIN_FILE_BYTES } from "./skin-document";
@@ -26,37 +27,39 @@ export const MAX_SKIN_NAME_LENGTH = 80;
 const SKINS = "skins";
 const SESSIONS = "sessions";
 
-export type LibraryFailure =
-  | "unavailable"
-  | "full"
-  | "newer"
-  | "closed"
-  | "invalid"
-  | "damaged"
-  | "failed";
+const libraryFailureSchema = Schema.Literals([
+  "unavailable",
+  "full",
+  "newer",
+  "closed",
+  "invalid",
+  "damaged",
+  "failed",
+]);
+export type LibraryFailure = typeof libraryFailureSchema.Type;
 
-export class SkinLibraryError extends Data.TaggedError("SkinLibraryError")<{
-  readonly reason: LibraryFailure;
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-  readonly cause?: unknown;
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class SkinLibraryError extends Schema.TaggedError<
+  SkinLibraryError,
+  { readonly brand: unique symbol }
+>()("SkinLibraryError", {
+  reason: libraryFailureSchema,
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+  cause: Schema.optional(Schema.Unknown),
+}) {}
 
-export class SkinNotFoundError extends Data.TaggedError("SkinNotFoundError")<{
-  readonly id: string;
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-}> {}
-
-/** Another tab saved this skin after the edit session started. */
-export class SkinChangedError extends Data.TaggedError("SkinChangedError")<{
-  readonly skin: StoredSkin;
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class SkinNotFoundError extends Schema.TaggedError<
+  SkinNotFoundError,
+  { readonly brand: unique symbol }
+>()("SkinNotFoundError", {
+  id: Schema.String,
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+}) {}
 
 const failureMessages: Record<LibraryFailure, MessageKey> = {
   unavailable: "library.browserDoesNotLetSiteKeepSkins",
@@ -141,6 +144,19 @@ const sessionSchema = Schema.Struct({
 export type SkinContent = typeof contentSchema.Type;
 export type SkinSource = typeof sourceSchema.Type;
 export type StoredSkin = typeof skinSchema.Type;
+
+/** Another tab saved this skin after the edit session started. */
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class SkinChangedError extends Schema.TaggedError<
+  SkinChangedError,
+  { readonly brand: unique symbol }
+>()("SkinChangedError", {
+  skin: skinSchema,
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+}) {}
+
 /** Unsaved editor work. Each open editor owns exactly one session id. */
 export type EditSession = typeof sessionSchema.Type;
 
@@ -870,7 +886,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         return () => {};
       }),
     continueSession: (fromId, next) =>
-      write<void, SkinNotFoundError>([SESSIONS], (tx, fail) => {
+      write<undefined, SkinNotFoundError>([SESSIONS], (tx, fail) => {
         const store = tx.objectStore(SESSIONS);
         onResult(store.getKey(fromId), (key) => {
           if (key === undefined) {
@@ -880,7 +896,7 @@ export const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
           store.delete(fromId);
           store.add(next);
         });
-        return () => {};
+        return (): undefined => {};
       }),
     commitSession: (input) =>
       write<
@@ -976,7 +992,7 @@ function copyPattern(locale: Locale): CopyPattern {
 }
 
 const escapeRegExp = (text: string) =>
-  text.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  text.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
 
 /** Read "Harbor copy 2" as base "Harbor" and number 2, or undefined. */
 function parseCopyName(
@@ -988,8 +1004,8 @@ function parseCopyName(
     [pattern.first, false],
   ] as const) {
     const source = escapeRegExp(template)
-      .replace("\\{name\\}", "(?<name>.+?)")
-      .replace("\\{number\\}", "(?<number>\\d+)");
+      .replace(String.raw`\{name\}`, "(?<name>.+?)")
+      .replace(String.raw`\{number\}`, String.raw`(?<number>\d+)`);
     const groups = new RegExp(`^${source}$`, "u").exec(name)?.groups;
     if (groups?.["name"])
       return {

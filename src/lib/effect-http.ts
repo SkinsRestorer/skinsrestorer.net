@@ -1,5 +1,9 @@
-import { messageFields, type LocalizedErrorFields } from "./messages";
-import { Context, Data, Effect, Layer, Schema } from "effect";
+import {
+  messageFields,
+  messageKeySchema,
+  messageValuesSchema,
+} from "./messages";
+import { Context, Effect, Layer, Schema } from "effect";
 
 /** The portable fetch call signature, without runtime-specific static helpers. */
 export type HttpFetch = (
@@ -11,13 +15,17 @@ export class HttpClient extends Context.Service<
   { readonly fetch: HttpFetch }
 >()("skinsrestorer/HttpClient") {}
 
-export class HttpError extends Data.TaggedError("HttpError")<{
-  readonly reason: "transport" | "response" | "timeout";
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-  readonly cause?: unknown;
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class HttpError extends Schema.TaggedError<
+  HttpError,
+  { readonly brand: unique symbol }
+>()("HttpError", {
+  reason: Schema.Literals(["transport", "response", "timeout"]),
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+  cause: Schema.optional(Schema.Unknown),
+}) {}
 
 /** Own the complete response, including transports that resolve after cancellation. */
 export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
@@ -158,15 +166,18 @@ export function readHttpJson<A>(
 ) {
   return Effect.gen(function* () {
     const response = yield* readHttpText(url, init, options);
-    const value: unknown = yield* Effect.try({
-      try: (): unknown => JSON.parse(response.text),
-      catch: (cause) =>
-        new HttpError({
-          reason: "response",
-          ...messageFields("errors.serviceReturnedInvalidJson"),
-          cause,
-        }),
-    });
+    const value: unknown = yield* Schema.decodeEffect(
+      Schema.fromJsonString(Schema.Unknown),
+    )(response.text).pipe(
+      Effect.mapError(
+        (cause) =>
+          new HttpError({
+            reason: "response",
+            ...messageFields("errors.serviceReturnedInvalidJson"),
+            cause,
+          }),
+      ),
+    );
     const data = yield* Schema.decodeUnknownEffect(schema)(value).pipe(
       Effect.mapError(
         (cause) =>

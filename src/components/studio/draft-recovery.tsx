@@ -58,7 +58,7 @@ export function DraftRecovery(props: {
                           posthog.capture("editor_opened", { source: "draft" });
                           props.onContinue();
                         })
-                        .catch((cause) => toast.error(t.error(cause)))
+                        .catch((cause: unknown) => toast.error(t.error(cause)))
                     }
                   >
                     {t("studio.continue")}
@@ -70,7 +70,9 @@ export function DraftRecovery(props: {
                       onClick={() =>
                         void props.session
                           .saveDraftAsSkin(draft)
-                          .catch((cause) => toast.error(t.error(cause)))
+                          .catch((cause: unknown) =>
+                            toast.error(t.error(cause)),
+                          )
                       }
                     >
                       {t("studio.saveAsNewSkin")}

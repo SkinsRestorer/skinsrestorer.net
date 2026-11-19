@@ -39,7 +39,7 @@ export function LLMCopyButton({
   markdownUrl: string;
 }) {
   const t = useT();
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -51,7 +51,7 @@ export function LLMCopyButton({
   );
 
   async function copy() {
-    setLoading(true);
+    setIsLoading(true);
     const markdown = loadMarkdown(
       markdownUrl,
       t("docs.failedLoadPageMarkdown"),
@@ -81,7 +81,7 @@ export function LLMCopyButton({
     } catch {
       toast.error(t("common.failedCopy"));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 

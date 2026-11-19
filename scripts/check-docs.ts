@@ -69,6 +69,11 @@ function walk(node: Nodes, visitor: (node: Nodes) => void) {
   }
 }
 
+const decodeJson = Schema.decodeUnknownSync(
+  Schema.fromJsonString(Schema.Unknown),
+);
+const encodeJson = Schema.encodeSync(Schema.fromJsonString(Schema.Unknown));
+
 export const checkDocs = Effect.fn("Docs.check")(function* () {
   const fs = yield* ToolFiles;
   const errors: string[] = [];
@@ -171,7 +176,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
         }
       }
       if (node.type === "inlineCode")
-        codeValues.add(node.value.replaceAll("\\|", "|"));
+        codeValues.add(node.value.replaceAll(String.raw`\|`, "|"));
       if (node.type === "heading" && node.depth === 1) {
         errors.push(`${location}: use front matter for the page title`);
       }
@@ -208,9 +213,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     if (!row) errors.push(`Missing reference row for ${property.key}`);
     else if (value === undefined)
       errors.push(`Missing reference default for ${property.key}`);
-    else if (
-      JSON.stringify(JSON.parse(value)) !== JSON.stringify(property.default)
-    ) {
+    else if (encodeJson(decodeJson(value)) !== encodeJson(property.default)) {
       errors.push(
         `Reference default differs from the inventory: ${property.key}`,
       );

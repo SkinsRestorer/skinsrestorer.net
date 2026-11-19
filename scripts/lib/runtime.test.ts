@@ -86,14 +86,12 @@ test("compiler exit status and missing-command errors remain observable", async 
   await run(
     withTemporaryDirectory("sr-effect-exit-", (directory) =>
       Effect.gen(function* () {
-        assert.equal(
-          yield* runChild(
-            process.execPath,
-            ["-e", "process.exit(3)"],
-            directory,
-          ),
-          3,
+        const exitCode = yield* runChild(
+          process.execPath,
+          ["-e", "process.exit(3)"],
+          directory,
         );
+        assert.equal(exitCode, 3);
         const outcome = yield* Effect.result(
           runChild("sr-missing-test-compiler", [], directory),
         );

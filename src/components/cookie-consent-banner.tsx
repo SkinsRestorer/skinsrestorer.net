@@ -46,7 +46,7 @@ const CookieConsentBanner = () => {
     () => posthog.get_explicit_consent_status(),
     () => "",
   );
-  const [chosenConsent, setConsentState] = useState<ConsentState>();
+  const [chosenConsent, setChosenConsent] = useState<ConsentState>();
   const consentState = chosenConsent ?? storedConsent;
   const [reopened, setReopened] = useState(false);
 
@@ -54,7 +54,7 @@ const CookieConsentBanner = () => {
     const reopen = (element: HTMLElement | null) => {
       opener.current = element;
       // Read the stored choice again so the banner shows the current value.
-      setConsentState(posthog.get_explicit_consent_status());
+      setChosenConsent(posthog.get_explicit_consent_status());
       setReopened(true);
       // Already open: move focus now, because the effect below will not rerun.
       section.current?.focus();
@@ -96,13 +96,13 @@ const CookieConsentBanner = () => {
 
   const handleAcceptCookies = () => {
     posthog.opt_in_capturing();
-    setConsentState("granted");
+    setChosenConsent("granted");
     close();
   };
 
   const handleDeclineCookies = () => {
     posthog.opt_out_capturing();
-    setConsentState("denied");
+    setChosenConsent("denied");
     close();
   };
 

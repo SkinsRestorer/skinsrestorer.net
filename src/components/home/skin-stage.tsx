@@ -254,11 +254,7 @@ export function SkinStage() {
                   className="max-w-full bg-black/50 px-1.5 py-0.5 text-white"
                 >
                   <span className={styles["yellow"]}>
-                    [
-                    <span className={styles["darkGreen"]}>
-                      {"SkinsRestorer"}
-                    </span>
-                    ]
+                    [<span className={styles["darkGreen"]}>SkinsRestorer</span>]
                   </span>{" "}
                   <span className={entry.command.replyClassName}>
                     {t(entry.command.reply)}

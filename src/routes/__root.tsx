@@ -56,6 +56,7 @@ export const Route = createRootRoute({
   },
   head: ({ matches }) => ({
     meta: [
+      // oxlint-disable-next-line unicorn/text-encoding-identifier-case -- Keep the existing lowercase HTML encoding label.
       { charSet: "utf-8" },
       // Pages set their own title. This covers not-found and error states.
       { title: getFallbackTitle(matches) },

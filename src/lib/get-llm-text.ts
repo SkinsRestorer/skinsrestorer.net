@@ -1,4 +1,4 @@
-import { Data, Effect } from "effect";
+import { Effect, Schema } from "effect";
 import type { InferPageType } from "fumadocs-core/source";
 import { flattenTree, type Node } from "fumadocs-core/page-tree";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -7,10 +7,14 @@ import { source } from "@/lib/source";
 
 type DocsPage = InferPageType<typeof source>;
 
-export class DocumentTextError extends Data.TaggedError("DocumentTextError")<{
-  readonly url: string;
-  readonly cause: unknown;
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class DocumentTextError extends Schema.TaggedError<
+  DocumentTextError,
+  { readonly brand: unique symbol }
+>()("DocumentTextError", {
+  url: Schema.String,
+  cause: Schema.Unknown,
+}) {}
 
 export const getLLMTextEffect = Effect.fn("Docs.getText")(function* (
   page: DocsPage,

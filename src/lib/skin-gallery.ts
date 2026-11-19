@@ -1,5 +1,9 @@
-import { messageFields, type LocalizedErrorFields } from "./messages";
-import { Data, Effect, Schema } from "effect";
+import {
+  messageFields,
+  messageKeySchema,
+  messageValuesSchema,
+} from "./messages";
+import { Effect, Schema } from "effect";
 import { readHttpJson } from "./effect-http";
 import { localizePath, type Locale } from "./i18n";
 import type { SkinVariant } from "./skin";
@@ -15,11 +19,15 @@ export interface GallerySkin {
   readonly variant: SkinVariant;
 }
 
-export class GalleryError extends Data.TaggedError("GalleryError")<{
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class GalleryError extends Schema.TaggedError<
+  GalleryError,
+  { readonly brand: unique symbol }
+>()("GalleryError", {
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+}) {}
 
 const catalogSchema = Schema.Struct({
   version: Schema.Literal(1),

@@ -10,14 +10,18 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Context, Data, Effect, Layer } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import type { HttpClient } from "../../src/lib/effect-http";
 import { httpClientLayer } from "../../src/lib/effect-http";
 
-export class ToolError extends Data.TaggedError("ToolError")<{
-  readonly operation: string;
-  readonly cause: unknown;
-}> {
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class ToolError extends Schema.TaggedError<
+  ToolError,
+  { readonly brand: unique symbol }
+>()("ToolError", {
+  operation: Schema.String,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return `${this.operation}: ${this.cause instanceof Error ? this.cause.message : String(this.cause)}`;
   }

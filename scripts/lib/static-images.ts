@@ -3,14 +3,18 @@ import { fileURLToPath } from "node:url";
 import { join, relative } from "node:path";
 import { blurhashToDataUri } from "@unpic/placeholder";
 import { encode } from "blurhash";
-import { Data, Effect } from "effect";
+import { Effect, Schema } from "effect";
 import sharp from "sharp";
 import type { StaticImageManifest } from "../../src/lib/static-images";
 
-class StaticImageError extends Data.TaggedError("StaticImageError")<{
-  readonly operation: string;
-  readonly cause: unknown;
-}> {
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+class StaticImageError extends Schema.TaggedError<
+  StaticImageError,
+  { readonly brand: unique symbol }
+>()("StaticImageError", {
+  operation: Schema.String,
+  cause: Schema.Unknown,
+}) {
   override get message() {
     return `${this.operation}: ${this.cause instanceof Error ? this.cause.message : String(this.cause)}`;
   }
@@ -140,10 +144,10 @@ export function generateStaticImages({
       { concurrency: 2 },
     );
     const manifest = Object.fromEntries(entries);
-    yield* writeText(
-      fileURLToPath(metadataFile),
-      `${JSON.stringify(manifest, null, 2)}\n`,
-    );
+    const json = yield* Schema.encodeEffect(
+      Schema.fromJsonString(Schema.Unknown, { space: 2 }),
+    )(manifest);
+    yield* writeText(fileURLToPath(metadataFile), `${json}\n`);
     const stale = (yield* listFiles(output)).filter(
       (file) => !generated.has(relative(output, file)),
     );

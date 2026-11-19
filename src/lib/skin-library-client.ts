@@ -73,7 +73,8 @@ export const withLibrary = <A, E>(
   f: (library: SkinLibrary["Service"]) => Effect.Effect<A, E>,
 ) =>
   Effect.gen(function* () {
-    return yield* f(yield* SkinLibrary);
+    const library = yield* SkinLibrary;
+    return yield* f(library);
   });
 
 let browserClient: LibraryClient | undefined;

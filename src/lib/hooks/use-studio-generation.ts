@@ -4,6 +4,7 @@ import { StudioGeneration } from "../studio-generation";
 
 /** The Studio's generation. Leaving the page stops waiting for an upload. */
 export function useStudioGeneration() {
+  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
   const [generation] = useState(() => new StudioGeneration(uploadMineSkinFile));
   useSyncExternalStore(
     generation.subscribe,

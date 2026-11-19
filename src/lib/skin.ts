@@ -4,21 +4,26 @@ import {
   MessageError,
   errorFields,
   messageFields,
-  type LocalizedErrorFields,
+  messageKeySchema,
+  messageValuesSchema,
   type MessageKey,
 } from "./messages";
 
-import { Context, Data, Effect } from "effect";
+import { Context, Effect, Schema } from "effect";
 import { detectVariantFromPixels } from "./skin-document";
 
 export type SkinVariant = "classic" | "slim";
 
-export class SkinImageError extends Data.TaggedError("SkinImageError")<{
-  readonly message: string;
-  readonly messageKey?: LocalizedErrorFields["messageKey"];
-  readonly messageValues?: LocalizedErrorFields["messageValues"];
-  readonly cause?: unknown;
-}> {}
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+export class SkinImageError extends Schema.TaggedError<
+  SkinImageError,
+  { readonly brand: unique symbol }
+>()("SkinImageError", {
+  message: Schema.String,
+  messageKey: Schema.optional(messageKeySchema),
+  messageValues: Schema.optional(messageValuesSchema),
+  cause: Schema.optional(Schema.Unknown),
+}) {}
 
 export class SkinImages extends Context.Service<
   SkinImages,

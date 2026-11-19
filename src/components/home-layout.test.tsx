@@ -43,7 +43,7 @@ test("the header, main content, and footer are separate top-level landmarks", ()
   const html = render();
   const landmarks = [
     ...html.matchAll(/<\/?(header|main|footer)\b[^>]*>/gu),
-  ].map((match) => match[0].replace(/\s.*$/u, "").replace(/>$/u, "") + ">");
+  ].map((match) => `${match[0].replace(/\s.*$/u, "").replace(/>$/u, "")}>`);
 
   assert.deepEqual(landmarks, [
     "<header>",

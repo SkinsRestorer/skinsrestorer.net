@@ -31,6 +31,7 @@ test("other hosts, ports, credentials, and paths are rejected", () => {
     `https://user@textures.minecraft.net/texture/${hash}`,
     `https://textures.minecraft.net/other/${hash}`,
     `https://textures.minecraft.net/texture/${hash}?redirect=1`,
+    // oxlint-disable-next-line eslint/no-script-url -- Verify that texture imports reject script URLs.
     `javascript:alert(1)`,
     "steve",
   ])

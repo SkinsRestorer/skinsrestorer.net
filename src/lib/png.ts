@@ -25,17 +25,17 @@ const crcTable = (() => {
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xed_b8_83_20 ^ (c >>> 1) : c >>> 1;
     table[n] = c >>> 0;
   }
   return table;
 })();
 
 function crc32(bytes: Uint8Array, start = 0, end = bytes.length) {
-  let crc = 0xffffffff;
+  let crc = 0xff_ff_ff_ff;
   for (let i = start; i < end; i++)
     crc = byteAt(crcTable, (crc ^ byteAt(bytes, i)) & 0xff) ^ (crc >>> 8);
-  return (crc ^ 0xffffffff) >>> 0;
+  return (crc ^ 0xff_ff_ff_ff) >>> 0;
 }
 
 async function transform(
@@ -150,13 +150,13 @@ export function encodePngSync(
   height: number,
 ): Uint8Array<ArrayBuffer> {
   const raw = scanlines(pixels, width, height);
-  const blocks = Math.max(1, Math.ceil(raw.length / 0xffff));
+  const blocks = Math.max(1, Math.ceil(raw.length / 0xff_ff));
   const data = new Uint8Array(2 + raw.length + blocks * 5 + 4);
   data[0] = 0x78; // zlib header: deflate, 32K window
   data[1] = 0x01;
   let at = 2;
   for (let i = 0; i < blocks; i++) {
-    const part = raw.subarray(i * 0xffff, (i + 1) * 0xffff);
+    const part = raw.subarray(i * 0xff_ff, (i + 1) * 0xff_ff);
     data[at] = i === blocks - 1 ? 1 : 0; // stored block
     data[at + 1] = part.length & 0xff;
     data[at + 2] = part.length >> 8;
@@ -168,8 +168,8 @@ export function encodePngSync(
   let a = 1;
   let b = 0;
   for (const byte of raw) {
-    a = (a + byte) % 65521;
-    b = (b + a) % 65521;
+    a = (a + byte) % 65_521;
+    b = (b + a) % 65_521;
   }
   new DataView(data.buffer).setUint32(at, ((b << 16) | a) >>> 0);
   return assemble(width, height, data);
@@ -212,7 +212,7 @@ function paeth(a: number, b: number, c: number) {
 /** Remove the per-row filters in place and return each row's offset. */
 function unfilter(
   data: Uint8Array,
-  offset: number,
+  start: number,
   width: number,
   height: number,
   bitsPerPixel: number,
@@ -220,6 +220,7 @@ function unfilter(
   const stride = Math.ceil((width * bitsPerPixel) / 8);
   const bpp = Math.max(1, bitsPerPixel >> 3);
   const rows: number[] = [];
+  let offset = start;
   let previous = -1;
   for (let y = 0; y < height; y++) {
     const filter = byteAt(data, offset);

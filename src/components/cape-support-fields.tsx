@@ -82,9 +82,7 @@ export function MineSkinKeyField(props: {
                 {t("capes.mineskinApiKeysPage")}
               </a>{" "}
               {t("capes.getStartedSave10FirstThreeMonths")}{" "}
-              <span className="font-mono font-semibold">
-                {"SKINSRESTORER10"}
-              </span>
+              <span className="font-mono font-semibold">SKINSRESTORER10</span>
               {t("capes.weDonTReceiveCommissionIfYou")}
             </p>
           </PopoverContent>

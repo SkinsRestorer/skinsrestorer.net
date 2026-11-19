@@ -22,10 +22,10 @@ test("rejects a section in place of a boolean and rejects unknown nested keys", 
 });
 
 test("enforces declared integer bounds and does not coerce quoted numbers", () => {
-  for (const port of [0, 65536, 1.5, "3306"]) {
+  for (const port of [0, 65_536, 1.5, "3306"]) {
     assert.equal(validate({ database: { port } }).length, 1);
   }
-  for (const port of [1, 65535]) {
+  for (const port of [1, 65_535]) {
     assert.equal(validate({ database: { port } }).length, 0);
   }
 });

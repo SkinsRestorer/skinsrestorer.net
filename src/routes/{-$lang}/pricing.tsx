@@ -207,7 +207,7 @@ function PricingPage() {
               <div className="mb-2 flex items-center gap-3">
                 <SiKofi aria-hidden className="size-5" />
                 <CardTitle className="text-xl">
-                  <h3>{"Ko-fi"}</h3>
+                  <h3>Ko-fi</h3>
                 </CardTitle>
               </div>
               <CardDescription>
