@@ -74,11 +74,14 @@ export function generationResult(
  * its input, so a view shows it only for the exact same choices.
  */
 export class StudioGeneration {
+  private readonly upload: Upload;
   private state: GenerationState = { status: "idle" };
   private readonly listeners = new Set<() => void>();
   private readonly task = new LatestTask();
 
-  constructor(private readonly upload: Upload) {}
+  constructor(upload: Upload) {
+    this.upload = upload;
+  }
 
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);

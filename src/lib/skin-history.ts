@@ -13,11 +13,14 @@ export interface SkinPatch {
 
 /** Collect pixel writes. A pixel keeps the value it had before the first write. */
 export class PatchBuilder {
+  private readonly pixels: Uint8ClampedArray;
   private readonly positions = new Map<number, number>();
   private readonly indices: number[] = [];
   private readonly before: number[] = [];
 
-  constructor(private readonly pixels: Uint8ClampedArray) {}
+  constructor(pixels: Uint8ClampedArray) {
+    this.pixels = pixels;
+  }
 
   write(pixel: number, rgba: ArrayLike<number>) {
     const at = pixel * 4;
@@ -79,10 +82,13 @@ export function applyPatch(
 export const HISTORY_LIMIT = 100;
 
 export class EditHistory {
+  private readonly limit: number;
   private past: SkinPatch[] = [];
   private future: SkinPatch[] = [];
 
-  constructor(private readonly limit = HISTORY_LIMIT) {}
+  constructor(limit = HISTORY_LIMIT) {
+    this.limit = limit;
+  }
 
   push(patch: SkinPatch) {
     this.past.push(patch);

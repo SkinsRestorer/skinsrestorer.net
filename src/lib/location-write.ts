@@ -7,14 +7,12 @@ import { Debouncer } from "@tanstack/pacer";
  * cannot overwrite the newer entry.
  */
 export class LocationWrite<T> {
+  /** An identity of the current history entry. */
+  private readonly location: () => string;
   private readonly debouncer: Debouncer<(value: T, location: string) => void>;
 
-  constructor(
-    /** An identity of the current history entry. */
-    private readonly location: () => string,
-    write: (value: T) => void,
-    wait: number,
-  ) {
+  constructor(location: () => string, write: (value: T) => void, wait: number) {
+    this.location = location;
     this.debouncer = new Debouncer(
       (value: T, scheduledAt: string) => {
         if (scheduledAt === this.location()) write(value);

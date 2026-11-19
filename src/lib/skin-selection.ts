@@ -96,6 +96,7 @@ export interface SelectOptions {
  * choice.
  */
 export class SkinSelectionStore {
+  private readonly deps: SkinSelectionDeps;
   private state: SkinSelectionState = {
     selection: null,
     variant: "classic",
@@ -111,7 +112,9 @@ export class SkinSelectionStore {
   private variantPending = false;
   private stopLibrary: (() => void) | undefined;
 
-  constructor(private readonly deps: SkinSelectionDeps) {}
+  constructor(deps: SkinSelectionDeps) {
+    this.deps = deps;
+  }
 
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);

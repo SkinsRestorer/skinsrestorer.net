@@ -64,12 +64,23 @@ export type SaveResult =
 
 const SAVE_DELAY_MS = 500;
 
+interface EditorSessionOptions {
+  readonly id?: () => string;
+  readonly now?: () => number;
+  readonly saveDelayMs?: number;
+  /** The visitor's language, for copy names. English by default. */
+  readonly locale?: Locale;
+}
+
 /**
  * Connect a SkinEditorStore to the library. Autosave writes only this
  * editor's own session record and never changes a skin. A skin changes only
  * through `save`, `saveCopy`, or `discard`, which the user chooses.
  */
 export class EditorSession {
+  private readonly store: SkinEditorStore;
+  private readonly library: LibraryClient | undefined;
+  private readonly options: EditorSessionOptions;
   private state: EditorSessionState;
   private readonly listeners = new Set<() => void>();
   private base: SkinDocument;
@@ -86,16 +97,13 @@ export class EditorSession {
   private unavailable = false;
 
   constructor(
-    private readonly store: SkinEditorStore,
-    private readonly library: LibraryClient | undefined,
-    private readonly options: {
-      readonly id?: () => string;
-      readonly now?: () => number;
-      readonly saveDelayMs?: number;
-      /** The visitor's language, for copy names. English by default. */
-      readonly locale?: Locale;
-    } = {},
+    store: SkinEditorStore,
+    library: LibraryClient | undefined,
+    options: EditorSessionOptions = {},
   ) {
+    this.store = store;
+    this.library = library;
+    this.options = options;
     this.base = store.document();
     this.clean = store.getSnapshot().revision;
     this.state = {
