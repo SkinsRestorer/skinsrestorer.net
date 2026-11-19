@@ -65,6 +65,7 @@ export function SkinView(props: {
         renderPaused: true,
       });
     } catch {
+      // oxlint-disable-next-line react-hooks-js/set-state-in-effect -- Report failure to initialize the external WebGL viewer.
       setNoWebGl(true);
       return undefined;
     }

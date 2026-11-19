@@ -67,6 +67,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LocalizedDialogContent } from "@/components/localized-dialog";
 import { useAsRef } from "@/hooks/use-as-ref";
+import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
 import { runHttpEffect } from "@/lib/effect-http";
 import {
   documentOf,
@@ -325,41 +326,38 @@ export function SkinStudio(props: {
     search.handoff,
   ]);
   const previousQueryLocation = useRef(queryLocation);
-  // oxlint-disable-next-line react/hook-use-state -- This value uses lazy initialization and has no setter.
-  const [queryWrite] = useState(
-    () =>
-      new LocationWrite<string | undefined>(
-        () =>
-          router.history.location.state.__TSR_key ??
-          router.history.location.href,
-        (q) => {
-          writtenQuery.current = q;
-          void updateSearchRef.current((prev) => ({ ...prev, q }));
-        },
-        QUERY_WRITE_MS,
-      ),
-  );
-  useEffect(
-    () => () => {
-      queryWrite.cancel();
-    },
-    [queryWrite],
-  );
+  const queryWrite = useRef<LocationWrite<string | undefined>>(null);
+  useEffect(() => {
+    const writer = new LocationWrite<string | undefined>(
+      () =>
+        router.history.location.state.__TSR_key ?? router.history.location.href,
+      (q) => {
+        writtenQuery.current = q;
+        void updateSearchRef.current((prev) => ({ ...prev, q }));
+      },
+      QUERY_WRITE_MS,
+    );
+    queryWrite.current = writer;
+    return () => {
+      writer.cancel();
+      queryWrite.current = null;
+    };
+  }, [router, updateSearchRef]);
   useEffect(() => {
     const moved = previousQueryLocation.current !== queryLocation;
     previousQueryLocation.current = queryLocation;
     if (!moved && search.q === writtenQuery.current) return;
     writtenQuery.current = search.q;
-    queryWrite.cancel();
+    queryWrite.current?.cancel();
     setQuery(search.q ?? "");
-  }, [search.q, queryLocation, queryWrite]);
+  }, [search.q, queryLocation]);
   const changeQuery = (value: string) => {
     setQuery(value);
     const q = value.trim().slice(0, MAX_GALLERY_QUERY).trim() || undefined;
-    queryWrite.schedule(q);
+    queryWrite.current?.schedule(q);
   };
   const changeSource = (next: SkinSource) => {
-    queryWrite.cancel();
+    queryWrite.current?.cancel();
     const q =
       next === "gallery" ? query.trim().slice(0, MAX_GALLERY_QUERY) : "";
     writtenQuery.current = q || undefined;
@@ -637,6 +635,7 @@ export function SkinStudio(props: {
 
   useEffect(() => {
     if (!wantedGallery || gallery.state.status !== "ready") return;
+    // oxlint-disable-next-line react-hooks-js/set-state-in-effect -- A pending URL import resumes when the external catalog arrives.
     openGallerySkin(wantedGallery);
     // Only the catalog arriving resolves the waiting link.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
@@ -717,7 +716,7 @@ export function SkinStudio(props: {
   };
   /** A click adds a history entry, so Back returns to the earlier skin. */
   const chooseGallery = (skin: GallerySkin) => {
-    queryWrite.cancel();
+    queryWrite.current?.cancel();
     const update = (prev: StudioSearch) =>
       withGallerySkin({ ...prev, q: query }, skin.id);
     if (search.skin === skin.id) {
@@ -838,16 +837,18 @@ export function SkinStudio(props: {
   const keyField = useRef<HTMLDivElement>(null);
   const generateHintId = useId();
   const purposeHintId = useId();
-  const [focusKeyField, setFocusKeyField] = useState(false);
+  const focusKeyField = useRef(false);
   // The "Open advanced options" link unmounts on click: move focus to the key.
   useEffect(() => {
-    if (!focusKeyField) return;
-    setFocusKeyField(false);
+    if (!advancedOpen || !focusKeyField.current) return;
+    focusKeyField.current = false;
     keyField.current?.querySelector("input")?.focus();
-  }, [focusKeyField]);
+  }, [advancedOpen]);
   const capes = useCapeAccess({ keyRequired: options.method === "mineskin" });
-  purposeRef.current = purpose;
-  capeStatusRef.current = capes.status;
+  useIsomorphicLayoutEffect(() => {
+    purposeRef.current = purpose;
+    capeStatusRef.current = capes.status;
+  }, [purpose, capes.status]);
   // Axolotl shows the public capes and Official the checked key's capes.
   // The lists can differ, so a method switch may hide the chosen cape:
   // never send a cape the picker does not show.
@@ -929,7 +930,7 @@ export function SkinStudio(props: {
 
   // The button submits the native form, so Enter in a field works too.
   // Nothing uploads before this, and a failure is never sent again on its own.
-  submitRef.current = async (value) => {
+  const submit = async (value: StudioOptions) => {
     const chosen = normalizeStudioOptions(value, purpose);
     if (!input || pendingGallery) return;
     const exact: GenerationInput = { ...input, ...chosen, purpose };
@@ -958,6 +959,10 @@ export function SkinStudio(props: {
         target: purpose === "createcustom" ? "generator" : "upload",
       });
   };
+
+  useIsomorphicLayoutEffect(() => {
+    submitRef.current = submit;
+  });
 
   const chooseCape = (value: string) => {
     if (
@@ -1344,8 +1349,8 @@ export function SkinStudio(props: {
                                       variant="link"
                                       size="sm"
                                       onClick={() => {
+                                        focusKeyField.current = true;
                                         setAdvancedOpen(true);
-                                        setFocusKeyField(true);
                                       }}
                                     >
                                       {t("studio.openAdvancedOptions")}

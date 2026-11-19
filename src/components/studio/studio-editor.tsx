@@ -323,6 +323,7 @@ export function StudioEditor(props: {
   };
   useHotkeys(
     [
+      // oxlint-disable-next-line react-hooks-js/refs -- Building the hotkey definitions only stores callbacks. The timer ref is accessed on keypress.
       ...toolCommands.flatMap((command) =>
         run(command, () => {
           // S on the active Shade tool switches between lighten and darken,

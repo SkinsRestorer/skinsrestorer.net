@@ -161,6 +161,7 @@ export function ModelCanvas(
         renderPaused: true,
       });
     } catch {
+      // oxlint-disable-next-line react-hooks-js/set-state-in-effect -- Report failure to initialize the external WebGL viewer.
       setFailure(message("editor.webglUnavailable"));
       return undefined;
     }
