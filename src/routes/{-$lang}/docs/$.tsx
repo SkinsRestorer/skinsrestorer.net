@@ -37,8 +37,16 @@ import {
 } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n-react";
 
-type ResolvedLink = { url: string; title: string; description?: string };
-type FooterLink = { url: string; name: string; description?: string };
+interface ResolvedLink {
+  url: string;
+  title: string;
+  description?: string;
+}
+interface FooterLink {
+  url: string;
+  name: string;
+  description?: string;
+}
 
 const serverLoader = createServerFn({ method: "GET" })
   .validator(

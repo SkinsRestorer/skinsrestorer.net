@@ -232,22 +232,28 @@ function unfilter(
         previous >= 0 && i >= bpp ? byteAt(data, previous + i - bpp) : 0;
       let value = byteAt(data, row + i);
       switch (filter) {
-        case 0:
+        case 0: {
           break;
-        case 1:
+        }
+        case 1: {
           value += left;
           break;
-        case 2:
+        }
+        case 2: {
           value += up;
           break;
-        case 3:
+        }
+        case 3: {
           value += (left + up) >> 1;
           break;
-        case 4:
+        }
+        case 4: {
           value += paeth(left, up, upLeft);
           break;
-        default:
+        }
+        default: {
           throw new PngError("png.rowFilter");
+        }
       }
       data[row + i] = value & 0xff;
     }

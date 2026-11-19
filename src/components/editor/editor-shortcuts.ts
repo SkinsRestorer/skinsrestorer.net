@@ -63,10 +63,10 @@ export function useAriaShortcuts(...commands: readonly EditorCommand[]) {
   return ariaShortcuts(commands, platform);
 }
 
-export type ShortcutHintPayload = {
+export interface ShortcutHintPayload {
   label: string;
   commands: readonly EditorCommand[];
-};
+}
 
 export type ShortcutHintHandle = TooltipPrimitive.Handle<ShortcutHintPayload>;
 

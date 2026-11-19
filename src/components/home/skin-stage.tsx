@@ -22,14 +22,14 @@ import styles from "./minecraft.module.css";
 import { useT } from "@/lib/i18n-react";
 import { required } from "@/lib/utils";
 
-type DemoCommand = {
+interface DemoCommand {
   command: string;
   reply: MessageKey;
   replyClassName?: string;
   showHead: boolean;
   skin: "applied" | "cleared" | "unchanged";
   description: MessageKey;
-};
+}
 
 // Replies match the default English locale of the plugin.
 const demoCommands: readonly [DemoCommand, ...DemoCommand[]] = [
@@ -57,7 +57,10 @@ const demoCommands: readonly [DemoCommand, ...DemoCommand[]] = [
   },
 ];
 
-type ChatEntry = { id: number; command: DemoCommand };
+interface ChatEntry {
+  id: number;
+  command: DemoCommand;
+}
 
 const autoplayDelay = 4200;
 const typingSecondsPerCharacter = 0.045;

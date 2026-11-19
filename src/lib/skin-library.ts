@@ -170,7 +170,9 @@ export interface RemovedSkin {
   readonly sessions: readonly EditSession[];
 }
 
-export type LibraryEvent = { readonly type: "changed" | "closed" };
+export interface LibraryEvent {
+  readonly type: "changed" | "closed";
+}
 
 export function cleanSkinName(name: string, fallback = "Skin") {
   const clean = name

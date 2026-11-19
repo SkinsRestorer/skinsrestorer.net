@@ -19,7 +19,7 @@ export function LanguageSuggestion() {
   const locale = useLocale();
   const router = useRouter();
   useEffect((): (() => void) | undefined => {
-    let answered: string | null = null;
+    let answered: string | null;
     try {
       answered = localStorage.getItem(answeredKey);
     } catch {

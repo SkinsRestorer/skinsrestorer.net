@@ -26,10 +26,10 @@ import {
 import { useT } from "@/lib/i18n-react";
 import { findOption } from "@/lib/utils";
 
-const shadeStrengths: ReadonlyArray<{
+const shadeStrengths: readonly {
   value: ShadeStrength;
   label: MessageKey;
-}> = [
+}[] = [
   { value: "soft", label: "editor.soft" },
   { value: "medium", label: "editor.medium" },
   { value: "strong", label: "editor.strong" },

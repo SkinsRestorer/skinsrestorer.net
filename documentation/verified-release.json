@@ -918,7 +918,7 @@
     "src/lib/hooks/use-cape-access.ts": "beaca0a745c5f162a5d93a96fc8e0ce803c206ea6ee4a847838d0be3125ba93f",
     "src/lib/hooks/use-skin-selection.ts": "944da99c02410cb49e68f14da12caac0dd8419d79c70aef06c0ac3664e0d31dd",
     "src/lib/skin-selection.ts": "2e5cf79666836bf6e1bb4bf7960460acf7e4799abbe680a1c47b8e571c9ddef9",
-    "src/lib/skin-library.ts": "09de280eada633a9c5f09c43dc0130749c576b08ac467a4e467bf97cb5625438",
+    "src/lib/skin-library.ts": "7a292cc24aed21218693eb3af5568c522f3b24ad523d742d8baf31f2510f7264",
     "src/lib/skin-library-client.ts": "9714b6b6004588b0ffe41706546bdd188497095f151955b9c072e83dbfd53f91",
     "src/lib/editor-session.ts": "fe4a98e977b725e99771638c4a3c21c1777f91e03f4e3e9b1cb14a4f80876cdf",
     "src/components/studio/skin-studio.tsx": "6c2fb48f2bba4537a0b3cf5122bd0ff22cfe10351c85261e36c8be3d3d7ed21d",

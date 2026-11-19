@@ -7,7 +7,10 @@ import { GALLERY_URL } from "./skin-gallery";
 import { TEXTURE_HOST } from "./skin-texture";
 import { cspReportUrl, securityHeaders } from "./security-headers";
 
-type Rule = { pattern: string; headers: [string, string][] };
+interface Rule {
+  pattern: string;
+  headers: [string, string][];
+}
 
 const headersFile = readFileSync(
   new URL("../../public/_headers", import.meta.url),

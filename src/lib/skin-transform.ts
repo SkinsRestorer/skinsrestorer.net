@@ -110,7 +110,7 @@ const limbs = ["rightArm", "leftArm", "rightLeg", "leftLeg"] as const;
 export type LimbPart = (typeof limbs)[number];
 
 /** Arm and leg copies in a fixed order for menus. */
-export const partCopies: ReadonlyArray<{ from: LimbPart; to: SkinPart }> =
+export const partCopies: readonly { from: LimbPart; to: SkinPart }[] =
   limbs.flatMap((from) => {
     const to = pairedParts[from];
     return to ? [{ from, to }] : [];

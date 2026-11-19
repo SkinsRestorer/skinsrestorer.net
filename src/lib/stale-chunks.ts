@@ -20,7 +20,7 @@ export function shouldReloadForStaleChunk(
 
 if (typeof window !== "undefined") {
   window.addEventListener("vite:preloadError", (event) => {
-    let last: string | null = null;
+    let last: string | null;
     try {
       last = sessionStorage.getItem(reloadKey);
     } catch {

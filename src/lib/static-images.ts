@@ -1,9 +1,9 @@
-export type StaticImageMetadata = {
+export interface StaticImageMetadata {
   width: number;
   height: number;
   background?: string;
   variants?: { width: number; src: string }[];
-};
+}
 
 export type StaticImageManifest = Record<string, StaticImageMetadata>;
 

@@ -303,7 +303,14 @@
     "better-tailwindcss/no-conflicting-classes": "error",
     "better-tailwindcss/no-duplicate-classes": "error",
     "better-tailwindcss/no-deprecated-classes": "error",
-    "better-tailwindcss/enforce-canonical-classes": "error"
+    "better-tailwindcss/enforce-canonical-classes": "error",
+    "typescript/consistent-type-definitions": ["error", "interface"],
+    "typescript/array-type": "error",
+    "typescript/no-inferrable-types": "error",
+    "typescript/prefer-function-type": "error",
+    "typescript/consistent-indexed-object-style": "error",
+    "unicorn/switch-case-braces": "error",
+    "eslint/no-useless-assignment": "error"
   },
   "overrides": [
     {
@@ -351,7 +358,11 @@
         "typescript/no-confusing-void-expression": "off",
         "typescript/strict-void-return": "off",
         "unicorn/explicit-length-check": "off",
-        "unicorn/new-for-builtins": "off"
+        "unicorn/new-for-builtins": "off",
+        "typescript/array-type": "off",
+        "typescript/consistent-type-definitions": "off",
+        "unicorn/switch-case-braces": "off",
+        "eslint/no-useless-assignment": "off"
       }
     },
     {

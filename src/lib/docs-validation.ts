@@ -33,28 +33,35 @@ export function validateConfig(
     if (property) {
       const valid = (() => {
         switch (property.type) {
-          case "Boolean":
+          case "Boolean": {
             return typeof node === "boolean";
-          case "Integer":
+          }
+          case "Integer": {
             return (
               typeof node === "number" &&
               Number.isInteger(node) &&
               (property.min === undefined || node >= property.min) &&
               (property.max === undefined || node <= property.max)
             );
-          case "List<String>":
+          }
+          case "List<String>": {
             return (
               Array.isArray(node) && node.every((v) => typeof v === "string")
             );
-          case "DatabaseType":
+          }
+          case "DatabaseType": {
             return ["FILE", "MYSQL", "POSTGRESQL"].includes(String(node));
-          case "ProxyMode":
+          }
+          case "ProxyMode": {
             return ["ENABLED", "DISABLED", "AUTO"].includes(String(node));
+          }
           case "String":
-          case "Locale":
+          case "Locale": {
             return typeof node === "string";
-          default:
+          }
+          default: {
             throw new Error(`Unknown inventory type: ${property.type}`);
+          }
         }
       })();
       if (!valid) errors.push(`${key}: expected ${property.type}`);

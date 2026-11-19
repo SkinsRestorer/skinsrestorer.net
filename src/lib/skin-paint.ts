@@ -231,7 +231,7 @@ export function shadeColor(
 
 /** Integer points from start to end, inclusive, with no gaps (Bresenham). */
 export function linePoints(x0: number, y0: number, x1: number, y1: number) {
-  const points: Array<readonly [number, number]> = [];
+  const points: (readonly [number, number])[] = [];
   const dx = Math.abs(x1 - x0);
   const dy = -Math.abs(y1 - y0);
   const sx = x0 < x1 ? 1 : -1;
@@ -321,7 +321,7 @@ export function fillTargets(
     return { source, mirror: [] };
   }
   const area = new Set<number>();
-  const stack: Array<readonly [number, number]> = [[x, y]];
+  const stack: (readonly [number, number])[] = [[x, y]];
   for (let next = stack.pop(); next; next = stack.pop()) {
     const [px, py] = next;
     const index = py * SKIN_SIZE + px;
