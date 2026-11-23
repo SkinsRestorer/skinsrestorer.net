@@ -43,10 +43,7 @@ function CookiePolicyPage() {
               <td>Local storage</td>
               <td>
                 Your choice in the analytics banner: <code>1</code> if you
-                allowed analytics, <code>0</code> if you declined. Older
-                versions of the site stored it as <code>__ph_opt_in_out_</code>{" "}
-                followed by the PostHog project token. The site moves that entry
-                to the new name.
+                allowed analytics, <code>0</code> if you declined
               </td>
             </tr>
             <tr>
@@ -135,45 +132,35 @@ function CookiePolicyPage() {
 
         <h2>2. Analytics cookies</h2>
         <p>
-          Before you make a choice, and after you select{" "}
-          <strong>Decline</strong>, your browser does not load PostHog or
-          Ahrefs, sends nothing to them, and gets no analytics cookies.
-        </p>
-        <p>
-          If you select <strong>Allow analytics</strong>, PostHog saves a
-          cookie, a local storage entry, and a session storage entry named{" "}
-          <code>ph_</code> followed by the project token and{" "}
-          <code>_posthog</code>. They hold a random visitor ID and the current
-          session, so PostHog can connect the pages you view during a visit. The
-          cookie expires after 365 days. The site also loads Ahrefs Analytics on
-          pages other than the Studio, upload, and generator pages. Ahrefs
-          handles your visit under the{" "}
+          The site sets analytics cookies only after you select{" "}
+          <strong>Allow analytics</strong>. PostHog then saves a cookie, a local
+          storage entry, and a session storage entry named <code>ph_</code>{" "}
+          followed by the project token and <code>_posthog</code>. They hold a
+          random visitor ID and the current session, so PostHog can connect the
+          pages you view during a visit. The cookie expires after 365 days.
+          Ahrefs Analytics, which also loads, handles your visit under the{" "}
           <a href="https://ahrefs.com/privacy">Ahrefs privacy policy</a>.
         </p>
         <p>
-          If you decline later, PostHog stops, including any session recording,
-          and deletes its cookie and storage entries at once. Ahrefs Analytics
-          stops on the next page load.
+          If you decline later, PostHog stops and deletes its cookie and storage
+          entries at once. If Ahrefs already runs on the page, the site reloads
+          the page to stop it.
+        </p>
+        <p>
+          Cloudflare Web Analytics counts page views and load times without
+          cookies, whatever you choose.
         </p>
 
-        <h2>3. Cloudflare Web Analytics</h2>
+        <h2>3. Third-party content</h2>
         <p>
-          Cloudflare, which hosts the site, adds its Web Analytics script to
-          pages. It counts page views and measures load times without cookies.
-          It does not depend on your choice in the analytics banner.
-        </p>
-
-        <h2>4. Third-party content</h2>
-        <p>
-          Some pages load content from other services, which can set their own
-          cookies under their own policies. The pricing page loads the Ko-fi and
-          NOWPayments donation forms when you open them. A Ko-fi payment can
-          open PayPal or Stripe. The{" "}
+          The Ko-fi and NOWPayments donation forms on the pricing page load only
+          when you open them, and can set their own cookies under their own
+          policies. A Ko-fi payment can open PayPal or Stripe. The{" "}
           <Link href="/privacy-policy">Privacy Policy</Link> lists every service
           your browser contacts.
         </p>
 
-        <h2>5. Managing cookies</h2>
+        <h2>4. Managing cookies</h2>
         <ul>
           <li>
             Change your analytics choice at any time with the button below
@@ -188,7 +175,7 @@ function CookiePolicyPage() {
           />
         </p>
 
-        <h2>6. More information</h2>
+        <h2>5. More information</h2>
         <p>
           The <Link href="/privacy-policy">Privacy Policy</Link> explains what
           data the site processes and why. For questions, contact{" "}

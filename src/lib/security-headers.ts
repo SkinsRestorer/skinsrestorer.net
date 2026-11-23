@@ -50,7 +50,7 @@ const cspDirectives = {
   // Donation widgets on the pricing page.
   "frame-src": ["https://ko-fi.com", "https://nowpayments.io"],
   // PostHog session replay compresses canvas frames in a blob worker.
-  "worker-src": ["'self'", "blob:"],
+  "worker-src": ["blob:"],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],

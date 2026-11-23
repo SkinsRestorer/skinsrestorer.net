@@ -11,9 +11,6 @@ function setup(stored?: string) {
     setItem: (key: string, value: string) => {
       items.set(key, value);
     },
-    removeItem: (key: string) => {
-      items.delete(key);
-    },
   };
   const calls: string[] = [];
   let loads = 0;
@@ -37,6 +34,7 @@ function setup(stored?: string) {
     },
   };
   let allowed = 0;
+  let declined = 0;
   const analytics = createAnalytics({
     token: "phc_test",
     storage: () => storage,
@@ -47,6 +45,9 @@ function setup(stored?: string) {
     onAllowed: () => {
       allowed++;
     },
+    onDeclined: () => {
+      declined++;
+    },
   });
   return {
     analytics,
@@ -54,6 +55,7 @@ function setup(stored?: string) {
     items,
     loads: () => loads,
     allowed: () => allowed,
+    declined: () => declined,
   };
 }
 
@@ -105,12 +107,13 @@ test("allowing stores the choice, notifies listeners, and starts PostHog", async
   assert.deepEqual(calls, ["init phc_test", "capture $opt_in"]);
 });
 
-test("declining after allowing stops capture and session replay", async () => {
-  const { analytics, items, calls } = setup("1");
+test("declining after allowing stops capture, session replay, and Ahrefs", async () => {
+  const { analytics, items, calls, declined } = setup("1");
   analytics.startIfAllowed();
   await settle();
   analytics.decline();
   assert.equal(items.get(CONSENT_STORAGE_KEY), "0");
+  assert.equal(declined(), 1);
   assert.equal(await analytics.capture("on_rate_docs"), false);
   assert.deepEqual(calls, ["init phc_test", "opt_out", "stop_recording"]);
   // Allowing again restarts the same instance instead of a second init.
@@ -127,8 +130,8 @@ test("declining while PostHog loads keeps it from initializing", async () => {
   assert.deepEqual(calls, []);
 });
 
-test("a decline in another tab stops PostHog in this tab", async () => {
-  const { analytics, items, calls } = setup("1");
+test("a decline in another tab stops analytics in this tab", async () => {
+  const { analytics, items, calls, declined } = setup("1");
   analytics.startIfAllowed();
   await settle();
   let notified = 0;
@@ -139,11 +142,13 @@ test("a decline in another tab stops PostHog in this tab", async () => {
   analytics.syncStoredConsent();
   assert.equal(analytics.getConsent(), "denied");
   assert.equal(notified, 1);
+  assert.equal(declined(), 1);
   assert.equal(await analytics.capture("on_rate_docs"), false);
   assert.deepEqual(calls, ["init phc_test", "opt_out", "stop_recording"]);
   // The same value again changes nothing.
   analytics.syncStoredConsent();
   assert.equal(notified, 1);
+  assert.equal(declined(), 1);
   assert.equal(calls.length, 3);
 });
 

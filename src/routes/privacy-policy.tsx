@@ -30,53 +30,45 @@ function PrivacyPolicyPage() {
             Skin images that you open, edit, upload, or generate in the Studio,
             upload, and generator tools
           </li>
-          <li>Custom skin names, if you enter one</li>
-          <li>MineSkin API keys, if you enter one</li>
+          <li>Custom skin names and MineSkin API keys, if you enter them</li>
           <li>
             Ratings and messages that you submit as documentation feedback
           </li>
           <li>Messages that you send to support by email or Discord</li>
         </ul>
 
-        <h2>2. Hosting and request data</h2>
+        <h2>2. Hosting and security</h2>
         <p>
-          Cloudflare hosts the site. Every request goes through Cloudflare,
-          which receives your IP address, the requested URL, and the headers
-          your browser sends, such as its user agent and language. Cloudflare
-          keeps request logs for us with details such as the URL, the time, and
-          the response status.
+          Cloudflare hosts the site and receives every request, with your IP
+          address, the requested URL, and the headers your browser sends, such
+          as its user agent and language. Cloudflare keeps request logs for us.
+          It also adds its Web Analytics script to pages, which sends page views
+          and load times to Cloudflare without cookies.
         </p>
         <p>
-          Cloudflare also adds its Web Analytics script to pages. The script
-          sends page views and load times to Cloudflare without cookies. It runs
-          whatever you choose in the analytics banner.
+          The site&apos;s Content Security Policy tells your browser which
+          content it may load. When your browser blocks something, it sends a
+          report to skinsrestorer.net with the page, the blocked address, the
+          rule, and your user agent. The site removes query strings and
+          fragments from the addresses and forwards the report to PostHog
+          without your IP address. We use these reports to find broken pages and
+          injected content.
         </p>
         <p>
-          The site has security rules, called a Content Security Policy, that
-          tell your browser which scripts, images, and other content it may
-          load. When your browser blocks something under these rules, it sends a
-          report to skinsrestorer.net. The report names the page, the blocked
-          address, and the rule, and can include your browser&apos;s user agent.
-          The site removes the query string and fragment from every address in
-          the report, because they can hold skin texture hashes, and then
-          forwards the report to PostHog. The forwarded report does not contain
-          your IP address. This happens whatever you choose in the analytics
-          banner. We use these reports to find broken pages and injected
-          content.
+          Cloudflare Web Analytics and these reports do not depend on your
+          choice in the analytics banner.
         </p>
 
         <h2>3. Analytics with your consent</h2>
         <p>
-          The site asks before it starts analytics. Until you select{" "}
-          <strong>Allow analytics</strong>, and after you select{" "}
-          <strong>Decline</strong>, your browser does not load PostHog or Ahrefs
-          and sends nothing to them. If Ahrefs already runs on the page when you
-          decline, it stops on the next page load.
+          Until you select <strong>Allow analytics</strong>, and after you
+          select <strong>Decline</strong>, your browser does not load PostHog or
+          Ahrefs and sends nothing to them. If Ahrefs already runs on the page
+          when you decline, the site reloads the page to stop it.
         </p>
         <p>
-          If you allow analytics, your browser sends this data to PostHog
-          through <code>t.skinsrestorer.net</code>, our address for PostHog EU
-          Cloud:
+          If you allow analytics, your browser sends this data to PostHog EU
+          Cloud through <code>t.skinsrestorer.net</code>:
         </p>
         <ul>
           <li>The pages you view, with the page address and referrer</li>
@@ -85,96 +77,68 @@ function PrivacyPolicyPage() {
             Actions in the tools, such as opening, saving, or exporting a skin
             in the Studio
           </li>
-          <li>Your answer to the offer to switch the site language</li>
-          <li>Documentation feedback that you submit</li>
+          <li>
+            Your answer to the offer to switch the site language, and
+            documentation feedback that you submit
+          </li>
           <li>
             Page performance, including which element made the page slow to
             respond or shift
           </li>
+          <li>
+            Script errors, with the error message, stack trace, and page address
+          </li>
           <li>Your browser, operating system, device type, and screen size</li>
         </ul>
         <p>
-          Before an event leaves your browser, the site removes skin texture
-          hashes and editor handoff IDs from page addresses and other values.
+          PostHog also records about 1 in 10 visits: how the page looked and
+          changed, with mouse movement, clicks, and scrolling. Recordings mask
+          the text you type into form fields and leave out the Studio editor
+          panels, skin library, and skin gallery.
         </p>
         <p>
-          The site also loads Ahrefs Analytics, except on the Studio, upload,
-          and generator pages. Ahrefs receives the address of each page you
-          view, with skin texture hashes and handoff IDs removed, the referrer,
-          and the addresses of links you click and forms you submit. If you go
-          to a Studio page from another page, the site loads the Studio page
-          again so that Ahrefs does not run on it.
+          Ahrefs Analytics receives the address of each page you view, the
+          referrer, and the addresses of links you click and forms you submit.
+          It does not run on the Studio, upload, and generator pages. If you go
+          to one of them from another page, the site loads it again without
+          Ahrefs.
         </p>
-
-        <h2>4. Session recordings</h2>
         <p>
-          If you allow analytics, PostHog records about 1 in 10 visits. A
-          recording shows how the page looked and changed, with mouse movement,
-          clicks, and scrolling. We use recordings to find layout problems and
-          broken features.
+          Before any of this data leaves your browser, the site removes skin
+          texture hashes and editor handoff IDs from addresses and other values.
+          You can change your choice at any time:
         </p>
-        <ul>
-          <li>
-            Text that you type into form fields is masked, so the recording does
-            not contain it.
-          </li>
-          <li>
-            The Studio editor panels, skin library, and skin gallery are left
-            out of recordings.
-          </li>
-          <li>
-            Skin texture hashes and handoff IDs are removed from every address
-            in a recording, such as page addresses, links, and images.
-          </li>
-        </ul>
-
-        <h2>5. Error reports</h2>
         <p>
-          If you allow analytics, PostHog receives a report when a script error
-          or an unhandled failure happens on a page. The report contains the
-          error message, the stack trace, the page address, and your browser
-          details. We use these reports to find and fix bugs.
+          <CookieSettingsButton
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          />
         </p>
 
-        <h2>6. How we use information</h2>
-        <ul>
-          <li>Serve the documentation and website content</li>
-          <li>Process the uploads and generations that you start</li>
-          <li>Operate, secure, debug, and improve the site</li>
-          <li>Understand which documentation helps and where it falls short</li>
-          <li>Answer support requests</li>
-        </ul>
-
-        <h2>7. Upload tools and MineSkin API keys</h2>
+        <h2>4. Studio tools and MineSkin API keys</h2>
         <p>
           The Studio, upload, and generator tools run in your browser. Skins
-          that you edit and save stay in your browser. A skin leaves your
-          browser only when you generate a result. The{" "}
-          <Link href="/cookie-policy">Cookie Policy</Link> describes that
-          storage.
+          that you edit and save stay in your browser storage, which the{" "}
+          <Link href="/cookie-policy">Cookie Policy</Link> describes. The
+          reverse tool reads the file you select only in your browser.
         </p>
         <p>
           When you generate a result, your browser sends the skin image, the
-          model, and your optional name and cape choice straight to MineSkin. If
-          you choose the Axolotl method with a cape, the browser sends them to
-          SkinsRestorer Axolotl instead, which passes them to MineSkin. The
-          files do not go through skinsrestorer.net.
+          model, and your optional name and cape choice straight to MineSkin.
+          With the Axolotl method and a cape, it sends them to SkinsRestorer
+          Axolotl instead, which passes them to MineSkin. The files do not go
+          through skinsrestorer.net.
         </p>
         <p>
-          A MineSkin API key stays in the form on the page. The site sends it
-          only to MineSkin, and only when you use the official MineSkin method
-          or check cape access. It never sends the key to skinsrestorer.net or
-          Axolotl, and it does not save the key in your browser.
-        </p>
-        <p>
-          The reverse tool reads the file you select in your browser to find the
-          texture URL inside it.
+          The site sends a MineSkin API key only to MineSkin, and only when you
+          use the official MineSkin method or check cape access. It does not
+          save the key or send it anywhere else.
         </p>
 
-        <h2>8. Services your browser contacts</h2>
+        <h2>5. Services your browser contacts</h2>
         <p>
           Each of these services receives your IP address and browser details
-          when your browser contacts it.
+          when your browser contacts it, and handles the data under its own
+          privacy policy.
         </p>
         <ul>
           <li>
@@ -211,25 +175,48 @@ function PrivacyPolicyPage() {
           </li>
           <li>
             Ko-fi (<code>ko-fi.com</code>) and NOWPayments (
-            <code>nowpayments.io</code>), when you open their donation forms on
-            the pricing page. A Ko-fi payment can open PayPal or Stripe.
+            <code>nowpayments.io</code>), only after you open their donation
+            forms on the pricing page. A Ko-fi payment can open PayPal or
+            Stripe.
           </li>
           <li>
             GitHub, Discord, Modrinth, SpigotMC, or bStats, when you follow a
             link to them
           </li>
         </ul>
-        <p>These services handle the data under their own privacy policies.</p>
 
-        <h2>9. International transfers</h2>
+        <h2>6. Why we process data</h2>
+        <ul>
+          <li>
+            To serve the site, process the uploads and generations you start,
+            and keep the site secure and working. This is our legitimate
+            interest in running the site.
+          </li>
+          <li>
+            To understand which pages and documentation help and where they fall
+            short, with PostHog and Ahrefs. This is based on your consent.
+          </li>
+          <li>To answer support requests that you send.</li>
+        </ul>
+
+        <h2>7. International transfers</h2>
         <p>
-          Some of these services run servers in other countries, including
-          countries outside the European Economic Area. Your data can therefore
-          be processed in a country with different data protection laws than
-          yours. PostHog stores our analytics data in its EU Cloud.
+          Some of these services run servers outside the European Economic Area,
+          so your data can be processed in a country with different data
+          protection laws than yours. PostHog stores our analytics data in its
+          EU Cloud.
         </p>
 
-        <h2>10. Your rights</h2>
+        <h2>8. Data retention</h2>
+        <p>
+          Data in your browser stays until you delete it or clear site data. The
+          PostHog cookie expires after 365 days. Analytics events, recordings,
+          error reports, and request logs stay with PostHog, Ahrefs, and
+          Cloudflare for the retention period of each service. We keep support
+          messages for as long as we need them to answer you.
+        </p>
+
+        <h2>9. Your rights</h2>
         <p>Depending on where you live, you can have the right to:</p>
         <ul>
           <li>Get a copy of the personal data we hold about you</li>
@@ -249,39 +236,7 @@ function PrivacyPolicyPage() {
           if you know.
         </p>
 
-        <h2>11. Your choices</h2>
-        <ul>
-          <li>
-            Change your analytics choice at any time with the button below
-          </li>
-          <li>
-            Skip the upload and generator tools if you do not want a skin sent
-            to MineSkin
-          </li>
-          <li>Clear cookies and site data in your browser settings</li>
-        </ul>
-        <p>
-          <CookieSettingsButton
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          />
-        </p>
-
-        <h2>12. Data retention</h2>
-        <p>
-          Data in your browser stays until you delete it or clear site data. The
-          PostHog cookie expires after 365 days. Analytics events, recordings,
-          error reports, and request logs stay with PostHog, Ahrefs, and
-          Cloudflare for the retention period of each service. We keep support
-          messages for as long as we need them to answer you.
-        </p>
-
-        <h2>13. Related policies</h2>
-        <p>
-          The <Link href="/cookie-policy">Cookie Policy</Link> lists every
-          cookie and browser storage item the site uses.
-        </p>
-
-        <h2>14. Changes to this policy</h2>
+        <h2>10. Changes to this policy</h2>
         <p>
           When we change this Privacy Policy, we update the date at the top of
           this page.

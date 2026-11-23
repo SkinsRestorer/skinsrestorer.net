@@ -7,15 +7,7 @@ export type ConsentChoice = "granted" | "denied" | "pending";
  */
 export const CONSENT_STORAGE_KEY = "skinsrestorer:analytics-consent";
 
-/** Where older versions of the site let PostHog store the choice. */
-export function legacyConsentKey(token: string) {
-  return `__ph_opt_in_out_${token}`;
-}
-
-export type ConsentStorage = Pick<
-  Storage,
-  "getItem" | "setItem" | "removeItem"
->;
+export type ConsentStorage = Pick<Storage, "getItem" | "setItem">;
 
 // PostHog stores the choice as JSON, so it writes "1" and "0". Accept the
 // same yes and no values that PostHog accepts.
@@ -29,25 +21,12 @@ export function parseConsent(value: string | null | undefined): ConsentChoice {
   return "pending";
 }
 
-/**
- * Read the stored choice. A choice that an older version of the site stored
- * under the PostHog key moves to {@link CONSENT_STORAGE_KEY}. Unavailable
- * storage counts as no choice.
- */
+/** Read the stored choice. Unavailable storage counts as no choice. */
 export function readConsent(
   storage: ConsentStorage | undefined,
-  token: string | undefined,
 ): ConsentChoice {
-  if (!storage) return "pending";
   try {
-    const stored = parseConsent(storage.getItem(CONSENT_STORAGE_KEY));
-    if (stored !== "pending" || !token) return stored;
-    const legacy = parseConsent(storage.getItem(legacyConsentKey(token)));
-    if (legacy !== "pending") {
-      writeConsent(storage, legacy);
-      storage.removeItem(legacyConsentKey(token));
-    }
-    return legacy;
+    return parseConsent(storage?.getItem(CONSENT_STORAGE_KEY));
   } catch {
     return "pending";
   }

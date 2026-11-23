@@ -24,6 +24,8 @@ interface AnalyticsOptions {
   loadPostHog: () => Promise<PostHogClient>;
   /** Start the analytics that need no PostHog, such as Ahrefs. */
   onAllowed?: () => void;
+  /** Stop the analytics that need no PostHog. */
+  onDeclined?: () => void;
 }
 
 function postHogConfig(): Partial<PostHogConfig> {
@@ -92,8 +94,7 @@ export function createAnalytics(options: AnalyticsOptions) {
   let client: Promise<PostHogClient | undefined> | undefined;
   let started: PostHogClient | undefined;
 
-  const getConsent = () =>
-    (consent ??= readConsent(options.storage(), options.token));
+  const getConsent = () => (consent ??= readConsent(options.storage()));
 
   const setConsent = (choice: Exclude<ConsentChoice, "pending">) => {
     writeConsent(options.storage(), choice);
@@ -101,14 +102,15 @@ export function createAnalytics(options: AnalyticsOptions) {
     for (const listener of listeners) listener();
   };
 
-  /** Stop capture and session replay, and delete PostHog's storage. */
-  const stopPostHog = () => {
+  /** Stop PostHog capture and replay, delete its storage, and stop Ahrefs. */
+  const stopAnalytics = () => {
     if (started) {
       started.opt_out_capturing();
       // Opting out drops new snapshots; this also stops the recorder.
       started.stopSessionRecording();
     } else if (options.token && typeof document !== "undefined")
       clearPostHogStorage(options.token);
+    options.onDeclined?.();
   };
 
   /** Import and initialize PostHog once, unless consent changed meanwhile. */
@@ -160,13 +162,12 @@ export function createAnalytics(options: AnalyticsOptions) {
       options.onAllowed?.();
     },
     /**
-     * Stop PostHog capture, including session replay, and delete its cookie
-     * and storage. An Ahrefs script that already loaded stops on the next
-     * page load, because it does not load again.
+     * Stop PostHog capture, including session replay, delete its cookie and
+     * storage, and stop Ahrefs.
      */
     decline: () => {
       setConsent("denied");
-      stopPostHog();
+      stopAnalytics();
     },
     /**
      * Apply a choice that another tab stored. Without this, a tab opened
@@ -175,7 +176,7 @@ export function createAnalytics(options: AnalyticsOptions) {
      */
     syncStoredConsent: () => {
       const previous = consent;
-      consent = readConsent(options.storage(), options.token);
+      consent = readConsent(options.storage());
       if (consent === previous) return;
       for (const listener of listeners) listener();
       if (consent === "granted") {
@@ -183,7 +184,7 @@ export function createAnalytics(options: AnalyticsOptions) {
         if (started) started.opt_in_capturing({ captureEventName: false });
         else void startPostHog();
         options.onAllowed?.();
-      } else if (consent === "denied") stopPostHog();
+      } else if (consent === "denied") stopAnalytics();
     },
     /**
      * Send an event when the visitor allowed analytics. Resolves to whether
@@ -204,10 +205,6 @@ const studioPaths = new Set(["/studio", "/upload", "/generator"]);
 let ahrefsScript: HTMLScriptElement | undefined;
 let trackingLocation = false;
 
-function withoutHash(address: string) {
-  return address.split("#", 1)[0];
-}
-
 function isStudioPage() {
   return studioPaths.has(splitLocalePath(location.pathname).path);
 }
@@ -217,20 +214,13 @@ function isStudioPage() {
  * Ahrefs sends a page view after each pushState and popstate, using
  * data-page-location when it differs from the last address it sent.
  */
-function syncAhrefs(replaced = false) {
+function syncAhrefs() {
   if (ahrefsScript) {
-    // A loaded script cannot be stopped. Load the Studio page, or after a
-    // decline the next page, again without it. The address that Ahrefs
-    // reads stays unchanged, so it sends no page view for it. After a
-    // decline, replaceState and fragment changes keep the page: Ahrefs
-    // sends no page view for them either.
+    // A loaded script cannot be stopped, so load a Studio page again without
+    // it. The address that Ahrefs reads stays unchanged, so it sends no page
+    // view for the Studio page.
     if (isStudioPage()) location.reload();
-    else if (analytics.getConsent() !== "granted") {
-      const sent = ahrefsScript.dataset["pageLocation"] ?? "";
-      const current = redactEditorParams(location.href);
-      if (!replaced && withoutHash(sent) !== withoutHash(current))
-        location.reload();
-    } else
+    else
       ahrefsScript.dataset["pageLocation"] = redactEditorParams(location.href);
     return;
   }
@@ -263,7 +253,7 @@ function enableAhrefs() {
       const original = history[method];
       history[method] = (...args: Parameters<History["pushState"]>) => {
         original.apply(history, args);
-        syncAhrefs(method === "replaceState");
+        syncAhrefs();
       };
     }
     addEventListener("popstate", () => {
@@ -286,6 +276,10 @@ export const analytics = createAnalytics({
   },
   loadPostHog: () => import("posthog-js").then((module) => module.posthog),
   onAllowed: enableAhrefs,
+  // A loaded Ahrefs script cannot be stopped, so load the page again without it.
+  onDeclined: () => {
+    if (ahrefsScript) location.reload();
+  },
 });
 
 if (browser) {

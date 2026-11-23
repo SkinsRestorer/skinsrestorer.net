@@ -11,7 +11,7 @@ function TermsOfServicePage() {
         <h1>Terms of Service</h1>
         <p>
           <strong>Last updated:</strong>{" "}
-          <time dateTime="2026-11-16">November 16, 2026</time>
+          <time dateTime="2026-11-23">November 23, 2026</time>
         </p>
 
         <p>
@@ -28,11 +28,11 @@ function TermsOfServicePage() {
         </p>
 
         <h2>2. What this website provides</h2>
-        <p>The site currently provides:</p>
         <ul>
           <li>Documentation for the SkinsRestorer project</li>
           <li>
-            Browser-based helpers for skin uploads and custom skin generation
+            The Skin Studio and its browser tools for editing, uploading, and
+            generating skins
           </li>
           <li>
             Links to project resources such as GitHub, Discord, and Modrinth
@@ -59,18 +59,18 @@ function TermsOfServicePage() {
           credential for the requested action.
         </p>
         <p>
-          The upload and generator tools may send your file and related inputs
-          to the selected processing service, such as MineSkin or SkinsRestorer
-          Axolotl, in order to produce the requested result.
+          To produce a result, the tools send your file and related inputs to
+          the processing service you select, such as MineSkin or SkinsRestorer
+          Axolotl.
         </p>
 
         <h2>5. Third-party services</h2>
         <p>
-          This site depends on or links to third-party services including
+          The site depends on or links to third-party services, such as
           MineSkin, SkinsRestorer Axolotl, GitHub, Discord, Modrinth,
-          Cloudflare, PostHog, and Ahrefs. Those services operate under their
-          own terms and privacy policies, and we are not responsible for their
-          content, uptime, or practices.
+          Cloudflare, PostHog, Ahrefs, Ko-fi, and NOWPayments. They operate
+          under their own terms and privacy policies, and we are not responsible
+          for their content, uptime, or practices.
         </p>
 
         <h2>6. Intellectual property</h2>
