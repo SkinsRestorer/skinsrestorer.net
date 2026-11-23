@@ -11,7 +11,7 @@
     "build": "bun run generate:images && cf build",
     "start": "vite preview",
     "test": "bun test",
-    "typecheck": "bun run cf-typegen && bun run generate:docs && bun run generate:routes && tsc --noEmit && tsc -p tsconfig.service-worker.json",
+    "typecheck": "bun run cf-typegen && bun run generate:docs && bun run generate:routes && tsc --noEmit",
     "lint": "oxlint",
     "knip": "knip-bun",
     "format": "oxfmt",

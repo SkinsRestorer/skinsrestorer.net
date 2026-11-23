@@ -479,8 +479,7 @@
         "*.config.ts",
         "src/server.ts",
         "src/lib/release-server.ts",
-        "src/routes/**/*.ts",
-        "public/service-worker.js"
+        "src/routes/**/*.ts"
       ],
       "rules": {
         "effecttsgo/global-date": "error",

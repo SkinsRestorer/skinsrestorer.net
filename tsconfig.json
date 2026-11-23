@@ -30,7 +30,6 @@
     "types": ["vite/client", "node"],
     "allowImportingTsExtensions": true
   },
-  "references": [{ "path": "./tsconfig.service-worker.json" }],
   "include": ["**/*.ts", "**/*.tsx", ".cloudflare/types/index.d.ts"],
   "exclude": [
     "node_modules",

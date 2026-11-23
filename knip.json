@@ -3,7 +3,6 @@
   "entry": [
     "src/routes/**/*.{ts,tsx}",
     "src/**/*.{test,spec}.{ts,tsx}",
-    "public/service-worker.js",
     "scripts/*.ts",
     "scripts/**/*.test.ts",
     "cloudflare.config.ts"

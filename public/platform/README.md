@@ -4,6 +4,8 @@ These images identify the server software that SkinsRestorer supports. The logos
 
 - `paper.png`: [PaperMC website](https://github.com/PaperMC/website/blob/main/public/assets/logo/256x.png).
 - `velocity.svg`: [PaperMC website](https://github.com/PaperMC/website/blob/main/src/assets/brand/velocity.svg).
+- `bukkit.png`: Bukkit project logo.
+- `bungeecord.png`: BungeeCord logo by SpigotMC.
 - `spigot.png`: [SpigotMC organization avatar](https://github.com/SpigotMC).
 - `fabric.png`: [Fabric website logo](https://fabricmc.net/assets/logo.png).
 - `neoforge.png`: [NeoForged organization avatar](https://github.com/NeoForged).
