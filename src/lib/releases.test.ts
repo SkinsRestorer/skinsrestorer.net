@@ -5,6 +5,7 @@ import { Effect } from "effect";
 import { TestClock } from "effect/testing";
 import { HttpClient } from "./effect-http";
 import { cachedLatestReleaseEffect, latestReleaseEffect } from "./releases";
+import { required } from "./utils";
 
 const run = (fetcher: HttpFetch) =>
   Effect.runPromise(
@@ -33,6 +34,17 @@ test("release reads decode GitHub data and return a safe fallback", async () => 
     null,
   );
   assert.equal(await run(() => Promise.reject(new Error("offline"))), null);
+});
+
+test("release reads identify the site to the GitHub API", async () => {
+  const requests: Headers[] = [];
+  await run((_url, init) => {
+    requests.push(new Headers(init?.headers));
+    return Promise.resolve(Response.json({}, { status: 403 }));
+  });
+  const headers = required(requests[0], "release request");
+  assert.equal(headers.get("User-Agent"), "skinsrestorer.net");
+  assert.equal(headers.get("Accept"), "application/vnd.github+json");
 });
 
 test("release reads share a result for 120 seconds before refreshing", async () => {

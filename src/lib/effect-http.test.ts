@@ -314,3 +314,41 @@ test("an unread cloned body is aborted only after the deadline", async () => {
     await wrapperBody?.cancel().catch(() => {});
   }
 });
+
+test("non-JSON error pages report the HTTP status", async () => {
+  await assert.rejects(
+    Effect.runPromise(
+      provide(readHttpJson(url, {}, Schema.Struct({ id: Schema.String })), () =>
+        Promise.resolve(
+          new Response("<html>Bad gateway</html>", {
+            status: 502,
+            headers: { "content-type": "text/html" },
+          }),
+        ),
+      ),
+    ),
+    {
+      reason: "response",
+      messageKey: "errors.serviceStatus",
+      message: "The service answered with status 502.",
+    },
+  );
+});
+
+test("long request deadlines apply to the request only", async () => {
+  const outcome = await Effect.runPromise(
+    provide(
+      Effect.gen(function* () {
+        const pending = yield* Effect.forkChild(
+          Effect.result(readHttpText(url, {}, { timeoutMs: 90_000 })),
+        );
+        yield* TestClock.adjust(89_999);
+        assert.equal(pending.pollUnsafe(), undefined);
+        yield* TestClock.adjust(1);
+        return yield* Fiber.join(pending);
+      }),
+      () => new Promise(() => {}),
+    ).pipe(Effect.provide(TestClock.layer())),
+  );
+  assert.equal(Result.isFailure(outcome) && outcome.failure.reason, "timeout");
+});

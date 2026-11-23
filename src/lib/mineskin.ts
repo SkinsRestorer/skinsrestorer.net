@@ -4,13 +4,17 @@ import {
   messageValuesSchema,
 } from "./messages";
 import { Effect, Schema } from "effect";
-import { readHttpJson, runHttpEffect } from "./effect-http";
+import { HttpError, readHttpJson, runHttpEffect } from "./effect-http";
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
 
 const MINESKIN_API_BASE_URL = "https://api.mineskin.org/v2";
 const AXOLOTL_API_BASE_URL = "https://axolotl.skinsrestorer.net/mineskin";
 const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
+// Axolotl answers only after MineSkin generated the skin.
+const AXOLOTL_UPLOAD_TIMEOUT_MS = 90_000;
+// Polling stops here. The queued job can still finish on MineSkin.
+const MINESKIN_JOB_DEADLINE = "2 minutes";
 const errorsSchema = Schema.optional(
   Schema.Array(Schema.Struct({ message: Schema.optional(Schema.String) })),
 );
@@ -100,14 +104,19 @@ function createMineSkinHeaders(apiKey?: string): Record<string, string> {
   return headers;
 }
 
-function mineSkinRequest<
-  A extends {
-    success?: boolean | undefined;
-    errors?: readonly { message?: string | undefined }[] | undefined;
-    error?: string | undefined;
-  },
->(url: string, init: RequestInit, schema: Schema.Decoder<A>) {
-  return readHttpJson(url, init, schema).pipe(
+interface MineSkinBody {
+  success?: boolean | undefined;
+  errors?: readonly { message?: string | undefined }[] | undefined;
+  error?: string | undefined;
+}
+
+function mineSkinRequest<A extends MineSkinBody>(
+  url: string,
+  init: RequestInit,
+  schema: Schema.Decoder<A>,
+  options?: { timeoutMs?: number },
+) {
+  return readHttpJson(url, init, schema, options).pipe(
     Effect.flatMap((response) => {
       const detail = response.data.error ?? response.data.errors?.[0]?.message;
       if (
@@ -120,11 +129,35 @@ function mineSkinRequest<
             reason: "request",
             ...(detail !== undefined
               ? { message: detail }
-              : messageFields("errors.jobFailed")),
+              : messageFields("errors.mineskinStatus", {
+                  status: response.status,
+                })),
           }),
         );
       return Effect.succeed(response.data);
     }),
+  );
+}
+
+/**
+ * An upload that times out may already be accepted, so the error says so
+ * instead of inviting a blind resubmit.
+ */
+function mineSkinUpload<A extends MineSkinBody>(
+  url: string,
+  init: RequestInit,
+  schema: Schema.Decoder<A>,
+  options?: { timeoutMs?: number },
+) {
+  return mineSkinRequest(url, init, schema, options).pipe(
+    Effect.mapError((error) =>
+      error._tag === "HttpError" && error.reason === "timeout"
+        ? HttpError.make({
+            reason: "timeout",
+            ...messageFields("errors.uploadTimedOut"),
+          })
+        : error,
+    ),
   );
 }
 
@@ -137,6 +170,45 @@ export interface MineSkinUploadOptions {
   apiKey?: string | undefined;
   useCapeProxy?: boolean;
 }
+
+/** Poll an existing job. It never submits the upload again. */
+const pollMineSkinJob = Effect.fn("MineSkin.pollJob")(function* (
+  queued: MineSkinResponse,
+  headers: Record<string, string>,
+  waitMs: number | undefined,
+) {
+  let data = queued;
+  for (;;) {
+    if (data.job?.status === "failed")
+      return yield* MineSkinError.make({
+        reason: "job",
+        ...messageFields("errors.jobIncomplete"),
+      });
+    if (data.skin) return { ...data, skin: data.skin };
+    if (!data.job)
+      return yield* MineSkinError.make({
+        reason: "job",
+        ...messageFields("errors.jobMissing"),
+      });
+    if (data.job.status === "completed") {
+      if (data.job.result) {
+        const result = yield* mineSkinRequest(
+          `${MINESKIN_API_BASE_URL}/skins/${encodeURIComponent(data.job.result)}`,
+          { headers },
+          responseSchema,
+        );
+        if (result.skin) return { ...data, skin: result.skin };
+      }
+      return yield* MineSkinError.make({
+        reason: "result",
+        ...messageFields("errors.resultMissing"),
+      });
+    }
+    const jobUrl = `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;
+    yield* Effect.sleep(waitMs ?? 1000);
+    data = yield* mineSkinRequest(jobUrl, { headers }, responseSchema);
+  }
+});
 
 /** Submit once, then poll the existing job. Interruption never resubmits an upload. */
 export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
@@ -156,10 +228,11 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
     if (capeUuid) formData.append(useCapeProxy ? "capeUuid" : "cape", capeUuid);
     const headers = createMineSkinHeaders(useCapeProxy ? undefined : apiKey);
     if (useCapeProxy) {
-      const data = yield* mineSkinRequest(
+      const data = yield* mineSkinUpload(
         `${AXOLOTL_API_BASE_URL}/skins${waitMs ? `?waitMs=${waitMs}` : ""}`,
         { method: "POST", headers, body: formData },
         axolotlResponseSchema,
+        { timeoutMs: AXOLOTL_UPLOAD_TIMEOUT_MS },
       );
       if (!data.skin)
         return yield* MineSkinError.make({
@@ -168,41 +241,23 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
         });
       return { ...data, skin: data.skin };
     }
-    let data = yield* mineSkinRequest(
+    const queued = yield* mineSkinUpload(
       `${MINESKIN_API_BASE_URL}/queue`,
       { method: "POST", headers, body: formData },
       responseSchema,
     );
-    for (;;) {
-      if (data.job?.status === "failed")
-        return yield* MineSkinError.make({
-          reason: "job",
-          ...messageFields("errors.jobIncomplete"),
-        });
-      if (data.skin) return { ...data, skin: data.skin };
-      if (!data.job)
-        return yield* MineSkinError.make({
-          reason: "job",
-          ...messageFields("errors.jobMissing"),
-        });
-      if (data.job.status === "completed") {
-        if (data.job.result) {
-          const result = yield* mineSkinRequest(
-            `${MINESKIN_API_BASE_URL}/skins/${encodeURIComponent(data.job.result)}`,
-            { headers },
-            responseSchema,
-          );
-          if (result.skin) return { ...data, skin: result.skin };
-        }
-        return yield* MineSkinError.make({
-          reason: "result",
-          ...messageFields("errors.resultMissing"),
-        });
-      }
-      const jobUrl = `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;
-      yield* Effect.sleep(waitMs ?? 1000);
-      data = yield* mineSkinRequest(jobUrl, { headers }, responseSchema);
-    }
+    return yield* pollMineSkinJob(queued, headers, waitMs).pipe(
+      Effect.timeoutOrElse({
+        duration: MINESKIN_JOB_DEADLINE,
+        orElse: () =>
+          Effect.fail(
+            MineSkinError.make({
+              reason: "job",
+              ...messageFields("errors.jobTimedOut"),
+            }),
+          ),
+      }),
+    );
   },
 );
 

@@ -1,4 +1,5 @@
 import {
+  type MessageKey,
   messageFields,
   messageKeySchema,
   messageValuesSchema,
@@ -26,6 +27,8 @@ export class HttpError extends Schema.TaggedError<
   messageValues: Schema.optional(messageValuesSchema),
   cause: Schema.optional(Schema.Unknown),
 }) {}
+
+const DEFAULT_TIMEOUT_MS = 10_000;
 
 /** Own the complete response, including transports that resolve after cancellation. */
 export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
@@ -100,7 +103,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
         };
       }).pipe(
         Effect.timeoutOrElse({
-          duration: options.timeoutMs ?? 10_000,
+          duration: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
           orElse: () =>
             Effect.fail(
               HttpError.make({
@@ -131,7 +134,11 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
         const settled = cancellation;
         yield* Effect.promise(() => settled).pipe(
           Effect.timeoutOrElse({
-            duration: options.timeoutMs ?? 10_000,
+            // A long request deadline must not hold up cleanup as long.
+            duration: Math.min(
+              options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+              DEFAULT_TIMEOUT_MS,
+            ),
             orElse: () =>
               Effect.promise(() => {
                 owner.controller.abort();
@@ -166,24 +173,25 @@ export function readHttpJson<A>(
 ) {
   return Effect.gen(function* () {
     const response = yield* readHttpText(url, init, options);
+    // Error pages from proxies are often HTML, so report their status instead.
+    const failure = (key: MessageKey, cause: unknown) =>
+      HttpError.make({
+        reason: "response",
+        ...(response.ok
+          ? messageFields(key)
+          : messageFields("errors.serviceStatus", { status: response.status })),
+        cause,
+      });
     const value: unknown = yield* Schema.decodeEffect(
       Schema.fromJsonString(Schema.Unknown),
     )(response.text).pipe(
       Effect.mapError((cause) =>
-        HttpError.make({
-          reason: "response",
-          ...messageFields("errors.serviceReturnedInvalidJson"),
-          cause,
-        }),
+        failure("errors.serviceReturnedInvalidJson", cause),
       ),
     );
     const data = yield* Schema.decodeUnknownEffect(schema)(value).pipe(
       Effect.mapError((cause) =>
-        HttpError.make({
-          reason: "response",
-          ...messageFields("errors.serviceReturnedInvalidResponse"),
-          cause,
-        }),
+        failure("errors.serviceReturnedInvalidResponse", cause),
       ),
     );
     return { ok: response.ok, status: response.status, data };

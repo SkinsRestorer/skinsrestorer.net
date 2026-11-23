@@ -54,7 +54,7 @@ function PricingPage() {
       <section className="py-8 md:py-16">
         <div className="mb-12 flex flex-col items-center gap-4 text-center md:mb-16">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            {t("pricing.simpleTransparentPricing")}
+            {t("pricing.freeAndSupporterPlans")}
           </h1>
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
             {t("pricing.skinsrestorerAlwaysWillFreeIfYouLove")}
@@ -80,10 +80,7 @@ function PricingPage() {
             <CardContent className="flex-1">
               <div className="mb-6">
                 <span className="text-4xl font-bold tracking-tight">
-                  {formatEuros(0, locale)}
-                </span>
-                <span className="ml-1 text-muted-foreground">
-                  {t("common.month")}
+                  {t("pricing.free")}
                 </span>
               </div>
               <ul className="flex flex-col gap-3">
@@ -121,9 +118,6 @@ function PricingPage() {
                 <CardTitle className="text-xl">
                   <h2>{t("pricing.supporter")}</h2>
                 </CardTitle>
-                <span className="ml-auto inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  {t("pricing.popular")}
-                </span>
               </div>
               <CardDescription>
                 {t("pricing.supportProjectGetPriorityHelpWhenYou")}
@@ -170,14 +164,15 @@ function PricingPage() {
             {t("pricing.howToGetSupporterPerks")}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {t("pricing.supporterPerksDeliveredThroughOur")}{" "}
-            <a
-              href="/discord"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              {t("pricing.discordServer")}
-            </a>
-            {t("pricing.afterSubscribingKoFiYouLlReceive")}
+            {t.rich("pricing.supporterPerksDiscord", {
+              discord: (
+                // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+                <a
+                  href="/discord"
+                  className="underline underline-offset-2 hover:text-foreground"
+                />
+              ),
+            })}
           </p>
         </div>
       </section>
@@ -195,8 +190,9 @@ function PricingPage() {
             {t("pricing.wantSupportSkinsrestorerWithoutRecurringCommitmentYou")}
           </p>
           <p className="max-w-[500px] text-sm text-muted-foreground">
-            {t("pricing.onlyKoFi")} <strong>{t("pricing.membership")}</strong>{" "}
-            {t("pricing.grantsSupporterPerksOneTimePaymentsVia")}
+            {t.rich("pricing.onlyMembershipGrantsPerks", {
+              strong: <strong />,
+            })}
           </p>
         </div>
 

@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
 import { InfoIcon, LoaderCircle, XIcon } from "lucide-react";
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +26,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { type CapeStatus, NO_CAPE_VALUE } from "@/lib/studio-options";
 import type { MineSkinCape } from "@/lib/mineskin";
 import { useT } from "@/lib/i18n-react";
+import { runSkinEffect, withSkinImageEffect } from "@/lib/skin";
 import { cn } from "@/lib/utils";
 
 /**
@@ -72,18 +73,22 @@ export function MineSkinKeyField(props: {
           >
             <p>{t("capes.needApiKeyAllMineskinPlansExcept")}</p>
             <p>
-              {t("capes.visit")}{" "}
-              <a
-                href="https://mineskin.org/apikey"
-                className="font-medium text-foreground underline"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t("capes.mineskinApiKeysPage")}
-              </a>{" "}
-              {t("capes.getStartedSave10FirstThreeMonths")}{" "}
-              <span className="font-mono font-semibold">SKINSRESTORER10</span>
-              {t("capes.weDonTReceiveCommissionIfYou")}
+              {t.rich("capes.mineskinCoupon", {
+                link: (
+                  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+                  <a
+                    href="https://mineskin.org/apikey"
+                    className="font-medium text-foreground underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  />
+                ),
+                code: (
+                  <span className="font-mono font-semibold">
+                    SKINSRESTORER10
+                  </span>
+                ),
+              })}
             </p>
           </PopoverContent>
         </Popover>
@@ -232,7 +237,10 @@ export function CapePicker(props: {
         </ToggleGroup>
       </div>
       {failed && (
-        <p className="flex flex-wrap items-center gap-x-2 text-xs text-destructive">
+        <p
+          role="alert"
+          className="flex flex-wrap items-center gap-x-2 text-xs text-destructive"
+        >
           {t("capes.failedLoadAvailableCapes")}
           {props.onRetryList && (
             <Button variant="link" size="sm" onClick={props.onRetryList}>
@@ -263,43 +271,44 @@ export function CapePicker(props: {
 
 function CapePreview({ texture }: { texture: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [failedTexture, setFailedTexture] = useState<string | null>(null);
+  const failed = failedTexture === texture;
 
   useEffect((): (() => void) | undefined => {
     const canvas = canvasRef.current;
-    if (!canvas) {
-      return undefined;
-    }
-
-    const context = canvas.getContext("2d");
-    if (!context) {
-      return undefined;
-    }
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context || !texture) return undefined;
 
     const width = 10;
     const height = 16;
-
     canvas.width = width;
     canvas.height = height;
     context.imageSmoothingEnabled = false;
     context.clearRect(0, 0, width, height);
 
-    if (!texture) {
-      return undefined;
-    }
-
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    const draw = () => {
-      context.drawImage(image, 1, 1, width, height, 0, 0, width, height);
-    };
-    image.addEventListener("load", draw);
-    image.src = texture;
-
+    // The load owns its image and releases its handlers when cancelled.
+    const owner = new AbortController();
+    runSkinEffect(
+      withSkinImageEffect(texture, (image) => {
+        if (owner.signal.aborted) return;
+        context.drawImage(image, 1, 1, width, height, 0, 0, width, height);
+      }),
+      owner.signal,
+    ).catch(() => {
+      if (!owner.signal.aborted) setFailedTexture(texture);
+    });
     return () => {
-      image.removeEventListener("load", draw);
+      owner.abort();
     };
   }, [texture]);
 
+  if (failed)
+    return (
+      <span
+        aria-hidden="true"
+        className="h-10 w-6.25 shrink-0 rounded-xs border border-dashed border-muted-foreground"
+      />
+    );
   return (
     <canvas
       ref={canvasRef}

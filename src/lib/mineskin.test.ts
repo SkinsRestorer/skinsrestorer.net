@@ -318,3 +318,85 @@ test("supported capes are normalized and private fields are validated at the bou
     },
   ]);
 });
+
+test("Axolotl uploads wait for generation and time out without resubmitting", async () => {
+  const { Effect, Fiber, Result } = await import("effect");
+  const { TestClock } = await import("effect/testing");
+  const { HttpClient } = await import("./effect-http");
+  const { uploadMineSkinFileEffect } = await import("./mineskin");
+  let calls = 0;
+  const outcome = await Effect.runPromise(
+    Effect.gen(function* () {
+      const upload = yield* Effect.forkChild(
+        Effect.result(
+          uploadMineSkinFileEffect({
+            file,
+            variant: "classic",
+            capeUuid: "cape-id",
+            useCapeProxy: true,
+          }),
+        ),
+      );
+      // Small reads time out after 10 seconds. A generating upload does not.
+      yield* TestClock.adjust(60_000);
+      assert.equal(upload.pollUnsafe(), undefined);
+      yield* TestClock.adjust(30_000);
+      return yield* Fiber.join(upload);
+    }).pipe(
+      Effect.provideService(HttpClient, {
+        fetch: () => {
+          calls++;
+          return new Promise(() => {});
+        },
+      }),
+      Effect.provide(TestClock.layer()),
+    ),
+  );
+  assert.ok(Result.isFailure(outcome));
+  assert.equal(outcome.failure.messageKey, "errors.uploadTimedOut");
+  assert.match(outcome.failure.message, /may still create the skin/u);
+  assert.equal(calls, 1);
+});
+
+test("queue polling stops after its deadline without resubmitting", async () => {
+  const { Effect, Fiber, Result } = await import("effect");
+  const { TestClock } = await import("effect/testing");
+  const { HttpClient } = await import("./effect-http");
+  const { uploadMineSkinFileEffect } = await import("./mineskin");
+  const methods: (string | undefined)[] = [];
+  const outcome = await Effect.runPromise(
+    Effect.gen(function* () {
+      const upload = yield* Effect.forkChild(
+        Effect.result(uploadMineSkinFileEffect({ file, variant: "classic" })),
+      );
+      yield* TestClock.adjust(119_999);
+      assert.equal(upload.pollUnsafe(), undefined);
+      yield* TestClock.adjust(1);
+      return yield* Fiber.join(upload);
+    }).pipe(
+      Effect.provideService(HttpClient, {
+        fetch: (_url, init) => {
+          methods.push(init?.method);
+          return Promise.resolve(
+            Response.json({ job: { id: "job", status: "waiting" } }),
+          );
+        },
+      }),
+      Effect.provide(TestClock.layer()),
+    ),
+  );
+  assert.ok(Result.isFailure(outcome));
+  assert.equal(outcome.failure.messageKey, "errors.jobTimedOut");
+  assert.equal(methods.filter((method) => method === "POST").length, 1);
+  assert.ok(methods.length > 2);
+});
+
+test("MineSkin failures without a message report the response status", async () => {
+  mockFetch(() =>
+    Promise.resolve(Response.json({ success: false }, { status: 403 })),
+  );
+  await assert.rejects(fetchCapeSupport("test-key"), {
+    messageKey: "errors.mineskinStatus",
+    message: "MineSkin could not process the request (status 403).",
+  });
+});
