@@ -32,7 +32,7 @@ for (const { locale, title, query } of cases) {
         },
       ],
     });
-    const data = await (await server.staticGET()).json();
+    const data: unknown = await (await server.staticGET()).json();
     const from = `https://docs-search.test/${locale}`;
     const originalFetch = globalThis.fetch;
     globalThis.fetch = Object.assign(
@@ -55,6 +55,50 @@ for (const { locale, title, query } of cases) {
     }
   });
 }
+
+test("search loads the database again after a failed download", async () => {
+  const server = createSearchAPI("advanced", {
+    language: "english",
+    indexes: [
+      {
+        id: "install",
+        title: "Install SkinsRestorer",
+        url: "/docs/installation",
+        structuredData: {
+          headings: [],
+          contents: [{ heading: undefined, content: "Install SkinsRestorer" }],
+        },
+      },
+    ],
+  });
+  const data: unknown = await (await server.staticGET()).json();
+  const from = "https://docs-search.test/retry";
+  const requested: string[] = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = Object.assign(
+    (...args: Parameters<typeof fetch>) => {
+      const url = args[0] instanceof Request ? args[0].url : args[0].toString();
+      if (!url.startsWith(from)) return originalFetch(...args);
+      requested.push(url);
+      return Promise.resolve(
+        requested.length === 1
+          ? new Response("Unavailable", { status: 503 })
+          : Response.json({ type: "i18n", data: { en: data } }),
+      );
+    },
+    { preconnect: originalFetch.preconnect },
+  );
+  try {
+    const client = createDocsSearchClient("en", from);
+    await assert.rejects(async () => client.search("install"));
+    const results = await client.search("install");
+    assert.ok(results.some((result) => result.url === "/docs/installation"));
+    assert.equal(requested.length, 2);
+    assert.notEqual(requested[0], requested[1]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 
 function page(url: string, title: string, ...hits: SortedResult[]) {
   return [{ id: url, url, type: "page" as const, content: title }, ...hits];

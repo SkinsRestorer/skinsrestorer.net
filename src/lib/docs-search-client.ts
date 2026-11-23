@@ -77,22 +77,41 @@ export function createDocsSearchClient(
   locale: Locale,
   from = "/api/search",
 ): SearchClient {
-  const client = staticClient({
-    from,
-    locale,
-    // The limit caps raw hits before grouping. Fewer hits per page leave room
-    // for more pages, which the ranking below then reorders.
-    search: { limit: 80, groupBy: { properties: ["page_id"], maxResult: 3 } },
-    initDB: (language) =>
-      create({
-        schema: { _: "string" },
-        language:
-          (isLocale(language) ? searchLanguages[language] : undefined) ??
-          "english",
-      }),
-  });
+  const connect = (url: string) =>
+    staticClient({
+      from: url,
+      locale,
+      // The limit caps raw hits before grouping. Fewer hits per page leave room
+      // for more pages, which the ranking below then reorders.
+      search: { limit: 80, groupBy: { properties: ["page_id"], maxResult: 3 } },
+      initDB: (language) =>
+        create({
+          schema: { _: "string" },
+          language:
+            (isLocale(language) ? searchLanguages[language] : undefined) ??
+            "english",
+        }),
+    });
+  let client = connect(from);
+  let attempt = 0;
   return {
     ...(client.deps === undefined ? {} : { deps: client.deps }),
-    search: async (query) => rankDocsResults(await client.search(query), query),
+    search: async (query) => {
+      const current = client;
+      try {
+        return rankDocsResults(await current.search(query), query);
+      } catch (error) {
+        // Fumadocs caches the database promise per URL, including a failed
+        // download. Load from a new URL next time, so search recovers
+        // without a page reload.
+        if (client === current) {
+          attempt += 1;
+          client = connect(
+            `${from}${from.includes("?") ? "&" : "?"}retry=${attempt}`,
+          );
+        }
+        throw error;
+      }
+    },
   };
 }

@@ -13,20 +13,45 @@ import {
   ExternalLinkIcon,
   MessageCircleIcon,
 } from "lucide-react";
+import { Effect, Schema } from "effect";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { readHttpText, runHttpEffect } from "@/lib/effect-http";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
 const cache = new Map<string, string>();
 
-async function loadMarkdown(markdownUrl: string, failedMessage: string) {
-  const cached = cache.get(markdownUrl);
+// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
+class MarkdownLoadError extends Schema.TaggedError<
+  MarkdownLoadError,
+  { readonly brand: unique symbol }
+>()("MarkdownLoadError", {
+  url: Schema.String,
+  cause: Schema.Unknown,
+}) {}
+
+/** The read has a deadline, so the copy button cannot stay busy. */
+async function loadMarkdown(url: string) {
+  const cached = cache.get(url);
   if (cached !== undefined) return cached;
-  const res = await fetch(markdownUrl);
-  if (!res.ok) throw new Error(failedMessage);
-  const content = await res.text();
-  cache.set(markdownUrl, content);
+  const content = await runHttpEffect(
+    readHttpText(url).pipe(
+      Effect.flatMap((response) =>
+        response.ok
+          ? Effect.succeed(response.text)
+          : Effect.fail(
+              MarkdownLoadError.make({ url, cause: response.status }),
+            ),
+      ),
+      Effect.mapError((cause) =>
+        cause instanceof MarkdownLoadError
+          ? cause
+          : MarkdownLoadError.make({ url, cause }),
+      ),
+    ),
+  );
+  cache.set(url, content);
   return content;
 }
 
@@ -52,10 +77,7 @@ export function LLMCopyButton({
 
   async function copy() {
     setIsLoading(true);
-    const markdown = loadMarkdown(
-      markdownUrl,
-      t("docs.failedLoadPageMarkdown"),
-    );
+    const markdown = loadMarkdown(markdownUrl);
     const blob = markdown.then(
       (text) => new Blob([text], { type: "text/plain" }),
     );
@@ -78,33 +100,41 @@ export function LLMCopyButton({
       timeout.current = setTimeout(() => {
         setChecked(false);
       }, 1500);
-    } catch {
-      toast.error(t("common.failedCopy"));
+    } catch (error) {
+      toast.error(
+        error instanceof MarkdownLoadError
+          ? t("docs.failedLoadPageMarkdown")
+          : t("common.failedCopy"),
+      );
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <button
-      disabled={isLoading}
-      aria-busy={isLoading}
-      className={cn(
-        buttonVariants({
-          color: "secondary",
-          size: "sm",
-          className: "gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground",
-        }),
-      )}
-      onClick={() => void copy()}
-      type="button"
-    >
-      {checked ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-      {t("docs.copyPage")}
+    <>
+      <button
+        disabled={isLoading}
+        aria-busy={isLoading}
+        className={cn(
+          buttonVariants({
+            color: "secondary",
+            size: "sm",
+            className:
+              "gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground",
+          }),
+        )}
+        onClick={() => void copy()}
+        type="button"
+      >
+        {checked ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+        {t("docs.copyPage")}
+      </button>
+      {/* Outside the button, so the status does not join its name. */}
       <output className="sr-only">
         {checked ? t("common.copiedClipboard") : ""}
       </output>
-    </button>
+    </>
   );
 }
 
@@ -128,7 +158,7 @@ export function ViewOptions({
 }) {
   const t = useT();
   const items = useMemo(() => {
-    const q = `Read ${markdownUrl}, I want to ask questions about it.`;
+    const q = t("common.readUrlIWantAskQuestionsAbout", { url: markdownUrl });
 
     return [
       {

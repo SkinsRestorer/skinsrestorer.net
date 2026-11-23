@@ -8,7 +8,21 @@ import {
 } from "../src/lib/docs-search-client";
 import { isLocale } from "../src/lib/i18n";
 import { localizedSitePages } from "../src/lib/site-pages";
-import { fromJSON } from "seroval";
+import { fromJSON, type SerovalJSON } from "seroval";
+
+function isSerovalJson(value: unknown): value is SerovalJSON {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "t" in value &&
+    typeof value.t === "object" &&
+    value.t !== null &&
+    "f" in value &&
+    typeof value.f === "number" &&
+    "m" in value &&
+    Array.isArray(value.m)
+  );
+}
 
 // Run against `bun run preview` with `bun run test:site` after building.
 const baseUrl = process.env["SITE_TEST_URL"];
@@ -28,7 +42,7 @@ test(
       ["/studio", "Skin Studio"],
       ["/generator", "Custom Skin Generator"],
       ["/upload", "Skin Upload"],
-      ["/pricing", "Simple, transparent pricing"],
+      ["/pricing", "Free and supporter plans"],
       ["/privacy-policy", "Privacy Policy"],
       ["/terms-of-service", "Terms of Service"],
       ["/cookie-policy", "Cookie Policy"],
@@ -110,10 +124,20 @@ test(
       const markdown = await request(`/${locale}/docs/installation.mdx`);
       assert.equal(markdown.status, 200);
       assert.equal(markdown.headers.get("content-language"), locale);
+      assert.equal(
+        markdown.headers.get("link"),
+        `<https://skinsrestorer.net/${locale}/docs/installation>; rel="canonical"`,
+      );
+      const fallbackMarkdown = await request(`/${locale}/docs/development.mdx`);
+      assert.equal(fallbackMarkdown.headers.get("content-language"), "en");
+      assert.equal(
+        fallbackMarkdown.headers.get("link"),
+        '<https://skinsrestorer.net/docs/development>; rel="canonical"',
+      );
     }
 
     const docs = await (await request("/docs/installation")).text();
-    assert.ok(docs.includes("Install SkinsRestorer - SR"));
+    assert.ok(docs.includes("<title>Install SkinsRestorer</title>"));
     assert.ok(
       docs.includes("https://skinsrestorer.net/docs-og/installation/image.png"),
     );
@@ -144,14 +168,24 @@ test(
 
     const index = await (await request("/llms.txt")).text();
     assert.ok(index.includes("/docs/installation"));
-    const full = await (await request("/llms-full.txt")).text();
+    const fullResponse = await request("/llms-full.txt");
+    assert.equal(
+      fullResponse.headers.get("cache-control"),
+      "public, max-age=3600",
+    );
+    const full = await fullResponse.text();
     assert.ok(full.includes("# Install SkinsRestorer"));
     assert.ok(full.includes("Reviewed:"));
     assert.match(
       await (await request("/robots.txt")).text(),
       /Sitemap: https:\/\/skinsrestorer.net\/sitemap.xml/u,
     );
-    const sitemap = await (await request("/sitemap.xml")).text();
+    const sitemapResponse = await request("/sitemap.xml");
+    assert.equal(
+      sitemapResponse.headers.get("cache-control"),
+      "public, max-age=3600",
+    );
+    const sitemap = await sitemapResponse.text();
     // One URL per site page and per docs file in its own locale, so adding
     // a translation does not need a test change.
     const docFiles = readdirSync("content/docs", { recursive: true }).filter(
@@ -177,7 +211,7 @@ test(
 
     const search = await request("/api/search");
     assert.ok(search.headers.has("etag"));
-    const searchIndex = await search.json();
+    const searchIndex: unknown = await search.json();
     assert.ok(
       typeof searchIndex === "object" &&
         searchIndex !== null &&
@@ -231,9 +265,11 @@ test(
       const response = await request(`/__tsr/staticServerFnCache/${key}.json`);
       assert.equal(response.status, 200);
       assert.ok(response.headers.has("etag"));
+      const payload: unknown = await response.json();
+      assert.ok(isSerovalJson(payload));
       const metadata = fromJSON<{
         result: { url: string; title: string; pageTree: unknown };
-      }>(await response.json());
+      }>(payload);
       assert.equal(
         metadata.result.url,
         `/docs${slugs.length > 0 ? `/${slugs.join("/")}` : ""}`,

@@ -1,13 +1,21 @@
 "use client";
 import { cva } from "class-variance-authority";
-import { buttonVariants } from "fumadocs-ui/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
 } from "fumadocs-ui/components/ui/collapsible";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { posthog } from "posthog-js";
-import { type SubmitEvent, useId, useState, useSyncExternalStore } from "react";
+import {
+  type SubmitEvent,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
@@ -65,6 +73,12 @@ export function Feedback({ url, version }: { url: string; version: string }) {
   const questionId = useId();
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
   const [message, setMessage] = useState("");
+  // The form unmounts on submit, so focus moves to the thank-you message.
+  const [submitted, setSubmitted] = useState(false);
+  const thanksRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (submitted) thanksRef.current?.focus();
+  }, [submitted]);
   const storageKey = `docs-feedback-${version}-${url}`;
   // Stored feedback is read after hydration. A choice made on this page
   // replaces it, also when browser storage is unavailable.
@@ -92,6 +106,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
     setPrevious(feedback);
     setMessage("");
     setOpinion(null);
+    setSubmitted(true);
     try {
       localStorage.setItem(storageKey, JSON.stringify(feedback));
     } catch {
@@ -104,9 +119,6 @@ export function Feedback({ url, version }: { url: string; version: string }) {
   return (
     <Collapsible
       open={opinion !== null || previous !== null}
-      onOpenChange={(v) => {
-        if (!v) setOpinion(null);
-      }}
       className="border-y py-3"
     >
       <fieldset
@@ -151,20 +163,21 @@ export function Feedback({ url, version }: { url: string; version: string }) {
       </fieldset>
       <CollapsibleContent className="mt-3">
         {previous ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl bg-fd-card px-3 py-6 text-center text-sm text-fd-muted-foreground">
-            <output>{t("feedback.thankYouFeedback")}</output>
+          <div
+            ref={thanksRef}
+            tabIndex={-1}
+            className="flex flex-col items-center gap-3 rounded-xl bg-fd-card px-3 py-6 text-center text-sm text-fd-muted-foreground outline-none"
+          >
+            <p>{t("feedback.thankYouFeedback")}</p>
             <div className="flex flex-row items-center gap-2">
-              <button
+              <Button
                 type="button"
-                className={cn(
-                  buttonVariants({
-                    color: "secondary",
-                  }),
-                  "text-xs",
-                )}
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setOpinion(previous.opinion);
                   setPrevious(null);
+                  setSubmitted(false);
                   try {
                     localStorage.removeItem(storageKey);
                   } catch {
@@ -173,42 +186,41 @@ export function Feedback({ url, version }: { url: string; version: string }) {
                 }}
               >
                 {t("feedback.submitAgain")}
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
-            <label htmlFor={messageId} className="text-sm">
-              {t("feedback.whatWorkedWhichStepNeedsCorrection")}{" "}
-              <span className="text-fd-muted-foreground">
-                ({t("feedback.optional")})
-              </span>
-            </label>
-            <textarea
-              id={messageId}
-              // oxlint-disable-next-line jsx-a11y/no-autofocus -- Focus the feedback field when it opens.
-              autoFocus
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-              }}
-              className="resize-none rounded-lg border bg-fd-secondary p-3 text-fd-secondary-foreground placeholder:text-fd-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              placeholder={t(
-                "feedback.includeStepSetupResultKeepCredentialsPrivate",
-              )}
-              onKeyDown={(e) => {
-                if (!e.shiftKey && e.key === "Enter") {
-                  e.preventDefault();
-                  e.currentTarget.form?.requestSubmit();
-                }
-              }}
-            />
-            <button
-              type="submit"
-              className={cn(buttonVariants({ color: "outline" }), "w-fit px-3")}
-            >
+            <Field>
+              <FieldLabel htmlFor={messageId}>
+                {t("feedback.whatWorkedWhichStepNeedsCorrection")}{" "}
+                <span className="text-fd-muted-foreground">
+                  ({t("feedback.optional")})
+                </span>
+              </FieldLabel>
+              <textarea
+                id={messageId}
+                // oxlint-disable-next-line jsx-a11y/no-autofocus -- Focus the feedback field when it opens.
+                autoFocus
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                }}
+                className="resize-none rounded-lg border bg-fd-secondary p-3 text-fd-secondary-foreground placeholder:text-fd-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                placeholder={t(
+                  "feedback.includeStepSetupResultKeepCredentialsPrivate",
+                )}
+                onKeyDown={(e) => {
+                  if (!e.shiftKey && e.key === "Enter") {
+                    e.preventDefault();
+                    e.currentTarget.form?.requestSubmit();
+                  }
+                }}
+              />
+            </Field>
+            <Button type="submit" variant="outline" className="w-fit">
               {t("feedback.submit")}
-            </button>
+            </Button>
           </form>
         )}
       </CollapsibleContent>

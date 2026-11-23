@@ -22,12 +22,13 @@ test("preserves page metadata and strips unsupported fields", () => {
       _openapi: { source: "test" },
       extra: true,
     }),
-    { ...metadata, full: true, _openapi: { source: "test" } },
+    { ...metadata, full: true },
   );
 });
 
 test("rejects invalid editorial metadata", () => {
   for (const patch of [
+    { title: "" },
     { icon: "" },
     { description: "" },
     { docType: "guide" },

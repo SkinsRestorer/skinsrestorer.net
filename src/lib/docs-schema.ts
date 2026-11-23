@@ -14,11 +14,10 @@ const calendarDate = Schema.String.check(
 );
 
 export const docsSchema = Schema.Struct({
-  title: Schema.String,
+  title: nonEmptyText,
   icon: nonEmptyText,
   description: nonEmptyText,
   full: Schema.optional(Schema.Boolean),
-  _openapi: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
   docType: Schema.Literals(["tutorial", "how-to", "reference", "explanation"]),
   appliesTo: nonEmptyText,
   reviewed: calendarDate,

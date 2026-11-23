@@ -26,13 +26,20 @@ import {
 import { getBaseOptions } from "@/lib/layout-options";
 import { getPageHead } from "@/lib/seo";
 import { getMDXComponents } from "@/mdx-components";
-import { useEffect, type KeyboardEvent } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  type ComponentProps,
+  type KeyboardEvent,
+} from "react";
 
 import {
   docFileInfo,
   isLocale,
   localizeHref,
   localizePath,
+  splitLocalePath,
   type Locale,
 } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n-react";
@@ -124,6 +131,34 @@ const serverLoader = createServerFn({ method: "GET" })
     };
   });
 
+const PageLinksContext = createContext<Record<string, ResolvedLink>>({});
+
+/** Links to other docs pages show a preview of the target page. */
+function DocsLink({ href = "", ...props }: ComponentProps<"a">) {
+  const locale = useLocale();
+  const found = useContext(PageLinksContext)[href];
+  if (!found) return <Link href={localizeHref(href, locale)} {...props} />;
+  return (
+    <HoverCard>
+      <HoverCardTrigger render={<Link href={found.url} {...props} />} />
+      <HoverCardContent className="text-sm">
+        <p className="font-medium">{found.title}</p>
+        <p className="text-fd-muted-foreground">{found.description}</p>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
+const mdxComponents = getMDXComponents({ a: DocsLink });
+
+// Format in UTC so the server and the browser render the same date.
+function formatReviewedDate(date: string, locale: Locale) {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
 const clientLoader = browserCollections.docs.createClientLoader<{
   path: string;
   url: string;
@@ -182,7 +217,7 @@ const clientLoader = browserCollections.docs.createClientLoader<{
             <span>
               {t("common.reviewed")}{" "}
               <time dateTime={frontmatter.reviewed}>
-                {frontmatter.reviewed}
+                {formatReviewedDate(frontmatter.reviewed, locale)}
               </time>
             </span>
           </p>
@@ -195,30 +230,9 @@ const clientLoader = browserCollections.docs.createClientLoader<{
           </div>
         </div>
         <DocsBody lang={page.contentLocale}>
-          <MDX
-            components={getMDXComponents({
-              a: ({ href, ...props }) => {
-                const found = page.links[href ?? ""];
-                if (!found)
-                  return (
-                    <Link href={localizeHref(href ?? "", locale)} {...props} />
-                  );
-                return (
-                  <HoverCard>
-                    <HoverCardTrigger
-                      render={<Link href={found.url} {...props} />}
-                    />
-                    <HoverCardContent className="text-sm">
-                      <p className="font-medium">{found.title}</p>
-                      <p className="text-fd-muted-foreground">
-                        {found.description}
-                      </p>
-                    </HoverCardContent>
-                  </HoverCard>
-                );
-              },
-            })}
-          />
+          <PageLinksContext value={page.links}>
+            <MDX components={mdxComponents} />
+          </PageLinksContext>
         </DocsBody>
         <Feedback key={page.url} url={page.url} version={frontmatter.version} />
         <EnderDashSponsor placement="docs-footer" />
@@ -260,7 +274,7 @@ export const Route = createFileRoute("/{-$lang}/docs/$")({
         {
           rel: "discord:component-embed",
           type: "application/json",
-          href: `https://skinsrestorer.net/discord-embed/${loaderData.locale === "en" ? "" : `${loaderData.locale}/`}${loaderData.url.replace(/^\/(?:ru\/|es\/|pt-BR\/)?docs\/?/u, "")}`,
+          href: `https://skinsrestorer.net/discord-embed/${loaderData.locale === "en" ? "" : `${loaderData.locale}/`}${splitLocalePath(loaderData.url).path.replace(/^\/docs\/?/u, "")}`,
         },
       ],
     };

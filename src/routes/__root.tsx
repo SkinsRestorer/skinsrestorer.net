@@ -7,17 +7,20 @@ import {
   Outlet,
   Scripts,
   redirect,
-  Link,
   useRouter,
   useRouterState,
   isNotFound,
   rootRouteId,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { LanguageSuggestion } from "@/components/language-suggestion";
 import { ContentImage } from "@/components/content-image";
+import { HomeLayout } from "@/components/home-layout";
+import { LocaleLink } from "@/components/locale-link";
 import NotFound from "@/components/not-found";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import {
   locales,
@@ -48,8 +51,13 @@ export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
     const target = getSiteRedirect(location.pathname);
     if (target) {
+      // Keep the query only on this site. External targets, such as Discord,
+      // must not receive texture links or other parameters.
+      const search = target.destination.startsWith("/")
+        ? location.searchStr
+        : "";
       throw redirect({
-        href: `${target.destination}${location.searchStr}${location.hash ? `#${location.hash}` : ""}`,
+        href: `${target.destination}${search}${location.hash ? `#${location.hash}` : ""}`,
         statusCode: target.status,
       });
     }
@@ -121,11 +129,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang={locale} suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script
-          src="https://analytics.ahrefs.com/analytics.js"
-          data-key="aer4SuKmVEAedLgr3jfsYA"
-          async
-        />
       </head>
       <body
         className="flex size-full min-h-svh flex-col font-sans antialiased"
@@ -145,6 +148,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               richColors
               offset={{ top: 72 }}
               mobileOffset={{ top: 64 }}
+              containerAriaLabel={translate(locale, "common.notifications")}
+              toastOptions={{
+                closeButtonAriaLabel: translate(
+                  locale,
+                  "common.closeNotification",
+                ),
+              }}
             />
             <LanguageSuggestion />
           </RootProvider>
@@ -173,33 +183,38 @@ function getFallbackTitle(
     leaf?.routeId === rootRouteId ||
     leaf?.routeId === "/{-$lang}";
   return notFound
-    ? `${translate(locale, "common.pageNotFound")} - SR`
+    ? `${translate(locale, "common.pageNotFound")} - SkinsRestorer`
     : translate(locale, siteTitleKey);
 }
 
-function LocaleLink({
-  href = "",
-  prefetch = true,
-  target,
-  ...props
-}: React.ComponentProps<"a"> & { prefetch?: boolean }) {
-  const locale = useLocale();
-  return (
-    <Link
-      to={localizeHref(href, locale)}
-      preload={prefetch ? "intent" : false}
-      {...(target === undefined ? {} : { target })}
-      {...props}
-    />
-  );
-}
-
-function ErrorPage() {
+function ErrorPage({ reset }: ErrorComponentProps) {
   const t = useT();
+  const locale = useLocale();
+  const router = useRouter();
   return (
-    <main className="mx-auto flex max-w-xl flex-col gap-4 px-4 py-12">
-      <h1 className="text-3xl font-bold">{t("errors.unexpectedTitle")}</h1>
-      <p>{t("common.pleaseReloadPageTryAgain")}</p>
-    </main>
+    <HomeLayout>
+      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-4 px-4 py-12">
+        <h1 className="text-3xl font-bold">{t("errors.unexpectedTitle")}</h1>
+        <p>{t("common.pleaseReloadPageTryAgain")}</p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            onClick={() => {
+              reset();
+              void router.invalidate();
+            }}
+          >
+            {t("common.tryAgain")}
+          </Button>
+          {/* A full page load leaves the failed router state behind. */}
+          <a
+            href={localizeHref("/", locale)}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            {t("common.backHome")}
+          </a>
+        </div>
+      </div>
+    </HomeLayout>
   );
 }
