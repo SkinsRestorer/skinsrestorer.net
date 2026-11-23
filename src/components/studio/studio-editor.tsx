@@ -35,6 +35,7 @@ import { toHex } from "@/components/editor/color-hex";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import {
   toolLabels,
+  usesMirror,
   type EditorInteraction,
 } from "@/components/editor/editor-types";
 import { LayerToggle, VisibleParts } from "@/components/editor/layers-panel";
@@ -229,9 +230,10 @@ export function StudioEditor(props: {
     else exit();
   }, [session, exit]);
 
-  // Drafts survive a closed tab.
+  // Drafts survive a closed tab. The browser may stop the page right after
+  // these events, so the draft write starts before the handler returns.
   useEffect(() => {
-    const flush = () => void session.flush();
+    const flush = () => void session.flushNow();
     const hidden = () => {
       if (document.visibilityState === "hidden") flush();
     };
@@ -249,10 +251,11 @@ export function StudioEditor(props: {
     () => !exited.current && session.getSnapshot().dirty,
     [session],
   );
-  // Without drafts, closing the tab loses the work, so the browser asks.
+  // Until a draft of this work exists, closing the tab could lose it, so
+  // the browser asks.
   const unsafeToClose = useCallback(() => {
     const state = session.getSnapshot();
-    return state.dirty && state.drafts.kind === "off";
+    return state.dirty && state.drafts.kind !== "saved";
   }, [session]);
   const navigation = useBlocker({
     shouldBlockFn: shouldBlock,
@@ -343,6 +346,8 @@ export function StudioEditor(props: {
         }),
       ),
       ...run("mirror", () => {
+        // Fill everywhere and the pick tool ignore mirror and hide its toggle.
+        if (!usesMirror(tool, fillScope)) return;
         setMirror(!mirror);
         announce("editor.mirror", t(mirror ? "editor.off" : "editor.on"));
       }),
@@ -424,10 +429,7 @@ export function StudioEditor(props: {
   const download = async () => {
     try {
       const bytes = await exportSkinPng(store.pixels);
-      downloadSkin(
-        new Blob([bytes], { type: "image/png" }),
-        props.isNew ? t("common.newSkin") : work.target.name,
-      );
+      downloadSkin(new Blob([bytes], { type: "image/png" }), work.target.name);
       posthog.capture("editor_exported_png");
     } catch (cause) {
       toast.error(
@@ -513,9 +515,9 @@ export function StudioEditor(props: {
     : work.dirty
       ? [
           "unsaved",
-          draftsOff
-            ? t("studio.unsavedChanges")
-            : t("studio.unsavedChangesDraftKept"),
+          work.drafts.kind === "saved"
+            ? t("studio.unsavedChangesDraftKept")
+            : t("studio.unsavedChanges"),
         ]
       : work.target.skinId
         ? ["saved", t("studio.saved")]
@@ -536,7 +538,7 @@ export function StudioEditor(props: {
             className="truncate text-base font-semibold outline-none"
           >
             {props.isNew
-              ? t("common.newSkin")
+              ? work.target.name
               : t("studio.editingName", { name: work.target.name })}
           </h2>
           <SaveStatus state={saveState} label={saveLabel} />

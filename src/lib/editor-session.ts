@@ -1,6 +1,7 @@
 import { errorMessage, message, type Message } from "@/lib/messages";
 import { Debouncer } from "@tanstack/pacer";
 import { Effect } from "effect";
+import { encodePngSync } from "./png";
 import type { SkinVariant } from "./skin";
 import {
   exportSkinPng,
@@ -8,6 +9,7 @@ import {
   type SkinDocument,
 } from "./skin-document";
 import type { SkinEditorStore } from "./skin-editor-store";
+import { SKIN_SIZE } from "./skin-regions";
 import { withLibrary, type LibraryClient } from "./skin-library-client";
 import type { Locale } from "./i18n";
 import {
@@ -30,9 +32,16 @@ export interface EditTarget {
   readonly name: string;
 }
 
+/**
+ * `saved` means a draft of this session was written. It stays set while
+ * later changes wait for the next write, and ends with the session.
+ */
 type DraftStatus =
   | { readonly kind: "idle" | "saved" }
   | { readonly kind: "off"; readonly message: Message };
+
+/** The result of continuing a recovered draft. */
+export type ContinueResult = "continued" | "missing";
 
 export interface EditorSessionState {
   readonly target: EditTarget;
@@ -64,12 +73,34 @@ export type SaveResult =
 
 const SAVE_DELAY_MS = 500;
 
+/** Each open editor holds a Web Lock with this prefix and its session id. */
+const SESSION_LOCK = "skinsrestorer-session:";
+
+/** The parts of the Web Locks API that mark live editor sessions. */
+export interface SessionLocks {
+  request(name: string, callback: () => Promise<void>): Promise<void>;
+  query(): Promise<LockManagerSnapshot>;
+}
+
 interface EditorSessionOptions {
   readonly id?: () => string;
   readonly now?: () => number;
   readonly saveDelayMs?: number;
   /** The visitor's language, for copy names. English by default. */
   readonly locale?: Locale | undefined;
+  /**
+   * Marks the sessions of open editors, so other tabs do not offer them
+   * for recovery. The browser's Web Locks by default, when it has them.
+   */
+  readonly locks?: SessionLocks | undefined;
+}
+
+function browserLocks(): SessionLocks | undefined {
+  try {
+    return typeof navigator === "undefined" ? undefined : navigator.locks;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -95,6 +126,16 @@ export class EditorSession {
   private readonly stopStore: () => void;
   /** The library failed to open, so saves return the PNG only. */
   private unavailable = false;
+  private readonly locks: SessionLocks | undefined;
+  /** Releases the lock of the current session id. */
+  private releaseLock: (() => void) | undefined;
+  /** Draft writes get increasing numbers, so an older one cannot win. */
+  private writes = 0;
+  /** The newest draft write that has started, for each session. */
+  private readonly started = new Map<string, number>();
+  /** Cancels a recovery read that a newer one replaced. */
+  private recoveryRead: AbortController | undefined;
+  private recoveryFilter: { readonly skinId?: string | undefined } | undefined;
 
   constructor(
     store: SkinEditorStore,
@@ -104,11 +145,12 @@ export class EditorSession {
     this.store = store;
     this.library = library;
     this.options = options;
+    this.locks = "locks" in options ? options.locks : browserLocks();
     this.base = store.document();
     this.clean = store.getSnapshot().revision;
     this.state = {
       target: { name: "New skin" },
-      sessionId: this.newId(),
+      sessionId: this.claim(this.newId()),
       dirty: false,
       busy: false,
       drafts: library
@@ -146,11 +188,54 @@ export class EditorSession {
   dispose() {
     const written = this.flush();
     this.stopStore();
+    this.recoveryRead?.abort();
+    this.releaseLock?.();
+    this.releaseLock = undefined;
     return written;
   }
 
   private newId() {
     return this.options.id?.() ?? crypto.randomUUID();
+  }
+
+  /**
+   * Hold the lock of a session id while this editor owns it. The lock ends
+   * with the tab, so a closed tab's draft becomes recoverable.
+   */
+  private claim(id: string) {
+    this.releaseLock?.();
+    this.releaseLock = undefined;
+    const locks = this.locks;
+    if (!locks) return id;
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    this.releaseLock = release;
+    locks.request(`${SESSION_LOCK}${id}`, () => held).catch(() => {});
+    return id;
+  }
+
+  /** Session ids that an open editor in any tab owns. */
+  private async liveSessions() {
+    const live = new Set<string>();
+    if (!this.locks) return live;
+    try {
+      const snapshot = await this.locks.query();
+      for (const lock of snapshot.held ?? [])
+        if (lock.name?.startsWith(SESSION_LOCK))
+          live.add(lock.name.slice(SESSION_LOCK.length));
+    } catch {
+      // Without the lock list, every other draft is offered.
+    }
+    return live;
+  }
+
+  /** A new session has no draft yet. */
+  private draftsFor() {
+    return this.state.drafts.kind === "saved"
+      ? { kind: "idle" as const }
+      : this.state.drafts;
   }
 
   private now() {
@@ -191,19 +276,38 @@ export class EditorSession {
     this.clean = options.base ? -1 : this.store.getSnapshot().revision;
     this.set({
       target,
-      sessionId: options.sessionId ?? this.newId(),
+      sessionId: this.claim(options.sessionId ?? this.newId()),
       dirty: this.clean === -1,
+      drafts: this.draftsFor(),
     });
   }
 
-  /** List drafts that are not this editor's own work. */
-  async loadRecovery(filter?: { readonly skinId?: string | undefined }) {
-    if (!this.library) return [];
+  /**
+   * List drafts that are not this editor's own work and that no open editor
+   * in another tab owns. A newer call replaces a read that is still running.
+   */
+  async loadRecovery(filter?: {
+    readonly skinId?: string | undefined;
+  }): Promise<readonly EditSession[]> {
+    const library = this.library;
+    if (!library) return [];
+    this.recoveryFilter = filter;
+    this.recoveryRead?.abort();
+    const read = new AbortController();
+    this.recoveryRead = read;
     try {
-      const listing = await this.library.run(withLibrary((l) => l.list));
+      const [listing, live] = await Promise.all([
+        library.run(
+          withLibrary((l) => l.list),
+          read.signal,
+        ),
+        this.liveSessions(),
+      ]);
+      if (read.signal.aborted) return this.state.recovery;
       const recovery = listing.sessions.filter(
         (session) =>
           session.id !== this.state.sessionId &&
+          !live.has(session.id) &&
           (!filter || session.skinId === filter.skinId),
       );
       const skins = new Set(listing.skins.map((skin) => skin.id));
@@ -213,6 +317,7 @@ export class EditorSession {
       this.set({ recovery, orphans });
       return recovery;
     } catch (cause) {
+      if (read.signal.aborted) return this.state.recovery;
       this.unavailable = true;
       this.set({
         drafts: { kind: "off", message: errorMessage(cause) },
@@ -223,10 +328,14 @@ export class EditorSession {
     }
   }
 
-  /** Continue a draft as this editor's own session. */
-  async continueDraft(draft: EditSession) {
+  /**
+   * Continue a draft as this editor's own session. The result is `missing`
+   * when the draft is gone, for example because another tab continued,
+   * saved, or discarded it. It then leaves the recovery list.
+   */
+  async continueDraft(draft: EditSession): Promise<ContinueResult> {
     const library = this.library;
-    if (!library) return;
+    if (!library) return "missing";
     const imported = await importSkinPng(
       new Uint8Array(await draft.png.arrayBuffer()),
     );
@@ -244,19 +353,25 @@ export class EditorSession {
         base = undefined;
       }
     const sessionId = this.newId();
-    await this.enqueue(() =>
-      library.run(
-        withLibrary((l) =>
-          l.continueSession(draft.id, {
-            ...draft,
-            id: sessionId,
-            skinId: owner,
-            baseRevision: owner ? draft.baseRevision : undefined,
-            updatedAt: this.now(),
-          }),
+    try {
+      await this.enqueue(() =>
+        library.run(
+          withLibrary((l) =>
+            l.continueSession(draft.id, {
+              ...draft,
+              id: sessionId,
+              skinId: owner,
+              baseRevision: owner ? draft.baseRevision : undefined,
+              updatedAt: this.now(),
+            }),
+          ),
         ),
-      ),
-    );
+      );
+    } catch (cause) {
+      if (!(cause instanceof SkinNotFoundError)) throw cause;
+      this.forget(draft.id);
+      return "missing";
+    }
     this.start(
       { pixels: imported.document.pixels, variant: draft.variant },
       owner
@@ -271,6 +386,14 @@ export class EditorSession {
       },
     );
     this.forget(draft.id);
+    // The continued draft is this session's draft.
+    this.set({
+      drafts:
+        this.state.drafts.kind === "off"
+          ? this.state.drafts
+          : { kind: "saved" },
+    });
+    return "continued";
   }
 
   /**
@@ -304,16 +427,95 @@ export class EditorSession {
     });
   }
 
-  async discardDraft(id: string) {
-    this.forget(id);
+  /**
+   * Delete a recovered draft. It leaves the list only after the delete
+   * commits, so a failed delete keeps it offered.
+   */
+  async discardDraft(draft: EditSession) {
     const library = this.library;
     if (!library) return;
     await this.enqueue(() =>
-      library.run(withLibrary((l) => l.deleteSession(id))),
+      library.run(withLibrary((l) => l.deleteSession(draft.id))),
     );
+    this.forget(draft.id);
   }
 
-  /** Write this editor's draft now, for example when the page hides. */
+  /** Undo `discardDraft`: write the draft again and offer it again. */
+  async restoreDraft(draft: EditSession) {
+    const library = this.library;
+    if (!library) return;
+    await this.enqueue(() =>
+      library.run(withLibrary((l) => l.saveSession(draft))),
+    );
+    await this.loadRecovery(this.recoveryFilter);
+  }
+
+  /**
+   * Write this editor's draft before this call returns, for a page that
+   * hides or closes. The browser may stop the page after the event, so the
+   * PNG is not compressed and the database write starts in this call.
+   * The returned promise ends when the write commits.
+   */
+  flushNow() {
+    this.autosave.cancel();
+    const library = this.library;
+    // A running save deletes the draft when it commits; let it finish.
+    if (this.state.busy) return this.flush();
+    if (!library || this.unavailable || !this.state.dirty)
+      return Promise.resolve();
+    const { sessionId, target } = this.state;
+    const document = this.store.document();
+    const png = encodePngSync(document.pixels, SKIN_SIZE, SKIN_SIZE);
+    return this.writeDraft(library, {
+      sessionId,
+      target,
+      variant: document.variant,
+      png,
+      write: ++this.writes,
+    });
+  }
+
+  /**
+   * Start one draft write. The code before the first await runs in the
+   * caller's task, and the library starts its transaction there once it is
+   * open, so `flushNow` can call this during page hide.
+   */
+  private async writeDraft(
+    library: LibraryClient,
+    draft: {
+      readonly sessionId: string;
+      readonly target: EditTarget;
+      readonly variant: SkinVariant;
+      readonly png: Uint8Array<ArrayBuffer>;
+      readonly write: number;
+    },
+  ) {
+    const { sessionId, target } = draft;
+    this.started.set(sessionId, draft.write);
+    try {
+      await library.run(
+        withLibrary((l) =>
+          l.saveSession({
+            id: sessionId,
+            skinId: target.skinId,
+            baseRevision: target.baseRevision,
+            name: target.name,
+            png: pngBlob(draft.png),
+            variant: draft.variant,
+            updatedAt: this.now(),
+          }),
+        ),
+      );
+      if (this.state.sessionId === sessionId)
+        this.set({ drafts: { kind: "saved" } });
+    } catch (cause) {
+      if (isLibraryGone(cause)) this.unavailable = true;
+      if (this.state.sessionId === sessionId)
+        this.set({ drafts: { kind: "off", message: errorMessage(cause) } });
+    }
+  }
+
+  /** Write this editor's draft after earlier writes and saves. */
   flush() {
     this.autosave.cancel();
     const library = this.library;
@@ -326,31 +528,27 @@ export class EditorSession {
     // before this write starts, but the previous work still needs a draft.
     const { sessionId, target } = this.state;
     const document = this.store.document();
+    const write = ++this.writes;
     return this.enqueue(async () => {
       // An earlier queued save may already have committed this work.
       if (this.state.sessionId === sessionId && !this.state.dirty) return;
+      let png: Uint8Array<ArrayBuffer>;
       try {
-        const png = await exportSkinPng(document.pixels);
-        await library.run(
-          withLibrary((l) =>
-            l.saveSession({
-              id: sessionId,
-              skinId: target.skinId,
-              baseRevision: target.baseRevision,
-              name: target.name,
-              png: pngBlob(png),
-              variant: document.variant,
-              updatedAt: this.now(),
-            }),
-          ),
-        );
-        if (this.state.sessionId === sessionId)
-          this.set({ drafts: { kind: "saved" } });
+        png = await exportSkinPng(document.pixels);
       } catch (cause) {
-        if (isLibraryGone(cause)) this.unavailable = true;
         if (this.state.sessionId === sessionId)
           this.set({ drafts: { kind: "off", message: errorMessage(cause) } });
+        return;
       }
+      // A page-hide write of newer work started while this PNG encoded.
+      if ((this.started.get(sessionId) ?? 0) > write) return;
+      await this.writeDraft(library, {
+        sessionId,
+        target,
+        variant: document.variant,
+        png,
+        write,
+      });
     });
   }
 
@@ -424,7 +622,7 @@ export class EditorSession {
     const { sessionId } = this.state;
     this.store.load(this.base);
     this.markClean(this.store.getSnapshot().revision, this.base);
-    this.set({ sessionId: this.newId() });
+    this.set({ sessionId: this.claim(this.newId()), drafts: this.draftsFor() });
     const library = this.library;
     if (!library) return;
     await this.enqueue(() =>
@@ -461,6 +659,8 @@ export class EditorSession {
             },
           });
         else this.set({ target: { ...this.state.target, name: saved.name } });
+        // The save ended the draft.
+        this.set({ drafts: this.draftsFor() });
         this.markClean(revision, document);
         return {
           kind: "saved" as const,

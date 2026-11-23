@@ -10,7 +10,7 @@ import {
 import { posthog } from "posthog-js";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
-import { browserStorage } from "../skin-draft";
+import { browserStorage, readDraft } from "../skin-draft";
 import {
   browserLibrary,
   migrateLegacyDraft,
@@ -43,12 +43,19 @@ let migration: Promise<MigrationResult> | undefined;
 
 /** Move the old editor draft into the library once per page load. */
 function migrateOnce(client: LibraryClient, t: Translator, locale: string) {
-  migration ??= migrateLegacyDraft(client, browserStorage("localStorage"), {
+  const storage = browserStorage("localStorage");
+  migration ??= migrateLegacyDraft(client, storage, {
     name: (updatedAt) =>
       t("library.recoveredDraftName", {
         date: new Date(updatedAt).toLocaleDateString(locale),
       }),
-  }).catch((): MigrationResult => ({ status: "unavailable" }));
+  }).catch(async (): Promise<MigrationResult> =>
+    // The library could not open or write. A readable old draft is still
+    // in place, so the page offers it as a download.
+    (await readDraft(storage)).status === "found"
+      ? { status: "unmoved" }
+      : { status: "unavailable" },
+  );
   return migration;
 }
 

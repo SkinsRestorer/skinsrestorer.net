@@ -6,6 +6,7 @@ import {
   Ellipsis,
   FileArchive,
   Link2,
+  HardDrive,
   Pencil,
   PencilLine,
   Plus,
@@ -205,11 +206,16 @@ export function StudioLibrary(props: {
           // The full reason shows once, below the list.
           <SaveStatus state="unavailable" label={t("library.notSaving")} />
         ) : (
-          <SaveStatus
-            state="saved"
-            className="text-muted-foreground"
-            label={t("library.skinsStayBrowserOnly")}
-          />
+          // A fixed note, not a save state, so it is not announced.
+          <p
+            title={t("library.skinsStayBrowserOnly")}
+            className="inline-flex min-w-0 items-center gap-1 text-xs text-muted-foreground"
+          >
+            <HardDrive aria-hidden="true" className="size-3.5 shrink-0" />
+            <span className="truncate">
+              {t("library.skinsStayBrowserOnly")}
+            </span>
+          </p>
         )}
         <span className="ml-auto flex items-center">
           <AddSkinMenu commands={props.commands} />

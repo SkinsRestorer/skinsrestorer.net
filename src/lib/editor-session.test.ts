@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { Effect } from "effect";
 import { IDBFactory } from "fake-indexeddb";
-import { EditorSession, documentOf } from "./editor-session";
+import { EditorSession, documentOf, type SessionLocks } from "./editor-session";
 import type { Locale } from "./i18n";
 import { createTemplate, exportSkinPng, pixelOffset } from "./skin-document";
 import { SkinEditorStore } from "./skin-editor-store";
@@ -39,10 +39,15 @@ function editor(
   library: LibraryClient | undefined,
   saveDelayMs = 0,
   locale?: Locale,
+  locks?: SessionLocks,
 ) {
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));
-  const session = new EditorSession(store, library, { saveDelayMs, locale });
+  const session = new EditorSession(store, library, {
+    saveDelayMs,
+    locale,
+    locks,
+  });
   disposers.push(() => session.dispose());
   return { store, session };
 }
@@ -489,4 +494,133 @@ test("drafts come back after a full storage write, and stop when the library can
   paint(store, 4);
   await session.flush();
   assert.equal(session.getSnapshot().drafts.kind, "off");
+});
+
+/** Web Locks shared by the tabs of one browser. */
+function browserLocks(): SessionLocks {
+  const held = new Set<string>();
+  return {
+    request: (name, callback) => {
+      held.add(name);
+      return callback().finally(() => {
+        held.delete(name);
+      });
+    },
+    query: () =>
+      Promise.resolve({
+        held: [...held].map((name) => ({ name, mode: "exclusive" as const })),
+        pending: [],
+      }),
+  };
+}
+
+/** A client that can fail its next calls with a storage error. */
+function failing(real: LibraryClient) {
+  const control = { fail: false, runs: 0 };
+  const client: LibraryClient = {
+    ...real,
+    run: (effect, signal) => {
+      control.runs++;
+      return control.fail
+        ? Promise.reject(libraryError("full"))
+        : real.run(effect, signal);
+    },
+  };
+  return { client, control };
+}
+
+test("a page-hide flush starts its write at once and wins over an older queued write", async () => {
+  const real = tab(new IDBFactory());
+  // The library is open, so a write starts without waiting.
+  await list(real);
+  const { client, control } = failing(real);
+  const { store, session } = editor(client, 10_000);
+  paint(store, 1);
+  assert.equal(session.getSnapshot().drafts.kind, "idle");
+  const queued = session.flush();
+  paint(store, 2);
+  const runs = control.runs;
+  const hidden = session.flushNow();
+  assert.equal(control.runs, runs + 1);
+  await Promise.all([queued, hidden]);
+  assert.equal(session.getSnapshot().drafts.kind, "saved");
+  const [draft] = (await list(real)).sessions;
+  const kept = await documentOf(
+    required(draft, "draft").png,
+    required(draft, "draft").variant,
+  );
+  assert.deepEqual(kept.pixels, store.pixels);
+  // New work has no draft yet.
+  session.start(createTemplate("slim"), { name: "Other" });
+  assert.equal(session.getSnapshot().drafts.kind, "idle");
+});
+
+test("recovery leaves out drafts that an open editor in another tab owns", async () => {
+  const factory = new IDBFactory();
+  const locks = browserLocks();
+  const a = editor(tab(factory), 0, undefined, locks);
+  paint(a.store, 3);
+  await a.session.flush();
+  const draftId = a.session.getSnapshot().sessionId;
+
+  const b = editor(tab(factory), 0, undefined, locks);
+  assert.deepEqual(await b.session.loadRecovery(), []);
+  // Tab A closes; its draft can now be continued.
+  await a.session.dispose();
+  assert.deepEqual(
+    (await b.session.loadRecovery()).map((draft) => draft.id),
+    [draftId],
+  );
+});
+
+test("continuing a draft that is gone drops it from the list", async () => {
+  const factory = new IDBFactory();
+  const a = editor(tab(factory));
+  paint(a.store, 4);
+  await a.session.flush();
+  await a.session.dispose();
+
+  const b = editor(tab(factory));
+  const c = editor(tab(factory));
+  const [draft] = await b.session.loadRecovery();
+  await c.session.loadRecovery();
+  const recovered = required(draft, "recovered draft");
+  // A double click continues the draft once.
+  const results = await Promise.all([
+    b.session.continueDraft(recovered),
+    b.session.continueDraft(recovered),
+  ]);
+  assert.deepEqual(results.toSorted(), ["continued", "missing"]);
+  // Another tab still lists the draft, but it is gone.
+  assert.equal(await c.session.continueDraft(recovered), "missing");
+  assert.deepEqual(c.session.getSnapshot().recovery, []);
+});
+
+test("a discarded draft leaves the list only after the delete, and undo brings it back", async () => {
+  const factory = new IDBFactory();
+  const a = editor(tab(factory));
+  paint(a.store, 5);
+  await a.session.flush();
+  await a.session.dispose();
+
+  const real = tab(factory);
+  const { client, control } = failing(real);
+  const b = editor(client);
+  const [draft] = await b.session.loadRecovery();
+  const recovered = required(draft, "recovered draft");
+  control.fail = true;
+  await assert.rejects(b.session.discardDraft(recovered));
+  assert.deepEqual(
+    b.session.getSnapshot().recovery.map((entry) => entry.id),
+    [recovered.id],
+  );
+  control.fail = false;
+  await b.session.discardDraft(recovered);
+  assert.deepEqual(b.session.getSnapshot().recovery, []);
+  assert.equal((await list(real)).sessions.length, 0);
+  await b.session.restoreDraft(recovered);
+  assert.deepEqual(
+    b.session.getSnapshot().recovery.map((entry) => entry.id),
+    [recovered.id],
+  );
 });

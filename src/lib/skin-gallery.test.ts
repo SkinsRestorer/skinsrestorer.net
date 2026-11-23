@@ -30,7 +30,7 @@ const catalog = (...skins: ReturnType<typeof entry>[]) => ({
 
 test("catalog metadata supplies public IDs, HTTPS textures, names and explicit models", () => {
   assert.deepEqual(
-    parseGalleryCatalog(catalog(entry(), entry("slim-ranger", "slim"))),
+    parseGalleryCatalog(catalog(entry(), entry("slim-ranger", "slim"))).skins,
     [
       {
         id: "forest-ranger",
@@ -48,29 +48,43 @@ test("catalog metadata supplies public IDs, HTTPS textures, names and explicit m
   );
 });
 
-test("invalid catalogs and unsafe textures are rejected before images are requested", () => {
-  for (const value of [
-    { version: 2, skins: [] },
-    catalog(entry(), entry()),
-    catalog(entry("../other")),
-    catalog({ ...entry(), value: "invalid" }),
-    catalog({ ...entry(), signature: "" }),
-    catalog(entry("other", "wide")),
-    catalog(entry("other", undefined, "https://example.com/skin.png")),
-    catalog(
-      entry(
-        "other",
-        undefined,
-        `https://user@textures.minecraft.net/texture/${hash}`,
-      ),
-    ),
-    catalog({ ...entry(), skinName: " " }),
-  ])
-    assert.throws(() => parseGalleryCatalog(value));
+const invalidEntries = [
+  entry("../other"),
+  { ...entry("bad-value"), value: "invalid" },
+  { ...entry("unsigned"), signature: "" },
+  entry("wide-model", "wide"),
+  entry("other-host", undefined, "https://example.com/skin.png"),
+  entry(
+    "with-user",
+    undefined,
+    `https://user@textures.minecraft.net/texture/${hash}`,
+  ),
+  { ...entry("blank-name"), skinName: " " },
+  { ...entry("long-name"), skinName: "x".repeat(121) },
+];
+
+test("invalid and unsafe entries are skipped and counted, and the rest stay", () => {
+  const parsed = parseGalleryCatalog(
+    catalog(entry(), ...invalidEntries, entry(), entry("slim-ranger", "slim")),
+  );
+  assert.deepEqual(
+    parsed.skins.map((skin) => skin.id),
+    ["forest-ranger", "slim-ranger"],
+  );
+  // Each invalid entry and the repeated id.
+  assert.equal(parsed.skipped, invalidEntries.length + 1);
+  assert.deepEqual(parseGalleryCatalog(catalog()), { skins: [], skipped: 0 });
+});
+
+test("a catalog without one valid entry is rejected before images are requested", () => {
+  assert.throws(() => parseGalleryCatalog({ version: 2, skins: [] }));
+  assert.throws(() => parseGalleryCatalog(catalog(...invalidEntries)));
+  for (const invalid of invalidEntries)
+    assert.throws(() => parseGalleryCatalog(catalog(invalid)));
 });
 
 test("name search matches every word without case or accent differences", () => {
-  const skins = parseGalleryCatalog(catalog(entry()));
+  const { skins } = parseGalleryCatalog(catalog(entry()));
   assert.equal(searchGallery(skins, "RÁNGER forest").length, 1);
   assert.equal(searchGallery(skins, "ranger blue").length, 0);
   assert.equal(searchGallery(skins, " ").length, 1);
@@ -84,7 +98,7 @@ test("name search matches every word without case or accent differences", () => 
 
 test("gallery search ignores spaces and punctuation inside names", () => {
   const skin = required(
-    parseGalleryCatalog(catalog(entry()))[0],
+    parseGalleryCatalog(catalog(entry())).skins[0],
     "gallery skin",
   );
   const named = (name: string) => [{ ...skin, name }];
@@ -129,8 +143,14 @@ test("catalog requests are bounded credential-free GETs with no redirects", asyn
   assert.ok(Exit.isSuccess(result));
   assert.equal(result.value.length, 1);
   assert.equal(requests, 1);
+  const partial = await run(() =>
+    Promise.resolve(Response.json(catalog(entry(), entry("../other")))),
+  );
+  assert.ok(Exit.isSuccess(partial));
+  assert.equal(partial.value.length, 1);
   for (const response of [
     new Response("", { status: 503 }),
+    Response.json(catalog(entry("../other"))),
     new Response("invalid"),
     new Response("x".repeat(2 * 1024 * 1024 + 1)),
   ]) {

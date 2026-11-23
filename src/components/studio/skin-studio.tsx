@@ -81,8 +81,17 @@ import { useSkinGallery } from "@/lib/hooks/use-skin-gallery";
 import { useSkinSelection } from "@/lib/hooks/use-skin-selection";
 import { useStudioGeneration } from "@/lib/hooks/use-studio-generation";
 import { LocationWrite } from "@/lib/location-write";
-import { createTemplate, MAX_SKIN_FILE_BYTES } from "@/lib/skin-document";
-import { browserStorage, discardDraft, readHandoff } from "@/lib/skin-draft";
+import {
+  createTemplate,
+  exportSkinPng,
+  MAX_SKIN_FILE_BYTES,
+} from "@/lib/skin-document";
+import {
+  browserStorage,
+  discardDraft,
+  readDraft,
+  readHandoff,
+} from "@/lib/skin-draft";
 import { SkinEditorStore } from "@/lib/skin-editor-store";
 import { browserLibrary, withLibrary } from "@/lib/skin-library-client";
 import { prepareSkinContent, type StoredSkin } from "@/lib/skin-library";
@@ -388,10 +397,12 @@ export function SkinStudio(props: {
     importTask.cancel();
   };
 
-  // Offer drafts from earlier visits or other tabs.
+  // Offer drafts from earlier visits or closed tabs. The list follows every
+  // library change, for example a removed skin that took its drafts along.
   useEffect(() => {
+    if (mode.kind !== "view" || library.state.status === "loading") return;
     void editor.session.loadRecovery();
-  }, [editor.session]);
+  }, [editor.session, library.state, mode.kind]);
 
   // ---- Editor history entry ----
 
@@ -428,7 +439,6 @@ export function SkinStudio(props: {
     editor.session.start(createTemplate("classic"), {
       name: t("common.newSkin"),
     });
-    void editor.session.loadRecovery();
   };
 
   /** Cancel or Save: close the editor and go back to the view's entry. */
@@ -505,7 +515,9 @@ export function SkinStudio(props: {
         const png = new Blob([result.bytes], {
           type: "image/png",
         });
-        const name = `Texture ${result.hash.slice(0, 8)}`;
+        const name = notify("library.textureName", {
+          hash: result.hash.slice(0, 8),
+        });
         const client = library.client;
         if (!client) return { png, name, skin: undefined };
         try {
@@ -1883,7 +1895,43 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
 
 function LegacyDraftAlerts(props: { migrated?: string | undefined }) {
   const t = useT();
+  const locale = useLocale();
   const [hidden, setHidden] = useState(false);
+  const downloadLegacyDraft = async () => {
+    try {
+      const draft = await readDraft(browserStorage("localStorage"));
+      if (draft.status !== "found") {
+        toast.error(t("studio.oldDraftCouldNotRead"));
+        return;
+      }
+      const png = await exportSkinPng(draft.document.pixels);
+      downloadSkin(
+        new Blob([png], { type: "image/png" }),
+        t("library.recoveredDraftName", {
+          date: new Date(draft.updatedAt).toLocaleDateString(locale),
+        }),
+      );
+    } catch (cause) {
+      toast.error(t("studio.pngCouldNotMadeError", { error: t.error(cause) }));
+    }
+  };
+  if (props.migrated === "unmoved")
+    return (
+      <Alert>
+        <AlertTitle>{t("studio.oldDraftCouldNotMove")}</AlertTitle>
+        <AlertDescription>
+          {t("studio.oldDraftDownloadKeep")}
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-1"
+            onClick={() => void downloadLegacyDraft()}
+          >
+            {t("studio.downloadDraft")}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
   if (props.migrated === "newer")
     return (
       <Alert>

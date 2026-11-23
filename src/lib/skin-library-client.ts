@@ -112,7 +112,9 @@ const unavailableFactory: Pick<IDBFactory, "open"> = {
 
 export type MigrationResult =
   | { readonly status: "none" | "migrated" | "unavailable" }
-  | { readonly status: "corrupt" | "newer" };
+  | { readonly status: "corrupt" | "newer" }
+  /** The old draft is readable, but the library could not keep it. */
+  | { readonly status: "unmoved" };
 
 /**
  * Move the old single editor draft into the library. The skin id comes from

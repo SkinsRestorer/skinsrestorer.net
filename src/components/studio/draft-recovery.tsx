@@ -1,5 +1,5 @@
 import { posthog } from "posthog-js";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { CustomTimeAgo } from "@/components/time-ago";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -13,19 +13,59 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import type { EditorSession } from "@/lib/editor-session";
-import { useT } from "@/lib/i18n-react";
+import { useNotificationT, useT } from "@/lib/i18n-react";
+import type { EditSession } from "@/lib/skin-library";
 
 export function DraftRecovery(props: {
   session: EditorSession;
   onContinue: () => void;
 }) {
   const t = useT();
+  const notify = useNotificationT();
+  const { session } = props;
   const work = useSyncExternalStore(
-    props.session.subscribe,
-    props.session.getSnapshot,
-    props.session.getSnapshot,
+    session.subscribe,
+    session.getSnapshot,
+    session.getSnapshot,
   );
+  /** The draft with an action in progress. Its buttons wait for it. */
+  const [pending, setPending] = useState<string>();
   if (work.recovery.length === 0) return null;
+
+  const act = (draft: EditSession, action: () => Promise<void>) => {
+    if (pending) return;
+    setPending(draft.id);
+    void action()
+      .catch((cause: unknown) => toast.error(notify.error(cause)))
+      .finally(() => {
+        setPending(undefined);
+      });
+  };
+  const continueDraft = (draft: EditSession) => {
+    act(draft, async () => {
+      const result = await session.continueDraft(draft);
+      if (result === "missing") {
+        toast.error(notify("studio.draftNoLongerAvailable"));
+        return;
+      }
+      posthog.capture("editor_opened", { source: "draft" });
+      props.onContinue();
+    });
+  };
+  const discardDraft = (draft: EditSession) => {
+    act(draft, async () => {
+      await session.discardDraft(draft);
+      toast(notify("studio.draftDiscarded"), {
+        action: {
+          label: notify("common.undo"),
+          onClick: () =>
+            void session
+              .restoreDraft(draft)
+              .catch((cause: unknown) => toast.error(notify.error(cause))),
+        },
+      });
+    });
+  };
   return (
     <div className="ph-no-capture">
       <Alert>
@@ -37,9 +77,10 @@ export function DraftRecovery(props: {
                 <ItemContent>
                   <ItemTitle className="min-w-0">
                     <span className="truncate">
-                      {draft.name}
-                      {t("studio.changed")}{" "}
-                      <CustomTimeAgo date={draft.updatedAt} />
+                      {t.rich("studio.draftChanged", {
+                        name: draft.name,
+                        time: <CustomTimeAgo date={draft.updatedAt} />,
+                      })}
                     </span>
                   </ItemTitle>
                   {work.orphans.includes(draft.id) && (
@@ -51,15 +92,10 @@ export function DraftRecovery(props: {
                 <ItemActions>
                   <Button
                     size="sm"
-                    onClick={() =>
-                      void props.session
-                        .continueDraft(draft)
-                        .then(() => {
-                          posthog.capture("editor_opened", { source: "draft" });
-                          props.onContinue();
-                        })
-                        .catch((cause: unknown) => toast.error(t.error(cause)))
-                    }
+                    disabled={pending !== undefined}
+                    onClick={() => {
+                      continueDraft(draft);
+                    }}
                   >
                     {t("studio.continue")}
                   </Button>
@@ -67,13 +103,12 @@ export function DraftRecovery(props: {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() =>
-                        void props.session
-                          .saveDraftAsSkin(draft)
-                          .catch((cause: unknown) =>
-                            toast.error(t.error(cause)),
-                          )
-                      }
+                      disabled={pending !== undefined}
+                      onClick={() => {
+                        act(draft, async () => {
+                          await session.saveDraftAsSkin(draft);
+                        });
+                      }}
                     >
                       {t("studio.saveAsNewSkin")}
                     </Button>
@@ -81,7 +116,10 @@ export function DraftRecovery(props: {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => void props.session.discardDraft(draft.id)}
+                    disabled={pending !== undefined}
+                    onClick={() => {
+                      discardDraft(draft);
+                    }}
                   >
                     {t("studio.discard")}
                   </Button>
