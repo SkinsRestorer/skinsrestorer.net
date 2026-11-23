@@ -1,6 +1,7 @@
 import { message, type Message, type MessageKey } from "@/lib/messages";
 import {
   paintableRegion,
+  type FillScope,
   type PaintSettings,
   type PaintTool,
   type Rgba,
@@ -42,6 +43,15 @@ function blockedMessage(settings: PaintSettings) {
 /** Tools that use the brush size. */
 export function usesBrush(tool: PaintTool) {
   return tool === "pencil" || tool === "eraser" || tool === "shade";
+}
+
+/**
+ * Tools that mirror their change. Fill everywhere replaces one exact color,
+ * so a mirror adds nothing to it.
+ */
+export function usesMirror(tool: PaintTool, fillScope: FillScope) {
+  if (tool === "fill") return fillScope !== "everywhere";
+  return tool !== "eyedropper";
 }
 
 /**

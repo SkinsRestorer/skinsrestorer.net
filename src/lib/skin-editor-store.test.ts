@@ -463,3 +463,55 @@ test("a shaded line changes each pixel once, also at the anchor", () => {
     ),
   ]);
 });
+
+test("a stroke that starts on an unchanged pixel still paints, ends, and anchors a line", () => {
+  const store = setup();
+  const brush = settings({ size: 1 });
+  store.beginStroke("pencil", brush, 8, 8);
+  store.endStroke();
+  const revision = store.getSnapshot().revision;
+  // The pixel already has the pencil color, so the first sample changes nothing.
+  assert.equal(store.beginStroke("pencil", brush, 8, 8), true);
+  assert.equal(store.getSnapshot().revision, revision);
+  assert.equal(store.getSnapshot().painting, true);
+  assert.equal(store.getSettledSnapshot().painting, true);
+  assert.equal(store.strokeTo(11, 8), true);
+  store.endStroke();
+  assert.equal(store.getSnapshot().painting, false);
+  for (let x = 9; x <= 11; x++)
+    assert.deepEqual(pixel(store, x, 8), [200, 10, 10, 255]);
+  assert.equal(store.lineTo("pencil", brush, 11, 12), true);
+  assert.deepEqual(pixel(store, 11, 12), [200, 10, 10, 255]);
+});
+
+test("an eraser stroke that starts on a clear pixel erases the rest of the drag", () => {
+  const store = setup();
+  const outer = settings({ layer: "outer", size: 1 });
+  store.beginStroke("pencil", outer, 41, 8);
+  store.strokeTo(44, 8);
+  store.endStroke();
+  store.beginStroke("eraser", outer, 40, 8);
+  store.endStroke();
+  assert.equal(pixel(store, 40, 8)[3], 0);
+  assert.equal(store.beginStroke("eraser", outer, 40, 8), true);
+  assert.equal(store.getSnapshot().painting, true);
+  store.strokeTo(44, 8);
+  store.endStroke();
+  for (let x = 40; x <= 44; x++) assert.equal(pixel(store, x, 8)[3], 0);
+  assert.equal(store.lineTo("eraser", outer, 44, 12), true);
+});
+
+test("each vertex of a shaded polyline is shaded once", () => {
+  const store = setup();
+  const shade = settings({ size: 1 });
+  const original = pixel(store, 10, 10);
+  const once = required(shadeColor(original, "darken"), "shadeColor result");
+  store.beginStroke("shade", shade, 10, 10);
+  store.endStroke();
+  assert.deepEqual(pixel(store, 10, 10), once);
+  assert.equal(store.lineTo("shade", shade, 13, 10), true);
+  assert.deepEqual(pixel(store, 10, 10), once);
+  const vertex = pixel(store, 13, 10);
+  assert.equal(store.lineTo("shade", shade, 13, 13), true);
+  assert.deepEqual(pixel(store, 13, 10), vertex);
+});

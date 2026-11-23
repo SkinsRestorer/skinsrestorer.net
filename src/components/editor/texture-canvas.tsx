@@ -7,6 +7,7 @@ import { describePixel, SKIN_SIZE, skinRegions } from "@/lib/skin-regions";
 import {
   startTool,
   usesBrush,
+  usesMirror,
   type EditorSurfaceProps,
 } from "@/components/editor/editor-types";
 import { brushArea, type PixelRect } from "@/lib/skin-paint";
@@ -31,9 +32,7 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
  * cannot scroll goes to the page, so two fingers also scroll a fitted texture.
  */
 function panBy(element: Element, dx: number, dy: number) {
-  let parent = element.parentElement;
-  while (parent && !/auto|scroll/u.test(getComputedStyle(parent).overflow))
-    parent = parent.parentElement;
+  const parent = scrollParent(element);
   let restX = dx;
   let restY = dy;
   if (parent) {
@@ -44,6 +43,38 @@ function panBy(element: Element, dx: number, dy: number) {
   }
   if (Math.abs(restX) >= 1 || Math.abs(restY) >= 1)
     window.scrollBy(restX, restY);
+}
+
+function scrollParent(element: Element) {
+  let parent = element.parentElement;
+  while (parent && !/auto|scroll/u.test(getComputedStyle(parent).overflow))
+    parent = parent.parentElement;
+  return parent;
+}
+
+/** The distance to move a span so it fits inside [start, end]. */
+function overflowBy(low: number, high: number, start: number, end: number) {
+  if (high - low > end - start || low < start) return low - start;
+  return high > end ? high - end : 0;
+}
+
+/**
+ * Scroll the least amount that shows a texture pixel, so the keyboard cursor
+ * stays visible at high zoom.
+ */
+function revealPixel(canvas: HTMLCanvasElement, x: number, y: number) {
+  const rect = canvas.getBoundingClientRect();
+  const cellWidth = rect.width / SKIN_SIZE;
+  const cellHeight = rect.height / SKIN_SIZE;
+  const left = rect.left + x * cellWidth;
+  const top = rect.top + y * cellHeight;
+  const parent = scrollParent(canvas);
+  const view = parent
+    ? parent.getBoundingClientRect()
+    : { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
+  const dx = overflowBy(left, left + cellWidth, view.left, view.right);
+  const dy = overflowBy(top, top + cellHeight, view.top, view.bottom);
+  if (dx !== 0 || dy !== 0) panBy(canvas, dx, dy);
 }
 
 function themeColor(element: Element, name: string, fallback: string) {
@@ -323,7 +354,8 @@ export function TextureCanvas(props: TextureCanvasProps) {
         y,
       );
       outline(area?.source ?? { x, y, width: 1, height: 1 }, !solid);
-      if (area?.mirror && tool !== "eyedropper") outline(area.mirror, true);
+      if (area?.mirror && usesMirror(tool, settings.fillScope))
+        outline(area.mirror, true);
     };
     if (hover && interaction === "paint") footprint(hover.x, hover.y, false);
     if (focused) footprint(cursor.x, cursor.y, true);
@@ -417,6 +449,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
               ),
             };
             setCursor(next);
+            revealPixel(event.currentTarget, next.x, next.y);
             setAnnouncement(
               describePixel(store.getSnapshot().variant, next.x, next.y, t),
             );

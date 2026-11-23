@@ -8,7 +8,7 @@ import {
   type PaintTool,
   type Rgba,
 } from "@/lib/skin-paint";
-import { startTool, type EditorSurfaceProps } from "./editor-types";
+import { startTool, usesMirror, type EditorSurfaceProps } from "./editor-types";
 
 function surface(tool: PaintTool) {
   const store = new SkinEditorStore();
@@ -52,4 +52,11 @@ test("without Alt the pencil starts a stroke", () => {
   const { props, picked } = surface("pencil");
   assert.equal(startTool(props, 8, 8), "stroke");
   assert.deepEqual(picked, []);
+});
+
+test("fill everywhere and the eyedropper never mirror", () => {
+  assert.equal(usesMirror("pencil", "everywhere"), true);
+  assert.equal(usesMirror("fill", "face"), true);
+  assert.equal(usesMirror("fill", "everywhere"), false);
+  assert.equal(usesMirror("eyedropper", "face"), false);
 });

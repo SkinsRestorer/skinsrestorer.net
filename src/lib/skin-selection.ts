@@ -111,6 +111,10 @@ export class SkinSelectionStore {
   private variantChosen = false;
   private variantPending = false;
   private stopLibrary: (() => void) | undefined;
+  /** Reports whether the first file of a multi-file drop was kept. */
+  private firstKept:
+    | { readonly token: number; readonly done: (kept: boolean) => void }
+    | undefined;
 
   constructor(deps: SkinSelectionDeps) {
     this.deps = deps;
@@ -142,6 +146,16 @@ export class SkinSelectionStore {
     this.detection.cancel();
     this.variantSync.cancel();
     this.check.cancel();
+    this.takeFirstKept()?.(false);
+  }
+
+  /** Take the first-file report, for any selection or only for `token`. */
+  private takeFirstKept(token?: number) {
+    const pending = this.firstKept;
+    if (!pending || (token !== undefined && pending.token !== token))
+      return undefined;
+    this.firstKept = undefined;
+    return pending.done;
   }
 
   private set(next: Partial<SkinSelectionState>) {
@@ -165,15 +179,23 @@ export class SkinSelectionStore {
     if (!first) return;
     this.select(first, { origin: "file" });
     if (rest.length === 0) return;
-    void Promise.allSettled(rest.map((file) => this.keepFile(file))).then(
-      (results) => {
-        const failed = results.filter((r) => r.status === "rejected").length;
-        this.deps.events?.imported?.(results.length - failed + 1, failed);
-      },
-    );
+    const firstKept = new Promise<boolean>((resolve) => {
+      this.firstKept = { token: this.token, done: resolve };
+    });
+    void Promise.all([
+      firstKept,
+      Promise.allSettled(rest.map((file) => this.keepFile(file))),
+    ]).then(([keptFirst, results]) => {
+      const kept =
+        results.filter((r) => r.status === "fulfilled").length +
+        (keptFirst ? 1 : 0);
+      this.deps.events?.imported?.(kept, files.length - kept);
+    });
   }
 
   select(file: File, options: SelectOptions) {
+    // A newer selection stops the first file of a drop before it is kept.
+    this.takeFirstKept()?.(false);
     const token = ++this.token;
     this.detection.cancel();
     this.variantSync.cancel();
@@ -210,6 +232,7 @@ export class SkinSelectionStore {
       const error = errorMessage(cause, "common.failedLoadImage");
       this.update(token, { status: "invalid", error });
       this.deps.events?.failed?.(token, error);
+      this.takeFirstKept(token)?.(false);
     };
     void this.detection.run(
       async (signal) => {
@@ -270,6 +293,7 @@ export class SkinSelectionStore {
   }
 
   clear() {
+    this.takeFirstKept()?.(false);
     this.token++;
     this.detection.cancel();
     this.variantSync.cancel();
@@ -379,9 +403,15 @@ export class SkinSelectionStore {
   }
 
   private async keepSelection(token: number, file: File, variant: SkinVariant) {
-    if (!this.deps.library) return;
+    // The write finishes even when another skin is selected meanwhile.
+    const reportKept = this.takeFirstKept(token);
+    if (!this.deps.library) {
+      reportKept?.(false);
+      return;
+    }
     try {
       const { skin } = await this.keepFile(file, variant);
+      reportKept?.(true);
       const linked = this.update(token, {
         name: skin.name,
         skinId: skin.id,
@@ -393,6 +423,7 @@ export class SkinSelectionStore {
       if (linked && this.state.variant !== skin.current.variant)
         this.syncVariant(token, skin.id, this.state.variant);
     } catch (cause) {
+      reportKept?.(false);
       this.update(token, {
         keep: { kind: "off", message: errorMessage(cause, "common.notKept") },
       });

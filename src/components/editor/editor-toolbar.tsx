@@ -45,12 +45,11 @@ const toolIcons = {
 const coarse = "pointer-coarse:h-9 pointer-coarse:min-w-9";
 
 /**
- * Undo and Redo stay focusable and hoverable when there is nothing to do,
- * so their hint still explains the shortcut. Base UI then sets
- * `aria-disabled` instead of `disabled`, and the Button variants style only
- * `disabled`, so the icon carries the dimmed look.
+ * Icon-only paint tools, pointer action, and undo/redo. Undo and Redo stay
+ * focusable and hoverable when there is nothing to do, so their hint still
+ * explains the shortcut. Base UI then sets `aria-disabled` instead of
+ * `disabled`.
  */
-/** Icon-only paint tools, pointer action, and undo/redo. */
 export function EditorToolbar(props: {
   tool: PaintTool;
   layer: SkinLayer;

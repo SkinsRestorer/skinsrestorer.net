@@ -295,6 +295,29 @@ test("multi-file drops keep every valid skin but select only the first", async (
   store.dispose();
 });
 
+test("a multi-file drop counts a first file that fails as not added", async () => {
+  const client = library();
+  const imported: [number, number][] = [];
+  const store = new SkinSelectionStore({
+    preview: autoPreview(),
+    library: client,
+    events: {
+      imported: (kept, failed) => {
+        imported.push([kept, failed]);
+      },
+    },
+  });
+  store.selectFiles([
+    new File(["not a png"], "a.png", { type: "image/png" }),
+    await skinFile(2, "b.png"),
+    await skinFile(3, "c.png"),
+  ]);
+  await until(() => imported.length === 1);
+  assert.deepEqual(imported, [[2, 1]]);
+  assert.equal(store.getSnapshot().selection?.keep.kind, "off");
+  store.dispose();
+});
+
 test("a change in another tab is offered, never swapped into the form", async () => {
   const factory = new IDBFactory();
   const tabA = library(factory);

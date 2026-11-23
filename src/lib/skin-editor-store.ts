@@ -154,7 +154,8 @@ export class SkinEditorStore {
 
   /**
    * Start a pencil, eraser, or shade stroke. A stroke from pointer down to
-   * pointer up becomes one undo step.
+   * pointer up becomes one undo step. The snapshot reports painting from
+   * here on, also when the first sample changes no pixel.
    */
   beginStroke(
     tool: StrokeTool,
@@ -164,16 +165,29 @@ export class SkinEditorStore {
     options: { surfaceLock?: boolean } = {},
   ) {
     this.endStroke();
+    if (!this.openStroke(tool, settings, x, y, options.surfaceLock ?? false))
+      return false;
+    if (!this.strokeTo(x, y)) this.emit(false);
+    return true;
+  }
+
+  private openStroke(
+    tool: StrokeTool,
+    settings: PaintSettings,
+    x: number,
+    y: number,
+    surfaceLock: boolean,
+  ) {
     const color =
       tool === "shade"
         ? undefined
         : toolColor(tool, settings.layer, settings.color);
-    if (tool !== "shade" && !color) return false;
-    const lock = options.surfaceLock
+    if (tool !== "shade" && !color) return undefined;
+    const lock = surfaceLock
       ? paintableRegion(this.variant, settings, x, y)
       : undefined;
-    if (options.surfaceLock && !lock) return false;
-    this.stroke = {
+    if (surfaceLock && !lock) return undefined;
+    const stroke: Stroke = {
       tool,
       color,
       settings,
@@ -181,19 +195,20 @@ export class SkinEditorStore {
       lock,
       touched: new Set(),
     };
-    this.strokeTo(x, y);
-    return true;
+    this.stroke = stroke;
+    return stroke;
   }
 
   /**
    * Stamp the brush on every pixel of the line from the last sample, so fast
    * moves leave no gaps. Shade changes a pixel only the first time the stroke
    * reaches it, so a slow drag does not keep darkening the same pixel.
+   * It returns whether a pixel changed.
    */
   strokeTo(x: number, y: number) {
     const stroke = this.stroke;
-    if (!stroke) return;
-    if (stroke.lock && !paintableOn(stroke, this.variant, x, y)) return;
+    if (!stroke) return false;
+    if (stroke.lock && !paintableOn(stroke, this.variant, x, y)) return false;
     const points = stroke.last
       ? linePoints(stroke.last[0], stroke.last[1], x, y)
       : [[x, y] as const];
@@ -223,6 +238,7 @@ export class SkinEditorStore {
       }
     stroke.last = [x, y];
     if (changed) this.emit(true);
+    return changed;
   }
 
   endStroke() {
@@ -264,12 +280,20 @@ export class SkinEditorStore {
     const start = paintableRegion(this.variant, settings, anchor.x, anchor.y);
     const end = paintableRegion(this.variant, settings, x, y);
     if (!start || !end || !sameRegion(start, end)) return false;
-    if (
-      !this.beginStroke(tool, settings, anchor.x, anchor.y, {
-        surfaceLock: true,
-      })
-    )
-      return false;
+    const stroke = this.openStroke(tool, settings, anchor.x, anchor.y, true);
+    if (!stroke) return false;
+    // The last stroke already changed the anchor. Shade would darken it a
+    // second time, so each vertex of a polyline would get one step darker.
+    if (tool === "shade")
+      for (const index of brushPixels(
+        this.variant,
+        settings,
+        anchor.x,
+        anchor.y,
+        stroke.lock,
+      ))
+        stroke.touched.add(index);
+    stroke.last = [anchor.x, anchor.y];
     this.strokeTo(x, y);
     this.endStroke();
     return true;

@@ -7,7 +7,7 @@ import { useId } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { usesBrush } from "@/components/editor/editor-types";
+import { usesBrush, usesMirror } from "@/components/editor/editor-types";
 import {
   HintTrigger,
   ShortcutHints,
@@ -57,10 +57,7 @@ export function ToolOptions(props: {
   const sizeId = useId();
   const hints = useShortcutHints();
   if (props.tool === "eyedropper") return null;
-  // Everywhere replaces one exact color, so a mirror adds nothing to it.
-  const showMirror = !(
-    props.tool === "fill" && props.fillScope === "everywhere"
-  );
+  const showMirror = usesMirror(props.tool, props.fillScope);
   return (
     <fieldset className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
       <legend className="sr-only">{t("editor.toolOptions")}</legend>
