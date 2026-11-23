@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { afterEach, test } from "node:test";
-import type { HttpFetch } from "./effect-http";
+import { test } from "node:test";
+import { mockFetch } from "@/test/fakes";
 import { uploadMineSkinFile, type MineSkinCompletedResponse } from "./mineskin";
 import type { GenerationInput } from "./skin-selection";
 import {
@@ -270,55 +270,47 @@ test("a result is hidden for other choices and a superseded upload never publish
   assert.equal(calls.length, 2);
 });
 
-const originalFetch = globalThis.fetch;
-afterEach(() => {
-  globalThis.fetch = originalFetch;
-});
-
 test("the Axolotl cape route posts the selected bytes without the user key", async () => {
-  const requests: Parameters<HttpFetch>[] = [];
-  globalThis.fetch = Object.assign((...args: Parameters<HttpFetch>) => {
-    requests.push(args);
-    return Promise.resolve(
-      Response.json({
-        success: true,
-        skin: { url: "skinsrestorer-axolotl://uuid" },
-        warnings: [],
-        messages: [],
-      }),
+  const server = mockFetch(() =>
+    Response.json({
+      success: true,
+      skin: { url: "skinsrestorer-axolotl://uuid" },
+      warnings: [],
+      messages: [],
+    }),
+  );
+  try {
+    const chosen = input({ capeUuid: "cape-id" });
+    const generation = new StudioGeneration(uploadMineSkinFile);
+    await generation.generate(chosen, {
+      file: chosen.file,
+      variant: "classic",
+      capeUuid: "cape-id",
+      apiKey: "secret",
+      useCapeProxy: true,
+    });
+    assert.equal(server.calls.length, 1);
+    const { url, init } = required(server.calls[0], "proxy request");
+    assert.equal(url, "https://axolotl.skinsrestorer.net/mineskin/skins");
+    assert.equal(new Headers(init?.headers).get("Authorization"), null);
+    const form = init?.body;
+    assert.ok(form instanceof FormData);
+    assert.equal(form.get("capeUuid"), "cape-id");
+    const uploaded = form.get("file");
+    assert.ok(uploaded instanceof File);
+    assert.deepEqual(
+      new Uint8Array(await uploaded.arrayBuffer()),
+      new Uint8Array(await chosen.file.arrayBuffer()),
     );
-  }, originalFetch);
-  const chosen = input({ capeUuid: "cape-id" });
-  const generation = new StudioGeneration(uploadMineSkinFile);
-  await generation.generate(chosen, {
-    file: chosen.file,
-    variant: "classic",
-    capeUuid: "cape-id",
-    apiKey: "secret",
-    useCapeProxy: true,
-  });
-  assert.equal(requests.length, 1);
-  const [url, init] = required(requests[0], "proxy request");
-  assert.equal(
-    url instanceof Request ? url.url : url.toString(),
-    "https://axolotl.skinsrestorer.net/mineskin/skins",
-  );
-  assert.equal(new Headers(init?.headers).get("Authorization"), null);
-  const form = init?.body;
-  assert.ok(form instanceof FormData);
-  assert.equal(form.get("capeUuid"), "cape-id");
-  const uploaded = form.get("file");
-  assert.ok(uploaded instanceof File);
-  assert.deepEqual(
-    new Uint8Array(await uploaded.arrayBuffer()),
-    new Uint8Array(await chosen.file.arrayBuffer()),
-  );
-  const state = generation.for(chosen);
-  assert.equal(
-    state.status === "done" && state.result.command,
-    '/skin url "skinsrestorer-axolotl://uuid" classic',
-  );
-  assert.equal(state.status === "done" && state.result.textureUrl, null);
+    const state = generation.for(chosen);
+    assert.equal(
+      state.status === "done" && state.result.command,
+      '/skin url "skinsrestorer-axolotl://uuid" classic',
+    );
+    assert.equal(state.status === "done" && state.result.textureUrl, null);
+  } finally {
+    server.restore();
+  }
 });
 
 test("URL-only proxy results support explicit and default custom skin names", () => {

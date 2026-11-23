@@ -1,4 +1,12 @@
-import { Debouncer } from "@tanstack/pacer";
+/** Run `callback` after `ms` milliseconds. Returns a function that cancels it. */
+export type Timer = (callback: () => void, ms: number) => () => void;
+
+const timeout: Timer = (callback, ms) => {
+  const id = setTimeout(callback, ms);
+  return () => {
+    clearTimeout(id);
+  };
+};
 
 /**
  * Write typed text to the URL after a pause. The input and the filter use the
@@ -9,28 +17,44 @@ import { Debouncer } from "@tanstack/pacer";
 export class LocationWrite<T> {
   /** An identity of the current history entry. */
   private readonly location: () => string;
-  private readonly debouncer: Debouncer<(value: T, location: string) => void>;
+  private readonly write: (value: T) => void;
+  private readonly wait: number;
+  private readonly timer: Timer;
+  private waiting:
+    | { value: T; location: string; cancel: () => void }
+    | undefined;
 
-  constructor(location: () => string, write: (value: T) => void, wait: number) {
+  constructor(
+    location: () => string,
+    write: (value: T) => void,
+    wait: number,
+    timer: Timer = timeout,
+  ) {
     this.location = location;
-    this.debouncer = new Debouncer(
-      (value: T, scheduledAt: string) => {
-        if (scheduledAt === this.location()) write(value);
-      },
-      { wait },
-    );
+    this.write = write;
+    this.wait = wait;
+    this.timer = timer;
   }
 
   schedule(value: T) {
-    this.debouncer.maybeExecute(value, this.location());
+    this.cancel();
+    const location = this.location();
+    const cancel = this.timer(() => {
+      this.flush();
+    }, this.wait);
+    this.waiting = { value, location, cancel };
   }
 
   /** Write the waiting value now, if its entry is still current. */
   flush() {
-    this.debouncer.flush();
+    const waiting = this.waiting;
+    if (!waiting) return;
+    this.cancel();
+    if (waiting.location === this.location()) this.write(waiting.value);
   }
 
   cancel() {
-    this.debouncer.cancel();
+    this.waiting?.cancel();
+    this.waiting = undefined;
   }
 }

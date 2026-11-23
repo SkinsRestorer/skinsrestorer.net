@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { Effect } from "effect";
 import { IDBFactory } from "fake-indexeddb";
-import { EditorSession, documentOf, type SessionLocks } from "./editor-session";
+import {
+  EditorSession,
+  documentOf,
+  type Schedule,
+  type SessionLocks,
+} from "./editor-session";
 import type { Locale } from "./i18n";
 import { createTemplate, exportSkinPng, pixelOffset } from "./skin-document";
 import { SkinEditorStore } from "./skin-editor-store";
@@ -35,21 +40,59 @@ function tab(factory: IDBFactory) {
   return client;
 }
 
+/** Timers that run only when a test moves time forward. */
+function manualTimers() {
+  let now = 0;
+  const pending = new Map<number, { at: number; callback: () => void }>();
+  let ids = 0;
+  const schedule: Schedule = (callback, ms) => {
+    const id = ++ids;
+    pending.set(id, { at: now + ms, callback });
+    return () => {
+      pending.delete(id);
+    };
+  };
+  const advance = (ms: number) => {
+    now += ms;
+    for (const [id, timer] of pending)
+      if (timer.at <= now) {
+        pending.delete(id);
+        timer.callback();
+      }
+  };
+  return { schedule, advance, pending: () => pending.size };
+}
+
 function editor(
   library: LibraryClient | undefined,
   saveDelayMs = 0,
   locale?: Locale,
   locks?: SessionLocks,
+  schedule?: Schedule,
 ) {
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));
   const session = new EditorSession(store, library, {
     saveDelayMs,
-    locale,
+    locale: locale === undefined ? undefined : () => locale,
     locks,
+    ...(schedule ? { schedule } : {}),
   });
   disposers.push(() => session.dispose());
   return { store, session };
+}
+
+/** A client that counts its draft writes. */
+function counting(real: LibraryClient) {
+  const count = { writes: 0 };
+  const client: LibraryClient = {
+    ...real,
+    run: (effect, signal) => {
+      count.writes++;
+      return real.run(effect, signal);
+    },
+  };
+  return { client, count };
 }
 
 const paint = (store: SkinEditorStore, value: number) =>
@@ -81,9 +124,10 @@ async function open(session: EditorSession, skin: StoredSkin) {
   });
 }
 
-const sleep = (ms: number) =>
+/** Let settled promise callbacks, such as a lock release, run. */
+const settle = () =>
   new Promise((resolve) => {
-    setTimeout(resolve, ms);
+    setImmediate(resolve);
   });
 
 const pencil: PaintSettings = {
@@ -121,64 +165,90 @@ test("autosave writes only the editor's own draft, never the skin", async () => 
 });
 
 test("autosave waits for a quiet moment and never writes during a stroke", async () => {
-  const library = tab(new IDBFactory());
-  const { store, session } = editor(library, 30);
+  const real = tab(new IDBFactory());
+  const { client, count } = counting(real);
+  const timers = manualTimers();
+  const { store, session } = editor(
+    client,
+    30,
+    undefined,
+    undefined,
+    timers.schedule,
+  );
   paint(store, 10);
-  await sleep(5);
-  assert.equal((await list(library)).sessions.length, 0);
+  timers.advance(29);
+  assert.equal(count.writes, 0);
   // A stroke cancels the scheduled write until the stroke ends.
   store.beginStroke("pencil", pencil, 8, 8);
   store.strokeTo(12, 8);
-  await sleep(60);
-  assert.equal((await list(library)).sessions.length, 0);
+  assert.equal(timers.pending(), 0);
+  timers.advance(60);
+  assert.equal(count.writes, 0);
   store.endStroke();
-  await sleep(60);
+  timers.advance(29);
+  assert.equal(count.writes, 0);
+  timers.advance(1);
+  // The scheduled write runs; a flush queued after it waits for it.
   await session.flush();
-  const listing = await list(library);
+  assert.equal(count.writes, 2);
+  const listing = await list(real);
   assert.equal(listing.sessions.length, 1);
   assert.equal(listing.sessions[0]?.id, session.getSnapshot().sessionId);
 });
 
 test("an explicit flush replaces the scheduled write and resolves after it", async () => {
   const library = tab(new IDBFactory());
-  const { store, session } = editor(library, 30);
+  const timers = manualTimers();
+  const { store, session } = editor(
+    library,
+    30,
+    undefined,
+    undefined,
+    timers.schedule,
+  );
   paint(store, 11);
-  const id = session.getSnapshot().sessionId;
-  await session.flush();
+  assert.equal(timers.pending(), 1);
+  assert.equal(await session.flush(), true);
   assert.equal((await list(library)).sessions.length, 1);
-  const first = (await list(library)).sessions[0]?.updatedAt;
-  // The cancelled schedule does not write a second time.
-  await sleep(60);
-  const listing = await list(library);
-  assert.equal(listing.sessions.length, 1);
-  assert.equal(listing.sessions[0]?.id, id);
-  assert.equal(listing.sessions[0].updatedAt, first);
+  // The schedule is cancelled, so it cannot write a second time.
+  assert.equal(timers.pending(), 0);
 });
 
 test("discard cancels a scheduled autosave so the draft does not come back", async () => {
   const library = tab(new IDBFactory());
-  const { store, session } = editor(library, 20);
+  const timers = manualTimers();
+  const { store, session } = editor(
+    library,
+    20,
+    undefined,
+    undefined,
+    timers.schedule,
+  );
   paint(store, 12);
   await session.flush();
   paint(store, 13);
   await session.discard();
-  await sleep(50);
+  timers.advance(50);
+  await session.flush();
   assert.equal((await list(library)).sessions.length, 0);
   assert.equal(session.getSnapshot().dirty, false);
 });
 
 test("dispose writes pending work and resolves after the write", async () => {
   const library = tab(new IDBFactory());
+  const timers = manualTimers();
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));
-  const session = new EditorSession(store, library, { saveDelayMs: 10_000 });
+  const session = new EditorSession(store, library, {
+    saveDelayMs: 10_000,
+    schedule: timers.schedule,
+  });
   paint(store, 14);
   await session.dispose();
   assert.equal((await list(library)).sessions.length, 1);
   // The store no longer schedules writes for this session.
   paint(store, 15);
-  await sleep(20);
-  assert.equal((await list(library)).sessions.length, 1);
+  assert.equal(timers.pending(), 0);
 });
 
 test("a queued draft keeps its pixels and owner when another skin opens", async () => {
@@ -477,12 +547,13 @@ test("drafts come back after a full storage write, and stop when the library can
   };
   const { store, session } = editor(flaky);
   paint(store, 1);
-  await session.flush();
+  // The caller learns that the work is not kept, for example to stay open.
+  assert.equal(await session.flush(), false);
   assert.equal(session.getSnapshot().drafts.kind, "off");
   // The user frees space; the next change writes the draft again.
   failWith = undefined;
   paint(store, 2);
-  await session.flush();
+  assert.equal(await session.flush(), true);
   assert.equal(session.getSnapshot().drafts.kind, "saved");
   assert.equal((await list(real)).sessions.length, 1);
 
@@ -567,6 +638,7 @@ test("recovery leaves out drafts that an open editor in another tab owns", async
   assert.deepEqual(await b.session.loadRecovery(), []);
   // Tab A closes; its draft can now be continued.
   await a.session.dispose();
+  await settle();
   assert.deepEqual(
     (await b.session.loadRecovery()).map((draft) => draft.id),
     [draftId],
@@ -580,17 +652,23 @@ test("continuing a draft that is gone drops it from the list", async () => {
   await a.session.flush();
   await a.session.dispose();
 
-  const b = editor(tab(factory));
+  const bLibrary = tab(factory);
+  const b = editor(bLibrary);
   const c = editor(tab(factory));
   const [draft] = await b.session.loadRecovery();
   await c.session.loadRecovery();
   const recovered = required(draft, "recovered draft");
-  // A double click continues the draft once.
+  // A double click continues the draft once. The second click finds the
+  // editor already working on the continued draft and leaves it alone.
   const results = await Promise.all([
     b.session.continueDraft(recovered),
     b.session.continueDraft(recovered),
   ]);
-  assert.deepEqual(results.toSorted(), ["continued", "missing"]);
+  assert.deepEqual(results.toSorted(), ["continued", "superseded"]);
+  assert.deepEqual(
+    (await list(bLibrary)).sessions.map((entry) => entry.id),
+    [b.session.getSnapshot().sessionId],
+  );
   // Another tab still lists the draft, but it is gone.
   assert.equal(await c.session.continueDraft(recovered), "missing");
   assert.deepEqual(c.session.getSnapshot().recovery, []);
@@ -623,4 +701,223 @@ test("a discarded draft leaves the list only after the delete, and undo brings i
     b.session.getSnapshot().recovery.map((entry) => entry.id),
     [recovered.id],
   );
+});
+
+/** A client whose calls wait while the gate is closed. */
+function gated(real: LibraryClient) {
+  let wait: Promise<void> | undefined;
+  let release: (() => void) | undefined;
+  const client: LibraryClient = {
+    ...real,
+    run: async (effect, signal) => {
+      await wait;
+      return real.run(effect, signal);
+    },
+  };
+  return {
+    client,
+    close: () => {
+      wait = new Promise((resolve) => {
+        release = resolve;
+      });
+    },
+    open: () => {
+      wait = undefined;
+      release?.();
+    },
+  };
+}
+
+const ids = (drafts: readonly { readonly id: string }[]) =>
+  drafts.map((draft) => draft.id);
+
+test("a closing editor keeps its lock until its last draft write ends", async () => {
+  const factory = new IDBFactory();
+  const locks = browserLocks();
+  const gate = gated(tab(factory));
+  const a = editor(gate.client, 0, undefined, locks);
+  paint(a.store, 7);
+  await a.session.flush();
+  const id = a.session.getSnapshot().sessionId;
+  paint(a.store, 8);
+  gate.close();
+  const disposing = a.session.dispose();
+  await settle();
+  // The older draft exists, but a newer write of it is still pending.
+  const b = editor(tab(factory), 0, undefined, locks);
+  assert.deepEqual(await b.session.loadRecovery(), []);
+  gate.open();
+  await disposing;
+  await settle();
+  assert.deepEqual(ids(await b.session.loadRecovery()), [id]);
+});
+
+test("other work keeps the old session's lock until its queued write ends", async () => {
+  const factory = new IDBFactory();
+  const locks = browserLocks();
+  const gate = gated(tab(factory));
+  const a = editor(gate.client, 0, undefined, locks);
+  paint(a.store, 9);
+  await a.session.flush();
+  const id = a.session.getSnapshot().sessionId;
+  paint(a.store, 10);
+  gate.close();
+  const writing = a.session.flush();
+  a.session.start(createTemplate("slim"), { name: "Next skin" });
+  await settle();
+  const b = editor(tab(factory), 0, undefined, locks);
+  assert.deepEqual(await b.session.loadRecovery(), []);
+  gate.open();
+  assert.equal(await writing, true);
+  await settle();
+  assert.deepEqual(ids(await b.session.loadRecovery()), [id]);
+});
+
+test("a discarded session keeps its lock until its draft is deleted", async () => {
+  const factory = new IDBFactory();
+  const locks = browserLocks();
+  const gate = gated(tab(factory));
+  const a = editor(gate.client, 0, undefined, locks);
+  paint(a.store, 11);
+  await a.session.flush();
+  gate.close();
+  const discarding = a.session.discard();
+  await settle();
+  // Another tab must not continue a draft that is about to be deleted.
+  const b = editor(tab(factory), 0, undefined, locks);
+  assert.deepEqual(await b.session.loadRecovery(), []);
+  gate.open();
+  await discarding;
+  await settle();
+  assert.deepEqual(await b.session.loadRecovery(), []);
+  assert.equal((await list(tab(factory))).sessions.length, 0);
+});
+
+test("a failed recovery read is shown and does not stop drafts", async () => {
+  const real = tab(new IDBFactory());
+  const { client, control } = failing(real);
+  const { store, session } = editor(client);
+  control.fail = true;
+  assert.deepEqual(await session.loadRecovery(), []);
+  assert.ok(session.getSnapshot().recoveryError);
+  assert.equal(session.getSnapshot().drafts.kind, "idle");
+  control.fail = false;
+  paint(store, 12);
+  assert.equal(await session.flush(), true);
+  assert.equal(session.getSnapshot().drafts.kind, "saved");
+  await session.loadRecovery();
+  assert.equal(session.getSnapshot().recoveryError, undefined);
+});
+
+test("continuing a draft leaves new work alone when the editor moved on", async () => {
+  const factory = new IDBFactory();
+  const a = editor(tab(factory));
+  paint(a.store, 13);
+  await a.session.flush();
+  await a.session.dispose();
+
+  const library = tab(factory);
+  const b = editor(library);
+  const [draft] = await b.session.loadRecovery();
+  const recovered = required(draft, "recovered draft");
+  const continuing = b.session.continueDraft(recovered);
+  // The user chooses Create skin while the draft is read.
+  b.session.start(createTemplate("slim"), { name: "Fresh" });
+  paint(b.store, 14);
+  assert.equal(await continuing, "superseded");
+  assert.equal(b.session.getSnapshot().target.name, "Fresh");
+  assert.equal(b.store.getSnapshot().variant, "slim");
+  assert.equal(b.session.getSnapshot().dirty, true);
+  // The draft is untouched and still offered.
+  assert.deepEqual(ids((await list(library)).sessions), [recovered.id]);
+});
+
+test("a draft kept on close is offered once its lock is free", async () => {
+  const locks = browserLocks();
+  const { store, session } = editor(tab(new IDBFactory()), 0, undefined, locks);
+  assert.deepEqual(await session.loadRecovery(), []);
+  paint(store, 15);
+  assert.equal(await session.flush(), true);
+  const kept = session.getSnapshot().sessionId;
+  // Closing the editor starts a new session; the old draft stays.
+  session.start(createTemplate("classic"), { name: "New skin" });
+  // No one asks again: the session reads the list once the lock is free.
+  await new Promise<void>((resolve) => {
+    const stop = session.subscribe(() => {
+      if (session.getSnapshot().recovery.length === 0) return;
+      stop();
+      resolve();
+    });
+  });
+  assert.deepEqual(ids(session.getSnapshot().recovery), [kept]);
+});
+
+test("other tabs never offer a draft while it moves to the editor that continues it", async () => {
+  const factory = new IDBFactory();
+  const locks = browserLocks();
+  const a = editor(tab(factory), 0, undefined, locks);
+  paint(a.store, 16);
+  await a.session.flush();
+  await a.session.dispose();
+  await settle();
+
+  const c = editor(tab(factory), 0, undefined, locks);
+  const real = tab(factory);
+  const seen: string[][] = [];
+  // Tab C reads the list right after the move commits, before tab B
+  // opens the moved draft.
+  const client: LibraryClient = {
+    ...real,
+    run: async (effect, signal) => {
+      const result = await real.run(effect, signal);
+      seen.push(ids(await c.session.loadRecovery()));
+      return result;
+    },
+  };
+  const b = editor(client, 0, undefined, locks);
+  const [draft] = await real
+    .run(withLibrary((l) => l.list))
+    .then((listing) => listing.sessions);
+  assert.equal(
+    await b.session.continueDraft(required(draft, "draft")),
+    "continued",
+  );
+  assert.deepEqual(seen.at(-1), []);
+});
+
+test("saving a draft as a skin creates nothing when the draft is gone", async () => {
+  const factory = new IDBFactory();
+  const a = editor(tab(factory));
+  paint(a.store, 17);
+  await a.session.flush();
+  await a.session.dispose();
+
+  const library = tab(factory);
+  const b = editor(library);
+  const c = editor(tab(factory));
+  const [draft] = await b.session.loadRecovery();
+  const recovered = required(draft, "recovered draft");
+  await c.session.loadRecovery();
+  // Tab B continues the draft; tab C still lists it.
+  assert.equal(await b.session.continueDraft(recovered), "continued");
+  assert.equal(await c.session.saveDraftAsSkin(recovered), undefined);
+  assert.deepEqual(c.session.getSnapshot().recovery, []);
+  assert.equal((await list(library)).skins.length, 0);
+});
+
+test("a draft queued during a save belongs to the saved skin", async () => {
+  const library = tab(new IDBFactory());
+  const { store, session } = editor(library, 10_000);
+  paint(store, 18);
+  const saving = session.save();
+  // The user paints on while the new skin is saved.
+  paint(store, 19);
+  const writing = session.flush();
+  const result = await saving;
+  assert.equal(await writing, true);
+  assert.equal(result.kind, "saved");
+  const skin = required(result.skin, "skin");
+  const [draft] = (await list(library)).sessions;
+  assert.equal(required(draft, "draft").skinId, skin.id);
+  assert.equal(required(draft, "draft").baseRevision, skin.revision);
 });

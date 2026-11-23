@@ -1,13 +1,31 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { LocationWrite } from "./location-write";
+import { LocationWrite, type Timer } from "./location-write";
 
-const sleep = (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+/** A clock that moves only when the test advances it. */
+function manualClock() {
+  let now = 0;
+  const timers = new Set<{ at: number; callback: () => void }>();
+  const timer: Timer = (callback, ms) => {
+    const entry = { at: now + ms, callback };
+    timers.add(entry);
+    return () => {
+      timers.delete(entry);
+    };
+  };
+  const advance = (ms: number) => {
+    now += ms;
+    for (const entry of [...timers].toSorted((a, b) => a.at - b.at)) {
+      if (entry.at > now || !timers.has(entry)) continue;
+      timers.delete(entry);
+      entry.callback();
+    }
+  };
+  return { timer, advance };
+}
 
 function setup() {
+  const clock = manualClock();
   const location = { key: "a" };
   const writes: (string | undefined)[] = [];
   const write = new LocationWrite<string | undefined>(
@@ -16,41 +34,58 @@ function setup() {
       writes.push(value);
     },
     20,
+    clock.timer,
   );
-  return { location, writes, write };
+  return { advance: clock.advance, location, writes, write };
 }
 
-test("typing writes the URL once, after the pause, with the latest text", async () => {
-  const { writes, write } = setup();
+test("typing writes the URL once, after the pause, with the latest text", () => {
+  const { advance, writes, write } = setup();
   write.schedule("r");
+  advance(15);
   write.schedule("re");
+  advance(15);
   write.schedule("red");
-  await sleep(5);
+  // Each keystroke restarts the pause.
+  advance(19);
   assert.deepEqual(writes, []);
-  await sleep(40);
+  advance(1);
+  assert.deepEqual(writes, ["red"]);
+  advance(100);
   assert.deepEqual(writes, ["red"]);
 });
 
-test("a waiting write is dropped when the history entry changes", async () => {
-  const { location, writes, write } = setup();
+test("a waiting write is dropped when the history entry changes", () => {
+  const { advance, location, writes, write } = setup();
   write.schedule("red");
   // Back, Forward, or a link moved to another entry before the pause ended.
   location.key = "b";
-  await sleep(40);
+  advance(20);
   assert.deepEqual(writes, []);
   // Typing on the new entry writes to it.
   write.schedule("blue");
-  await sleep(40);
+  advance(20);
   assert.deepEqual(writes, ["blue"]);
 });
 
-test("cancel drops the waiting write and flush writes it at once", async () => {
-  const { writes, write } = setup();
+test("cancel drops the waiting write and flush writes it at once", () => {
+  const { advance, writes, write } = setup();
   write.schedule("red");
   write.cancel();
-  await sleep(40);
+  advance(20);
   assert.deepEqual(writes, []);
   write.schedule(undefined);
   write.flush();
   assert.deepEqual(writes, [undefined]);
+  // The flushed write does not run again when its pause ends.
+  advance(20);
+  assert.deepEqual(writes, [undefined]);
+});
+
+test("flush does not write to an entry the user has left", () => {
+  const { location, writes, write } = setup();
+  write.schedule("red");
+  location.key = "b";
+  write.flush();
+  assert.deepEqual(writes, []);
 });

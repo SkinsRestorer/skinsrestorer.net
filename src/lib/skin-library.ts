@@ -1,14 +1,13 @@
 import { locales, type Locale } from "./i18n";
 import {
-  catalogs,
   messageFields,
   errorMessage,
   message,
+  translate,
   type Message,
   type MessageKey,
-  messageKeySchema,
-  messageValuesSchema,
 } from "./messages";
+import { messageKeySchema, messageValuesSchema } from "./messages/schema";
 import { Context, Effect, Layer, Schema } from "effect";
 import { PngError, readPngSize } from "./png";
 import { validateSkinDimensions, type SkinVariant } from "./skin";
@@ -186,8 +185,13 @@ export interface RemovedSkin {
   readonly sessions: readonly EditSession[];
 }
 
+/**
+ * `changed` follows a change to skins, which can also remove drafts.
+ * `sessions` follows a change to drafts only, such as an autosave, so
+ * listeners that show skins can ignore it. `closed` means the database closed.
+ */
 export interface LibraryEvent {
-  readonly type: "changed" | "closed";
+  readonly type: "changed" | "sessions" | "closed";
 }
 
 export function cleanSkinName(name: string, fallback = "Skin") {
@@ -373,11 +377,15 @@ export class SkinLibrary extends Context.Service<
       StoredSkin,
       SkinLibraryError | SkinNotFoundError | SkinChangedError
     >;
-    /** Save editor work as a new skin and delete its session. */
+    /**
+     * Save editor work as a new skin and delete its session. With
+     * `requireSession`, a missing session fails and nothing is created.
+     */
     readonly createFromSession: (input: {
       readonly sessionId: string;
       readonly skin: NewSkin;
-    }) => Effect.Effect<StoredSkin, SkinLibraryError>;
+      readonly requireSession?: boolean;
+    }) => Effect.Effect<StoredSkin, SkinLibraryError | SkinNotFoundError>;
     /** Add a migrated draft under a fixed id. A second call does nothing. */
     readonly migrate: (input: {
       readonly id: string;
@@ -391,7 +399,10 @@ export class SkinLibrary extends Context.Service<
 /** The parts of BroadcastChannel the library uses. */
 export interface LibraryChannel {
   postMessage(message: unknown): void;
-  addEventListener(type: "message", listener: () => void): void;
+  addEventListener(
+    type: "message",
+    listener: (event: { readonly data?: unknown }) => void,
+  ): void;
   close(): void;
 }
 
@@ -587,22 +598,30 @@ const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
   const channel = yield* Effect.acquireRelease(
     Effect.sync(() => {
       const opened = options.channel?.();
-      opened?.addEventListener("message", () => {
-        emit({ type: "changed" });
+      opened?.addEventListener("message", (event) => {
+        // Unknown messages, for example from an older page, mean any change.
+        const data: unknown = event.data;
+        const sessionsOnly =
+          typeof data === "object" &&
+          data !== null &&
+          "type" in data &&
+          data.type === "sessions";
+        emit({ type: sessionsOnly ? "sessions" : "changed" });
       });
       return opened;
     }),
     (opened) => Effect.sync(() => opened?.close()),
   );
-  const changed = Effect.sync(() => {
-    emit({ type: "changed" });
-    try {
-      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- BroadcastChannel has no target origin.
-      channel?.postMessage({ type: "changed" });
-    } catch {
-      // Other tabs refresh when they next read the list.
-    }
-  });
+  const changed = (type: "changed" | "sessions") =>
+    Effect.sync(() => {
+      emit({ type });
+      try {
+        // oxlint-disable-next-line unicorn/require-post-message-target-origin -- BroadcastChannel has no target origin.
+        channel?.postMessage({ type });
+      } catch {
+        // Other tabs refresh when they next read the list.
+      }
+    });
   const db = () => database;
 
   const read = <A, E = never>(
@@ -615,7 +634,17 @@ const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
     durability: "default" | "strict" = "default",
   ) =>
     transaction<A, E>(db, stores, "readwrite", body, durability).pipe(
-      Effect.tap(() => changed),
+      Effect.tap(() => changed("changed")),
+    );
+  /**
+   * Write drafts only. Autosave does this often, so it tells listeners
+   * with a `sessions` event that skin lists can ignore.
+   */
+  const writeSessions = <A, E = never>(
+    body: (tx: IDBTransaction, fail: (error: E) => void) => () => A,
+  ) =>
+    transaction<A, E>(db, [SESSIONS], "readwrite", body).pipe(
+      Effect.tap(() => changed("sessions")),
     );
 
   /** Read a skin inside a transaction, then change it. */
@@ -873,17 +902,17 @@ const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         return () => {};
       }),
     saveSession: (session) =>
-      write([SESSIONS], (tx) => {
+      writeSessions((tx) => {
         tx.objectStore(SESSIONS).put(session);
         return () => {};
       }),
     deleteSession: (id) =>
-      write([SESSIONS], (tx) => {
+      writeSessions((tx) => {
         tx.objectStore(SESSIONS).delete(id);
         return () => {};
       }),
     continueSession: (fromId, next) =>
-      write<undefined, SkinNotFoundError>([SESSIONS], (tx, fail) => {
+      writeSessions<undefined, SkinNotFoundError>((tx, fail) => {
         const store = tx.objectStore(SESSIONS);
         onResult(store.getKey(fromId), (key) => {
           if (key === undefined) {
@@ -940,12 +969,21 @@ const makeSkinLibrary = Effect.fn("SkinLibrary.make")(function* (
         "strict",
       ),
     createFromSession: (input) =>
-      write(
+      write<StoredSkin, SkinNotFoundError>(
         [SKINS, SESSIONS],
-        (tx) => {
+        (tx, fail) => {
           const skin = create(input.skin, now());
-          tx.objectStore(SKINS).add(skin);
-          tx.objectStore(SESSIONS).delete(input.sessionId);
+          const sessions = tx.objectStore(SESSIONS);
+          const insert = () => {
+            tx.objectStore(SKINS).add(skin);
+            sessions.delete(input.sessionId);
+          };
+          if (!input.requireSession) insert();
+          else
+            onResult(sessions.getKey(input.sessionId), (key) => {
+              if (key === undefined) fail(notFound(input.sessionId));
+              else insert();
+            });
           return () => skin;
         },
         "strict",
@@ -983,8 +1021,9 @@ interface CopyPattern {
 
 function copyPattern(locale: Locale): CopyPattern {
   return {
-    first: catalogs[locale]["library.copyName"],
-    numbered: catalogs[locale]["library.copyNameNumbered"],
+    // Without placeholder values, the templates stay as they are.
+    first: translate(locale, "library.copyName"),
+    numbered: translate(locale, "library.copyNameNumbered"),
   };
 }
 
@@ -1015,8 +1054,8 @@ function parseCopyName(
 
 /**
  * Name a copy in the visitor's language: "Harbor" becomes "Harbor copy",
- * then "Harbor copy 2". A copy name from another language counts on in this
- * one. The suffix stays when a long name is shortened, so a copy never takes
+ * then "Harbor copy 2". A copy name from English or another loaded language
+ * counts on in this one. The suffix stays when a long name is shortened, so a copy never takes
  * the exact name of its source.
  */
 export function copyName(name: string, locale: Locale = "en") {

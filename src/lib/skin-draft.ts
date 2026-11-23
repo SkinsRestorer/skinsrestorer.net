@@ -45,15 +45,16 @@ function base64ToBytes(value: string) {
   return bytes;
 }
 
-/** Return browser storage, or undefined when the browser blocks it. */
+/**
+ * Return browser storage, or undefined when the browser blocks it. Full
+ * storage is still returned: reads work, and each write handles its error.
+ */
 export function browserStorage(
   kind: "localStorage" | "sessionStorage",
 ): KeyValueStorage | undefined {
   try {
     const storage = window[kind];
-    const probe = `${DRAFT_KEY}:probe`;
-    storage.setItem(probe, "1");
-    storage.removeItem(probe);
+    storage.getItem(DRAFT_KEY);
     return storage;
   } catch {
     return undefined;

@@ -7,7 +7,7 @@ import {
   type Translator,
 } from "@/lib/messages";
 
-import { posthog } from "posthog-js";
+import { analytics } from "@/lib/analytics";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { browserStorage, readDraft } from "../skin-draft";
@@ -83,7 +83,7 @@ export function downloadSkin(png: Blob, name: string) {
   setTimeout(() => {
     URL.revokeObjectURL(url);
   }, 0);
-  posthog.capture("skin_library_action", { action: "download" });
+  void analytics.capture("skin_library_action", { action: "download" });
 }
 
 const subscribeNever = () => () => {};
@@ -141,7 +141,8 @@ export function useSkinLibrary() {
           message: message("library.anotherTabUpdatedSkinsReloadPage"),
           reload: true,
         });
-      else reload();
+      // Draft writes do not change the skins this list shows.
+      else if (event.type === "changed") reload();
     });
     return () => {
       active = false;
@@ -157,7 +158,7 @@ export function useSkinLibrary() {
       if (!client) return undefined;
       try {
         const result = await run(client);
-        posthog.capture("skin_library_action", { action });
+        void analytics.capture("skin_library_action", { action });
         return result;
       } catch (cause) {
         toast.error(t.error(cause));

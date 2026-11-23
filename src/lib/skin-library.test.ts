@@ -9,7 +9,7 @@ import {
   migrateLegacyDraft,
   type LibraryClient,
 } from "./skin-library-client";
-import { DRAFT_KEY, type KeyValueStorage } from "./skin-draft";
+import { DRAFT_KEY } from "./skin-draft";
 import {
   LIBRARY_DB,
   prepareSkinContent,
@@ -26,6 +26,8 @@ import {
 } from "./skin-library";
 import type { SkinVariant } from "./skin";
 import { required } from "./utils";
+import { memoryStorage, mockFetch } from "@/test/fakes";
+import { legacyDraftJson } from "@/test/skins";
 
 const clients: LibraryClient[] = [];
 afterEach(async () => {
@@ -35,14 +37,18 @@ afterEach(async () => {
 /** Tabs in one browser share the factory and a broadcast bus. */
 function browser() {
   const factory = new IDBFactory();
-  const tabs = new Set<() => void>();
+  const tabs = new Set<(data: unknown) => void>();
   const channel = (): LibraryChannel => {
-    let listener: (() => void) | undefined;
-    const receive = () => listener?.();
+    let listener: ((event: { readonly data?: unknown }) => void) | undefined;
+    const receive = (data: unknown) => listener?.({ data });
     tabs.add(receive);
     return {
-      postMessage: () => {
-        for (const tab of tabs) if (tab !== receive) queueMicrotask(tab);
+      postMessage: (data) => {
+        for (const tab of tabs)
+          if (tab !== receive)
+            queueMicrotask(() => {
+              tab(data);
+            });
       },
       addEventListener: (_type, next) => {
         listener = next;
@@ -101,6 +107,12 @@ async function addSkin(
   );
 }
 
+/** Wait until queued microtasks, such as broadcasts to other tabs, have run. */
+const nextTask = () =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, 0);
+  });
+
 async function failure(promise: Promise<unknown>) {
   try {
     await promise;
@@ -116,7 +128,10 @@ test("prepares exact bytes, hashes, and canonical keys outside transactions", as
   assert.deepEqual(await bytes(content.png), await bytes(png));
   assert.match(content.hash, /^[0-9a-f]{64}$/u);
   assert.equal(content.variant, "classic");
-  assert.equal(content.key, `${content.pixelKey}:classic`);
+  // The model is part of the identity: the same pixels as slim are another skin.
+  const slim = await prepare(png, "slim");
+  assert.equal(slim.pixelKey, content.pixelKey);
+  assert.notEqual(slim.key, content.key);
   // The same pixels in another PNG encoding have the same canonical key.
   const document = createTemplate("classic");
   document.pixels.set([1, 2, 3, 255], pixelOffset(8, 8));
@@ -393,15 +408,72 @@ test("other tabs are told about committed changes", async () => {
   const stop = b.subscribe((event) => {
     events.push(event.type);
   });
-  await new Promise((resolve) => {
-    setTimeout(resolve, 0);
-  });
+  await nextTask();
   await addSkin(a, await prepare(await skinPng(1)));
-  await new Promise((resolve) => {
-    setTimeout(resolve, 0);
-  });
+  await nextTask();
   stop();
   assert.deepEqual(events, ["changed"]);
+});
+
+test("draft writes send a sessions event that skin lists can ignore", async () => {
+  const { tab } = browser();
+  const a = tab();
+  const b = tab();
+  await runIn(b, (library) => library.list);
+  const local: string[] = [];
+  const remote: string[] = [];
+  const stopA = a.subscribe((event) => {
+    local.push(event.type);
+  });
+  const stopB = b.subscribe((event) => {
+    remote.push(event.type);
+  });
+  await nextTask();
+  const { png } = await prepare(await skinPng(1));
+  const draft = {
+    id: "s1",
+    name: "Draft",
+    png,
+    variant: "classic" as const,
+    updatedAt: 1,
+  };
+  await runIn(a, (library) => library.saveSession(draft));
+  await runIn(a, (library) =>
+    library.continueSession("s1", { ...draft, id: "s2" }),
+  );
+  await runIn(a, (library) => library.deleteSession("s2"));
+  await nextTask();
+  stopA();
+  stopB();
+  assert.deepEqual(local, ["sessions", "sessions", "sessions"]);
+  assert.deepEqual(remote, ["sessions", "sessions", "sessions"]);
+});
+
+test("a message from an older page counts as a change to skins", async () => {
+  const events: string[] = [];
+  let deliver: ((event: { readonly data?: unknown }) => void) | undefined;
+  const client = createLibraryClient(
+    skinLibraryLayer({
+      factory: new IDBFactory(),
+      channel: () => ({
+        postMessage: () => {},
+        addEventListener: (_type, next) => {
+          deliver = next;
+        },
+        close: () => {},
+      }),
+    }),
+  );
+  clients.push(client);
+  await runIn(client, (library) => library.list);
+  const stop = client.subscribe((event) => {
+    events.push(event.type);
+  });
+  await nextTask();
+  deliver?.({ data: undefined });
+  deliver?.({ data: { type: "sessions" } });
+  stop();
+  assert.deepEqual(events, ["changed", "sessions"]);
 });
 
 test("damaged records are reported and can be removed, never overwritten", async () => {
@@ -456,7 +528,7 @@ test("unavailable, newer, and full storage fail with typed errors", async () => 
 
   const { factory, tab } = browser();
   await new Promise<void>((resolve) => {
-    const open = factory.open(LIBRARY_DB, 5);
+    const open = factory.open(LIBRARY_DB, 1000);
     open.onsuccess = () => {
       open.result.close();
       resolve();
@@ -498,32 +570,12 @@ test("an interrupted write aborts its transaction", async () => {
   assert.equal(listing.skins.length, 0);
 });
 
-function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
-  const data = new Map<string, string>();
-  return {
-    data,
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => void data.set(key, value),
-    removeItem: (key) => void data.delete(key),
-  };
-}
-
 const recovered = {
   name: (updatedAt: number) => `Borrador recuperado ${updatedAt}`,
 };
 
-function legacyDraft(variant: SkinVariant = "slim") {
-  const document = createTemplate("classic");
-  const png = encodePngSync(document.pixels, 64, 64);
-  let binary = "";
-  for (const byte of png) binary += String.fromCodePoint(byte);
-  return JSON.stringify({
-    version: 1,
-    variant,
-    png: btoa(binary),
-    updatedAt: 1000,
-  });
-}
+const legacyDraft = (variant: SkinVariant = "slim") =>
+  legacyDraftJson({ pixels: createTemplate("classic").pixels, variant }, 1000);
 
 test("the old editor draft migrates once, even from two tabs", async () => {
   const { tab } = browser();
@@ -620,12 +672,7 @@ test("a failed migration keeps the old draft, and damaged drafts stay", async ()
 });
 
 test("library work makes no network requests", async () => {
-  const original = globalThis.fetch;
-  let calls = 0;
-  globalThis.fetch = Object.assign(() => {
-    calls++;
-    return Promise.reject(new Error("offline"));
-  }, original);
+  const server = mockFetch(() => Promise.reject(new Error("offline")));
   try {
     const { tab } = browser();
     const client = tab();
@@ -636,9 +683,9 @@ test("library work makes no network requests", async () => {
     await runIn(client, (library) => library.remove(skin.id));
     await runIn(client, (library) => library.list);
   } finally {
-    globalThis.fetch = original;
+    server.restore();
   }
-  assert.equal(calls, 0);
+  assert.deepEqual(server.calls, []);
 });
 
 /** Wrap a factory so every write fails like a full disk. */

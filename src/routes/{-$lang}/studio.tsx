@@ -3,7 +3,7 @@ import { HomeLayout } from "@/components/home-layout";
 import { SkinStudio } from "@/components/studio/skin-studio";
 import { isLocale } from "@/lib/i18n";
 import { getPageHead } from "@/lib/seo";
-import { studioSearch, type StudioSearch } from "@/lib/studio";
+import { studioSearch, type StudioSearch } from "@/lib/studio-search";
 
 const noSearch: StudioSearch = {};
 

@@ -23,7 +23,7 @@ const entry = (id = "forest-ranger", model?: string, url = texture) => ({
     }),
   ),
 });
-const catalog = (...skins: ReturnType<typeof entry>[]) => ({
+const catalog = (...skins: unknown[]) => ({
   version: 1,
   skins,
 });
@@ -61,6 +61,11 @@ const invalidEntries = [
   ),
   { ...entry("blank-name"), skinName: " " },
   { ...entry("long-name"), skinName: "x".repeat(121) },
+  { ...entry("null-name"), skinName: null },
+  { skinId: "no-signature", skinName: "Ranger", value: entry().value },
+  { ...entry("numeric-id"), skinId: 42 },
+  null,
+  "forest-ranger",
 ];
 
 test("invalid and unsafe entries are skipped and counted, and the rest stay", () => {
@@ -144,7 +149,14 @@ test("catalog requests are bounded credential-free GETs with no redirects", asyn
   assert.equal(result.value.length, 1);
   assert.equal(requests, 1);
   const partial = await run(() =>
-    Promise.resolve(Response.json(catalog(entry(), entry("../other")))),
+    Promise.resolve(
+      Response.json(
+        catalog(entry(), entry("../other"), {
+          ...entry("null-name"),
+          skinName: null,
+        }),
+      ),
+    ),
   );
   assert.ok(Exit.isSuccess(partial));
   assert.equal(partial.value.length, 1);

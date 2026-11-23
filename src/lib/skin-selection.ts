@@ -132,8 +132,9 @@ export class SkinSelectionStore {
   /** Watch the library for changes to the selected skin. */
   connect() {
     this.stopLibrary?.();
-    this.stopLibrary = this.deps.library?.subscribe(() => {
-      this.refresh();
+    this.stopLibrary = this.deps.library?.subscribe((event) => {
+      // Draft writes do not change the selected skin.
+      if (event.type !== "sessions") this.refresh();
     });
     return () => {
       this.dispose();

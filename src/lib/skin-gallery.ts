@@ -1,14 +1,12 @@
-import {
-  messageFields,
-  messageKeySchema,
-  messageValuesSchema,
-} from "./messages";
+import { messageFields } from "./messages";
+import { messageKeySchema, messageValuesSchema } from "./messages/schema";
 import { Effect, Schema } from "effect";
 import { readHttpJson } from "./effect-http";
 import { localizePath, type Locale } from "./i18n";
 import type { SkinVariant } from "./skin";
 import { parseTextureReference } from "./skin-texture";
 import type { StudioPurpose } from "./studio";
+import { isGalleryId } from "./studio-search";
 
 export const GALLERY_URL = "https://cool-skins.skinsrestorer.net/list.json";
 
@@ -29,17 +27,23 @@ class GalleryError extends Schema.TaggedError<
   messageValues: Schema.optional(messageValuesSchema),
 }) {}
 
+/**
+ * The catalog shape. Entries are decoded one at a time, so one entry with a
+ * missing or wrong field does not fail the whole gallery.
+ */
 const catalogSchema = Schema.Struct({
   version: Schema.Literal(1),
-  skins: Schema.Array(
-    Schema.Struct({
-      skinId: Schema.String,
-      skinName: Schema.String,
-      value: Schema.String,
-      signature: Schema.String,
-    }),
-  ),
+  skins: Schema.Array(Schema.Unknown),
 });
+
+const decodeEntry = Schema.decodeUnknownOption(
+  Schema.Struct({
+    skinId: Schema.String,
+    skinName: Schema.String,
+    value: Schema.String,
+    signature: Schema.String,
+  }),
+);
 
 // The base64 `value` of a gallery entry: Minecraft's textures property.
 const decodeTextures = Schema.decodeUnknownSync(
@@ -57,14 +61,6 @@ const decodeTextures = Schema.decodeUnknownSync(
   ),
 );
 
-export function isGalleryId(value: unknown): value is string {
-  return (
-    typeof value === "string" &&
-    value.length <= 100 &&
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(value)
-  );
-}
-
 export interface GalleryCatalog {
   readonly skins: readonly GallerySkin[];
   /** Entries left out because they were invalid or unsafe. */
@@ -76,10 +72,11 @@ export function parseGalleryCatalog(input: unknown): GalleryCatalog {
   return galleryEntries(Schema.decodeUnknownSync(catalogSchema)(input));
 }
 
-type CatalogEntry = (typeof catalogSchema.Type)["skins"][number];
-
 /** One checked entry, or undefined when it is invalid or unsafe. */
-function galleryEntry(skin: CatalogEntry): GallerySkin | undefined {
+function galleryEntry(input: unknown): GallerySkin | undefined {
+  const decoded = decodeEntry(input);
+  if (decoded._tag === "None") return undefined;
+  const skin = decoded.value;
   if (
     !isGalleryId(skin.skinId) ||
     !skin.skinName.trim() ||
@@ -116,8 +113,8 @@ function galleryEntries(catalog: typeof catalogSchema.Type): GalleryCatalog {
   const ids = new Set<string>();
   const skins: GallerySkin[] = [];
   for (const entry of catalog.skins) {
-    const skin = ids.has(entry.skinId) ? undefined : galleryEntry(entry);
-    if (!skin) continue;
+    const skin = galleryEntry(entry);
+    if (!skin || ids.has(skin.id)) continue;
     ids.add(skin.id);
     skins.push(skin);
   }

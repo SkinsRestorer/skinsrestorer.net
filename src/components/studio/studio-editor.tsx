@@ -13,7 +13,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { posthog } from "posthog-js";
+import { analytics } from "@/lib/analytics";
 import {
   useCallback,
   useEffect,
@@ -99,7 +99,7 @@ const MAX_ZOOM = 24;
 
 type Confirm =
   | { readonly kind: "changed" | "removed" | "leave" }
-  | { readonly kind: "failed"; readonly message: Message };
+  | { readonly kind: "failed" | "draftFailed"; readonly message: Message };
 
 // Shortcuts work on the whole page, including popups, but not while the
 // user types in a field or another control already handled the key.
@@ -163,6 +163,7 @@ export function StudioEditor(props: {
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   const textureFrame = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const saveButton = useRef<HTMLButtonElement>(null);
   // The control that opened the editor unmounts: start keyboard users here.
   useEffect(() => {
     heading.current?.focus();
@@ -334,11 +335,17 @@ export function StudioEditor(props: {
           if (command === "shade" && tool === "shade") {
             const next = shade === "lighten" ? "darken" : "lighten";
             setShade(next);
-            announce("common.shade", t(`editor.${next}`));
+            announce(
+              "common.shade",
+              t(next === "lighten" ? "editor.lighten" : "editor.darken"),
+            );
           } else if (command === "fill" && tool === "fill") {
             const next = fillScope === "face" ? "everywhere" : "face";
             setFillScope(next);
-            announce("editor.fillArea", t(`editor.${next}`));
+            announce(
+              "editor.fillArea",
+              t(next === "face" ? "editor.face" : "editor.everywhere"),
+            );
           } else {
             changeTool(command);
             announce("editor.tool", t(toolLabels[command]));
@@ -430,7 +437,7 @@ export function StudioEditor(props: {
     try {
       const bytes = await exportSkinPng(store.pixels);
       downloadSkin(new Blob([bytes], { type: "image/png" }), work.target.name);
-      posthog.capture("editor_exported_png");
+      void analytics.capture("editor_exported_png");
     } catch (cause) {
       toast.error(
         t("studio.pngCouldNotMadeError", {
@@ -442,7 +449,7 @@ export function StudioEditor(props: {
 
   const handle = (result: SaveResult, kind: "save" | "copy") => {
     if (result.kind === "saved") {
-      posthog.capture("editor_saved", { kind, kept: !!result.skin });
+      void analytics.capture("editor_saved", { kind, kept: !!result.skin });
       exited.current = true;
       props.onSaved(result);
       return;
@@ -472,8 +479,17 @@ export function StudioEditor(props: {
     leave();
   };
   const keepDraftAndLeave = async () => {
-    await session.flush();
-    leave();
+    if (await session.flush()) {
+      leave();
+      return;
+    }
+    // The draft was not written, for example because storage is full.
+    // Stay open so the work is not lost, and offer the PNG instead.
+    const { drafts } = session.getSnapshot();
+    setConfirm({
+      kind: "draftFailed",
+      message: drafts.kind === "off" ? drafts.message : "",
+    });
   };
 
   const convertArms = () => {
@@ -726,6 +742,7 @@ export function StudioEditor(props: {
                 className="pointer-coarse:size-9"
                 aria-label={t("common.undo")}
                 disabled={!snapshot.canUndo}
+                focusableWhenDisabled
                 onClick={() => {
                   store.undo();
                 }}
@@ -738,6 +755,7 @@ export function StudioEditor(props: {
                 className="pointer-coarse:size-9"
                 aria-label={t("common.redo")}
                 disabled={!snapshot.canRedo}
+                focusableWhenDisabled
                 onClick={() => {
                   store.redo();
                 }}
@@ -747,7 +765,11 @@ export function StudioEditor(props: {
             </span>
           }
         />
-        <Button disabled={work.busy} onClick={() => void save()}>
+        <Button
+          ref={saveButton}
+          disabled={work.busy}
+          onClick={() => void save()}
+        >
           {props.isNew ? t("common.saveLibrary") : t("studio.saveChanges")}
         </Button>
         <div className="flex flex-wrap gap-2">
@@ -774,12 +796,13 @@ export function StudioEditor(props: {
           issues={issues}
           highlighted={highlight}
           onHighlight={setHighlight}
+          onAllFixed={() => saveButton.current?.focus()}
           onRepair={(id) => {
             store.apply((pixels, builder) => {
               repairSkin(id, pixels, store.getSnapshot().variant, builder);
             });
             setHighlight(null);
-            posthog.capture("editor_check_fix_applied", { issue: id });
+            void analytics.capture("editor_check_fix_applied", { issue: id });
           }}
           onVariant={(variant) => {
             store.setVariant(variant);
@@ -861,6 +884,10 @@ export function StudioEditor(props: {
                 setConfirm(null);
                 void keepDraftAndLeave();
               }}
+              onDownload={() => {
+                setConfirm(null);
+                void download();
+              }}
             />
           )}
         </AlertDialogContent>
@@ -877,9 +904,14 @@ function ConfirmBody(props: {
   onUnkept: () => void;
   onDiscard: () => void;
   onKeepDraft: () => void;
+  onDownload: () => void;
 }) {
   const t = useT();
   const { confirm } = props;
+  const reason =
+    confirm.kind === "failed" || confirm.kind === "draftFailed"
+      ? t.message(confirm.message)
+      : "";
   const text = {
     changed: [
       t("studio.skinChangedAnotherTab"),
@@ -888,9 +920,11 @@ function ConfirmBody(props: {
     removed: [t("studio.skinWasRemoved"), t("studio.saveWorkCopyKeep")],
     failed: [
       t("studio.skinCouldNotSaved"),
-      confirm.kind === "failed"
-        ? `${t.message(confirm.message)} ${t("studio.youCanStillUseWithoutSaving")}`
-        : "",
+      `${reason} ${t("studio.youCanStillUseWithoutSaving")}`,
+    ],
+    draftFailed: [
+      t("studio.draftNotKept"),
+      `${reason} ${t("studio.downloadPngKeepWork")}`.trim(),
     ],
     leave: [
       t("studio.closeEditor"),
@@ -907,7 +941,7 @@ function ConfirmBody(props: {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>
-          {confirm.kind === "leave"
+          {confirm.kind === "leave" || confirm.kind === "draftFailed"
             ? t("studio.keepEditing")
             : t("common.cancel")}
         </AlertDialogCancel>
@@ -927,6 +961,12 @@ function ConfirmBody(props: {
         {confirm.kind === "leave" && (
           <Button variant="destructive" onClick={props.onDiscard}>
             {t("studio.discardChanges")}
+          </Button>
+        )}
+        {confirm.kind === "draftFailed" && (
+          <Button onClick={props.onDownload}>
+            <Download data-icon="inline-start" />
+            {t("common.downloadPng")}
           </Button>
         )}
         {confirm.kind === "leave" && !props.draftsOff && (

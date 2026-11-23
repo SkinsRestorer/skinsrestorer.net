@@ -233,7 +233,14 @@ test("a late library write links only the selection that started it", async () =
   await until(() => store.getSnapshot().selection?.status === "ready");
   release();
   await until(() => store.getSnapshot().selection?.keep.kind === "kept");
-  const listing = await client.run(withLibrary((l) => l.list));
+  // The first write can still be running once the second selection is kept.
+  let listing = await client.run(withLibrary((l) => l.list));
+  for (let i = 0; i < 200 && listing.skins.length < 2; i++) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1);
+    });
+    listing = await client.run(withLibrary((l) => l.list));
+  }
   const second = required(
     listing.skins.find((skin) => skin.name === "second"),
     "find result",

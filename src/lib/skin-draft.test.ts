@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { encodePngSync } from "./png";
 import { createTemplate, importSkinPng, pixelOffset } from "./skin-document";
 import type { SkinDocument } from "./skin-document";
 import {
-  bytesToBase64,
+  browserStorage,
   DRAFT_KEY,
   discardDraft,
   HANDOFF_KEY,
@@ -14,16 +13,8 @@ import {
   type KeyValueStorage,
 } from "./skin-draft";
 import { required } from "./utils";
-
-function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
-  const data = new Map<string, string>();
-  return {
-    data,
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => void data.set(key, value),
-    removeItem: (key) => void data.delete(key),
-  };
-}
+import { blockedStorage, memoryStorage } from "@/test/fakes";
+import { legacyDraftJson } from "@/test/skins";
 
 /** Write a draft as the earlier editor version did. */
 function storeDraft(
@@ -31,28 +22,8 @@ function storeDraft(
   document: SkinDocument,
   updatedAt = Date.now(),
 ) {
-  storage.setItem(
-    DRAFT_KEY,
-    JSON.stringify({
-      version: 1,
-      variant: document.variant,
-      png: bytesToBase64(encodePngSync(document.pixels, 64, 64)),
-      updatedAt,
-    }),
-  );
+  storage.setItem(DRAFT_KEY, legacyDraftJson(document, updatedAt));
 }
-
-const throwing: KeyValueStorage = {
-  getItem: () => {
-    throw new DOMException("blocked", "SecurityError");
-  },
-  setItem: () => {
-    throw new DOMException("blocked", "SecurityError");
-  },
-  removeItem: () => {
-    throw new DOMException("blocked", "SecurityError");
-  },
-};
 
 test("an earlier editor draft restores the same pixels and the chosen model", async () => {
   const storage = memoryStorage();
@@ -86,9 +57,9 @@ test("damaged, newer, and blocked storage are reported without throwing", async 
   assert.equal((await readDraft(storage)).status, "corrupt");
   storage.data.set(DRAFT_KEY, JSON.stringify({ version: 2 }));
   assert.equal((await readDraft(storage)).status, "newer");
-  assert.equal((await readDraft(throwing)).status, "unavailable");
+  assert.equal((await readDraft(blockedStorage)).status, "unavailable");
   assert.equal((await readDraft(undefined)).status, "unavailable");
-  assert.equal(discardDraft(throwing), false);
+  assert.equal(discardDraft(blockedStorage), false);
 });
 
 test("a handoff is a stable snapshot with its explicit model", async () => {
@@ -124,6 +95,27 @@ test("a handoff survives a page reload through storage and works without storage
   storage.data.set(HANDOFF_KEY, stored);
   assert.equal((await readHandoff(storage, "reload"))?.variant, "classic");
   // Blocked storage still hands off through memory for client navigation.
-  await writeHandoff(throwing, createTemplate("slim"), "memory");
-  assert.equal((await readHandoff(throwing, "memory"))?.variant, "slim");
+  await writeHandoff(blockedStorage, createTemplate("slim"), "memory");
+  assert.equal((await readHandoff(blockedStorage, "memory"))?.variant, "slim");
+});
+
+test("full storage stays readable, and blocked storage is reported", async () => {
+  const full = memoryStorage();
+  storeDraft(full, createTemplate("slim"), 5);
+  full.setItem = () => {
+    throw new DOMException(
+      "The quota has been exceeded.",
+      "QuotaExceededError",
+    );
+  };
+  const scope = globalThis as { window?: unknown };
+  const previous = scope.window;
+  try {
+    scope.window = { localStorage: full, sessionStorage: blockedStorage };
+    const storage = required(browserStorage("localStorage"), "storage");
+    assert.equal((await readDraft(storage)).status, "found");
+    assert.equal(browserStorage("sessionStorage"), undefined);
+  } finally {
+    scope.window = previous;
+  }
 });
