@@ -10,7 +10,16 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Console, Context, Effect, Layer, Schema } from "effect";
+import {
+  Cause,
+  Console,
+  Context,
+  Effect,
+  Exit,
+  Fiber,
+  Layer,
+  Schema,
+} from "effect";
 import type { HttpClient } from "../../src/lib/effect-http";
 import { httpClientLayer } from "../../src/lib/effect-http";
 
@@ -105,6 +114,29 @@ export function withTemporaryDirectory<A, E, R>(
   );
 }
 
+/**
+ * Windows does not kill grandchildren with their parent, so a killed
+ * `cmd.exe` would leave the JVM it started running.
+ */
+async function killTree(pid: number | undefined, kill: () => void) {
+  if (process.platform !== "win32" || pid === undefined) {
+    kill();
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const taskkill = spawn("taskkill", ["/pid", String(pid), "/T", "/F"], {
+      stdio: "ignore",
+    });
+    taskkill.once("error", () => {
+      kill();
+      resolve();
+    });
+    taskkill.once("close", () => {
+      resolve();
+    });
+  });
+}
+
 /** Kill and reap an interrupted compiler before its temporary files are removed. */
 export const runChild = Effect.fn("Docs.runChild")(function* (
   command: string,
@@ -132,23 +164,52 @@ export const runChild = Effect.fn("Docs.runChild")(function* (
     ({ child, exit }) =>
       Effect.promise(async () => {
         if (child.exitCode === null && child.signalCode === null)
-          child.kill("SIGKILL");
+          await killTree(child.pid, () => {
+            child.kill("SIGKILL");
+          });
         await exit.catch(() => {});
       }),
   );
 });
 
+const interruptSignals = ["SIGINT", "SIGTERM"] as const;
+const signalExitCodes = { SIGINT: 130, SIGTERM: 143 } as const;
+
+/**
+ * Run a script's main program. SIGINT and SIGTERM interrupt the program and
+ * wait for its finalizers, so temporary directories and child processes are
+ * cleaned up before the process exits. A second signal exits immediately.
+ */
 export async function runTool<A, E>(
   program: Effect.Effect<A, E, ToolFiles | HttpClient>,
   report: (value: A) => void,
 ) {
-  try {
-    report(
-      await Effect.runPromise(
-        program.pipe(Effect.provide([toolFilesLayer, httpClientLayer])),
-      ),
-    );
-  } catch (cause) {
+  const fiber = Effect.runFork(
+    program.pipe(Effect.provide([toolFilesLayer, httpClientLayer])),
+  );
+  let received: (typeof interruptSignals)[number] | undefined;
+  const handlers = interruptSignals.map((signal) => {
+    const handler = () => {
+      if (received) {
+        process.exit(signalExitCodes[signal]);
+      }
+      received = signal;
+      Effect.runFork(Fiber.interrupt(fiber));
+    };
+    process.on(signal, handler);
+    return () => {
+      process.off(signal, handler);
+    };
+  });
+  const exit = await Effect.runPromise(Fiber.await(fiber));
+  for (const remove of handlers) remove();
+
+  if (Exit.isSuccess(exit)) {
+    report(exit.value);
+  } else if (received && Cause.hasInterruptsOnly(exit.cause)) {
+    process.exitCode = signalExitCodes[received];
+  } else {
+    const cause = Cause.squash(exit.cause);
     await Effect.runPromise(
       Console.error(cause instanceof Error ? cause.message : String(cause)),
     );

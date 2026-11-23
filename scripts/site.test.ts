@@ -1,14 +1,20 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readdirSync } from "node:fs";
 import { test } from "node:test";
 import {
   createDocsSearchClient,
+  docsSearchUrl,
   maxSearchPages,
 } from "../src/lib/docs-search-client";
+import { docsTreeUrl } from "../src/lib/docs-tree";
 import { isLocale } from "../src/lib/i18n";
 import { localizedSitePages } from "../src/lib/site-pages";
+import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
 import { fromJSON, type SerovalJSON } from "seroval";
+import { docsMetadataFunctionId } from "./static-docs";
+
+// Run against `bun run preview` with `bun run test:site` after building.
+const baseUrl = process.env["SITE_TEST_URL"];
 
 function isSerovalJson(value: unknown): value is SerovalJSON {
   return (
@@ -24,8 +30,56 @@ function isSerovalJson(value: unknown): value is SerovalJSON {
   );
 }
 
-// Run against `bun run preview` with `bun run test:site` after building.
-const baseUrl = process.env["SITE_TEST_URL"];
+/**
+ * Ask TanStack's own static middleware client which cache file a production
+ * browser requests, instead of copying its private cache-key formula.
+ */
+async function staticDocsMetadataPath(data: string[]) {
+  const client = staticFunctionMiddleware.options.client;
+  assert.ok(client, "Static function middleware has no client handler");
+  const globals = globalThis as { document?: unknown };
+  const saved = {
+    fetch: globalThis.fetch,
+    document: globals.document,
+    environment: process.env["NODE_ENV"],
+  };
+  // Stop at the request. Decoding the response needs the Start runtime.
+  const stop = new Error("Captured static cache request");
+  let captured: string | undefined;
+  globalThis.fetch = Object.assign(
+    (input: string | URL | Request) => {
+      captured = input instanceof Request ? input.url : String(input);
+      return Promise.reject(stop);
+    },
+    { preconnect: saved.fetch.preconnect },
+  );
+  // The client reads the static cache only in a production browser.
+  globals.document = {};
+  process.env["NODE_ENV"] = "production";
+  try {
+    // The route validator types this data, but the shared middleware type
+    // does not see it, so call the client handler untyped.
+    await Reflect.apply(client, undefined, [
+      {
+        data,
+        context: {},
+        serverFnMeta: { id: docsMetadataFunctionId },
+        next: () => {
+          throw new Error("Static middleware skipped the cache");
+        },
+      },
+    ]);
+  } catch (error) {
+    if (error === stop && captured) return captured;
+    throw error;
+  } finally {
+    globalThis.fetch = saved.fetch;
+    globals.document = saved.document;
+    if (saved.environment === undefined) delete process.env["NODE_ENV"];
+    else process.env["NODE_ENV"] = saved.environment;
+  }
+  throw new Error("Static middleware did not request the cache");
+}
 
 test(
   "production routes preserve pages, metadata, and public endpoints",
@@ -209,7 +263,7 @@ test(
     );
     assert.ok(!sitemap.includes(".mdx</loc>"));
 
-    const search = await request("/api/search");
+    const search = await request(docsSearchUrl("en"));
     assert.ok(search.headers.has("etag"));
     const searchIndex: unknown = await search.json();
     assert.ok(
@@ -221,15 +275,11 @@ test(
         searchIndex.data !== null,
     );
     assert.equal(searchIndex.type, "i18n");
-    assert.deepEqual(Object.keys(searchIndex.data).toSorted(), [
-      "en",
-      "es",
-      "pt-BR",
-      "ru",
-    ]);
+    // Each locale has its own index file.
+    assert.deepEqual(Object.keys(searchIndex.data), ["en"]);
     const client = createDocsSearchClient(
       "en",
-      new URL("/api/search", baseUrl).href,
+      new URL(docsSearchUrl("en"), baseUrl).href,
     );
     const results = await client.search("skin");
     const resultPages = new Set(
@@ -245,7 +295,7 @@ test(
       assert.ok(isLocale(locale));
       const localizedClient = createDocsSearchClient(
         locale,
-        new URL("/api/search", baseUrl).href,
+        new URL(docsSearchUrl(locale), baseUrl).href,
       );
       const matches = await localizedClient.search(query);
       assert.ok(matches.length > 0, `Search must find ${locale} pages`);
@@ -257,26 +307,27 @@ test(
     assert.equal(search.headers.get("x-frame-options"), "SAMEORIGIN");
 
     for (const slugs of [[], ["installation"]]) {
-      const key = createHash("sha1")
-        .update(
-          `docs-metadata__${JSON.stringify(["en", ...slugs]).replaceAll(/[/\\?%*:|"<>]/gu, "-")}`,
-        )
-        .digest("hex");
-      const response = await request(`/__tsr/staticServerFnCache/${key}.json`);
+      const response = await request(
+        await staticDocsMetadataPath(["en", ...slugs]),
+      );
       assert.equal(response.status, 200);
       assert.ok(response.headers.has("etag"));
       const payload: unknown = await response.json();
       assert.ok(isSerovalJson(payload));
       const metadata = fromJSON<{
-        result: { url: string; title: string; pageTree: unknown };
-      }>(payload);
+        result: { url: string; title: string; pageTree?: unknown };
+      }>(payload).result;
       assert.equal(
-        metadata.result.url,
+        metadata.url,
         `/docs${slugs.length > 0 ? `/${slugs.join("/")}` : ""}`,
       );
-      assert.ok(metadata.result.title);
-      assert.ok(metadata.result.pageTree);
+      assert.ok(metadata.title);
+      // The navigation tree has its own file per locale.
+      assert.equal(metadata.pageTree, undefined);
     }
+    const tree = await request(docsTreeUrl("ru"));
+    assert.equal(tree.status, 200);
+    assert.ok(JSON.stringify(await tree.json()).includes("/ru/docs"));
 
     const embed = await request("/discord-embed/installation");
     assert.equal(embed.status, 200);

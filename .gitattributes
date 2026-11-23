@@ -1,0 +1,14 @@
+# Keep LF in every checkout. Source hashes, docs extraction, and formatters
+# expect LF, including on Windows with core.autocrlf enabled.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

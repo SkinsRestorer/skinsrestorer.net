@@ -145,8 +145,9 @@ export function staticDocsMetadata(): Plugin {
                               `Cannot snapshot docs metadata for /${path}`,
                             );
                           }
-                          // Match the cache key of the pinned staticFunctionMiddleware.
+                          // Match the private cache key of the pinned staticFunctionMiddleware.
                           // Slugs are string arrays, so no object-key sorting is needed.
+                          // test:site requests the URL the library's client builds.
                           const hash = encodeJson(data)
                             .replaceAll(/[/\\?%*:|"<>]/gu, "-")
                             .replaceAll(/\s+/gu, "_");

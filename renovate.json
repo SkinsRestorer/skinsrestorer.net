@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     "group:allNonMajor",
     ":semanticCommits",
     "helpers:pinGitHubActionDigests"
@@ -16,6 +16,16 @@
       "description": "Keep the Three runtime and types compatible with skinview3d 3.x.",
       "matchPackageNames": ["three", "@types/three"],
       "allowedVersions": "<0.157"
+    },
+    {
+      "description": "The static docs build copies the private cache-key format of the static server function middleware. Keep them out of the automerged group, review them, and run the production site tests before merging.",
+      "matchPackageNames": [
+        "@tanstack/start-static-server-functions",
+        "@tanstack/react-start",
+        "seroval"
+      ],
+      "groupName": "TanStack Start static functions",
+      "automerge": false
     }
   ]
 }

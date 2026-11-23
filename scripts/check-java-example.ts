@@ -8,6 +8,13 @@ import {
   withTemporaryDirectory,
 } from "./lib/runtime";
 
+const mavenArgs = ["--batch-mode", "--no-transfer-progress", "package"];
+// Windows installs Maven as mvn.cmd, which Node can only start through cmd.exe.
+const mavenCommand: [string, string[]] =
+  process.platform === "win32"
+    ? ["cmd.exe", ["/d", "/s", "/c", "mvn.cmd", ...mavenArgs]]
+    : ["mvn", mavenArgs];
+
 /** Compile exactly the complete files readers copy, against published APIs. */
 export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
   function* () {
@@ -23,7 +30,7 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
           "src/main/java/example/ExampleSkinPlugin.java",
         ]);
         for (const match of source.matchAll(
-          /```(?:xml|yaml|java) title="([^"]+)"\n([\s\S]*?)\n```/gu,
+          /```(?:xml|yaml|java) title="([^"]+)"\r?\n([\s\S]*?)\r?\n```/gu,
         )) {
           const [, name = "", contents = ""] = match;
           yield* toolTry("validate example files", () => {
@@ -40,11 +47,7 @@ export const checkJavaExample = Effect.fn("Docs.checkJavaExample")(
               `Missing example files: ${[...expected].join(", ")}`,
             );
         });
-        const status = yield* runChild(
-          "mvn",
-          ["--batch-mode", "--no-transfer-progress", "package"],
-          directory,
-        );
+        const status = yield* runChild(...mavenCommand, directory);
         yield* toolTry("compile Java example", () => {
           if (status !== 0)
             throw new Error(

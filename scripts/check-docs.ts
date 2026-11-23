@@ -24,9 +24,11 @@ import { remarkDocsStringify } from "../src/lib/docs-stringify";
 import { parseYaml, validateConfig } from "../src/lib/docs-validation";
 
 const root = path.resolve("content/docs");
+const inventoryFile = "documentation/verified-release.json";
+const documentFilePattern = /\.mdx?$/u;
 
 function parseDocument(
-  parser: ReturnType<typeof createParser>,
+  parsers: ReturnType<typeof createParsers>,
   file: string,
   raw: string,
 ) {
@@ -44,8 +46,13 @@ function parseDocument(
   }
   if (body.includes("—"))
     throw new Error("Replace em dashes with plain punctuation");
-  const tree = parser.parse(body);
-  const data = structure(body, [remarkMdx, remarkGfm, remarkDocsStringify]);
+  // Plain `.md` pages are not MDX, so `<` and `{` stay literal text.
+  const mdx = file.endsWith(".mdx");
+  const tree = (mdx ? parsers.mdx : parsers.md).parse(body);
+  const data = structure(
+    body,
+    mdx ? [remarkMdx, remarkGfm, remarkDocsStringify] : [remarkGfm],
+  );
   const relative = path.relative(root, file).replaceAll(path.sep, "/");
   const info = docFileInfo(relative);
   return {
@@ -59,8 +66,11 @@ function parseDocument(
   };
 }
 
-function createParser() {
-  return remark().use(remarkMdx).use(remarkGfm);
+function createParsers() {
+  return {
+    md: remark().use(remarkGfm),
+    mdx: remark().use(remarkMdx).use(remarkGfm),
+  };
 }
 function walk(node: Nodes, visitor: (node: Nodes) => void) {
   visitor(node);
@@ -68,6 +78,81 @@ function walk(node: Nodes, visitor: (node: Nodes) => void) {
     for (const child of node.children) walk(child, visitor);
   }
 }
+
+const sourceTranspiler = new Bun.Transpiler({
+  loader: "tsx",
+  minifyWhitespace: true,
+  trimUnusedImports: false,
+  // Bun otherwise inlines the current NODE_ENV and drops the other branch, so
+  // the hash would depend on the shell and miss changes to that branch.
+  define: { "process.env.NODE_ENV": "process.env.NODE_ENV" },
+  tsconfig: { compilerOptions: { jsx: "react-jsx" } },
+});
+
+/**
+ * Hash the runtime code of a website source, not its text. Transpiling drops
+ * comments, types, and formatting, so lint and format changes keep the hash.
+ */
+export function websiteSourceHash(source: string) {
+  const code = sourceTranspiler
+    .transformSync(source.replaceAll("\r\n", "\n"))
+    // Bun suffixes its JSX runtime aliases with a build-specific tag.
+    .replaceAll(/\b(jsxs?|jsxDEV|Fragment)_[\da-z]+\b/gu, "$1");
+  return createHash("sha256").update(code).digest("hex");
+}
+
+const websiteSourceHashes = Effect.fn("Docs.websiteSourceHashes")(function* () {
+  const fs = yield* ToolFiles;
+  return yield* Effect.forEach(
+    Object.keys(release.websiteSources),
+    (file) =>
+      Effect.flatMap(fs.readText(file), (source) =>
+        toolTry(
+          `normalize ${file}`,
+          () => [file, websiteSourceHash(source)] as const,
+        ),
+      ),
+    { concurrency: 8 },
+  );
+});
+
+const changedWebsiteSources = (
+  hashes: readonly (readonly [string, string])[],
+) => {
+  const reviewed: Record<string, string> = release.websiteSources;
+  return hashes
+    .filter(([file, hash]) => reviewed[file] !== hash)
+    .map(([file]) => file);
+};
+
+/** List website sources that changed since the last guide review, or accept them. */
+export const reviewWebsiteSources = Effect.fn("Docs.reviewWebsiteSources")(
+  function* (accept: boolean) {
+    const hashes = yield* websiteSourceHashes();
+    const changed = changedWebsiteSources(hashes);
+    if (accept && changed.length > 0) {
+      const fs = yield* ToolFiles;
+      const raw = yield* fs.readText(inventoryFile);
+      const reviewed: Record<string, string> = release.websiteSources;
+      // Replace only the changed hashes, so the formatted file keeps its layout.
+      const updated = yield* toolTry("update website source inventory", () =>
+        hashes.reduce((text, [file, hash]) => {
+          const previous = reviewed[file];
+          if (previous === hash) return text;
+          const entry = `${encodeJson(file)}: ${encodeJson(previous)}`;
+          if (text.split(entry).length !== 2)
+            throw new Error(`Cannot find the inventory entry for ${file}`);
+          return text.replace(
+            entry,
+            `${encodeJson(file)}: ${encodeJson(hash)}`,
+          );
+        }, raw),
+      );
+      yield* fs.writeText(inventoryFile, updated);
+    }
+    return changed;
+  },
+);
 
 const decodeJson = Schema.decodeUnknownSync(
   Schema.fromJsonString(Schema.Unknown),
@@ -77,16 +162,12 @@ const encodeJson = Schema.encodeSync(Schema.fromJsonString(Schema.Unknown));
 export const checkDocs = Effect.fn("Docs.check")(function* () {
   const fs = yield* ToolFiles;
   const errors: string[] = [];
-  const parser = createParser();
+  const parsers = createParsers();
 
-  for (const [file, expected] of Object.entries(release.websiteSources)) {
-    const content = yield* fs.readBytes(file);
-    const actual = createHash("sha256").update(content).digest("hex");
-    if (actual !== expected) {
-      errors.push(
-        `${file}: review the upload/generator guides and update the website source inventory`,
-      );
-    }
+  for (const file of yield* reviewWebsiteSources(false)) {
+    errors.push(
+      `${file}: behavior changed since the last guide review. Review the upload, generator, and editor guides, then run \`bun run docs:sources --accept\`.`,
+    );
   }
 
   const documents = new Map<
@@ -94,17 +175,25 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
     { file: string; tree: Root; headings: Set<string>; body: string }
   >();
   const documentFiles = yield* walkFiles(root);
-  for (const file of documentFiles.filter((entry) => entry.endsWith(".mdx"))) {
+  for (const file of documentFiles.filter((entry) =>
+    documentFilePattern.test(entry),
+  )) {
     const raw = yield* fs.readText(file);
     const parsed = yield* Effect.result(
       Effect.try({
-        try: () => parseDocument(parser, file, raw),
+        try: () => parseDocument(parsers, file, raw),
         catch: String,
       }),
     );
     if (Result.isFailure(parsed)) {
       errors.push(`${path.relative(root, file)}: ${parsed.failure}`);
     } else {
+      // `page.md` and `page.mdx` map to the same route, and only one renders.
+      const existing = documents.get(parsed.success.route);
+      if (existing)
+        errors.push(
+          `${path.relative(root, file)}: duplicates ${path.relative(root, existing.file)}`,
+        );
       documents.set(parsed.success.route, parsed.success.document);
     }
   }
@@ -254,7 +343,14 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
           `${location}: keep the folder index out of its child pages`,
         );
       }
-      if (!documentFiles.includes(path.join(directory, "index.mdx"))) {
+      if (
+        !documentFiles.some((candidate) =>
+          [".md", ".mdx"].some(
+            (extension) =>
+              candidate === path.join(directory, `index${extension}`),
+          ),
+        )
+      ) {
         errors.push(`${location}: missing folder overview`);
       }
     }
@@ -272,6 +368,7 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
       }
       const exists = documentFiles.some(
         (candidate) =>
+          candidate === path.join(directory, `${entry}.md`) ||
           candidate === path.join(directory, `${entry}.mdx`) ||
           candidate === path.join(directory, entry, "meta.json"),
       );
@@ -293,7 +390,29 @@ export const checkDocs = Effect.fn("Docs.check")(function* () {
   };
 });
 
-if (import.meta.main)
+const reportSources = (accept: boolean) => (changed: readonly string[]) => {
+  if (changed.length === 0) {
+    Effect.runSync(
+      Console.log("Website sources match the reviewed inventory."),
+    );
+  } else if (accept) {
+    Effect.runSync(
+      Console.log(`Accepted reviewed website sources:\n${changed.join("\n")}`),
+    );
+  } else {
+    Effect.runSync(
+      Console.error(
+        `Website sources changed since the last guide review:\n${changed.join("\n")}\nReview the affected guides, then run \`bun run docs:sources --accept\`.`,
+      ),
+    );
+    process.exitCode = 1;
+  }
+};
+
+if (import.meta.main && process.argv.includes("--sources")) {
+  const accept = process.argv.includes("--accept");
+  await runTool(reviewWebsiteSources(accept), reportSources(accept));
+} else if (import.meta.main)
   await runTool(checkDocs(), ({ errors, summary }) => {
     if (errors.length > 0) {
       Effect.runSync(Console.error(errors.join("\n")));

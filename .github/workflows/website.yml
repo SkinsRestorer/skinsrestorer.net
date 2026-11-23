@@ -16,9 +16,10 @@ jobs:
     name: Build and Test
 
     runs-on: ubuntu-26.04
-    # The main build uploads source maps to PostHog, so it needs the
-    # production secrets. Other builds run without an environment.
-    environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || '' }}
+    # The main build uploads source maps to PostHog. Its key lives in the
+    # `sourcemaps` environment, so only the deploy job uses `production`.
+    # Other builds run without an environment.
+    environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'sourcemaps' || '' }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -129,4 +130,4 @@ jobs:
       - name: Verify production deployment
         env:
           SITE_TEST_URL: https://skinsrestorer.net
-        run: bun test scripts/site.test.ts
+        run: bun test scripts/site.test.ts scripts/studio-seo.test.ts
