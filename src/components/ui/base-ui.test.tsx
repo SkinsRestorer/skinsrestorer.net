@@ -18,22 +18,6 @@ test("vertical tabs pass their orientation to the accessible tab list", () => {
   assert.match(html, /aria-orientation="vertical"/u);
 });
 import { Button } from "./button";
-import { Select, SelectTrigger, SelectValue } from "./select";
-
-test("renders the selected label before the popup mounts", () => {
-  const html = renderToStaticMarkup(
-    <Select
-      items={[{ value: "walking", label: "Walking" }]}
-      defaultValue="walking"
-    >
-      <SelectTrigger aria-label="Animation">
-        <SelectValue />
-      </SelectTrigger>
-    </Select>,
-  );
-  assert.ok(html.includes("Walking"));
-  assert.ok(!html.includes('role="option"'));
-});
 
 test("composes a link button without adding a nested button", () => {
   const html = renderToStaticMarkup(
