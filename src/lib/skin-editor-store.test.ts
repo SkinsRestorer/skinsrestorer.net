@@ -118,8 +118,31 @@ test("surface lock keeps a 3D stroke on the face where it started", () => {
   store.endStroke();
   assert.deepEqual(pixel(store, 12, 9), [200, 10, 10, 255]);
   assert.notDeepEqual(pixel(store, 20, 9), [200, 10, 10, 255]);
-  // The line resumes from the last pixel on the locked face.
-  assert.deepEqual(pixel(store, 10, 9), [200, 10, 10, 255]);
+  // A sample on another face lifts the stroke: no line joins both sides.
+  assert.notDeepEqual(pixel(store, 10, 9), [200, 10, 10, 255]);
+  assert.notDeepEqual(pixel(store, 11, 9), [200, 10, 10, 255]);
+});
+
+test("a lifted 3D stroke resumes without a line across the gap", () => {
+  const store = setup();
+  store.beginStroke("pencil", settings(), 8, 8, { surfaceLock: true });
+  store.liftStroke(); // the pointer left the model
+  store.strokeTo(15, 15);
+  store.strokeTo(15, 14);
+  store.endStroke();
+  assert.deepEqual(pixel(store, 8, 8), [200, 10, 10, 255]);
+  assert.deepEqual(pixel(store, 15, 15), [200, 10, 10, 255]);
+  assert.deepEqual(pixel(store, 15, 14), [200, 10, 10, 255]);
+  for (let i = 1; i < 7; i++)
+    assert.notDeepEqual(pixel(store, 8 + i, 8 + i), [200, 10, 10, 255]);
+  // A Shift line continues from the last painted pixel.
+  assert.equal(store.lineTo("pencil", settings(), 12, 14), true);
+  assert.deepEqual(pixel(store, 13, 14), [200, 10, 10, 255]);
+  // The stroke and the line are one undo step each.
+  store.undo();
+  store.undo();
+  assert.notDeepEqual(pixel(store, 8, 8), [200, 10, 10, 255]);
+  assert.equal(store.getSnapshot().canUndo, false);
 });
 
 test("fill replaces the connected color and stops at the face edge", () => {
@@ -150,6 +173,32 @@ test("model changes are undoable and history drops the oldest step at the limit"
   while (store.undo()) undone++;
   assert.equal(undone, HISTORY_LIMIT);
   assert.deepEqual(pixel(store, 9, 9), [0, 0, 0, 255]);
+});
+
+test("a new edit after undo clears redo", () => {
+  const store = setup();
+  store.beginStroke("pencil", settings(), 9, 9);
+  store.endStroke();
+  store.undo();
+  assert.equal(store.getSnapshot().canRedo, true);
+  store.beginStroke("pencil", settings({ color: [1, 2, 3, 255] }), 12, 12);
+  store.endStroke();
+  assert.equal(store.getSnapshot().canRedo, false);
+  assert.equal(store.redo(), false);
+  assert.deepEqual(pixel(store, 12, 12), [1, 2, 3, 255]);
+  assert.notDeepEqual(pixel(store, 9, 9), [200, 10, 10, 255]);
+});
+
+test("undo and redo of a model change restore the model", () => {
+  const store = setup("classic");
+  const before = store.pixels.slice();
+  store.setVariant("slim");
+  assert.equal(store.undo(), true);
+  assert.equal(store.getSnapshot().variant, "classic");
+  assert.equal(store.redo(), true);
+  assert.equal(store.getSnapshot().variant, "slim");
+  // Only the model changes; the pixels stay.
+  assert.deepEqual(store.pixels, before);
 });
 
 test("a cancelled stroke restores its pixels and leaves no undo step", () => {
@@ -514,4 +563,51 @@ test("each vertex of a shaded polyline is shaded once", () => {
   const vertex = pixel(store, 13, 10);
   assert.equal(store.lineTo("shade", shade, 13, 13), true);
   assert.deepEqual(pixel(store, 13, 10), vertex);
+});
+
+test("ending a stroke reports whether it changed a pixel", () => {
+  const store = setup();
+  const brush = settings({ size: 1 });
+  assert.equal(store.endStroke(), false);
+  store.beginStroke("pencil", brush, 8, 8);
+  assert.equal(store.endStroke(), true);
+  // The same color on the same pixel changes nothing and adds no undo step.
+  store.beginStroke("pencil", brush, 8, 8);
+  assert.equal(store.endStroke(), false);
+  // An unused pixel has nothing to paint.
+  store.beginStroke("pencil", brush, 0, 0);
+  assert.equal(store.endStroke(), false);
+  store.undo();
+  assert.equal(store.getSnapshot().canUndo, false);
+});
+
+test("a 2D stroke that leaves the texture and comes back follows the pointer", () => {
+  const store = setup();
+  const brush = settings({ size: 1 });
+  // From the head front out past the top edge and back in further right.
+  store.beginStroke("pencil", brush, 9, 9);
+  store.strokeTo(9, -3);
+  store.strokeTo(14, -3);
+  store.strokeTo(14, 9);
+  store.endStroke();
+  for (let y = 8; y <= 9; y++) {
+    assert.deepEqual(pixel(store, 9, y), [200, 10, 10, 255]);
+    assert.deepEqual(pixel(store, 14, y), [200, 10, 10, 255]);
+  }
+  // No pixel between the two columns changed.
+  for (let x = 10; x <= 13; x++)
+    for (let y = 8; y <= 15; y++)
+      assert.notDeepEqual(pixel(store, x, y), [200, 10, 10, 255]);
+});
+
+test("a stroke that ends off the texture anchors its line at its last sample on a face", () => {
+  const store = setup();
+  const brush = settings({ size: 1 });
+  store.beginStroke("pencil", brush, 9, 9);
+  store.strokeTo(9, 12);
+  store.strokeTo(9, -5); // up and off the texture
+  store.endStroke();
+  assert.equal(store.lineTo("pencil", brush, 12, 12), true);
+  for (let x = 10; x <= 12; x++)
+    assert.deepEqual(pixel(store, x, 12), [200, 10, 10, 255]);
 });

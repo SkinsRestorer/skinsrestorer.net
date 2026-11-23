@@ -159,6 +159,7 @@ export function VisibleParts(props: {
               size="sm"
               className="self-start"
               disabled={allShown}
+              focusableWhenDisabled
               onClick={() => {
                 props.onVisibilityChange(allPartsVisible());
               }}

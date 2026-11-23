@@ -9,6 +9,7 @@ import {
   withSkinImageEffect,
   type SkinVariant,
 } from "@/lib/skin";
+import { releaseSkinViewer } from "@/lib/release-skin-viewer";
 import { ensureHttpsTextureUrl } from "@/lib/textures";
 import { useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
@@ -118,7 +119,7 @@ export function SkinView(props: {
       visibility.disconnect();
       window.removeEventListener("resize", redraw);
       resize.disconnect();
-      current.dispose();
+      releaseSkinViewer(current);
       viewerRef.current = null;
     };
   }, []);

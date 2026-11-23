@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { encodePng } from "./png";
 import { checkSkin } from "./skin-check";
 import {
+  changedRect,
   convertLegacySkin,
   createTemplate,
   detectVariantFromPixels,
@@ -22,8 +23,9 @@ function legacyFixture() {
 
 test("legacy skins copy the right limbs to the left limbs, mirrored per face", () => {
   const legacy = legacyFixture();
+  // A see-through pixel keeps the hat, so the top half stays the same.
+  legacy[pixelOffset(60, 20) + 3] = 0;
   const pixels = convertLegacySkin(legacy);
-  // The top half stays the same.
   assert.deepEqual(pixels.subarray(0, legacy.length), legacy);
   const at = (x: number, y: number) =>
     Array.from(pixels.subarray(pixelOffset(x, y), pixelOffset(x, y) + 4));
@@ -44,6 +46,23 @@ test("legacy skins copy the right limbs to the left limbs, mirrored per face", (
         assert.equal(pixels[pixelOffset(x, y) + 3], 255, `${x},${y}`);
     }
   assert.equal(pixels[pixelOffset(4, 40) + 3], 0);
+});
+
+test("an opaque legacy hat is cleared, as Java Edition does", () => {
+  const legacy = legacyFixture();
+  const pixels = convertLegacySkin(legacy);
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 64; x++) {
+      const at = pixelOffset(x, y);
+      // Only the alpha changes; the head stays opaque.
+      assert.equal(pixels[at + 3], x < 32 ? 255 : 0, `${x},${y}`);
+      assert.deepEqual(
+        Array.from(pixels.subarray(at, at + 3)),
+        Array.from(legacy.subarray(at, at + 3)),
+      );
+    }
+  // The body and arm rows below the hat stay opaque.
+  assert.equal(pixels[pixelOffset(44, 20) + 3], 255);
 });
 
 test("a 64×32 PNG opens as a converted 64×64 skin and exports as 64×64", async () => {
@@ -88,4 +107,18 @@ test("templates are valid skins of the chosen model with an empty outer layer", 
         if (regionAt(variant, x, y)?.layer === "outer")
           assert.equal(pixels[pixelOffset(x, y) + 3], 0);
   }
+});
+
+test("the changed rectangle covers every changed pixel and nothing else", () => {
+  const before = createTemplate("classic").pixels;
+  const after = before.slice();
+  assert.equal(changedRect(before, after), undefined);
+  after[pixelOffset(10, 12) + 3] = 7;
+  after[pixelOffset(13, 9)] = 1;
+  assert.deepEqual(changedRect(before, after), {
+    x: 10,
+    y: 9,
+    width: 4,
+    height: 4,
+  });
 });

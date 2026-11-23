@@ -46,7 +46,10 @@ interface Stroke {
   readonly lock?: SkinRegion | undefined;
   /** Pixels the stroke already changed. Each pixel changes once per stroke. */
   readonly touched: Set<number>;
-  last?: readonly [number, number];
+  /** The sample the next line starts from. Unset after the stroke lifts. */
+  last?: readonly [number, number] | undefined;
+  /** The last painted sample, where a Shift line continues. */
+  end?: readonly [number, number];
 }
 
 /**
@@ -208,7 +211,11 @@ export class SkinEditorStore {
   strokeTo(x: number, y: number) {
     const stroke = this.stroke;
     if (!stroke) return false;
-    if (stroke.lock && !paintableOn(stroke, this.variant, x, y)) return false;
+    if (stroke.lock && !paintableOn(stroke, this.variant, x, y)) {
+      // Do not join the samples on both sides of the other face.
+      stroke.last = undefined;
+      return false;
+    }
     const points = stroke.last
       ? linePoints(stroke.last[0], stroke.last[1], x, y)
       : [[x, y] as const];
@@ -237,23 +244,36 @@ export class SkinEditorStore {
         if (color) changed = stroke.builder.write(index, color) || changed;
       }
     stroke.last = [x, y];
+    // A sample off the texture or on an unused pixel cannot start a line.
+    if (paintableOn(stroke, this.variant, x, y)) stroke.end = stroke.last;
     if (changed) this.emit(true);
     return changed;
   }
 
+  /**
+   * Keep the stroke open but start the next sample without a line from the
+   * last one, for example while the pointer is off the model or on a covered
+   * spot.
+   */
+  liftStroke() {
+    if (this.stroke) this.stroke.last = undefined;
+  }
+
+  /** Finish the stroke as one undo step. It returns whether a pixel changed. */
   endStroke() {
     const stroke = this.stroke;
-    if (!stroke) return;
+    if (!stroke) return false;
     this.stroke = undefined;
-    this.anchor = stroke.last && {
-      x: stroke.last[0],
-      y: stroke.last[1],
+    this.anchor = stroke.end && {
+      x: stroke.end[0],
+      y: stroke.end[1],
       tool: stroke.tool,
       layer: stroke.settings.layer,
     };
     const patch = stroke.builder.finish();
     if (patch) this.history.push(patch);
     this.emit(false);
+    return patch !== undefined;
   }
 
   /** Undo a stroke in progress, for example after a lost pointer. */

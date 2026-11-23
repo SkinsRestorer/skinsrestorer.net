@@ -11,6 +11,7 @@ import {
   type EditorSurfaceProps,
 } from "@/components/editor/editor-types";
 import { brushArea, type PixelRect } from "@/lib/skin-paint";
+import { changedRect } from "@/lib/skin-document";
 import { useT } from "@/lib/i18n-react";
 
 interface TextureCanvasProps extends EditorSurfaceProps {
@@ -94,11 +95,17 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const propsRef = useAsRef(props);
   const maskCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
   const checkCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
-  /** The skin at 1:1, uploaded again only when the pixels change. */
+  /**
+   * The skin at 1:1, uploaded again only when the pixels change. `pixels`
+   * holds what the canvas shows, to find what a stroke changed.
+   */
   const textureCache = useRef<{
     revision: number;
     canvas: HTMLCanvasElement;
+    pixels: Uint8ClampedArray;
   }>(null);
+  /** Draws the view, or only the part inside a rectangle of skin pixels. */
+  const drawRef = useRef<((dirty?: PixelRect) => void) | null>(null);
   /** Theme colors, read again only when the theme changes. */
   const colorCache = useRef<{
     revision: number;
@@ -119,6 +126,8 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const touches = useRef(new Map<number, { x: number; y: number }>());
   /** A fill or pick that waits for the finger to lift, as a tap. */
   const tap = useRef<{ id: number; x: number; y: number } | null>(null);
+  /** The pointer that paints the current stroke. Others cannot move it. */
+  const strokePointer = useRef<{ id: number; touch: boolean } | null>(null);
   /** The finger distance and scale when a pinch started. */
   const pinch = useRef<{ distance: number; scale: number } | null>(null);
   /**
@@ -147,13 +156,45 @@ export function TextureCanvas(props: TextureCanvasProps) {
     );
   }, [scale]);
 
-  useEffect(
-    () =>
-      store.subscribe(() => {
-        setRevision(store.getSnapshot().revision);
-      }),
-    [store],
-  );
+  // A stroke changes a few pixels on each sample. Redraw only those, at most
+  // once for each animation frame, instead of the whole canvas. The end of
+  // the stroke and every other change redraw everything.
+  useEffect(() => {
+    let frameRequest = 0;
+    const strokeFrame = () => {
+      frameRequest = 0;
+      const cache = textureCache.current;
+      const dirty = cache && changedRect(cache.pixels, store.pixels);
+      if (!cache || !dirty) return;
+      cache.canvas
+        .getContext("2d")
+        ?.putImageData(
+          new ImageData(store.pixels.slice(), SKIN_SIZE, SKIN_SIZE),
+          0,
+          0,
+          dirty.x,
+          dirty.y,
+          dirty.width,
+          dirty.height,
+        );
+      cache.pixels.set(store.pixels);
+      drawRef.current?.(dirty);
+    };
+    const unsubscribe = store.subscribe(() => {
+      const snapshot = store.getSnapshot();
+      if (snapshot.painting) {
+        if (!frameRequest) frameRequest = requestAnimationFrame(strokeFrame);
+        return;
+      }
+      cancelAnimationFrame(frameRequest);
+      frameRequest = 0;
+      setRevision(snapshot.revision);
+    });
+    return () => {
+      unsubscribe();
+      cancelAnimationFrame(frameRequest);
+    };
+  }, [store]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -186,7 +227,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx) return undefined;
     const size = SKIN_SIZE * scale;
     const pixels = Math.round(size * ratio);
     // Assigning a size reallocates the buffer, even when it stays the same.
@@ -206,159 +247,199 @@ export function TextureCanvas(props: TextureCanvasProps) {
         destructive: themeColor(canvas, "--destructive", "#d33"),
       };
     const { muted, background, foreground, destructive } = colorCache.current;
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Checks show transparency. Each skin pixel holds a 2×2 check.
-    const checkKey = `${background} ${muted}`;
-    if (checkCache.current?.key !== checkKey) {
-      const checks = document.createElement("canvas");
-      checks.width = SKIN_SIZE * 2;
-      checks.height = SKIN_SIZE * 2;
-      const checksCtx = required(checks.getContext("2d"), "2D canvas context");
-      checksCtx.fillStyle = background;
-      checksCtx.fillRect(0, 0, checks.width, checks.height);
-      checksCtx.fillStyle = muted;
-      for (let y = 0; y < checks.height; y++)
-        for (let x = y % 2; x < checks.width; x += 2)
-          checksCtx.fillRect(x, y, 1, 1);
-      checkCache.current = { key: checkKey, canvas: checks };
-    }
-    ctx.drawImage(checkCache.current.canvas, 0, 0, canvas.width, canvas.height);
-
-    // A hover or cursor move redraws the view but leaves the pixels alone.
-    if (textureCache.current?.revision !== revision) {
-      const texture =
-        textureCache.current?.canvas ?? document.createElement("canvas");
-      texture.width = SKIN_SIZE;
-      texture.height = SKIN_SIZE;
-      texture
-        .getContext("2d")
-        ?.putImageData(
-          new ImageData(store.pixels.slice(), SKIN_SIZE, SKIN_SIZE),
-          0,
-          0,
+    const draw = (dirty?: PixelRect) => {
+      ctx.save();
+      if (dirty) {
+        // Every layer below draws again inside the clip, so the rest of the
+        // canvas can stay as it is.
+        const left = Math.floor(dirty.x * cell);
+        const top = Math.floor(dirty.y * cell);
+        ctx.beginPath();
+        ctx.rect(
+          left,
+          top,
+          Math.ceil((dirty.x + dirty.width) * cell) - left,
+          Math.ceil((dirty.y + dirty.height) * cell) - top,
         );
-      textureCache.current = { revision, canvas: texture };
-    }
-    ctx.drawImage(
-      textureCache.current.canvas,
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    );
-
-    // Fade everything that the tool cannot change: unused pixels, the other
-    // layer, and hidden parts. The active layer keeps full contrast.
-    const maskKey = JSON.stringify([
-      variant,
-      settings.layer,
-      settings.visibility,
-      background,
-    ]);
-    if (maskCache.current?.key !== maskKey) {
-      const mask = document.createElement("canvas");
-      mask.width = SKIN_SIZE;
-      mask.height = SKIN_SIZE;
-      const maskCtx = required(mask.getContext("2d"), "2D canvas context");
-      const state = new Uint8Array(SKIN_SIZE * SKIN_SIZE);
-      for (const region of skinRegions(variant)) {
-        const active =
-          region.layer === settings.layer &&
-          settings.visibility[region.part][region.layer];
-        for (let y = region.y; y < region.y + region.height; y++)
-          for (let x = region.x; x < region.x + region.width; x++)
-            state[y * SKIN_SIZE + x] = active ? 2 : 1;
+        ctx.clip();
       }
-      maskCtx.fillStyle = background;
-      for (let i = 0; i < state.length; i++) {
-        if (state[i] === 2) continue;
-        maskCtx.globalAlpha = state[i] === 1 ? 0.55 : 0.8;
-        maskCtx.fillRect(i % SKIN_SIZE, Math.floor(i / SKIN_SIZE), 1, 1);
-      }
-      maskCache.current = { key: maskKey, canvas: mask };
-    }
-    ctx.drawImage(maskCache.current.canvas, 0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (showGrid && scale >= 6) {
-      ctx.strokeStyle = foreground;
-      ctx.globalAlpha = 0.12;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let i = 1; i < SKIN_SIZE; i++) {
-        const at = Math.round(i * cell) + 0.5;
-        ctx.moveTo(at, 0);
-        ctx.lineTo(at, canvas.height);
-        ctx.moveTo(0, at);
-        ctx.lineTo(canvas.width, at);
-      }
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
-
-    // Face guides for the active layer.
-    ctx.strokeStyle = foreground;
-    ctx.globalAlpha = 0.6;
-    ctx.lineWidth = Math.max(1, ratio);
-    for (const region of skinRegions(variant)) {
-      if (region.layer !== settings.layer) continue;
-      ctx.strokeRect(
-        region.x * cell + 0.5,
-        region.y * cell + 0.5,
-        region.width * cell - 1,
-        region.height * cell - 1,
-      );
-    }
-    ctx.globalAlpha = 1;
-
-    if (highlight?.length) {
-      ctx.strokeStyle = destructive;
-      ctx.lineWidth = Math.max(2, ratio * 2);
-      for (const index of highlight)
-        ctx.strokeRect(
-          (index % SKIN_SIZE) * cell + 1,
-          Math.floor(index / SKIN_SIZE) * cell + 1,
-          cell - 2,
-          cell - 2,
+      // Checks show transparency. Each skin pixel holds a 2×2 check.
+      const checkKey = `${background} ${muted}`;
+      if (checkCache.current?.key !== checkKey) {
+        const checks = document.createElement("canvas");
+        checks.width = SKIN_SIZE * 2;
+        checks.height = SKIN_SIZE * 2;
+        const checksCtx = required(
+          checks.getContext("2d"),
+          "2D canvas context",
         );
-    }
+        checksCtx.fillStyle = background;
+        checksCtx.fillRect(0, 0, checks.width, checks.height);
+        checksCtx.fillStyle = muted;
+        for (let y = 0; y < checks.height; y++)
+          for (let x = y % 2; x < checks.width; x += 2)
+            checksCtx.fillRect(x, y, 1, 1);
+        checkCache.current = { key: checkKey, canvas: checks };
+      }
+      ctx.drawImage(
+        checkCache.current.canvas,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
 
-    const outline = (rect: PixelRect, dashed: boolean) => {
-      ctx.setLineDash(dashed ? [cell / 4, cell / 4] : []);
-      ctx.lineWidth = Math.max(2, ratio * 2);
-      ctx.strokeStyle = foreground;
-      ctx.strokeRect(
-        rect.x * cell + 1,
-        rect.y * cell + 1,
-        rect.width * cell - 2,
-        rect.height * cell - 2,
+      // A hover or cursor move redraws the view but leaves the pixels alone.
+      if (textureCache.current?.revision !== revision) {
+        const texture =
+          textureCache.current?.canvas ?? document.createElement("canvas");
+        texture.width = SKIN_SIZE;
+        texture.height = SKIN_SIZE;
+        const shown = store.pixels.slice();
+        texture
+          .getContext("2d")
+          ?.putImageData(
+            new ImageData(shown.slice(), SKIN_SIZE, SKIN_SIZE),
+            0,
+            0,
+          );
+        textureCache.current = { revision, canvas: texture, pixels: shown };
+      }
+      ctx.drawImage(
+        textureCache.current.canvas,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
       );
-      ctx.strokeStyle = background;
-      ctx.lineWidth = Math.max(1, ratio);
-      ctx.strokeRect(
-        rect.x * cell + 3,
-        rect.y * cell + 3,
-        rect.width * cell - 6,
-        rect.height * cell - 6,
-      );
-      ctx.setLineDash([]);
-    };
-    // The pixels the tool changes here: the brush square clipped to the face,
-    // and its mirror image with a dashed line.
-    const footprint = (x: number, y: number, solid: boolean) => {
-      const area = brushArea(
+
+      // Fade everything that the tool cannot change: unused pixels, the other
+      // layer, and hidden parts. The active layer keeps full contrast.
+      const maskKey = JSON.stringify([
         variant,
-        usesBrush(tool) ? settings : { ...settings, size: 1 },
-        x,
-        y,
+        settings.layer,
+        settings.visibility,
+        background,
+      ]);
+      if (maskCache.current?.key !== maskKey) {
+        const mask = document.createElement("canvas");
+        mask.width = SKIN_SIZE;
+        mask.height = SKIN_SIZE;
+        const maskCtx = required(mask.getContext("2d"), "2D canvas context");
+        const state = new Uint8Array(SKIN_SIZE * SKIN_SIZE);
+        for (const region of skinRegions(variant)) {
+          const active =
+            region.layer === settings.layer &&
+            settings.visibility[region.part][region.layer];
+          for (let y = region.y; y < region.y + region.height; y++)
+            for (let x = region.x; x < region.x + region.width; x++)
+              state[y * SKIN_SIZE + x] = active ? 2 : 1;
+        }
+        maskCtx.fillStyle = background;
+        for (let i = 0; i < state.length; i++) {
+          if (state[i] === 2) continue;
+          maskCtx.globalAlpha = state[i] === 1 ? 0.55 : 0.8;
+          maskCtx.fillRect(i % SKIN_SIZE, Math.floor(i / SKIN_SIZE), 1, 1);
+        }
+        maskCache.current = { key: maskKey, canvas: mask };
+      }
+      ctx.drawImage(
+        maskCache.current.canvas,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
       );
-      outline(area?.source ?? { x, y, width: 1, height: 1 }, !solid);
-      if (area?.mirror && usesMirror(tool, settings.fillScope))
-        outline(area.mirror, true);
+
+      if (showGrid && scale >= 6) {
+        ctx.strokeStyle = foreground;
+        ctx.globalAlpha = 0.12;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let i = 1; i < SKIN_SIZE; i++) {
+          const at = Math.round(i * cell) + 0.5;
+          ctx.moveTo(at, 0);
+          ctx.lineTo(at, canvas.height);
+          ctx.moveTo(0, at);
+          ctx.lineTo(canvas.width, at);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      // Face guides for the active layer.
+      ctx.strokeStyle = foreground;
+      ctx.globalAlpha = 0.6;
+      ctx.lineWidth = Math.max(1, ratio);
+      for (const region of skinRegions(variant)) {
+        if (region.layer !== settings.layer) continue;
+        ctx.strokeRect(
+          region.x * cell + 0.5,
+          region.y * cell + 0.5,
+          region.width * cell - 1,
+          region.height * cell - 1,
+        );
+      }
+      ctx.globalAlpha = 1;
+
+      if (highlight?.length) {
+        ctx.strokeStyle = destructive;
+        ctx.lineWidth = Math.max(2, ratio * 2);
+        for (const index of highlight)
+          ctx.strokeRect(
+            (index % SKIN_SIZE) * cell + 1,
+            Math.floor(index / SKIN_SIZE) * cell + 1,
+            cell - 2,
+            cell - 2,
+          );
+      }
+
+      const outline = (rect: PixelRect, dashed: boolean) => {
+        ctx.setLineDash(dashed ? [cell / 4, cell / 4] : []);
+        ctx.lineWidth = Math.max(2, ratio * 2);
+        ctx.strokeStyle = foreground;
+        ctx.strokeRect(
+          rect.x * cell + 1,
+          rect.y * cell + 1,
+          rect.width * cell - 2,
+          rect.height * cell - 2,
+        );
+        ctx.strokeStyle = background;
+        ctx.lineWidth = Math.max(1, ratio);
+        ctx.strokeRect(
+          rect.x * cell + 3,
+          rect.y * cell + 3,
+          rect.width * cell - 6,
+          rect.height * cell - 6,
+        );
+        ctx.setLineDash([]);
+      };
+      // The pixels the tool changes here: the brush square clipped to the face,
+      // and its mirror image with a dashed line.
+      const footprint = (x: number, y: number, solid: boolean) => {
+        const area = brushArea(
+          variant,
+          usesBrush(tool) ? settings : { ...settings, size: 1 },
+          x,
+          y,
+        );
+        outline(area?.source ?? { x, y, width: 1, height: 1 }, !solid);
+        if (area?.mirror && usesMirror(tool, settings.fillScope))
+          outline(area.mirror, true);
+      };
+      if (hover && interaction === "paint") footprint(hover.x, hover.y, false);
+      if (focused) footprint(cursor.x, cursor.y, true);
+      ctx.restore();
     };
-    if (hover && interaction === "paint") footprint(hover.x, hover.y, false);
-    if (focused) footprint(cursor.x, cursor.y, true);
+    draw();
+    drawRef.current = draw;
+    return () => {
+      drawRef.current = null;
+    };
   }, [
     store,
     revision,
@@ -375,10 +456,15 @@ export function TextureCanvas(props: TextureCanvasProps) {
     ratio,
   ]);
 
-  const toPixel = (event: {
-    clientX: number;
-    clientY: number;
-  }): { x: number; y: number } | undefined => {
+  /**
+   * The texture pixel under a point. With `outside`, a point off the canvas
+   * gives its pixel position past the edge, so a stroke follows the pointer
+   * out and back in instead of joining the two edge points.
+   */
+  const toPixel = (
+    event: { clientX: number; clientY: number },
+    outside = false,
+  ): { x: number; y: number } | undefined => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
     const rect = canvas.getBoundingClientRect();
@@ -388,14 +474,16 @@ export function TextureCanvas(props: TextureCanvasProps) {
     const y = Math.floor(
       ((event.clientY - rect.top) / rect.height) * SKIN_SIZE,
     );
-    if (x < 0 || y < 0 || x >= SKIN_SIZE || y >= SKIN_SIZE) return undefined;
+    // A canvas without a size gives no position, and a line to it never ends.
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return undefined;
+    if (!outside && (x < 0 || y < 0 || x >= SKIN_SIZE || y >= SKIN_SIZE))
+      return undefined;
     return { x, y };
   };
 
   const finishStroke = () => {
-    if (!store.getSnapshot().painting) return;
-    store.endStroke();
-    propsRef.current.onPainted();
+    strokePointer.current = null;
+    if (store.endStroke()) propsRef.current.onPainted();
   };
 
   const applyAtCursor = (x: number, y: number, line: boolean) => {
@@ -460,7 +548,13 @@ export function TextureCanvas(props: TextureCanvasProps) {
         }}
         onPointerDown={(event) => {
           if (interaction !== "paint") return;
-          if (event.pointerType === "touch") {
+          const touch = event.pointerType === "touch";
+          const owner = strokePointer.current;
+          // A palm that touches during a pen or mouse stroke is ignored. A
+          // second finger during a finger stroke starts a pan below.
+          if (owner && owner.id !== event.pointerId && !(owner.touch && touch))
+            return;
+          if (touch) {
             touches.current.set(event.pointerId, {
               x: event.clientX,
               y: event.clientY,
@@ -469,6 +563,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
               // A second finger pans and pinches the texture. Drop what the
               // first finger started, so a gesture never leaves a mark.
               tap.current = null;
+              strokePointer.current = null;
               store.cancelStroke();
               const [a, b] = touches.current.values();
               pinch.current =
@@ -478,7 +573,9 @@ export function TextureCanvas(props: TextureCanvasProps) {
               return;
             }
           }
-          if (event.pointerType === "mouse" && event.button !== 0) return;
+          // Only the main button paints, also for a pen's barrel button and
+          // eraser end.
+          if (!touch && event.button !== 0) return;
           const pixel = toPixel(event);
           if (!pixel) return;
           event.preventDefault();
@@ -497,10 +594,14 @@ export function TextureCanvas(props: TextureCanvasProps) {
               line: event.shiftKey,
               pick: event.altKey,
             }) === "stroke"
-          )
+          ) {
+            strokePointer.current = { id: event.pointerId, touch };
             event.currentTarget.setPointerCapture(event.pointerId);
+          }
         }}
         onPointerMove={(event) => {
+          const owner = strokePointer.current;
+          if (owner && owner.id !== event.pointerId) return;
           const last = touches.current.get(event.pointerId);
           if (last) {
             const panning = touches.current.size > 1;
@@ -537,7 +638,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
               }
               return;
             }
-          } else {
+          } else if (event.pointerType !== "touch") {
             // Most moves stay on the same pixel. A new object would redraw
             // the whole canvas, which is large at high zoom.
             const pixel = toPixel(event) ?? null;
@@ -547,13 +648,13 @@ export function TextureCanvas(props: TextureCanvasProps) {
                 : pixel,
             );
           }
-          if (!store.getSnapshot().painting) return;
+          if (!owner || !store.getSnapshot().painting) return;
           // Older Safari versions lack getCoalescedEvents.
           const native = event.nativeEvent;
           const samples =
             "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
           for (const sample of samples.length > 0 ? samples : [event]) {
-            const point = toPixel(sample);
+            const point = toPixel(sample, true);
             if (point) store.strokeTo(point.x, point.y);
           }
         }}
@@ -564,6 +665,8 @@ export function TextureCanvas(props: TextureCanvasProps) {
             pinch.current = null;
             anchor.current = null;
           }
+          const owner = strokePointer.current;
+          if (owner && owner.id !== event.pointerId) return;
           const pending = tap.current;
           tap.current = null;
           if (pending?.id === event.pointerId) {
@@ -581,7 +684,10 @@ export function TextureCanvas(props: TextureCanvasProps) {
             pinch.current = null;
             anchor.current = null;
           }
+          const owner = strokePointer.current;
+          if (owner && owner.id !== event.pointerId) return;
           tap.current = null;
+          strokePointer.current = null;
           store.cancelStroke();
         }}
         onPointerLeave={() => {

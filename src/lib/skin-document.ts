@@ -1,6 +1,7 @@
 import { MessageError } from "./messages";
 import type { SkinVariant } from "./skin";
 import { decodePng, encodePng, PngError } from "./png";
+import type { PixelRect } from "./skin-paint";
 import { findRegion, SKIN_SIZE, skinRegions } from "./skin-regions";
 
 /** The editor source of truth: straight RGBA pixels and an explicit model. */
@@ -24,9 +25,45 @@ export function pixelOffset(x: number, y: number) {
   return (y * SKIN_SIZE + x) * 4;
 }
 
+/** The smallest rectangle of skin pixels that differ, if any do. */
+export function changedRect(
+  before: Uint8ClampedArray,
+  after: Uint8ClampedArray,
+): PixelRect | undefined {
+  let left = SKIN_SIZE;
+  let top = SKIN_SIZE;
+  let right = -1;
+  let bottom = -1;
+  for (let i = 0; i < after.length; i++) {
+    if (before[i] === after[i]) continue;
+    const pixel = i >> 2;
+    const x = pixel % SKIN_SIZE;
+    const y = Math.floor(pixel / SKIN_SIZE);
+    left = Math.min(left, x);
+    right = Math.max(right, x);
+    top = Math.min(top, y);
+    bottom = Math.max(bottom, y);
+  }
+  if (right < 0) return undefined;
+  return { x: left, y: top, width: right - left + 1, height: bottom - top + 1 };
+}
+
+/**
+ * Whether a legacy skin's hat shows in Java Edition. The game hides the hat
+ * of a 64×32 skin when the right half of the top 32 rows has no pixel below
+ * half opacity, because old skins often filled the hat with a solid color.
+ */
+function legacyHatVisible(legacy: Uint8ClampedArray) {
+  for (let y = 0; y < 32; y++)
+    for (let x = 32; x < SKIN_SIZE; x++)
+      if ((legacy[pixelOffset(x, y) + 3] ?? 0) < 128) return true;
+  return false;
+}
+
 /**
  * Convert a 64×32 skin to the 64×64 layout. The left arm and left leg copy the
  * right limbs with each face mirrored, as Java Edition does for legacy skins.
+ * A fully opaque hat is cleared, as the game does.
  *
  * The mapping follows skinview-utils `convertSkinTo1_8` (MIT, bs-community).
  */
@@ -62,6 +99,9 @@ export function convertLegacySkin(legacy: Uint8ClampedArray) {
   copyMirrored(44, 20, 4, 12, 36, 52); // arm front
   copyMirrored(48, 20, 4, 12, 32, 52); // arm inside
   copyMirrored(52, 20, 4, 12, 44, 52); // arm back
+  if (!legacyHatVisible(legacy))
+    for (let y = 0; y < 16; y++)
+      for (let x = 32; x < SKIN_SIZE; x++) pixels[pixelOffset(x, y) + 3] = 0;
   return pixels;
 }
 

@@ -11,7 +11,17 @@ type Part = readonly [
   h: number,
   dx: number,
   dy: number,
+  /** Draw mirrored, as Java Edition copies a legacy right limb to the left. */
+  flip?: boolean,
 ];
+
+const HAT: Part = [40, 8, 8, 8, 4, 0];
+
+/** The left limb front of a legacy skin: the right limb front, mirrored. */
+function legacyLeft(sx: number, w: number, h: number, dx: number, dy: number) {
+  // The mirror of the full 4-pixel front; a slim arm shows its outer columns.
+  return [sx + 4 - w, 20, w, h, dx, dy, true] as const satisfies Part;
+}
 
 /** Front faces of each part, placed on a 16×32 figure. */
 function frontParts(variant: SkinVariant, legacy: boolean): Part[] {
@@ -20,10 +30,10 @@ function frontParts(variant: SkinVariant, legacy: boolean): Part[] {
     [8, 8, 8, 8, 4, 0],
     [20, 20, 8, 12, 4, 8],
     [44, 20, arm, 12, 4 - arm, 8],
-    legacy ? [44, 20, arm, 12, 12, 8] : [36, 52, arm, 12, 12, 8],
+    legacy ? legacyLeft(44, arm, 12, 12, 8) : [36, 52, arm, 12, 12, 8],
     [4, 20, 4, 12, 4, 20],
-    legacy ? [4, 20, 4, 12, 8, 20] : [20, 52, 4, 12, 8, 20],
-    [40, 8, 8, 8, 4, 0],
+    legacy ? legacyLeft(4, 4, 12, 8, 20) : [20, 52, 4, 12, 8, 20],
+    HAT,
   ];
   if (legacy) return base;
   return [
@@ -44,8 +54,8 @@ function bustParts(variant: SkinVariant, legacy: boolean): Part[] {
     [8, 8, 8, 8, 4, 0],
     [20, 20, 8, 8, 4, 8],
     [44, 20, arm, 8, left, 8],
-    legacy ? [44, 20, arm, 8, 12, 8] : [36, 52, arm, 8, 12, 8],
-    [40, 8, 8, 8, 4, 0],
+    legacy ? legacyLeft(44, arm, 8, 12, 8) : [36, 52, arm, 8, 12, 8],
+    HAT,
   ];
   if (legacy) return base;
   return [
@@ -60,6 +70,26 @@ const headParts: Part[] = [
   [8, 8, 8, 8, 0, 0],
   [40, 8, 8, 8, 0, 0],
 ];
+
+/**
+ * Whether Java Edition shows the hat of a legacy skin. It hides the hat when
+ * the right half of the image has no pixel below half opacity, like
+ * `legacyHatVisible` in the editor import.
+ */
+function legacyHatShows(image: ImageBitmap) {
+  const probe = document.createElement("canvas");
+  probe.width = 32;
+  probe.height = 32;
+  const context = probe.getContext("2d", { willReadFrequently: true });
+  if (!context) return true;
+  context.imageSmoothingEnabled = false;
+  const half = image.width / 2;
+  context.drawImage(image, half, 0, half, image.height, 0, 0, 32, 32);
+  const { data } = context.getImageData(0, 0, 32, 32);
+  for (let i = 3; i < data.length; i += 4)
+    if ((data[i] ?? 0) < 128) return true;
+  return false;
+}
 
 /**
  * Draw a small front view of a skin PNG. It decodes in the browser only and
@@ -97,13 +127,21 @@ export function SkinThumbnail(props: {
         const legacy = image.height * 2 === image.width;
         context.imageSmoothingEnabled = false;
         context.clearRect(0, 0, target.width, target.height);
-        const parts =
+        const all =
           view === "head"
             ? headParts
             : view === "bust"
               ? bustParts(props.variant, legacy)
               : frontParts(props.variant, legacy);
-        for (const [sx, sy, w, h, dx, dy] of parts)
+        // The hat is the only part drawn from the head's outer layer.
+        const parts =
+          legacy && !legacyHatShows(image)
+            ? all.filter(([sx, sy]) => !(sx === 40 && sy === 8))
+            : all;
+        for (const [sx, sy, w, h, dx, dy, flip] of parts) {
+          context.save();
+          // Mirror around the part's own column range.
+          if (flip) context.setTransform(-1, 0, 0, 1, 2 * dx + w, 0);
           context.drawImage(
             image,
             sx * scale,
@@ -115,6 +153,8 @@ export function SkinThumbnail(props: {
             w,
             h,
           );
+          context.restore();
+        }
         // The canvas keeps the pixels; free the decoded image now.
         image.close();
       },

@@ -15,6 +15,19 @@ test("the opacity slider reads its value as a percentage", () => {
   assert.ok(html.includes('aria-valuetext="50%"'));
 });
 
+test("the opacity slider stops at 1%, so the pencil never erases", () => {
+  const html = renderToStaticMarkup(
+    <ColorControls
+      color={[255, 0, 0, 128]}
+      layer="outer"
+      recent={[]}
+      onChange={() => {}}
+    />,
+  );
+  assert.match(html, /type="range"/u);
+  assert.match(html, /min="1"/u);
+});
+
 test("the recent swatch of the current color is marked as pressed", () => {
   const html = renderToStaticMarkup(
     <ColorControls

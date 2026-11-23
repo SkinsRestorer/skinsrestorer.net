@@ -67,11 +67,13 @@ export function ColorControls(props: {
           </span>
           <Slider
             aria-labelledby={opacityId}
-            min={0}
+            // At 0% the pencil would erase and keep the color, so the lowest
+            // opacity is 1%. The eraser clears pixels.
+            min={1}
             max={100}
             step={1}
             format={{ style: "unit", unit: "percent" }}
-            value={[opacity]}
+            value={[Math.max(1, opacity)]}
             onValueChange={(value: number | readonly number[]) => {
               const next =
                 typeof value === "number" ? value : (value[0] ?? opacity);

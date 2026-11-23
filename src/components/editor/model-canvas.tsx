@@ -28,6 +28,7 @@ import {
   type SkinPart,
 } from "@/lib/skin-regions";
 import { hitToPixel } from "@/lib/skin-uv";
+import { releaseSkinViewer } from "@/lib/release-skin-viewer";
 import {
   startTool,
   type EditorSurfaceProps,
@@ -50,6 +51,17 @@ interface Covered {
   readonly covered: { readonly x: number; readonly y: number };
 }
 
+/** Ray-cast state, made once for each viewer. */
+interface Picker {
+  readonly raycaster: Raycaster;
+  readonly pointer: Vector2;
+  readonly owners: Map<Object3D, { part: SkinPart; layer: SkinLayer }>;
+  readonly meshes: Object3D[];
+}
+
+/** The canvas position for the samples of one pointer event. */
+type PickFrame = DOMRect;
+
 /**
  * The live 3D model. skinview3d draws the model; the editor owns the texture.
  * The texture reads the document pixels directly, so the preview never
@@ -71,8 +83,11 @@ export function ModelCanvas(
   const [failure, setFailure] = useState<Message | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [animate, setAnimate] = useState(false);
+  const pickerRef = useRef<Picker | null>(null);
   /** A fill or pick that waits for the finger to lift, as a tap. */
   const tap = useRef<{ id: number; target: PaintTarget } | null>(null);
+  /** The pointer that paints the current stroke. Others cannot move it. */
+  const strokePointer = useRef<{ id: number; touch: boolean } | null>(null);
   /**
    * Moves the hover footprint. Set while a viewer exists. The model is drawn
    * on demand, so every change to the view must call `redraw`.
@@ -88,36 +103,41 @@ export function ModelCanvas(
   const paintingRef = useAsRef(painting);
 
   /**
+   * Prepare the picks of one pointer event: update the model matrices and
+   * read the canvas position once, not for each coalesced sample.
+   */
+  const pickFrame = (): PickFrame | undefined => {
+    const viewer = viewerRef.current;
+    const canvas = canvasRef.current;
+    if (!viewer || !canvas) return undefined;
+    viewer.scene.updateMatrixWorld(true);
+    return canvas.getBoundingClientRect();
+  };
+
+  /**
    * The pixel under the pointer on the active layer, if nothing covers it.
    * To pick a color, the pixel the eye sees on any layer.
    */
   const pick = (
+    frame: PickFrame | undefined,
     clientX: number,
     clientY: number,
     picking = propsRef.current.tool === "eyedropper",
   ): PaintTarget | Covered | undefined => {
     const viewer = viewerRef.current;
-    const canvas = canvasRef.current;
-    if (!viewer || !canvas) return undefined;
-    const rect = canvas.getBoundingClientRect();
-    const pointer = new Vector2(
-      ((clientX - rect.left) / rect.width) * 2 - 1,
-      -((clientY - rect.top) / rect.height) * 2 + 1,
+    const picker = pickerRef.current;
+    if (!viewer || !picker || !frame) return undefined;
+    const { raycaster, pointer, owners, meshes } = picker;
+    pointer.set(
+      ((clientX - frame.left) / frame.width) * 2 - 1,
+      -((clientY - frame.top) / frame.height) * 2 + 1,
     );
-    const raycaster = new Raycaster();
     raycaster.setFromCamera(pointer, viewer.camera);
-    viewer.scene.updateMatrixWorld(true);
-    const meshes = new Map<Object3D, { part: SkinPart; layer: SkinLayer }>();
-    for (const part of skinParts) {
-      const bodyPart = viewer.playerObject.skin[part];
-      if (bodyPart.innerLayer.visible)
-        meshes.set(bodyPart.innerLayer, { part, layer: "base" });
-      if (bodyPart.outerLayer.visible)
-        meshes.set(bodyPart.outerLayer, { part, layer: "outer" });
-    }
     const { variant } = store.getSnapshot();
-    for (const hit of raycaster.intersectObjects([...meshes.keys()], false)) {
-      const owner = meshes.get(hit.object);
+    for (const hit of raycaster.intersectObjects(meshes, false)) {
+      // The ray cast does not check visibility; hidden layers let it pass.
+      if (!hit.object.visible) continue;
+      const owner = owners.get(hit.object);
       if (!owner || !hit.uv || hit.faceIndex == null) continue;
       const pixel = hitToPixel(
         variant,
@@ -143,6 +163,7 @@ export function ModelCanvas(
     return undefined;
   };
   const pickRef = useAsRef(pick);
+  const pickFrameRef = useAsRef(pickFrame);
 
   useEffect((): (() => void) | undefined => {
     const canvas = canvasRef.current;
@@ -166,6 +187,18 @@ export function ModelCanvas(
       return undefined;
     }
     viewerRef.current = viewer;
+    const owners = new Map<Object3D, { part: SkinPart; layer: SkinLayer }>();
+    for (const part of skinParts) {
+      const bodyPart = viewer.playerObject.skin[part];
+      owners.set(bodyPart.innerLayer, { part, layer: "base" });
+      owners.set(bodyPart.outerLayer, { part, layer: "outer" });
+    }
+    pickerRef.current = {
+      raycaster: new Raycaster(),
+      pointer: new Vector2(),
+      owners,
+      meshes: [...owners.keys()],
+    };
     viewer.controls.enablePan = false;
     viewer.controls.enableZoom = false;
     viewer.autoRotate = false;
@@ -193,7 +226,11 @@ export function ModelCanvas(
     const footprint = (): HoverOverlay | null => {
       if (!pointer || !paintingRef.current || store.getSnapshot().painting)
         return null;
-      const target = pickRef.current(pointer.x, pointer.y);
+      const target = pickRef.current(
+        pickFrameRef.current(),
+        pointer.x,
+        pointer.y,
+      );
       if (!target) return null;
       if ("covered" in target)
         return {
@@ -289,10 +326,11 @@ export function ModelCanvas(
       resize.disconnect();
       skin.map = null;
       texture.dispose();
-      viewer.dispose();
+      releaseSkinViewer(viewer);
       viewerRef.current = null;
+      pickerRef.current = null;
     };
-  }, [store, attempt, propsRef, paintingRef, pickRef]);
+  }, [store, attempt, propsRef, paintingRef, pickRef, pickFrameRef]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
@@ -329,6 +367,11 @@ export function ModelCanvas(
       hover.current?.redraw();
     }
   }, [painting, animate, attempt, failure]);
+
+  const cancelStroke = () => {
+    strokePointer.current = null;
+    store.cancelStroke();
+  };
 
   const coverMessage = () =>
     propsRef.current.settings.layer === "base"
@@ -469,14 +512,24 @@ export function ModelCanvas(
             // Touch has no hover, so a finger never leaves a footprint.
             if (event.pointerType === "touch") hover.current?.leave();
             if (!painting) return;
-            if (event.pointerType === "mouse" && event.button !== 0) return;
-            if (!event.isPrimary) {
+            const touch = event.pointerType === "touch";
+            const owner = strokePointer.current;
+            if (owner && owner.id !== event.pointerId) {
               // A second finger turns the model; drop what the first started.
-              tap.current = null;
-              store.cancelStroke();
+              // A palm that touches during a pen or mouse stroke is ignored.
+              if (owner.touch && touch) cancelStroke();
               return;
             }
+            if (!event.isPrimary) {
+              tap.current = null;
+              cancelStroke();
+              return;
+            }
+            // Only the main button paints. A pen's barrel button turns the
+            // model, and its eraser end does nothing here.
+            if (!touch && event.button !== 0) return;
             const target = pick(
+              pickFrame(),
               event.clientX,
               event.clientY,
               event.altKey || propsRef.current.tool === "eyedropper",
@@ -502,25 +555,35 @@ export function ModelCanvas(
               line: event.shiftKey,
               pick: event.altKey,
             });
-            if (result === "stroke")
+            if (result === "stroke") {
+              strokePointer.current = { id: event.pointerId, touch };
               event.currentTarget.setPointerCapture(event.pointerId);
+            }
           }}
           onPointerMove={(event) => {
             if (event.pointerType !== "touch")
               hover.current?.move(event.clientX, event.clientY);
+            if (strokePointer.current?.id !== event.pointerId) return;
             if (!store.getSnapshot().painting) return;
             // Older Safari versions lack getCoalescedEvents.
             const native = event.nativeEvent;
             const samples =
               "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
+            const frame = pickFrame();
             for (const sample of samples.length > 0 ? samples : [event]) {
-              const target = pick(sample.clientX, sample.clientY);
+              const target = pick(frame, sample.clientX, sample.clientY);
+              // Off the model or on a covered spot, the stroke lifts, so it
+              // does not draw a line across the gap when it comes back.
               if (target && !("covered" in target))
                 store.strokeTo(target.x, target.y);
+              else store.liftStroke();
             }
           }}
           onPointerLeave={() => hover.current?.leave()}
           onPointerUp={(event) => {
+            const owner = strokePointer.current;
+            if (owner && owner.id !== event.pointerId) return;
+            strokePointer.current = null;
             const pending = tap.current;
             tap.current = null;
             if (pending?.id === event.pointerId) {
@@ -530,13 +593,20 @@ export function ModelCanvas(
               });
               return;
             }
-            if (!store.getSnapshot().painting) return;
-            store.endStroke();
-            propsRef.current.onPainted();
+            if (store.endStroke()) propsRef.current.onPainted();
           }}
-          onPointerCancel={() => {
+          onPointerCancel={(event) => {
+            const owner = strokePointer.current;
+            if (owner && owner.id !== event.pointerId) return;
             tap.current = null;
-            store.cancelStroke();
+            cancelStroke();
+          }}
+          onLostPointerCapture={(event) => {
+            // The canvas lost the pointer without a pointer up, for example
+            // when it was hidden. Keep what the stroke painted.
+            if (strokePointer.current?.id !== event.pointerId) return;
+            strokePointer.current = null;
+            if (store.endStroke()) propsRef.current.onPainted();
           }}
         />
       </div>
