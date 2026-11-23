@@ -1,4 +1,9 @@
-const textureParam = /([?&](?:texture|handoff)=)[^&#\s"'\\]*/giu;
+// Editor links can carry the skin in the query string or the fragment.
+const textureParam = /([?&#](?:texture|handoff)=)[^&#\s"'\\]*/giu;
+// A Mojang texture URL names the skin by its hash in the path. Match it
+// URL-encoded too, as it appears inside other links.
+const texturePath =
+  /(textures\.minecraft\.net(?:\/|%2F)texture(?:\/|%2F))[0-9a-f]+/giu;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -11,15 +16,17 @@ function redactValue(value: unknown): unknown {
 }
 
 /**
- * Remove editor texture hashes and handoff ids from every string in an
- * analytics event, including page URLs inside session replay data. Objects
- * and arrays change in place.
+ * Remove editor texture hashes, Mojang texture URLs, and handoff ids from
+ * every string in an analytics event, including page URLs inside session
+ * replay data. Objects and arrays change in place.
  */
 export function redactEditorParams(value: string): string;
 export function redactEditorParams<T extends object>(value: T): T;
 export function redactEditorParams(value: string | object): string | object {
   if (typeof value === "string")
-    return value.replaceAll(textureParam, "$1redacted");
+    return value
+      .replaceAll(textureParam, "$1redacted")
+      .replaceAll(texturePath, "$1redacted");
   if (Array.isArray(value)) {
     const items: unknown[] = value;
     for (let i = 0; i < items.length; i++) items[i] = redactValue(items[i]);

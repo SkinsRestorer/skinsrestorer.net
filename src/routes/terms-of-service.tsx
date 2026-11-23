@@ -119,7 +119,8 @@ export const Route = createFileRoute("/terms-of-service")({
   head: () =>
     getPageHead("/terms-of-service", {
       titleKey: "common.termsService",
-      description: "Terms of Service for skinsrestorer.net.",
+      description:
+        "The rules for using skinsrestorer.net, its documentation, and its skin upload and Studio tools.",
     }),
   component: () => (
     <HomeLayout>

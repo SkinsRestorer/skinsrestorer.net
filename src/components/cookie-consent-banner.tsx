@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAsRef } from "@/hooks/use-as-ref";
+import { allowAnalytics, declineAnalytics } from "@/lib/analytics";
 import { useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
 
@@ -95,13 +96,13 @@ const CookieConsentBanner = () => {
   }, [closeRef, dismissible]);
 
   const handleAcceptCookies = () => {
-    posthog.opt_in_capturing();
+    allowAnalytics();
     setChosenConsent("granted");
     close();
   };
 
   const handleDeclineCookies = () => {
-    posthog.opt_out_capturing();
+    declineAnalytics();
     setChosenConsent("denied");
     close();
   };
@@ -150,16 +151,19 @@ const CookieConsentBanner = () => {
               </p>
             ) : null}
             <p className="text-xs text-muted-foreground">
-              {t("consent.select")}{" "}
-              <span className="font-medium">{t("common.allowAnalytics")}</span>{" "}
-              {t("consent.enableTheseCookiesReadOur")}{" "}
-              <Link
-                href="/cookie-policy"
-                className="underline underline-offset-2"
-              >
-                {t("common.cookiePolicy")}
-              </Link>{" "}
-              {t("consent.details")}
+              {t.rich("consent.allowAnalyticsDetails", {
+                allow: (
+                  <span className="font-medium">
+                    {t("common.allowAnalytics")}
+                  </span>
+                ),
+                policy: (
+                  <Link
+                    href="/cookie-policy"
+                    className="underline underline-offset-2"
+                  />
+                ),
+              })}
             </p>
           </CardContent>
           <CardFooter className="flex gap-2 pt-2">
