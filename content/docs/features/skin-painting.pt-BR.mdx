@@ -24,7 +24,7 @@ A camada base é sempre opaca no Java Edition. Por isso o lápis pinta pixels op
 
 No modelo 3D, um traço fica na face onde começou.
 
-**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas e uma intensidade: **Suave**, **Média** ou **Forte**. **Média** é o padrão. **Suave** muda a luminosidade pela metade, e **Forte** pelo dobro.
+**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas e uma intensidade: **Suave**, **Média** ou **Forte**. **Média** é o padrão. **Suave** muda a luminosidade só a metade, e **Forte**, o dobro.
 
 A ferramenta mantém o tom e a opacidade de cada pixel. Ela não muda pixels transparentes. Um traço muda cada pixel uma só vez, então você pode passar várias vezes no mesmo lugar sem escurecê-lo mais e mais. Comece um novo traço para mudá-lo de novo.
 
@@ -83,7 +83,7 @@ Selecione o botão da mão para rolar a textura e girar o modelo com um dedo ou 
 | `Ctrl+Shift+Z` ou `Ctrl+Y` (`⇧⌘Z` ou `⌘Y` no Mac) | Refazer |
 | `Esc` | Cancelar a edição. Um menu ou diálogo aberto fecha primeiro. |
 
-Para pintar com o teclado, mova o foco para a textura com `Tab`. As setas movem um cursor de pixel, e `Shift` com uma seta move quatro pixels. `Space` ou `Enter` usam a ferramenta. `Shift+Space` ou `Shift+Enter` traçam uma linha reta até o cursor. Um leitor de tela lê a parte, a face, a camada e a posição do cursor. Os atalhos não fazem nada enquanto um campo de texto tem o foco.
+Para pintar com o teclado, mova o foco para a textura com `Tab`. As setas movem um cursor de pixel, e `Shift` com uma seta move quatro pixels. `Espaço` ou `Enter` usam a ferramenta. `Shift+Espaço` ou `Shift+Enter` traçam uma linha reta até o cursor. Um leitor de tela lê a parte, a face, a camada e a posição do cursor. Os atalhos não fazem nada enquanto um campo de texto tem o foco.
 
 ## Verificação da skin [#skin-check]
 
@@ -93,8 +93,8 @@ A verificação não muda pixels. Uma correção só roda quando você seleciona
 
 | Problema | Correção |
 | --- | --- |
-| Pixels base transparentes | **Tornar opacos** mantém cada cor e a deixa opaca, como o jogo mostra. |
-| Pixels em áreas não usadas | **Limpar áreas não usadas** remove pixels que o jogo não mostra. |
-| A skin pode ser clássica ou fina | **Usar clássico** ou **Usar fino** muda o modelo. É uma suposição, então veja a pré-visualização primeiro. No modelo fino, o jogo ignora a coluna larga do braço. No modelo clássico, uma quarta coluna vazia pode aparecer como uma faixa escura. Esses botões não mudam pixels. Para mudar os pixels dos braços, leia [Mudar a largura dos braços](#change-the-arm-width). |
+| Pixels transparentes na camada base | **Tornar opacos** mantém cada cor e a deixa opaca, como o jogo mostra. |
+| Pixels fora do modelo | **Limpar áreas não usadas** remove pixels que o jogo não mostra. |
+| A skin pode ser clássica ou fina | **Usar clássico** ou **Usar fino** muda o modelo. É uma suposição, então confira a prévia primeiro. No modelo fino, o jogo ignora a quarta coluna dos braços. No modelo clássico, uma quarta coluna vazia pode aparecer como uma faixa escura. Esses botões não mudam pixels. Para mudar os pixels dos braços, leia [Mudar a largura dos braços](#change-the-arm-width). |
 
 Uma camada externa opaca não é um problema. Algumas skins a usam de propósito.

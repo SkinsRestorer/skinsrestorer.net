@@ -3,7 +3,7 @@ title: "Proxy mode and the backend API"
 description: "Resolve mode warnings without adding an unnecessary database."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Network"
 ---
@@ -29,7 +29,7 @@ Restart the backend, then complete the [server-switch check](/docs/installation/
 
 ## A backend plugin needs the API
 
-Set `server.proxyMode.api: true`. Configure the proxy and each API-enabled backend with the same MySQL or PostgreSQL database and table prefix.
+Keep `server.proxyMode.api: true`, which is the default. Configure the proxy and each API-enabled backend with the same MySQL or PostgreSQL database and table prefix.
 
 File storage does not support this backend API mode. The provider can remain unavailable even though ordinary forwarded skins work.
 

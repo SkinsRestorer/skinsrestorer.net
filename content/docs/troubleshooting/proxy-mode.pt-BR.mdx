@@ -3,7 +3,7 @@ title: "Modo proxy e API do backend"
 description: "Resolva os avisos de modo sem adicionar um banco de dados desnecessário."
 docType: "how-to"
 appliesTo: "Todas as plataformas"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Network"
 ---
@@ -18,7 +18,7 @@ Você não precisa de MySQL ou PostgreSQL só porque tem vários backends. O pro
 
 Se nenhum plugin dos backends chama a API, você pode desativar o acesso à API nos backends:
 
-```yaml title="config.yml do backend (SkinsRestorer excerpt)"
+```yaml title="config.yml do backend (trecho do SkinsRestorer)"
 server:
   proxyMode:
     detection: AUTO
@@ -29,7 +29,7 @@ Reinicie o backend e conclua o [teste de troca de servidor](/docs/installation/q
 
 ## Um plugin do backend precisa da API [#a-backend-plugin-needs-the-api]
 
-Defina `server.proxyMode.api: true`. Configure o proxy e cada backend com a API ativada com o mesmo banco de dados MySQL ou PostgreSQL e o mesmo prefixo de tabelas.
+Mantenha `server.proxyMode.api: true`, que é o padrão. Configure o proxy e cada backend com a API ativada com o mesmo banco de dados MySQL ou PostgreSQL e o mesmo prefixo de tabelas.
 
 O armazenamento em arquivos não suporta esse modo de API no backend. O provedor pode continuar indisponível mesmo quando as skins encaminhadas comuns funcionam.
 

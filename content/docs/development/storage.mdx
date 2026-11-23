@@ -33,7 +33,7 @@ Use this for previews or temporary effects. On reconnect, normal saved selection
 
 `applySkin(player)` resolves the skin that would apply on join. It can throw `DataRequestException` because resolution can request account data.
 
-Do not assume that every overload performs the same storage work or throws the same checked exceptions.
+To clear a saved selection, call `PlayerStorage.removeSkinIdOfPlayer(uuid)`. Then call `applySkin(player)` to show the skin that the player now resolves to.
 
 ## Generate a URL property
 
@@ -41,7 +41,7 @@ Get the MineSkin client with `skinsRestorer.getMineSkinAPI()`. Then call `genSki
 
 Applying that property directly is temporary. To store the result as URL skin data, call `SkinStorage.setURLSkinByResponse(url, response)`. This stores the skin data only. It does not change the player's saved selection. For a persistent URL selection, use the skin storage resolution path and save its identifier, as the tutorial does.
 
-The `File`, `Path`, and `BufferedImage` overloads can also throw `IOException`. The `byte[]` overload does not. Inspect the [release API signatures](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/api/src/main/java/net/skinsrestorer/api) for the overload you use.
+`genSkin` also accepts a `File`, `Path`, `BufferedImage`, or `byte[]`. The `File`, `Path`, and `BufferedImage` overloads can also throw `IOException`. The `byte[]` overload does not.
 
 ## Read or create data
 
@@ -50,6 +50,19 @@ The `File`, `Path`, and `BufferedImage` overloads can also throw `IOException`. 
 `SkinStorage.setCustomSkinData(name, property)` stores a named custom entry. Preserve the signed value and signature together.
 
 `PropertyUtils.getSkinTextureUrl(property)` extracts the skin URL. A texture URL alone is not a complete signed property.
+
+## React to skin application
+
+Subscribe to `SkinApplyEvent` through the event bus. The event fires when a platform skin applier changes the skin of a player who is already online. This includes `applySkin` calls from other plugins. It does not fire when SkinsRestorer sets the profile during login, for example through the Paper join listener.
+
+```java
+skinsRestorer.getEventBus().subscribe(this, SkinApplyEvent.class, event -> {
+    Player player = event.getPlayer(Player.class);
+    // Read or replace event.getProperty(), or cancel the change.
+});
+```
+
+The event class is `net.skinsrestorer.api.event.SkinApplyEvent`. Pass your plugin instance as the first argument. `setProperty(property)` replaces the skin that SkinsRestorer applies. `setCancelled(true)` stops the change. On Bukkit, the listener runs outside the server thread, so schedule any Bukkit work yourself.
 
 ## Failure policy
 

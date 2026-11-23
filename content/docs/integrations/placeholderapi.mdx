@@ -56,4 +56,16 @@ Online texture placeholders read the current profile. Offline resolution uses st
 
 A texture hash is the final identifier in a Minecraft texture URL. It is different from a player UUID.
 
+## MiniPlaceholders
+
+SkinsRestorer also registers a [MiniPlaceholders](https://github.com/MiniPlaceholders/MiniPlaceholders) expansion when MiniPlaceholders is installed. This works on Bukkit-compatible servers, Velocity, Fabric, and NeoForge.
+
+MiniPlaceholders uses MiniMessage tags, such as `<skinsrestorer_texture_id_or_steve>`. It provides only these fallback variants:
+
+- `skinsrestorer_skin_name_or_empty` and `skinsrestorer_skin_name_or_player_name`.
+- `skinsrestorer_texture_url_or_empty`, `skinsrestorer_texture_url_or_steve`, and `skinsrestorer_texture_url_or_alex`.
+- `skinsrestorer_texture_id_or_empty`, `skinsrestorer_texture_id_or_steve`, and `skinsrestorer_texture_id_or_alex`.
+
+The tags work only for online players. The texture tags read the current profile.
+
 Continue with [DiscordSRV](/docs/integrations/discordsrv) or [avatar URLs](/docs/integrations/avatar-url).

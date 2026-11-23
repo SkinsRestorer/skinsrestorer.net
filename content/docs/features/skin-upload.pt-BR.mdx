@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Upload"
 ---
 
-Use a página [Enviar skin](/upload) para gerar um comando a partir de uma skin PNG. A página é o [Estúdio de skins](/docs/features/skin-editor) com o comando `/skin url` selecionado. Ela não se conecta ao seu servidor Minecraft. Você mesmo aplica o resultado.
+Use a página [Enviar skin](/upload) para gerar um comando a partir de uma skin PNG. A página é o [Estúdio de skins](/docs/features/skin-editor) com o comando `/skin url` selecionado. Ela não se conecta ao seu servidor Minecraft. Você mesmo aplica o resultado. No jogo, `/skin upload` envia um link para esta página.
 
 ## Antes de começar [#before-you-start]
 
@@ -33,7 +33,7 @@ Para corrigir ou mudar a skin antes, selecione **Editar skin** abaixo do modelo.
 
 Para parar de esperar um envio lento, selecione **Parar de esperar** abaixo do botão. A página ignora o resultado atrasado, e você pode gerar novamente.
 
-Com o comando pronto, o botão mostra **Comando pronto** e fica desativado. As mesmas escolhas geram o mesmo comando, então a página não envia a skin de novo. Se você mudar a skin, o modelo, a capa ou o método, a página oculta o comando anterior e ativa o botão outra vez. Gere novamente para obter um comando com as novas escolhas.
+Com o comando pronto, o botão mostra **Comando pronto** e fica desativado. Se você mudar a skin, o modelo, a capa ou o método, a página oculta o comando anterior. Gere novamente para obter um comando com as novas escolhas.
 
 Mantenha a URL gerada entre aspas. O comando inclui o modelo escolhido na página. A URL do comando é um link do MineSkin, como `https://minesk.in/SKIN_ID`, ou um valor opaco `skinsrestorer-axolotl://` do Axolotl.
 
@@ -63,13 +63,13 @@ Com **Axolotl** e uma capa selecionada, a página envia a skin ao Axolotl, o ser
 
 A chave no site e `api.mineskinAPIKey` no seu servidor são independentes. Leia [integração com o MineSkin](/docs/integrations/mineskin) para saber sobre filas, limites e privacidade.
 
-A lista contém capas existentes compatíveis. Ela não aceita imagens de capa arbitrárias nem transfere a propriedade de uma capa para sua conta.
+Leia [capas](/docs/features/capes) para saber o que uma capa pode e não pode fazer em um servidor.
 
 ## Se a geração falhar [#if-generation-fails]
 
-A página mostra **A skin não foi enviada** com o motivo. Sua skin e suas opções são mantidas. Com **Axolotl**, tente novamente ou mude para **Oficial** em **Opções avançadas**. Com **Oficial**, verifique sua chave de API do MineSkin em **Opções avançadas** e tente novamente. A página nunca reenvia sozinha um envio que falhou.
+A página mostra **A skin não foi enviada** com o motivo. Sua skin e suas opções são mantidas. Com **Axolotl**, tente novamente ou mude para **Oficial** em **Opções avançadas**. Com **Oficial**, verifique sua chave de API do MineSkin em **Opções avançadas** e tente novamente. A página nunca reenvia sozinha um envio que falhou. Para mais verificações, leia [problemas de envio](/docs/troubleshooting/uploads).
 
-- **Imagem inválida:** exporte novamente um modelo padrão de skin PNG.
+- **Imagem inválida:** exporte a skin de novo como um PNG no formato padrão.
 - **Fila ou limite de requisições:** espere a fila terminar antes de tentar novamente.
 - **Chave não autorizada:** confira a chave e as permissões atuais da conta.
 - **Erros nos braços:** gere novamente com o [modelo correto](/docs/features/skin-design).

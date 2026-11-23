@@ -3,7 +3,7 @@ title: "Change or reset your skin"
 description: "Select a player skin, refresh it, or return to your account skin."
 docType: "how-to"
 appliesTo: "Players on a SkinsRestorer server"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "UserRound"
 ---
@@ -26,7 +26,15 @@ Wait for the success message. Ask another player to check your appearance. The s
 /skin clear
 ```
 
-This command removes your saved selection. The server then resolves your account skin or its configured default. It does not delete the source skin from storage.
+This command removes your saved selection. You then get your account skin, or the server's default skin.
+
+## Get a random skin
+
+```text
+/skin random
+```
+
+This command selects a random skin from the recommended skins. If the server has no recommended skins, nothing happens.
 
 ## Refresh a copied account skin
 
@@ -34,15 +42,7 @@ This command removes your saved selection. The server then resolves your account
 /skin update
 ```
 
-Use this after the source account changes its skin or cape. URL skins are cached generated textures. To change a URL skin, upload the revised image again.
-
-## Undo a change
-
-```text
-/skin undo
-```
-
-Undo uses the server's saved skin history. If history is disabled or empty, there is no previous selection to restore.
+Use this after the source account changes its skin or cape. It fetches new data only for a skin copied from a player account. A URL skin or a custom skin stays the same. To change a URL skin, upload the revised image and run the new command.
 
 ## If the command fails
 
@@ -51,4 +51,4 @@ Undo uses the server's saved skin history. If history is disabled or empty, ther
 - **Skin cannot load:** Check the account name, then ask the administrator to inspect [service connections](/docs/troubleshooting/firewall).
 - **Success without a visible change:** Use [profile troubleshooting](/docs/troubleshooting/no-skin).
 
-Continue with [the skin menu and favorites](/docs/features/skin-menu).
+To undo a change or reuse an earlier skin, read [the skin menu and favorites](/docs/features/skin-menu).

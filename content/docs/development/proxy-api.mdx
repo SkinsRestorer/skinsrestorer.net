@@ -44,4 +44,4 @@ Matching server names alone does not prove matching player UUIDs. Inspect forwar
 
 `SkinsRestorerProvider.get()` can throw when backend storage initialization fails. A plugin load-order dependency cannot fix missing shared storage.
 
-If no backend plugin needs the API, disable backend API access and keep ordinary proxy skin forwarding. Use [proxy troubleshooting](/docs/troubleshooting/proxy-mode).
+If no backend plugin needs the API, set `server.proxyMode.api: false` on the backend. Proxy skin forwarding keeps working. Use [proxy troubleshooting](/docs/troubleshooting/proxy-mode).

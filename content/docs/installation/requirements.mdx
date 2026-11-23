@@ -8,7 +8,13 @@ version: "15.12.6"
 icon: "ClipboardCheck"
 ---
 
-There are three release artifacts: a server/proxy plugin, a Fabric mod, and a NeoForge mod. Mod builds target specific Minecraft versions.
+Each release has three files:
+
+- `SkinsRestorer.jar`: the plugin for Paper, Spigot, BungeeCord, and Velocity.
+- `SkinsRestorer-Mod-Fabric-<version>.jar`: the Fabric mod.
+- `SkinsRestorer-Mod-NeoForge-<version>.jar`: the NeoForge mod.
+
+The mods support only specific Minecraft versions.
 
 ## Server and proxy plugins
 
@@ -16,7 +22,7 @@ Use the server/proxy artifact on Bukkit-compatible servers, BungeeCord, and Velo
 
 | Requirement | 15.12.6 |
 | --- | --- |
-| Java | 8 or newer. The build converts the JAR to Java 8 bytecode. |
+| Java | 8 or newer |
 | Paper and other Bukkit-compatible servers | Minecraft 1.8 to 26.1.1 |
 | Velocity | 3.0 to 3.4 |
 | BungeeCord and Waterfall | Waterfall 1.17 to 1.21 |
@@ -45,6 +51,6 @@ Bedrock clients and custom client renderers can handle skins differently. Do not
 
 ## Downloads and dependencies
 
-Use the packaged release artifact, rather than a `raw` development JAR. The Fabric release bundles Fabric API, Cloud, and the Fabric permissions API. If the loader reports a missing dependency, inspect the artifact and loader versions first.
+The Fabric JAR includes Fabric API, Cloud, and the Fabric permissions API. The NeoForge JAR includes Cloud. If the loader reports a missing dependency, check that the mod JAR matches your Minecraft and loader versions.
 
 Continue with [your installation guide](/docs/installation).

@@ -8,7 +8,13 @@ version: "15.12.6"
 icon: "ClipboardCheck"
 ---
 
-В каждом релизе есть три сборки: плагин для серверов и прокси, мод Fabric и мод NeoForge. Сборки модов рассчитаны на конкретные версии Minecraft.
+В каждом релизе три файла:
+
+- `SkinsRestorer.jar`: плагин для Paper, Spigot, BungeeCord и Velocity.
+- `SkinsRestorer-Mod-Fabric-<version>.jar`: мод для Fabric.
+- `SkinsRestorer-Mod-NeoForge-<version>.jar`: мод для NeoForge.
+
+Моды поддерживают только определённые версии Minecraft.
 
 ## Плагины для серверов и прокси [#server-and-proxy-plugins]
 
@@ -16,12 +22,12 @@ icon: "ClipboardCheck"
 
 | Требование | 15.12.6 |
 | --- | --- |
-| Java | 8 или новее. При сборке JAR переводится в байт-код Java 8. |
+| Java | 8 или новее |
 | Paper и другие серверы, совместимые с Bukkit | Minecraft от 1.8 до 26.1.1 |
 | Velocity | от 3.0 до 3.4 |
 | BungeeCord и Waterfall | Waterfall от 1.17 до 1.21 |
 
-Эти диапазоны релиз указывает на [Hangar](https://hangar.papermc.io/SRTeam/SkinsRestorer). Они взяты из [настроек сборки релиза](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties).
+Эти диапазоны релиз указывает на [Hangar](https://hangar.papermc.io/SRTeam/SkinsRestorer). Они взяты из [конфигурации сборки релиза](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties).
 
 Платформе может требоваться более новая Java, чем SkinsRestorer. Проверьте [требования Paper](https://docs.papermc.io/paper/getting-started/) или [требования Velocity](https://docs.papermc.io/velocity/getting-started/) для вашей версии.
 
@@ -45,6 +51,6 @@ icon: "ClipboardCheck"
 
 ## Загрузка и зависимости [#downloads-and-dependencies]
 
-Используйте готовую сборку из релиза, а не `raw` JAR для разработки. Релиз Fabric уже включает Fabric API, Cloud и Fabric permissions API. Если загрузчик сообщает об отсутствующей зависимости, сначала проверьте версии сборки и загрузчика.
+JAR для Fabric включает Fabric API, Cloud и Fabric permissions API. JAR для NeoForge включает Cloud. Если загрузчик сообщает об отсутствующей зависимости, проверьте, что JAR мода подходит к вашим версиям Minecraft и загрузчика.
 
 Перейдите к [руководству по установке](/docs/installation).

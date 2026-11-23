@@ -41,10 +41,8 @@ The default list can choose one of several skins. With `storage.defaultSkins.app
 
 Player skin and UUID caches reduce service requests. Their durations use minutes. A duration of zero requests fresh data on each lookup.
 
-Generated URL textures do not follow account skin changes. A changed PNG needs a new generation. A copied account skin can refresh with `/skin update`.
+SkinsRestorer saves each skin that it generates from a URL and reuses it for the same URL and model. If you change the PNG behind a URL, upload the new file to a new URL. An account skin can refresh with `/skin update`.
 
 ## Proxy networks
 
-The proxy owns ordinary commands and selections. It forwards profile data to the backends. A backend API consumer needs access to the same SQL records.
-
-Read [proxy ownership](/docs/concepts/proxy) for that boundary, or [persistent and temporary API changes](/docs/development/storage) for implementation.
+On a proxy network, the proxy owns commands and selections. Read [proxy ownership](/docs/concepts/proxy) for details, or [persistent and temporary API changes](/docs/development/storage) for implementation.

@@ -1,6 +1,6 @@
 ---
 title: "Comandos e permissões"
-description: "Formas exatas dos comandos, aliases, nós de permissão e grupos incluídos."
+description: "Formas exatas dos comandos, aliases, nós de permissão e grupos integrados."
 docType: "reference"
 appliesTo: "Todas as plataformas"
 reviewed: "2026-11-23"
@@ -103,16 +103,16 @@ Execute no jogo os comandos exclusivos de jogadores. No console, digite os coman
 
 | Permissão | Finalidade |
 | --- | --- |
-| `skinsrestorer.player` | Grupo de jogador incluído: comandos comuns para si mesmo e o menu |
-| `skinsrestorer.command.*` | Outra forma de conceder o grupo de jogador incluído |
-| `skinsrestorer.admin` | Grupo de administrador incluído: contém o grupo de jogador e as ações sobre outros jogadores |
-| `skinsrestorer.admincommand.*` | Outra forma de conceder o grupo de administrador incluído |
+| `skinsrestorer.player` | Grupo de jogador integrado: comandos comuns para si mesmo e o menu |
+| `skinsrestorer.command.*` | Outra forma de conceder o grupo de jogador integrado |
+| `skinsrestorer.admin` | Grupo de administrador integrado: contém o grupo de jogador e as ações sobre outros jogadores |
+| `skinsrestorer.admincommand.*` | Outra forma de conceder o grupo de administrador integrado |
 | `skinsrestorer.bypasscooldown` | Ignora os tempos de espera dos comandos |
 | `skinsrestorer.bypassdisabled` | Ignora os nomes de skin bloqueados |
 | `skinsrestorer.ownskin` | Permite escolher o nome da própria conta quando as permissões por skin estão ativadas |
 | `skinsrestorer.skin.<name>` | Permite escolher uma skin específica |
 
-O grupo de administrador incluído não contém `reload`, `dump` nem `purgeolddata`. Conceda esses nós explicitamente quando precisar. Cada plugin de permissões pode interpretar curingas de forma diferente.
+O grupo de administrador integrado não contém `reload`, `dump` nem `purgeolddata`. Conceda esses nós explicitamente quando precisar. Cada plugin de permissões pode interpretar curingas de forma diferente.
 
 Os comandos também podem exigir acesso ao comando principal. Os nós raiz são `skinsrestorer.command`, `skinsrestorer.admincommand` e `skinsrestorer.command.skull`.
 

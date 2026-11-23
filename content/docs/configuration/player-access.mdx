@@ -3,36 +3,46 @@ title: "Grant player access"
 description: "Give players and staff the command permissions they need."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "KeyRound"
 ---
 
 Configure permissions on the platform that owns the command. On a proxy network, ordinary skin commands run through the proxy.
 
-## Allow normal player commands
+## Default player access
 
-Grant `skinsrestorer.player` to the player group in your permission plugin. This group covers ordinary skin changes, URLs, history, favorites, search, edit, and the menu.
+Every player can use the normal player commands by default. You do not need to grant anything. These commands include `/skin set`, `/skin url`, `/skin upload`, `/skin clear`, `/skin undo`, `/skin history`, `/skin random`, `/skin update`, `/skin search`, `/skin edit`, the favorites commands, and the `/skins` menu.
 
-For LuckPerms, a typical grant is:
+The `skinsrestorer.player` permission groups these commands. Commands that act on other players, `/skull`, and `/sr` are not in this group.
+
+## Remove a command from players
+
+Deny the node of that command in your permission plugin. Find the nodes in the [command reference](/docs/reference/commands-permissions). For example, this LuckPerms command blocks URL skins for the default group:
 
 ```text
-/lp group default permission set skinsrestorer.player true
+/lp group default permission set skinsrestorer.command.set.url false
 ```
 
-Use the permission manager installed on your proxy or server. This example is a LuckPerms command, not a SkinsRestorer command.
+On a Velocity proxy, LuckPerms uses `/lpv` instead of `/lp`. On BungeeCord, it uses `/lpb`.
 
-Some platforms provide player permissions by default. `commands.forceDefaultPermissions` controls fallback defaults on platforms without that support. An explicit denial can override a grant.
+This also blocks `/skin upload`, because it uses the same node. Deny the specific node, not `skinsrestorer.player`. A denied `skinsrestorer.player` removes the group only on Paper and Spigot.
 
-## Limit access to specific commands
+### BungeeCord
 
-Use individual nodes from the [command reference](/docs/reference/commands-permissions). For example, a URL change needs `skinsrestorer.command` and `skinsrestorer.command.set.url`.
+BungeeCord cannot tell SkinsRestorer that a permission is denied. With the default `commands.forceDefaultPermissions: true`, every player keeps all player commands, even after a denial.
 
-If a broad group already grants URL access, adding a narrower positive permission does not remove it. Remove the broad grant or explicitly deny the unwanted node.
+To control player commands on BungeeCord:
+
+1. Set `commands.forceDefaultPermissions: false` in the proxy's `config.yml`.
+2. Restart the proxy.
+3. Grant each command node that players need, such as `skinsrestorer.command` and `skinsrestorer.command.set`.
+
+Players then lose every node that you do not grant. Granting `skinsrestorer.player` alone is not enough on BungeeCord.
 
 ## Grant staff commands
 
-Grant only the nodes needed for the staff task. `skinsrestorer.admin` includes player commands, other-player operations, and several administrative actions.
+Grant only the nodes needed for the staff task. `skinsrestorer.admin` includes player commands, other-player operations, and several administrative actions. On Paper and Spigot, server operators get `skinsrestorer.admin` by default.
 
 The built-in admin group does **not** list `reload`, `dump`, or `purgeolddata` in 15.12.6. Grant those operational permissions explicitly if staff need them. A permission plugin's wildcard behavior can differ from SkinsRestorer's groups.
 
@@ -40,7 +50,7 @@ The built-in admin group does **not** list `reload`, `dump`, or `purgeolddata` i
 
 1. Join with a regular player account.
 2. Run `/skin set xknat`.
-3. Try a staff-only operation with that account.
+3. Try a command that you denied, and a staff-only command.
 4. Check the permission manager's effective permissions if results differ.
 
 Do not use an operator account as the only permission check. For denied commands, use [permission troubleshooting](/docs/troubleshooting/permissions).

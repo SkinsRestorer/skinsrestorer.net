@@ -8,28 +8,28 @@ version: "15.12.6"
 icon: "Boxes"
 ---
 
-Este guia cobre um servidor Fabric independente. Se o backend estiver atrás de um proxy, configure também o encaminhamento com o [guia do Velocity](/docs/installation/velocity) e confira o [modo proxy](/docs/troubleshooting/proxy-mode).
+Este guia cobre um servidor Fabric. Se o backend estiver atrás de um proxy, siga também o [guia do Velocity](/docs/installation/velocity) e instale o FabricProxy-Lite ou o FabricProxy para o encaminhamento. O SkinsRestorer só detecta o proxy quando um desses mods está instalado.
 
 ## Antes de começar [#before-you-start]
 
 Baixe o mod que corresponde à sua versão do Minecraft. O SkinsRestorer 15.12.6 é para o Minecraft 26.3. Leia os [requisitos](/docs/installation/requirements) antes de atualizar um modpack existente.
 
-A versão empacotada para Fabric inclui a Fabric API, o Cloud e a API de permissões. Não use o JAR de desenvolvimento `raw`.
+O JAR para Fabric inclui a Fabric API, o Cloud e a API de permissões do Fabric. Você não precisa instalá-los separadamente.
 
 ## Instalar [#install]
 
 1. Pare o servidor.
-2. Baixe o arquivo para Fabric da [versão oficial](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+2. Baixe o `SkinsRestorer-Mod-Fabric-15.12.6.jar` da [versão oficial](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
 3. Remova JARs antigos do mod SkinsRestorer da pasta `mods`. Mantenha a configuração e os dados.
 4. Coloque o novo JAR do mod em `mods`.
 5. Inicie o servidor.
 6. Leia o log procurando erros de dependência do loader e erros do SkinsRestorer na inicialização.
 
-O mod guarda a configuração em `config/skinsrestorer/config.yml`, dentro da pasta do servidor. Não copie um JAR do plugin Bukkit para `mods`.
+O mod guarda a configuração em `config/skinsrestorer/config.yml`, dentro da pasta do servidor. Não coloque o `SkinsRestorer.jar` em `mods`. Esse arquivo é o plugin para o Paper e os proxies.
 
 ## Confira [#check]
 
-Faça a [primeira verificação de skin](/docs/installation/quick-start). Ela testa o comando, o que outros jogadores veem e uma reconexão.
+Faça o [primeiro teste de skin](/docs/installation/quick-start). Ele testa o comando, o que outros jogadores veem e uma reconexão.
 
 Se o acesso for negado, configure as permissões da plataforma ou leia [acesso dos jogadores](/docs/configuration/player-access). Se o loader rejeitar o mod, compare suas versões do Minecraft, do Java e do loader com os [requisitos](/docs/installation/requirements).
 

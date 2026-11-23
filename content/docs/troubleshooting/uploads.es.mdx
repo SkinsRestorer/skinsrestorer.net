@@ -31,15 +31,15 @@ En el modo **Axolotl**, una subida con capa seleccionada va a Axolotl, el servic
 
 Mientras un trabajo está pendiente, el botón de generar muestra **Generando…** y queda desactivado. Un trabajo puede tardar hasta un minuto. Para dejar de esperar, pulsa **Dejar de esperar** debajo del botón y vuelve a generar.
 
-Si la subida o el trabajo tarda mucho más, la página deja de esperar y muestra un error. MineSkin aún puede crear la skin, así que espera unos minutos antes de volver a generar. No hace falta subir la misma skin otra vez.
+Si MineSkin no termina en 2 minutos, la página deja de esperar y muestra un error. El trabajo aún puede terminar, así que espera unos minutos antes de volver a generar.
 
 Si cambias el archivo, el modelo, la capa, la clave de API o el método de subida, la página deja de esperar el resultado anterior. Salir de la página también deja de esperar. Un trabajo que el servicio ya aceptó puede continuar. La página no vuelve a enviar ese trabajo automáticamente.
 
 ## Falla el comando generado [#the-generated-command-fails]
 
-Mantén la URL entre comillas y el valor del modelo generado sin cambios. Un resultado opaco `skinsrestorer-axolotl://` es una entrada válida para el comando, no un enlace para el navegador. Ejecuta un resultado `/skin url` en el chat del juego para tu propio jugador.
+Mantén la URL entre comillas y el valor del modelo generado sin cambios. Un valor `skinsrestorer-axolotl://` es una entrada válida para el comando. No es un enlace para el navegador. Ejecuta un resultado `/skin url` en el chat del juego para tu propio jugador.
 
-Ejecuta un resultado `/sr createcustom` como administrador en el proxy (o en el servidor, si no tienes proxy). Crea una skin con nombre, no la asigna a un jugador.
+Ejecuta un resultado `/sr createcustom` como administrador en el proxy (o en el servidor, si no tienes proxy). Crea una skin con nombre. No asigna la skin a ningún jugador.
 
 Revisa `skinsrestorer.command.set.url` y las [restricciones de URL](/docs/configuration/restrict-skins). Si la generación funcionó pero el servidor no puede cargar el resultado, revisa las [conexiones con los servicios](/docs/troubleshooting/firewall).
 

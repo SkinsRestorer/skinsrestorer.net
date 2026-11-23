@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Box"
 ---
 
-This guide covers a standalone NeoForge server. For a backend behind a proxy, also set up forwarding with the [Velocity guide](/docs/installation/velocity) and check [proxy mode](/docs/troubleshooting/proxy-mode).
+This guide covers a NeoForge server. For a backend behind a proxy, also follow the [Velocity guide](/docs/installation/velocity) and install NeoForwarding or NeoVelocity for forwarding. SkinsRestorer detects the proxy only when one of these mods is installed.
 
 ## Before you start
 
@@ -19,13 +19,13 @@ Use a matching NeoForge loader. The 15.12.6 build targets NeoForge 26.3.0.7-beta
 ## Install
 
 1. Stop the server.
-2. Download the NeoForge artifact from the [official release](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+2. Download `SkinsRestorer-Mod-NeoForge-15.12.6.jar` from the [official release](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
 3. Remove older SkinsRestorer mod JARs from `mods`. Keep the configuration and data.
 4. Put the new mod JAR in `mods`.
 5. Start the server.
 6. Read the log for loader dependency errors and SkinsRestorer startup errors.
 
-The mod keeps its configuration in `config/skinsrestorer/config.yml` inside the server folder. Do not copy a Bukkit plugin JAR into `mods`.
+The mod keeps its configuration in `config/skinsrestorer/config.yml` inside the server folder. Do not put `SkinsRestorer.jar` in `mods`. That file is the plugin for Paper and proxies.
 
 ## Check
 

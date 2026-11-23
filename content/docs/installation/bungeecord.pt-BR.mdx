@@ -40,16 +40,16 @@ Só os backends usam `online-mode=false`. Não coloque `online_mode: false` no p
 
 ## Instalar [#install]
 
-1. Coloque o JAR de servidor/proxy do SkinsRestorer na pasta `plugins` do proxy.
+1. Coloque o `SkinsRestorer.jar` na pasta `plugins` do proxy.
 2. Instale a mesma versão em todos os backends.
 3. Inicie os backends e o proxy.
 4. Leia todos os logs de inicialização.
 
-Um backend com mods precisa do mod correspondente e de suporte compatível a encaminhamento. Mantenha `server.proxyMode.detection` como `AUTO` nos backends, a menos que a detecção falhe.
+Um backend Fabric ou NeoForge precisa do JAR do mod correspondente e de um mod de encaminhamento. Leia o guia do [Fabric](/docs/installation/fabric) ou do [NeoForge](/docs/installation/neoforge). Mantenha `server.proxyMode.detection` como `AUTO` nos backends, a menos que a detecção falhe.
 
 ## Confira [#check]
 
-Conclua o [teste da primeira skin](/docs/installation/quick-start), incluindo uma troca entre backends. Conceda as permissões dos comandos no BungeeCord ou no plugin de permissões do proxy.
+Conclua o [primeiro teste de skin](/docs/installation/quick-start), incluindo uma troca entre backends. Conceda as permissões dos comandos no BungeeCord ou no plugin de permissões do proxy.
 
 As skins comuns gerenciadas pelo proxy não exigem armazenamento SQL. Integrações com a API nos backends precisam de [armazenamento compartilhado em MySQL ou PostgreSQL](/docs/configuration/database). Para configurar a API, leia [o guia da API no proxy](/docs/development/proxy-api).
 

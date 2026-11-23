@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Box"
 ---
 
-Это руководство описывает отдельный сервер NeoForge. Если сервер работает за прокси, также настройте перенаправление по [руководству для Velocity](/docs/installation/velocity) и проверьте [режим прокси](/docs/troubleshooting/proxy-mode).
+Это руководство описывает сервер NeoForge. Если сервер работает за прокси, также выполните [руководство для Velocity](/docs/installation/velocity) и установите NeoForwarding или NeoVelocity для перенаправления. SkinsRestorer обнаруживает прокси, только если установлен один из этих модов.
 
 ## Перед началом [#before-you-start]
 
@@ -19,13 +19,13 @@ icon: "Box"
 ## Установка [#install]
 
 1. Остановите сервер.
-2. Скачайте сборку для NeoForge из [официального релиза](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+2. Скачайте `SkinsRestorer-Mod-NeoForge-15.12.6.jar` из [официального релиза](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
 3. Удалите старые JAR-файлы мода SkinsRestorer из `mods`. Настройки и данные оставьте.
 4. Положите новый JAR мода в `mods`.
 5. Запустите сервер.
 6. Проверьте лог на ошибки зависимостей загрузчика и ошибки запуска SkinsRestorer.
 
-Мод хранит настройки в файле `config/skinsrestorer/config.yml` в папке сервера. Не копируйте JAR плагина Bukkit в `mods`.
+Мод хранит настройки в файле `config/skinsrestorer/config.yml` в папке сервера. Не кладите `SkinsRestorer.jar` в `mods`. Этот файл является плагином для Paper и прокси.
 
 ## Проверка [#check]
 

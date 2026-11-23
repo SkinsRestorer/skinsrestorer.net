@@ -1,9 +1,9 @@
 ---
-title: "Cambia o restablece tu skin"
+title: "Cambiar o restablecer tu skin"
 description: "Elige la skin de un jugador, actualízala o vuelve a la skin de tu cuenta."
 docType: "how-to"
 appliesTo: "Jugadores en un servidor con SkinsRestorer"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "UserRound"
 ---
@@ -26,7 +26,15 @@ Espera el mensaje de éxito. Pide a otro jugador que revise tu aspecto. El servi
 /skin clear
 ```
 
-Este comando quita tu selección guardada. Después, el servidor usa la skin de tu cuenta o la skin predeterminada que tenga configurada. No borra la skin original del almacenamiento.
+Este comando quita tu selección guardada. Después tendrás la skin de tu cuenta o la skin predeterminada del servidor.
+
+## Obtén una skin aleatoria [#get-a-random-skin]
+
+```text
+/skin random
+```
+
+Este comando elige una skin aleatoria de las skins recomendadas. Si el servidor no tiene skins recomendadas, no pasa nada.
 
 ## Actualiza una skin copiada de una cuenta [#refresh-a-copied-account-skin]
 
@@ -34,15 +42,7 @@ Este comando quita tu selección guardada. Después, el servidor usa la skin de 
 /skin update
 ```
 
-Úsalo cuando la cuenta original cambie su skin o su capa. Las skins de URL son texturas generadas y guardadas en caché. Para cambiar una skin de URL, vuelve a subir la imagen corregida.
-
-## Deshaz un cambio [#undo-a-change]
-
-```text
-/skin undo
-```
-
-Deshacer usa el historial de skins guardado en el servidor. Si el historial está desactivado o vacío, no hay ninguna selección anterior que recuperar.
+Úsalo cuando la cuenta original cambie su skin o su capa. Solo obtiene datos nuevos para una skin copiada de una cuenta de jugador. Una skin de URL o una skin personalizada no cambia. Para cambiar una skin de URL, sube la imagen corregida y ejecuta el nuevo comando.
 
 ## Si el comando falla [#if-the-command-fails]
 
@@ -51,4 +51,4 @@ Deshacer usa el historial de skins guardado en el servidor. Si el historial est�
 - **No se puede cargar la skin:** Revisa el nombre de la cuenta y pide al administrador que revise las [conexiones con los servicios](/docs/troubleshooting/firewall).
 - **Éxito sin cambio visible:** Consulta [skin no visible](/docs/troubleshooting/no-skin).
 
-Continúa con [el menú de skins y los favoritos](/docs/features/skin-menu).
+Para deshacer un cambio o volver a usar una skin anterior, lee [el menú de skins y los favoritos](/docs/features/skin-menu).

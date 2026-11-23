@@ -3,7 +3,7 @@ title: "Configure shared storage"
 description: "Choose file storage, MySQL, or PostgreSQL and connect a shared backend API."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Database"
 ---
@@ -32,6 +32,8 @@ database:
   tablePrefix: "sr_"
   connectionOptions: "sslMode=trust&serverTimezone=UTC"
 ```
+
+If your MySQL server does not use SSL, change `sslMode=trust` to `sslMode=disable`.
 
 ## PostgreSQL example
 
@@ -62,6 +64,6 @@ Start the instances and inspect their database initialization logs. Change a tes
 
 Check host resolution, port access, credentials, permissions to create tables, and driver options. `/sr status` does not prove that the database works.
 
-The old `database.enabled` key belongs to earlier configuration. This release migrates older configuration, but new examples use `database.type`.
+Older guides use `database.enabled`. SkinsRestorer converts that key to `database.type` when it starts.
 
 Read [backup and recovery](/docs/configuration/backups) before another storage change.

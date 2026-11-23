@@ -8,7 +8,13 @@ version: "15.12.6"
 icon: "ClipboardCheck"
 ---
 
-Cada versão publica três arquivos: um plugin de servidor/proxy, um mod para Fabric e um mod para NeoForge. As builds dos mods são feitas para versões específicas do Minecraft.
+Cada versão tem três arquivos:
+
+- `SkinsRestorer.jar`: o plugin para Paper, Spigot, BungeeCord e Velocity.
+- `SkinsRestorer-Mod-Fabric-<version>.jar`: o mod para Fabric.
+- `SkinsRestorer-Mod-NeoForge-<version>.jar`: o mod para NeoForge.
+
+Os mods só funcionam com versões específicas do Minecraft.
 
 ## Plugins de servidor e proxy [#server-and-proxy-plugins]
 
@@ -16,7 +22,7 @@ Use o arquivo de servidor/proxy em servidores compatíveis com Bukkit, BungeeCor
 
 | Requisito | 15.12.6 |
 | --- | --- |
-| Java | 8 ou mais recente. A compilação converte o JAR para bytecode do Java 8. |
+| Java | 8 ou mais recente |
 | Paper e outros servidores compatíveis com Bukkit | Minecraft 1.8 a 26.1.1 |
 | Velocity | 3.0 a 3.4 |
 | BungeeCord e Waterfall | Waterfall 1.17 a 1.21 |
@@ -45,6 +51,6 @@ Clientes Bedrock e renderizadores personalizados podem tratar skins de outra for
 
 ## Downloads e dependências [#downloads-and-dependencies]
 
-Use o arquivo empacotado da versão, e não um JAR de desenvolvimento `raw`. A versão para Fabric inclui a Fabric API, o Cloud e a API de permissões do Fabric. Se o loader indicar uma dependência ausente, confira primeiro as versões do arquivo e do loader.
+O JAR para Fabric inclui a Fabric API, o Cloud e a API de permissões do Fabric. O JAR para NeoForge inclui o Cloud. Se o loader indicar uma dependência ausente, confira se o JAR do mod corresponde às suas versões do Minecraft e do loader.
 
 Continue com [o seu guia de instalação](/docs/installation).

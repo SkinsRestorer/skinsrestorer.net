@@ -45,12 +45,12 @@ Paper 1.18.2 and older use `settings.velocity-support` in `paper.yml`. Use the p
 
 ## Install SkinsRestorer
 
-1. Put the server/proxy SkinsRestorer JAR in the proxy's `plugins` folder.
+1. Put `SkinsRestorer.jar` in the proxy's `plugins` folder.
 2. Put the same release in every Bukkit backend's `plugins` folder.
 3. Start the backends and proxy.
 4. Read all startup logs for forwarding or SkinsRestorer errors.
 
-For Fabric or NeoForge backends, install the matching mod artifact instead of a Bukkit JAR.
+For Fabric or NeoForge backends, install the matching mod JAR and a forwarding mod instead. Read the [Fabric](/docs/installation/fabric) or [NeoForge](/docs/installation/neoforge) guide.
 
 Leave `server.proxyMode.detection: AUTO` on the backends unless detection fails. Correct forwarding normally lets SkinsRestorer detect the proxy.
 

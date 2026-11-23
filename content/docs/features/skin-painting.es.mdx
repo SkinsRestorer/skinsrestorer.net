@@ -32,7 +32,7 @@ La herramienta mantiene el tono y la opacidad de cada píxel. No cambia los píx
 
 **Simetría** (el botón de reflejo) también pinta el otro lado del modelo. El brazo izquierdo y el derecho se intercambian, y también las piernas. La cabeza y el cuerpo se reflejan sobre sí mismos. Simetría funciona con el lápiz, el borrador, **Aclarar u oscurecer** y **Rellenar** con **Cara**. **En todo** ya cambia cada píxel del color, así que el botón Simetría no aparece con esa opción. Solo cambia la capa activa y no cambia partes ocultas. Un contorno discontinuo en la textura y una marca más clara en el modelo 3D muestran los píxeles reflejados.
 
-Para trazar una línea recta con el lápiz, el borrador o **Aclarar u oscurecer**, mantén `Shift` y haz clic. La línea empieza donde terminó tu último trazo y usa el tamaño, el espejo y la intensidad actuales. Una línea se queda en una cara. Si haces clic en otra cara, o cambias de herramienta o de capa, el clic empieza un trazo nuevo. Después de deshacer, cambiar el modelo, rellenar o usar una acción de parte, la línea también empieza desde el siguiente trazo.
+Para trazar una línea recta con el lápiz, el borrador o **Aclarar u oscurecer**, mantén `Shift` y haz clic. La línea empieza donde terminó tu último trazo y usa el tamaño, la simetría y la intensidad actuales. Una línea se queda en una cara. Si haces clic en otra cara, o cambias de herramienta o de capa, el clic empieza un trazo nuevo. Después de deshacer, cambiar el modelo, rellenar o usar una acción de parte, la línea también empieza desde el siguiente trazo.
 
 Usa **Partes visibles** para ocultar una parte o una capa. Las herramientas no cambian las partes ocultas. Para pintar la capa base bajo un píxel exterior, oculta la capa exterior de esa parte.
 
@@ -74,7 +74,7 @@ Selecciona el botón de la mano para desplazar la textura y girar el modelo con 
 | `S` | Aclarar u oscurecer. Pulsa otra vez para cambiar entre aclarar y oscurecer. |
 | `G` | Rellenar. Pulsa otra vez para cambiar entre **Cara** y **En todo**. |
 | `I` | Tomar color |
-| `X` | Activar o desactivar el espejo |
+| `X` | Activar o desactivar la simetría |
 | `[` / `]` | Pincel más pequeño o más grande |
 | `L` | Cambiar entre la capa base y la exterior |
 | `P` / `M` | Pintar o mover la vista |
@@ -93,8 +93,8 @@ La revisión no cambia píxeles. Una corrección se aplica solo al pulsar su bot
 
 | Problema | Corrección |
 | --- | --- |
-| Píxeles base transparentes | **Hacer opacos** mantiene cada color y lo hace opaco, como lo muestra el juego. |
-| Píxeles en áreas sin uso | **Limpiar áreas sin uso** elimina los píxeles que el juego no muestra. |
+| Píxeles transparentes en la capa base | **Hacer opacos** mantiene cada color y lo hace opaco, como lo muestra el juego. |
+| Píxeles fuera del modelo | **Limpiar áreas sin uso** elimina los píxeles que el juego no muestra. |
 | La skin puede ser clásica o delgada | **Usar clásica** o **Usar delgada** cambia el modelo. Es una suposición, así que revisa la vista previa primero. Con el modelo delgado, el juego ignora la columna ancha del brazo. Con el modelo clásico, una cuarta columna vacía puede verse como una franja oscura. Estos botones no cambian píxeles. Para cambiar los píxeles de los brazos, lee [Cambiar el ancho de los brazos](#change-the-arm-width). |
 
 Una capa exterior opaca no es un problema. Algunas skins la usan a propósito.

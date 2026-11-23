@@ -3,7 +3,7 @@ title: "Fix service connections"
 description: "Diagnose DNS, HTTPS, rate limits, and blocked outbound requests."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Globe"
 ---
@@ -19,7 +19,7 @@ A skin lookup can fail because of DNS, TLS, blocked HTTPS, an upstream error, or
 
 `/sr status` checks account UUID and profile services. It does not check every MineSkin route, recommendations, website uploads, or your database.
 
-If account names work but URLs fail, investigate the URL generation service and key. A green status result does not prove URL generation works.
+If account names work but URLs fail, check MineSkin and your MineSkin API key.
 
 ## Check local configuration
 

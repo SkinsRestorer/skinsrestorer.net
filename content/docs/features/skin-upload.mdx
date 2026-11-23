@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Upload"
 ---
 
-Use the [Upload](/upload) page to generate a command from a skin PNG. The page is the [Skin Studio](/docs/features/skin-editor) with the `/skin url` command selected. It does not connect to your Minecraft server. You apply the result yourself.
+Use the [Upload](/upload) page to generate a command from a skin PNG. The page is the [Skin Studio](/docs/features/skin-editor) with the `/skin url` command selected. It does not connect to your Minecraft server. You apply the result yourself. In game, `/skin upload` sends you a link to this page.
 
 ## Before you start
 
@@ -33,7 +33,7 @@ To fix or change the skin first, select **Edit skin** below the model. The [edit
 
 To stop waiting for a slow upload, select **Stop waiting** below the button. The page ignores the late result, and you can generate again.
 
-After the command is ready, the button shows **Command ready** and stays off. The same choices give the same command, so the page does not upload again. If you change the skin, the model, the cape, or the method, the page hides the old command and turns the button on again. Generate again to get a command for the new choices.
+After the command is ready, the button shows **Command ready** and stays off. If you change the skin, the model, the cape, or the method, the page hides the old command. Generate again to get a command for the new choices.
 
 Keep the generated URL inside quotation marks. The command includes the model selected on the page. The URL in the command is a MineSkin link, such as `https://minesk.in/SKIN_ID`, or an opaque `skinsrestorer-axolotl://` value from Axolotl.
 
@@ -63,11 +63,11 @@ With **Axolotl** and a selected cape, the page sends the upload to Axolotl, the 
 
 The key field on the website and `api.mineskinAPIKey` on your server are separate. Read [MineSkin integration](/docs/integrations/mineskin) for queues, limits, and privacy.
 
-The available list contains supported existing capes. It does not accept arbitrary cape images or transfer cape ownership to your account.
+Read [capes](/docs/features/capes) for what a cape on a server can and cannot do.
 
 ## If generation fails
 
-The page shows **The skin was not uploaded** with the reason. Your skin and options stay as they were. With **Axolotl**, try again, or switch to **Official** under **Advanced options**. With **Official**, check your MineSkin API key under **Advanced options**, then try again. The page never sends a failed upload again on its own.
+The page shows **The skin was not uploaded** with the reason. Your skin and options stay as they were. With **Axolotl**, try again, or switch to **Official** under **Advanced options**. With **Official**, check your MineSkin API key under **Advanced options**, then try again. The page never sends a failed upload again on its own. For more checks, read [upload problems](/docs/troubleshooting/uploads).
 
 - **Invalid image:** Export a standard PNG skin template again.
 - **Queue or rate limit:** Wait for the queue to finish before you retry.

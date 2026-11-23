@@ -39,24 +39,24 @@ proxies:
     secret: "YOUR_FORWARDING_SECRET"
 ```
 
-Defina `proxies.velocity.online-mode` com o mesmo valor de `online-mode` do proxy. O valor `true` acima considera um proxy com autenticação. Mantenha `settings.bungeecord` desativado no `spigot.yml` ao usar o encaminhamento moderno.
+Defina `proxies.velocity.online-mode` com o mesmo valor de `online-mode` do proxy. O valor `true` acima pressupõe um proxy com autenticação. Mantenha `settings.bungeecord` desativado no `spigot.yml` ao usar o encaminhamento moderno.
 
 O Paper 1.18.2 e versões anteriores usam `settings.velocity-support` no `paper.yml`. Para essas versões, siga o guia da plataforma.
 
 ## Instale o SkinsRestorer [#install-skinsrestorer]
 
-1. Coloque o JAR de servidor/proxy do SkinsRestorer na pasta `plugins` do proxy.
+1. Coloque o `SkinsRestorer.jar` na pasta `plugins` do proxy.
 2. Coloque a mesma versão na pasta `plugins` de cada backend Bukkit.
 3. Inicie os backends e o proxy.
 4. Leia todos os logs de inicialização procurando erros de encaminhamento ou do SkinsRestorer.
 
-Para backends Fabric ou NeoForge, instale o mod correspondente em vez de um JAR Bukkit.
+Para backends Fabric ou NeoForge, instale o JAR do mod correspondente e um mod de encaminhamento. Leia o guia do [Fabric](/docs/installation/fabric) ou do [NeoForge](/docs/installation/neoforge).
 
 Mantenha `server.proxyMode.detection: AUTO` nos backends, a menos que a detecção falhe. Com o encaminhamento correto, o SkinsRestorer normalmente detecta o proxy sozinho.
 
 ## Confira [#check]
 
-Conclua o [teste da primeira skin e da troca de servidor](/docs/installation/quick-start). Os comandos de skin usam as permissões do proxy, então conceda o acesso no proxy.
+Conclua o [primeiro teste de skin e de troca de servidor](/docs/installation/quick-start). Os comandos de skin usam as permissões do proxy, então conceda o acesso no proxy.
 
 O armazenamento em arquivos padrão é suficiente para as skins comuns gerenciadas pelo proxy. Um plugin de backend que chama a API precisa de [armazenamento compartilhado em MySQL ou PostgreSQL](/docs/configuration/database). Para configurar a API, leia [o guia da API no proxy](/docs/development/proxy-api).
 

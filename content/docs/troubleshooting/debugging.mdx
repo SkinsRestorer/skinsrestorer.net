@@ -3,7 +3,7 @@ title: "Collect diagnostics for support"
 description: "Capture the setup, a diagnostic report, and the log around a failed command."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Bug"
 ---
@@ -23,7 +23,7 @@ Include:
 
 ## Create a diagnostic report
 
-Run `/sr dump` from the affected instance's console. The command uploads a diagnostic report and returns a link.
+Run `/sr dump` from the affected instance's console. The command uploads a diagnostic report to `bytebin.lucko.me` and returns a link.
 
 The report contains configuration, platform and plugin information, and environment details. The implementation excludes database configuration and the MineSkin API key. It does not include your recent console log.
 

@@ -1,9 +1,9 @@
 ---
-title: "Soluciona las conexiones con los servicios"
+title: "Solucionar las conexiones con los servicios"
 description: "Diagnostica DNS, HTTPS, límites de peticiones y peticiones salientes bloqueadas."
 docType: "how-to"
 appliesTo: "Todas las plataformas"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Globe"
 ---
@@ -19,11 +19,11 @@ La búsqueda de una skin puede fallar por DNS, TLS, HTTPS bloqueado, un error de
 
 `/sr status` comprueba los servicios de UUID y perfiles de cuentas. No comprueba todas las rutas de MineSkin, las recomendaciones, las subidas desde la web ni tu base de datos.
 
-Si los nombres de cuenta funcionan pero las URL fallan, investiga el servicio de generación desde URL y la clave. Un estado en verde no demuestra que la generación desde URL funcione.
+Si los nombres de cuenta funcionan pero las URL fallan, revisa MineSkin y tu clave de API de MineSkin.
 
 ## Revisa la configuración local [#check-local-configuration]
 
-Mantén `advanced.noConnections: false` para el funcionamiento online normal. El valor true impide nuevas búsquedas externas, la generación desde URL y la búsqueda de actualizaciones.
+Mantén `advanced.noConnections: false` para el funcionamiento online normal. El valor `true` impide nuevas búsquedas externas, la generación desde URL y la búsqueda de actualizaciones.
 
 Si el error tiene que ver con TLS, revisa el reloj de la máquina y el almacén de certificados de confianza de Java. No desactives la validación de certificados para ocultar un problema de TLS.
 

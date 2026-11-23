@@ -40,12 +40,12 @@ Only the backends use `online-mode=false`. Do not set `online_mode: false` on th
 
 ## Install
 
-1. Put the server/proxy SkinsRestorer JAR in the proxy's `plugins` folder.
+1. Put `SkinsRestorer.jar` in the proxy's `plugins` folder.
 2. Install the same release on every backend.
 3. Start the backends and proxy.
 4. Read all startup logs.
 
-A modded backend needs the matching mod artifact and compatible forwarding support. Leave backend `server.proxyMode.detection` at `AUTO` unless detection fails.
+A Fabric or NeoForge backend needs the matching mod JAR and a forwarding mod. Read the [Fabric](/docs/installation/fabric) or [NeoForge](/docs/installation/neoforge) guide. Leave backend `server.proxyMode.detection` at `AUTO` unless detection fails.
 
 ## Check
 

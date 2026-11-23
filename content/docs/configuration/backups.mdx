@@ -38,8 +38,10 @@ Use a compatible release for the restored data. Older releases can fail to read 
 
 ## Remove old data
 
-`/sr purgeolddata <days>` removes old skin data. `/sr drop player <target>` removes a player record. `/sr drop skin <target>` removes stored skin data.
+- `/sr purgeolddata <days>` removes cached account skins that are older than the given number of days. It does not remove custom skins or player selections.
+- `/sr drop player <target>` removes the saved skin selection of a player.
+- `/sr drop skin <target>` removes stored skin data.
 
-Back up before you run these commands. They delete data that you no longer need. They do not fix a skin that does not show. For that, read [A skin change is not visible](/docs/troubleshooting/no-skin).
+Back up before you run these commands. They do not fix a skin that does not show. For that, read [A skin change is not visible](/docs/troubleshooting/no-skin).
 
 Continue with [updates](/docs/configuration/auto-update) or [shared storage](/docs/configuration/database).

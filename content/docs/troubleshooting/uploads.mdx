@@ -25,21 +25,21 @@ If the preview shows arm gaps, switch between classic and slim. Read [the model 
 1. Read the error under **The skin was not uploaded**. The next line tells you what to try. Your skin and options stay as they were.
 2. Wait for an active queue job to finish.
 3. Check your API key if the error concerns authorization.
-4. Check the available cape list if the error concerns cape access. If the list shows **Failed to load available capes**, select **Try again** below it.
+4. Check the available cape list if the error concerns cape access. If the list shows **Could not load available capes**, select **Try again** below it.
 
 In **Axolotl** mode, an upload with a selected cape goes to Axolotl, the SkinsRestorer cape upload service. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
 
 While a job is pending, the generate button shows **Generating…** and stays off. A job can take up to a minute. To stop waiting, select **Stop waiting** below the button, then generate again.
 
-If the upload or the job takes much longer, the page stops waiting and shows an error. MineSkin may still create the skin, so wait a few minutes before you generate again. A second upload of the same skin is not needed.
+If MineSkin does not finish within 2 minutes, the page stops waiting and shows an error. The job may still finish, so wait a few minutes before you generate again.
 
 If you change the file, model, cape, API key, or upload method, the page stops waiting for the previous result. Leaving the page also stops waiting. A job that the service already accepted can continue. The page does not submit that job again automatically.
 
 ## The generated command fails
 
-Keep the URL quoted and the generated model value intact. An opaque `skinsrestorer-axolotl://` result is valid command input, rather than a browser link. Run a `/skin url` result in game chat for your own player.
+Keep the URL quoted and the generated model value intact. A `skinsrestorer-axolotl://` value is valid command input. It is not a browser link. Run a `/skin url` result in game chat for your own player.
 
-Run a `/sr createcustom` result as an administrator on the proxy (or on the server, if you have no proxy). It creates a named skin, rather than selecting it for a player.
+Run a `/sr createcustom` result as an administrator on the proxy (or on the server, if you have no proxy). It creates a named skin. It does not select the skin for a player.
 
 Inspect `skinsrestorer.command.set.url` and [URL restrictions](/docs/configuration/restrict-skins). If generation succeeded but the server cannot load the result, inspect [service connections](/docs/troubleshooting/firewall).
 

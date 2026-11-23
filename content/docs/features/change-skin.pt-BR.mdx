@@ -3,7 +3,7 @@ title: "Troque ou redefina sua skin"
 description: "Escolha a skin de um jogador, atualize-a ou volte para a skin da sua conta."
 docType: "how-to"
 appliesTo: "Jogadores em um servidor com SkinsRestorer"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "UserRound"
 ---
@@ -26,7 +26,15 @@ Aguarde a mensagem de sucesso. Peça a outro jogador para conferir sua aparênci
 /skin clear
 ```
 
-Este comando remove sua seleção salva. Depois, o servidor usa a skin da sua conta ou a skin padrão configurada. Ele não apaga a skin original do armazenamento.
+Este comando remove sua seleção salva. Depois, você volta a ter a skin da sua conta ou a skin padrão do servidor.
+
+## Escolha uma skin aleatória [#get-a-random-skin]
+
+```text
+/skin random
+```
+
+Este comando escolhe uma skin aleatória entre as skins recomendadas. Se o servidor não tiver skins recomendadas, nada acontece.
 
 ## Atualize uma skin copiada de uma conta [#refresh-a-copied-account-skin]
 
@@ -34,15 +42,7 @@ Este comando remove sua seleção salva. Depois, o servidor usa a skin da sua co
 /skin update
 ```
 
-Use depois que a conta original mudar a skin ou a capa. Skins de URL são texturas geradas e guardadas em cache. Para mudar uma skin de URL, envie a imagem revisada de novo.
-
-## Desfaça uma troca [#undo-a-change]
-
-```text
-/skin undo
-```
-
-Desfazer usa o histórico de skins salvo no servidor. Se o histórico estiver desativado ou vazio, não há seleção anterior para recuperar.
+Use depois que a conta original mudar a skin ou a capa. Ele só busca dados novos para uma skin copiada da conta de um jogador. Uma skin de URL ou uma skin personalizada continua igual. Para mudar uma skin de URL, envie a imagem revisada e execute o novo comando.
 
 ## Se o comando falhar [#if-the-command-fails]
 
@@ -51,4 +51,4 @@ Desfazer usa o histórico de skins salvo no servidor. Se o histórico estiver de
 - **A skin não carrega:** Confira o nome da conta e peça ao administrador para conferir as [conexões com os serviços](/docs/troubleshooting/firewall).
 - **Sucesso sem mudança visível:** Consulte [skin não aparece](/docs/troubleshooting/no-skin).
 
-Continue com [o menu de skins e os favoritos](/docs/features/skin-menu).
+Para desfazer uma troca ou usar de novo uma skin anterior, leia [o menu de skins e os favoritos](/docs/features/skin-menu).

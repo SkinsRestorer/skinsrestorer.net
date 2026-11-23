@@ -3,7 +3,7 @@ title: "Common questions"
 description: "Answers to common setup, skin, and storage questions."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "CircleQuestionMark"
 ---
@@ -20,26 +20,16 @@ Read [proxy mode](/docs/troubleshooting/proxy-mode) before you change storage.
 
 ## Why does clear not always show Steve?
 
-`/skin clear` removes the saved selection. Account skin lookup and default skin rules determine the result afterward.
+`/skin clear` removes the saved selection. The player then gets the account skin, or a [default skin](/docs/configuration/default-skins) if the server sets one.
 
 ## Why does the URL image not change after I edit it?
 
-A generated URL skin is a cached signed texture. Upload the revised PNG and select the new result. `/skin update` refreshes account skin data.
+The server stores the texture that MineSkin made. It does not read the image again. Upload the revised PNG and run the new command. `/skin update` refreshes only skins copied from a player account.
 
 ## Can I use a custom cape image?
 
-The website supports selected existing capes through its generation route. It does not accept arbitrary cape PNGs or grant account ownership.
-
-Read [cape support](/docs/features/capes).
+No. The website offers only a list of existing capes. Read [cape support](/docs/features/capes).
 
 ## Does a green status mean all services work?
 
 No. `/sr status` checks account UUID and profile services. MineSkin, website uploads, recommendations, and database access need their own checks.
-
-## Where is the full reference?
-
-Use [commands and permissions](/docs/reference/commands-permissions), [configuration](/docs/reference), and [placeholders](/docs/integrations/placeholderapi).
-
-## What do I send to support?
-
-Send the setup, exact command, full error, diagnostic report, and recent log. Use [the support checklist](/docs/troubleshooting/debugging).

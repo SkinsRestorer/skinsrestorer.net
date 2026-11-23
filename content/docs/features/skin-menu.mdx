@@ -3,32 +3,32 @@ title: "Browse skins and save favorites"
 description: "Use the menu, skin history, search links, and favorites."
 docType: "how-to"
 appliesTo: "Players on platforms with inventory GUI support"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "LayoutGrid"
 ---
 
-The skin menu is available on platforms that support its inventory UI. Your administrator controls which categories appear.
+The skin menu is available on platforms that support its inventory UI. Your administrator controls which skins appear.
 
 ## Open the menu
 
-Run `/skins` or `/skin menu`. Choose a skin from the available entries. If the menu is empty, the administrator can [configure its categories](/docs/configuration/skin-menu).
+Run `/skins` or `/skin menu`. Then choose **Skins Menu**, **History Menu**, or **Favourites Menu**. Click a skin to select it. Shift-click a skin to add it to your favorites, or to remove it.
 
-Recommended skins depend on `api.fetchRecommendedSkins`. Named custom skins come from server storage. These are different sources.
+The **Skins Menu** can show custom skins from the server, recommended skins, and player skins. If it is empty, the administrator can [configure its categories](/docs/configuration/skin-menu).
 
 ## Save a favorite
 
-1. Select a skin with `/skin set <name>` or `/skin url "<url>"`.
+1. Select a skin, for example with `/skin set <name>`.
 2. Run `/skin favourite`.
-3. Run `/skin favourites` to view saved choices.
+3. Run `/skin favourites` to list your favorites. Click an entry to use that skin again.
 
-`/skin favourite` toggles the current selection. Run it again on the same selection to remove that favorite.
-
-The command uses the British spelling `favourite`. History and favorites have separate server limits.
+`/skin favourite` toggles the current skin. Run it again to remove that favorite. The command uses the British spelling `favourite`.
 
 ## Reuse a previous skin
 
-Run `/skin history` to view previous selections. Run `/skin undo` to restore the previous selection. The history permission is `skinsrestorer.command.undo`.
+Run `/skin history` to list your previous skins. Click an entry to use that skin again. Run `/skin undo` to go back to the skin before your current one.
+
+The administrator sets the size of the history and the favorites list. A size of `0` turns that feature off. `/skin undo` uses the history, so it also stops working when history is off.
 
 ## Search for a skin
 
@@ -36,4 +36,4 @@ Run `/skin search <tag>` to get a link to the skins with that tag on NameMC, an 
 
 ## If access is denied
 
-Menu access needs `skinsrestorer.command.gui`. Favorites need `skinsrestorer.command.favourite`. Ask the administrator to inspect [the command reference](/docs/reference/commands-permissions).
+The menu needs `skinsrestorer.command.gui`. Favorites need `skinsrestorer.command.favourite`. History and undo need `skinsrestorer.command.undo`. Ask the administrator to check [the command reference](/docs/reference/commands-permissions).

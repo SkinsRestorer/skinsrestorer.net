@@ -3,14 +3,14 @@ title: "Corrija as conexões com os serviços"
 description: "Diagnostique DNS, HTTPS, limites de requisições e requisições de saída bloqueadas."
 docType: "how-to"
 appliesTo: "Todas as plataformas"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Globe"
 ---
 
 A busca de uma skin pode falhar por causa de DNS, TLS, HTTPS bloqueado, um erro do serviço externo ou limites de requisições. Anote o erro real antes de mudar as regras do firewall.
 
-## Restrinja o serviço [#narrow-down-the-service]
+## Descubra qual serviço falha [#narrow-down-the-service]
 
 1. Execute `/sr status` na instância afetada.
 2. Teste um nome de jogador conhecido.
@@ -19,11 +19,11 @@ A busca de uma skin pode falhar por causa de DNS, TLS, HTTPS bloqueado, um erro 
 
 O `/sr status` verifica os serviços de UUID e perfis de contas. Ele não verifica todas as rotas do MineSkin, as recomendações, os envios pelo site nem o seu banco de dados.
 
-Se os nomes de contas funcionam mas as URLs falham, investigue o serviço de geração por URL e a chave. Um status verde não prova que a geração por URL funciona.
+Se os nomes de contas funcionam mas as URLs falham, confira o MineSkin e a sua chave de API do MineSkin.
 
 ## Confira a configuração local [#check-local-configuration]
 
-Mantenha `advanced.noConnections: false` para o funcionamento online normal. O valor true impede novas buscas externas, a geração por URL e a verificação de atualizações.
+Mantenha `advanced.noConnections: false` para o funcionamento online normal. O valor `true` impede novas buscas externas, a geração por URL e a verificação de atualizações.
 
 Se o erro for de TLS, confira o relógio da máquina e o repositório de certificados confiáveis do Java. Não desative a validação de certificados para esconder um problema de TLS.
 
