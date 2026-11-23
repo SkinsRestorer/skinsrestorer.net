@@ -1,5 +1,5 @@
 import { createTranslator } from "./messages";
-import type { MessageKey } from "@/lib/messages";
+import type { MessageKey, MessageValues } from "@/lib/messages";
 import type { SkinVariant } from "./skin";
 
 export const SKIN_SIZE = 64;
@@ -307,11 +307,16 @@ export function describePixel(
   variant: SkinVariant,
   x: number,
   y: number,
-  t: (key: MessageKey) => string = createTranslator("en"),
+  t: (key: MessageKey, values?: MessageValues) => string = createTranslator(
+    "en",
+  ),
 ) {
   const region = regionAt(variant, x, y);
   const where = region
-    ? `${t(skinPartLabels[region.part])} ${t(skinFaceLabels[region.face])}, ${t(region.layer === "base" ? "common.baseLayer" : "common.outerLayer")}`
+    ? `${t("editor.partFace", {
+        part: t(skinPartLabels[region.part]),
+        face: t(skinFaceLabels[region.face]),
+      })}, ${t(region.layer === "base" ? "common.baseLayer" : "common.outerLayer")}`
     : t("editor.unusedArea");
   return `${where}, x ${x}, y ${y}`;
 }

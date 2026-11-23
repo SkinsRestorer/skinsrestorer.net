@@ -6,6 +6,7 @@ import {
   SKIN_SIZE,
   skinRegions,
 } from "./skin-regions";
+import { createTranslator } from "./messages";
 
 for (const [variant, perLayer] of [
   ["classic", 1632],
@@ -50,4 +51,17 @@ test("pixel lookup names the face, the layer, and unused areas", () => {
     "Head front, base layer, x 10, y 12",
   );
   assert.equal(describePixel("classic", 0, 0), "Unused area, x 0, y 0");
+});
+
+test("pixel descriptions agree with every part's grammatical gender", () => {
+  const es = createTranslator("es");
+  const pt = createTranslator("pt-BR");
+  assert.equal(
+    describePixel("classic", 32, 20, es),
+    "Cuerpo: parte trasera, capa base, x 32, y 20",
+  );
+  assert.equal(
+    describePixel("classic", 32, 20, pt),
+    "Corpo: parte traseira, camada base, x 32, y 20",
+  );
 });

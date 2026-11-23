@@ -123,7 +123,7 @@ test("every tool translation is self-canonical with reciprocal hreflang and an E
       head.meta.some(
         (tag) =>
           "title" in tag &&
-          tag.title === `${translate(locale, "studio.title")} - SR`,
+          tag.title === `${translate(locale, "studio.title")} - SkinsRestorer`,
       ),
     );
     assert.ok(
@@ -179,8 +179,8 @@ test("translation catalogs keep every message and interpolation parameter in eac
     }
   }
   assert.equal(
-    translate("es", "common.editName", { name: "{private skin}" }),
-    "Editar {private skin}",
+    translate("es", "studio.editingName", { name: "{private skin}" }),
+    "Editando {private skin}",
   );
   assert.equal(
     createTranslator("ru").error(new Error("Unrecognized service error")),
@@ -238,8 +238,8 @@ test("the translator uses stable keys and never interprets external text as keys
   assert.ok(cause.message.startsWith("This image is 20×10."));
   assert.ok(t.error(cause).startsWith("Esta imagen mide 20×10."));
   assert.equal(
-    t("common.editName", { name: "common.cancel {name}" }),
-    "Editar common.cancel {name}",
+    t("studio.editingName", { name: "common.cancel {name}" }),
+    "Editando common.cancel {name}",
   );
 });
 
@@ -251,7 +251,7 @@ test("raw documentation metadata never resolves as a UI key", () => {
   });
   assert.ok(
     head.meta.some(
-      (tag) => "title" in tag && tag.title === "common.cancel - SR",
+      (tag) => "title" in tag && tag.title === "common.cancel - SkinsRestorer",
     ),
   );
   assert.ok(

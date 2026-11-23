@@ -39,16 +39,17 @@ export function EnderDashSponsor({
           height={24}
         />
         <p>
-          {t("common.sponsored")}{" "}
-          <a
-            href={href}
-            target="_blank"
-            rel="sponsored noopener"
-            className="font-medium text-foreground underline underline-offset-4"
-          >
-            EnderDash
-          </a>
-          {t("common.dashboardMinecraftServerAdministration")}
+          {t.rich("common.sponsoredByEnderDash", {
+            link: (
+              // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+              <a
+                href={href}
+                target="_blank"
+                rel="sponsored noopener"
+                className="font-medium text-foreground underline underline-offset-4"
+              />
+            ),
+          })}
         </p>
       </aside>
     );
