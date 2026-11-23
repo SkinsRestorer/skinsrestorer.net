@@ -23,15 +23,15 @@ O encaminhamento moderno exige versões do Minecraft e backends compatíveis. Le
 3. Leia o arquivo `forwarding.secret` do proxy.
 4. Configure cada backend Paper com esse mesmo segredo.
 
-```toml title="velocity.toml (excerpt)"
+```toml title="velocity.toml (trecho)"
 player-info-forwarding-mode = "modern"
 ```
 
-```properties title="Backend server.properties (excerpt)"
+```properties title="server.properties do backend (trecho)"
 online-mode=false
 ```
 
-```yaml title="Backend config/paper-global.yml (Paper 1.19+ excerpt)"
+```yaml title="config/paper-global.yml do backend (trecho para Paper 1.19+)"
 proxies:
   velocity:
     enabled: true
@@ -58,7 +58,7 @@ Mantenha `server.proxyMode.detection: AUTO` nos backends, a menos que a detecç�
 
 Conclua o [teste da primeira skin e da troca de servidor](/docs/installation/quick-start). Os comandos de skin usam as permissões do proxy, então conceda o acesso no proxy.
 
-O armazenamento em arquivos padrão é suficiente para as skins comuns gerenciadas pelo proxy. Um plugin de backend que chama a API precisa de [armazenamento compartilhado em MySQL ou PostgreSQL](/docs/development/proxy-api).
+O armazenamento em arquivos padrão é suficiente para as skins comuns gerenciadas pelo proxy. Um plugin de backend que chama a API precisa de [armazenamento compartilhado em MySQL ou PostgreSQL](/docs/configuration/database). Para configurar a API, leia [o guia da API no proxy](/docs/development/proxy-api).
 
 ## Se falhar [#if-it-fails]
 

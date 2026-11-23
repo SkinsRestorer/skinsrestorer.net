@@ -27,7 +27,7 @@ Um servidor listado em `proxy.notAllowedCommandServers.list` pode bloquear coman
 
 ## Confira outras restrições [#check-additional-restrictions]
 
-- O acesso por skin exige `skinsrestorer.skin.<name>` quando está ativado.
+- As permissões por skin só valem quando `commands.perSkinPermissionsConsent` é exatamente `I will follow the rules`. Então cada skin exige `skinsrestorer.skin.<name>`, e a skin da própria conta do jogador exige `skinsrestorer.ownskin`. Leia [Restringir skins e URLs](/docs/configuration/restrict-skins).
 - Um comando permitido não ignora uma skin desativada ou uma restrição de URL.
 - Um tempo de espera é uma restrição de tempo, não uma permissão ausente.
 - Um comando desativado precisa de uma mudança de configuração e de um reinício, não de outra permissão.

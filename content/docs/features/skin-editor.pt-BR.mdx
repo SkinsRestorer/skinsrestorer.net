@@ -16,7 +16,14 @@ O [Estúdio de skins](/studio) trabalha com skins do Java Edition no navegador. 
 
 No celular, a biblioteca abre pelo botão **Biblioteca** e as opções ficam abaixo do modelo.
 
-[Enviar skin](/upload) e o [gerador](/generator) abrem o mesmo estúdio. Enviar skin sempre cria um comando `/skin url`. O gerador sempre cria um comando `/sr createcustom`. Na página do estúdio, escolha **Usar em um servidor** ou **Skin personalizada**. A linha abaixo da escolha explica o comando: `/skin url` aplica a skin ao jogador que executa o comando, e `/sr createcustom` salva a skin no servidor com um nome que os jogadores podem usar com `/skin set`. O estúdio não se conecta ao seu servidor Minecraft. Veja [Privacidade](#privacy).
+[Enviar skin](/upload) e o [gerador](/generator) abrem o mesmo estúdio. Enviar skin sempre cria um comando `/skin url`. O gerador sempre cria um comando `/sr createcustom`.
+
+Na página do estúdio, escolha **Usar em um servidor** ou **Skin personalizada**. A linha abaixo da escolha explica o comando:
+
+- `/skin url` aplica a skin ao jogador que executa o comando.
+- `/sr createcustom` salva a skin no servidor com um nome. Depois, os jogadores podem usar esse nome com `/skin set`.
+
+O estúdio não se conecta ao seu servidor Minecraft. Veja [Privacidade](#privacy).
 
 ## Adicionar uma skin [#add-a-skin]
 
@@ -33,7 +40,11 @@ Somente links de `textures.minecraft.net` são aceitos. Para uma skin de outro s
 
 ## Explorar a galeria [#gallery]
 
-Selecione **Galeria** ao lado de **Biblioteca**, ou **Explorar galeria** quando nenhuma skin estiver selecionada. Busque pelo nome e selecione uma skin para ver a prévia. Se nenhuma skin corresponder, selecione **Limpar busca** para ver todas de novo. Com o teclado, a grade de skins é uma única parada de `Tab`. Use as setas, `Home` e `End` para passar entre as skins, e `Enter` ou `Space` para escolher uma. A galeria usa as [skins recomendadas oficiais](https://github.com/SkinsRestorer/cool-skins). Uma visita normal não seleciona uma skin automaticamente. O endereço da página guarda a skin da galeria e a sua busca, então os botões Voltar e Avançar do navegador passam pelas skins da galeria que você selecionou.
+Selecione **Galeria** ao lado de **Biblioteca**, ou **Explorar galeria** quando nenhuma skin estiver selecionada. Busque pelo nome e selecione uma skin para ver a prévia. Se nenhuma skin corresponder, selecione **Limpar busca** para ver todas de novo.
+
+A galeria usa as [skins recomendadas oficiais](https://github.com/SkinsRestorer/cool-skins). Uma visita normal não seleciona uma skin automaticamente. O endereço da página guarda a skin da galeria e a sua busca. Os botões Voltar e Avançar do navegador passam pelas skins da galeria que você selecionou.
+
+Para usar a galeria com o teclado, pressione `Tab` até chegar à grade de skins. A grade é uma única parada de `Tab`. Use as setas, `Home` e `End` para passar entre as skins. Pressione `Enter` ou `Space` para escolher uma.
 
 Explorar e selecionar skins da galeria não as adiciona à biblioteca. Selecione **Salvar na biblioteca** abaixo do modelo para guardar uma cópia. Você também pode selecionar **Editar skin** e depois **Salvar na biblioteca** para guardar uma cópia editada. O original da galeria não muda. As opções de comando, modelo, capa e opções avançadas funcionam como antes.
 
@@ -41,7 +52,11 @@ Selecione **Copiar link da galeria** para compartilhar a skin original. O link a
 
 ## Obter um comando [#get-a-command]
 
-Selecione uma skin, confira o modelo e a capa e selecione o botão de gerar. O envio pode levar até um minuto. Se não quiser esperar, selecione **Parar de esperar** abaixo do botão. Quando o comando fica pronto, o estúdio mostra **Seu comando está pronto** com o comando e um botão de copiar. Depois, o botão de gerar mostra **Comando pronto** e fica desativado até você mudar a skin ou uma opção. Se o envio falhar, o estúdio mantém suas escolhas e diz o que conferir antes de tentar novamente. O [guia de envio](/docs/features/skin-upload) e as [skins personalizadas](/docs/features/custom-skins) explicam cada comando.
+Selecione uma skin, confira o modelo e a capa e selecione o botão de gerar. O envio pode levar até um minuto. Se não quiser esperar, selecione **Parar de esperar** abaixo do botão.
+
+Quando o comando fica pronto, o estúdio mostra **Seu comando está pronto** com o comando e um botão de copiar. Depois, o botão de gerar mostra **Comando pronto**. Ele fica desativado até você mudar a skin ou uma opção.
+
+Se o envio falhar, o estúdio mantém suas escolhas e diz o que conferir antes de tentar novamente. O [guia de envio](/docs/features/skin-upload) e as [skins personalizadas](/docs/features/custom-skins) explicam cada comando.
 
 ## Editar uma skin [#edit-a-skin]
 
@@ -61,7 +76,9 @@ A camada base é sempre opaca no Java Edition. Por isso o lápis pinta pixels op
 
 No modelo 3D, um traço fica na face onde começou.
 
-**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas e uma intensidade: **Suave**, **Média** ou **Forte**. **Média** é o padrão. **Suave** muda a luminosidade pela metade, e **Forte** pelo dobro. A ferramenta mantém o tom e a opacidade de cada pixel e não muda pixels transparentes. Um traço muda cada pixel uma só vez, então você pode passar várias vezes no mesmo lugar sem escurecê-lo mais e mais. Comece um novo traço para mudá-lo de novo.
+**Clarear ou escurecer** deixa os pixels mais claros ou mais escuros. Selecione **Clarear** ou **Escurecer** abaixo das ferramentas e uma intensidade: **Suave**, **Média** ou **Forte**. **Média** é o padrão. **Suave** muda a luminosidade pela metade, e **Forte** pelo dobro.
+
+A ferramenta mantém o tom e a opacidade de cada pixel. Ela não muda pixels transparentes. Um traço muda cada pixel uma só vez, então você pode passar várias vezes no mesmo lugar sem escurecê-lo mais e mais. Comece um novo traço para mudá-lo de novo.
 
 **Tamanho** define a largura do pincel para o lápis, a borracha e **Clarear ou escurecer**, de 1 a 8 pixels. O pincel é um quadrado. Um tamanho ímpar fica centralizado no ponteiro. Um tamanho par vai um pixel a mais para cima e para a esquerda. O pincel fica na face sob o ponteiro. A textura mostra o contorno do pincel. Com um mouse ou uma caneta, o modelo 3D também marca os pixels que a ferramenta vai mudar antes do clique. A marca não faz parte da skin. Uma marca vermelha e um ponteiro bloqueado indicam que um pixel da camada externa cobre a camada base nesse ponto.
 
@@ -161,11 +178,11 @@ Se você tiver alterações não salvas e selecionar **Cancelar**, pressionar `E
 
 Enquanto você pinta, o estúdio guarda um rascunho das alterações não salvas neste navegador. O rascunho não muda a skin salva. Cada editor aberto tem seu próprio rascunho, então duas abas não se sobrescrevem.
 
-Se você fechar a aba antes de salvar, o rascunho fica. Na próxima vez que abrir o estúdio, ele pergunta se você quer continuar. **Continuar** abre o rascunho. **Descartar** o exclui. O estúdio não guarda o histórico de desfazer.
+Se você fechar a aba antes de salvar, o rascunho fica. Na próxima vez que abrir o estúdio, ele pergunta se você quer continuar. **Continuar** abre o rascunho. **Descartar** o exclui, e a mensagem que aparece depois tem um botão **Desfazer**. O estúdio não guarda o histórico de desfazer. Rascunhos que ainda estão abertos em outra aba não aparecem nesta lista.
 
-Versões anteriores do editor guardavam um rascunho em outro lugar do navegador. O estúdio move esse rascunho para a biblioteca uma vez, como uma skin chamada "Recovered draft". Se o rascunho antigo estiver danificado, o estúdio o mantém e mostra uma mensagem com o botão **Descartar rascunho**.
+Versões anteriores do editor guardavam um rascunho em outro lugar do navegador. O estúdio move esse rascunho para a biblioteca uma vez, como uma skin chamada "Recovered draft". Se o rascunho antigo estiver danificado, o estúdio o mantém e mostra uma mensagem com o botão **Descartar rascunho**. Se o navegador bloquear a biblioteca, o estúdio mantém o rascunho antigo e mostra um botão **Baixar rascunho**.
 
-Se o navegador bloquear o armazenamento do site ou ele estiver cheio, o estúdio continua funcionando, mas não guarda skins nem rascunhos. Use o botão de download acima da textura para manter seu trabalho. Nesse caso, o navegador pergunta antes de você sair da página com alterações não salvas.
+Se o navegador bloquear o armazenamento do site ou ele estiver cheio, o estúdio continua funcionando, mas não guarda skins nem rascunhos. Use o botão de download acima da textura para manter seu trabalho. Nesse caso, o navegador pergunta antes de você sair da página com alterações não salvas. O navegador também pergunta se você sair antes de o primeiro rascunho ser guardado.
 
 ## A biblioteca [#your-skins]
 

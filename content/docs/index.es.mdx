@@ -3,23 +3,41 @@ title: "Documentación de SkinsRestorer"
 description: "Instala SkinsRestorer, cambia una skin o soluciona un problema del servidor."
 docType: "explanation"
 appliesTo: "Todas las plataformas"
-reviewed: "2026-11-09"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "BookOpen"
 ---
 
-SkinsRestorer permite cambiar la skin de Minecraft Java Edition en un servidor. Los propietarios pueden restaurar skins de cuentas, ofrecer skins personalizadas y controlar quién puede cambiarlas.
+SkinsRestorer permite a los jugadores cambiar su skin de Minecraft Java Edition en un servidor. Los propietarios de servidores pueden restaurar skins de cuentas, ofrecer skins personalizadas y controlar quién puede cambiarlas.
 
-## Elige una tarea [#what-do-you-want-to-do]
+## ¿Qué quieres hacer? [#what-do-you-want-to-do]
 
-- [Instalar](/docs/installation)
-- [Cambiar la skin](/docs/features/change-skin)
-- [Subir una skin PNG](/docs/features/skin-upload)
-- [Estudio de skins](/docs/features/skin-editor)
-- [Problemas del lanzador](/docs/troubleshooting/launcher-issues)
-- [Comandos y permisos](/docs/configuration/commands-permissions)
-- [Crear una integración](/docs/development)
+<Cards>
+  <Card title="Instalar SkinsRestorer" href="/docs/installation">
+    Elige tu servidor o proxy y comprueba tu primera skin.
+  </Card>
+  <Card title="Cambiar una skin" href="/docs/features/change-skin">
+    Usa un nombre de jugador, sube un PNG o restaura la skin de tu cuenta.
+  </Card>
+  <Card title="Solucionar un problema" href="/docs/troubleshooting">
+    Empieza por el síntoma y reúne los diagnósticos adecuados.
+  </Card>
+  <Card title="Crear una integración" href="/docs/development">
+    Obtén, guarda y aplica skins con la API de Java.
+  </Card>
+</Cards>
 
-## SkinsRestorer 15.12.6 [#version-and-support]
+## Encuentra la guía adecuada [#find-the-right-guide]
 
-Las guías corresponden a SkinsRestorer 15.12.6. Cada página indica su plataforma y fecha de revisión. Consulta los [requisitos](/docs/installation/requirements) antes de instalar. Para pedir ayuda, recopila un [informe de diagnóstico y un registro reciente](/docs/troubleshooting/debugging).
+- **Propietario de un servidor nuevo:** empieza por la [instalación](/docs/installation). En una red con proxy, SkinsRestorer va en el proxy y en todos los backends.
+- **Jugador:** lee [cambiar o restablecer tu skin](/docs/features/change-skin). Tu servidor debe tener SkinsRestorer y darte permiso para usarlo.
+- **Administrador:** configura el [acceso de jugadores](/docs/configuration/player-access), las [skins predeterminadas](/docs/configuration/default-skins) o el [almacenamiento compartido](/docs/configuration/database).
+- **Desarrollador:** empieza con el [tutorial del primer plugin](/docs/development/first-plugin) y después lee sobre los [cambios persistentes y temporales](/docs/development/storage).
+
+La sintaxis exacta de los comandos y las claves de configuración están en la [referencia](/docs/reference). El [ciclo de vida de la skin](/docs/development/inner-workings) explica por qué la skin visible y la selección guardada pueden ser distintas.
+
+## Versión y soporte [#version-and-support]
+
+Estas guías corresponden a **SkinsRestorer 15.12.6**. Cada página indica su plataforma y su fecha de revisión. Los requisitos de Minecraft y Java dependen de la plataforma y de la descarga.
+
+Lee la [guía de compatibilidad](/docs/installation/requirements) antes de instalar un mod o actualizar un servidor. Para pedir ayuda, reúne un [informe de diagnóstico y un registro reciente](/docs/troubleshooting/debugging).

@@ -22,7 +22,7 @@ On a proxy backend, configure [backend API storage](/docs/development/proxy-api)
 2. Run `/papi parse me %skinsrestorer_texture_id_or_steve%`.
 3. Check that the result is a texture hash, rather than the original placeholder text.
 
-If the placeholder stays literal, inspect plugin loading and the consuming plugin's PlaceholderAPI support. `Error` means the expansion ran but could not provide the requested value.
+If `/papi parse` returns the placeholder text unchanged, check that SkinsRestorer and PlaceholderAPI both loaded. `/papi list` must show `skinsrestorer`. `Error` means the expansion ran but could not provide the requested value.
 
 ## Selected skin identifier
 

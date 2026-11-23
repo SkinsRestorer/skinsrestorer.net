@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "Box"
 ---
 
-This guide covers a standalone NeoForge server. A proxy backend also needs compatible profile forwarding and proxy mode.
+This guide covers a standalone NeoForge server. For a backend behind a proxy, also set up forwarding with the [Velocity guide](/docs/installation/velocity) and check [proxy mode](/docs/troubleshooting/proxy-mode).
 
 ## Before you start
 
@@ -25,12 +25,12 @@ Use a matching NeoForge loader. The 15.12.6 build targets NeoForge 26.3.0.7-beta
 5. Start the server.
 6. Read the log for loader dependency errors and SkinsRestorer startup errors.
 
-Use the configuration location reported by the mod. Do not copy a Bukkit plugin JAR into `mods`.
+The mod keeps its configuration in `config/skinsrestorer/config.yml` inside the server folder. Do not copy a Bukkit plugin JAR into `mods`.
 
 ## Check
 
 1. Join the server.
-2. Run `/skin set xknat`.
+2. Run `/skin set xknat` in game chat.
 3. Ask another player to check your skin.
 4. Reconnect and check that the selection remains.
 
@@ -38,4 +38,4 @@ If access is denied, configure the platform's permissions or read [player access
 
 ## Next
 
-Complete the [first skin check](/docs/installation/quick-start), then [upload a PNG](/docs/features/skin-upload).
+[Upload a PNG skin](/docs/features/skin-upload) or read about the other [skin features](/docs/features).

@@ -16,7 +16,14 @@ The [Skin Studio](/studio) works with Java Edition skins in your browser. It has
 
 On a phone, the library opens from the **Library** button, and the options are below the model.
 
-[Upload](/upload) and the [generator](/generator) open the same Studio. Upload always makes a `/skin url` command. The generator always makes a `/sr createcustom` command. On the Studio page, choose **Use on a server** or **Custom skin**. The line under the choice explains the command: `/skin url` sets the skin on the player who runs it, and `/sr createcustom` saves the skin on the server under a name that players can use with `/skin set`. The Studio does not connect to your Minecraft server. For details, read [Privacy](#privacy).
+[Upload](/upload) and the [generator](/generator) open the same Studio. Upload always makes a `/skin url` command. The generator always makes a `/sr createcustom` command.
+
+On the Studio page, choose **Use on a server** or **Custom skin**. The line under the choice explains the command:
+
+- `/skin url` sets the skin on the player who runs it.
+- `/sr createcustom` saves the skin on the server under a name. Players can then use that name with `/skin set`.
+
+The Studio does not connect to your Minecraft server. For details, read [Privacy](#privacy).
 
 ## Add a skin
 
@@ -33,7 +40,11 @@ The Studio accepts texture links only from `textures.minecraft.net`. For a skin 
 
 ## Browse the gallery [#gallery]
 
-Select **Gallery** beside **Library**, or select **Browse gallery** from the empty view. Search by name, then select a skin to preview it. If no skin matches, select **Clear search** to see all skins again. With the keyboard, the skin grid is one `Tab` stop. Use the arrow keys, `Home`, and `End` to move between skins, and `Enter` or `Space` to select one. The gallery uses the [official recommended skins](https://github.com/SkinsRestorer/cool-skins). A normal visit does not select a skin automatically. The page address keeps the gallery skin and your search, so the browser Back and Forward buttons go between the gallery skins you selected.
+Select **Gallery** beside **Library**, or select **Browse gallery** from the empty view. Search by name, then select a skin to preview it. If no skin matches, select **Clear search** to see all skins again.
+
+The gallery uses the [official recommended skins](https://github.com/SkinsRestorer/cool-skins). A normal visit does not select a skin automatically. The page address keeps the gallery skin and your search. The browser Back and Forward buttons go between the gallery skins that you selected.
+
+To use the gallery with the keyboard, press `Tab` to move the focus to the skin grid. The grid is one `Tab` stop. Use the arrow keys, `Home`, and `End` to move between skins. Press `Enter` or `Space` to select a skin.
 
 Browsing and selecting gallery skins do not add them to your library. Select **Save to library** below the model to keep a copy. You can also select **Edit skin** and then **Save to library** to keep an edited copy. The gallery original stays unchanged. The current command, model, cape, and advanced options work as usual.
 
@@ -41,9 +52,13 @@ Select **Copy gallery link** to share the original gallery skin. The link opens 
 
 ## Get a command
 
-Select a skin, check the model and the cape, then select the generate button. Uploading can take up to a minute. Select **Stop waiting** below the button if you do not want to wait. When the command is ready, the Studio shows **Your command is ready** with the command and a copy button. The generate button then shows **Command ready** and stays off until you change the skin or an option. If the upload fails, the Studio keeps your choices and tells you what to check before you try again. The [upload guide](/docs/features/skin-upload) and [custom skins](/docs/features/custom-skins) explain each command.
+Select a skin, check the model and the cape, then select the generate button. Uploading can take up to a minute. If you do not want to wait, select **Stop waiting** below the button.
 
-## Edit a skin
+When the command is ready, the Studio shows **Your command is ready** with the command and a copy button. The generate button then shows **Command ready**. It stays off until you change the skin or an option.
+
+If the upload fails, the Studio keeps your choices and tells you what to check before you try again. The [upload guide](/docs/features/skin-upload) and [custom skins](/docs/features/custom-skins) explain each command.
+
+## Edit a skin [#edit-a-skin]
 
 Select **Edit skin** below the model. The center shows the texture and the right side shows a live 3D model. The editor opens 64×64 and legacy 64×32 skins. It converts a 64×32 skin to the 64×64 layout without a message. To edit an HD skin, resize it to 64×64 in an image editor first.
 
@@ -61,7 +76,9 @@ The base layer is always opaque in Java Edition. For this reason, the pencil pai
 
 On the 3D model, a stroke stays on the face where it started.
 
-**Shade** makes pixels lighter or darker. Select **Lighten** or **Darken** below the tools, and select a strength: **Soft**, **Medium**, or **Strong**. **Medium** is the default. **Soft** changes the lightness half as much, and **Strong** twice as much. Shade keeps the hue and the opacity of each pixel, and it does not change clear pixels. One stroke changes a pixel only one time, so you can drag over the same spot without making it darker and darker. Start a new stroke to shade it again.
+**Shade** makes pixels lighter or darker. Select **Lighten** or **Darken** below the tools, then select a strength: **Soft**, **Medium**, or **Strong**. **Medium** is the default. **Soft** changes the lightness half as much, and **Strong** twice as much.
+
+Shade keeps the hue and the opacity of each pixel. It does not change clear pixels. One stroke changes a pixel only one time, so you can drag over the same spot without making it darker and darker. Start a new stroke to shade it again.
 
 **Size** sets the brush width for the pencil, the eraser, and shade, from 1 to 8 pixels. The brush is a square. An odd size is centered on the pointer. An even size reaches one more pixel up and to the left. The brush stays on the face under the pointer. The texture shows the outline of the brush. With a mouse or a pen, the 3D model also marks the pixels that the tool will change before you click. The mark is not part of the skin. A red mark and a blocked pointer mean that an outer-layer pixel covers the base layer at that spot.
 
@@ -161,11 +178,11 @@ If you have unsaved changes and you select **Cancel**, press `Esc`, use the brow
 
 While you paint, the Studio keeps a draft of your unsaved changes in this browser. The draft does not change the saved skin. Each open editor has its own draft, so two tabs do not overwrite each other.
 
-If you close the tab before you save, the draft stays. The next time you open the Studio, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it. The Studio does not keep the undo history.
+If you close the tab before you save, the draft stays. The next time you open the Studio, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it, and the message that follows has an **Undo** button. The Studio does not keep the undo history. Drafts that are still open in another tab do not appear in this list.
 
-Earlier versions of the editor kept one draft in another place in the browser. The Studio moves that draft to the library once, as a skin named "Recovered draft". If the old draft is damaged, the Studio keeps it and shows a message with a **Discard draft** button.
+Earlier versions of the editor kept one draft in another place in the browser. The Studio moves that draft to the library once, as a skin named "Recovered draft". If the old draft is damaged, the Studio keeps it and shows a message with a **Discard draft** button. If the browser blocks the library, the Studio keeps the old draft and shows a **Download draft** button.
 
-If your browser blocks site storage or the storage is full, the Studio still works, but it does not keep skins or drafts. Use the download button above the texture to keep your work. In this case, the browser asks before you leave the page with unsaved changes.
+If your browser blocks site storage or the storage is full, the Studio still works, but it does not keep skins or drafts. Use the download button above the texture to keep your work. In this case, the browser asks before you leave the page with unsaved changes. The browser also asks if you leave before the first draft is kept.
 
 ## The library [#your-skins]
 

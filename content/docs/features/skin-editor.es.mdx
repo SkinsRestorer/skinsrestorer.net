@@ -16,7 +16,14 @@ El [Estudio de skins](/studio) trabaja con skins de Java Edition en el navegador
 
 En un teléfono, la biblioteca se abre con el botón **Biblioteca** y las opciones están debajo del modelo.
 
-[Subir skin](/upload) y el [generador](/generator) abren el mismo estudio. Subir skin siempre crea un comando `/skin url`. El generador siempre crea un comando `/sr createcustom`. En la página del estudio, elige **Usar en un servidor** o **Skin personalizada**. La línea debajo de la opción explica el comando: `/skin url` aplica la skin al jugador que lo ejecuta, y `/sr createcustom` guarda la skin en el servidor con un nombre que los jugadores pueden usar con `/skin set`. El estudio no se conecta a tu servidor de Minecraft. Más detalles en [Privacidad](#privacy).
+[Subir skin](/upload) y el [generador](/generator) abren el mismo estudio. Subir skin siempre crea un comando `/skin url`. El generador siempre crea un comando `/sr createcustom`.
+
+En la página del estudio, elige **Usar en un servidor** o **Skin personalizada**. La línea debajo de la opción explica el comando:
+
+- `/skin url` aplica la skin al jugador que lo ejecuta.
+- `/sr createcustom` guarda la skin en el servidor con un nombre. Después, los jugadores pueden usar ese nombre con `/skin set`.
+
+El estudio no se conecta a tu servidor de Minecraft. Más detalles en [Privacidad](#privacy).
 
 ## Añadir una skin [#add-a-skin]
 
@@ -33,7 +40,11 @@ Solo se aceptan enlaces de `textures.minecraft.net`. Para una skin de otro sitio
 
 ## Explorar la galería [#gallery]
 
-Selecciona **Galería** junto a **Biblioteca**, o **Explorar galería** si no hay una skin seleccionada. Busca por nombre y selecciona una skin para verla. Si ninguna coincide, pulsa **Borrar búsqueda** para ver todas otra vez. Con el teclado, la cuadrícula de skins es una sola parada de `Tab`. Usa las flechas, `Home` y `End` para moverte entre skins, y `Enter` o `Space` para elegir una. La galería usa las [skins recomendadas oficiales](https://github.com/SkinsRestorer/cool-skins). Una visita normal no selecciona ninguna skin de forma automática. La dirección de la página guarda la skin de la galería y tu búsqueda, así que los botones Atrás y Adelante del navegador pasan por las skins de la galería que seleccionaste.
+Selecciona **Galería** junto a **Biblioteca**, o **Explorar galería** si no hay una skin seleccionada. Busca por nombre y selecciona una skin para verla. Si ninguna coincide, pulsa **Borrar búsqueda** para ver todas otra vez.
+
+La galería usa las [skins recomendadas oficiales](https://github.com/SkinsRestorer/cool-skins). Una visita normal no selecciona ninguna skin de forma automática. La dirección de la página guarda la skin de la galería y tu búsqueda. Los botones Atrás y Adelante del navegador pasan por las skins de la galería que seleccionaste.
+
+Para usar la galería con el teclado, pulsa `Tab` hasta llegar a la cuadrícula de skins. La cuadrícula es una sola parada de `Tab`. Usa las flechas, `Home` y `End` para moverte entre skins. Pulsa `Enter` o `Space` para elegir una.
 
 Explorar y seleccionar skins de la galería no las añade a la biblioteca. Selecciona **Guardar en la biblioteca** debajo del modelo para guardar una copia. También puedes seleccionar **Editar skin** y luego **Guardar en la biblioteca** para guardar una copia editada. El original de la galería no cambia. Las opciones de comando, modelo, capa y opciones avanzadas funcionan como siempre.
 
@@ -41,7 +52,11 @@ Selecciona **Copiar enlace de la galería** para compartir la skin original. El 
 
 ## Obtener un comando [#get-a-command]
 
-Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. La subida puede tardar hasta un minuto. Si no quieres esperar, pulsa **Dejar de esperar** debajo del botón. Cuando el comando está listo, el estudio muestra **Tu comando está listo** con el comando y un botón para copiarlo. Después, el botón de generar muestra **Comando listo** y queda desactivado hasta que cambies la skin o una opción. Si la subida falla, el estudio conserva tus opciones y te dice qué revisar antes de reintentar. La [guía de subida](/docs/features/skin-upload) y las [skins personalizadas](/docs/features/custom-skins) explican cada comando.
+Selecciona una skin, revisa el modelo y la capa, y pulsa el botón de generar. La subida puede tardar hasta un minuto. Si no quieres esperar, pulsa **Dejar de esperar** debajo del botón.
+
+Cuando el comando está listo, el estudio muestra **Tu comando está listo** con el comando y un botón para copiarlo. Después, el botón de generar muestra **Comando listo**. Queda desactivado hasta que cambies la skin o una opción.
+
+Si la subida falla, el estudio conserva tus opciones y te dice qué revisar antes de reintentar. La [guía de subida](/docs/features/skin-upload) y las [skins personalizadas](/docs/features/custom-skins) explican cada comando.
 
 ## Editar una skin [#edit-a-skin]
 
@@ -61,7 +76,9 @@ La capa base siempre es opaca en Java Edition. Por eso el lápiz pinta píxeles 
 
 En el modelo 3D, un trazo se queda en la cara donde empezó.
 
-**Aclarar u oscurecer** hace los píxeles más claros o más oscuros. Selecciona **Aclarar** u **Oscurecer** debajo de las herramientas, y una intensidad: **Suave**, **Media** o **Fuerte**. **Media** es la predeterminada. **Suave** cambia la luminosidad la mitad, y **Fuerte** el doble. La herramienta mantiene el tono y la opacidad de cada píxel y no cambia los píxeles transparentes. Un trazo cambia cada píxel una sola vez, así que puedes pasar varias veces por el mismo sitio sin oscurecerlo más y más. Empieza un trazo nuevo para cambiarlo otra vez.
+**Aclarar u oscurecer** hace los píxeles más claros o más oscuros. Selecciona **Aclarar** u **Oscurecer** debajo de las herramientas, y una intensidad: **Suave**, **Media** o **Fuerte**. **Media** es la predeterminada. **Suave** cambia la luminosidad la mitad, y **Fuerte** el doble.
+
+La herramienta mantiene el tono y la opacidad de cada píxel. No cambia los píxeles transparentes. Un trazo cambia cada píxel una sola vez, así que puedes pasar varias veces por el mismo sitio sin oscurecerlo más y más. Empieza un trazo nuevo para cambiarlo otra vez.
 
 **Tamaño** fija el ancho del pincel para el lápiz, el borrador y **Aclarar u oscurecer**, de 1 a 8 píxeles. El pincel es un cuadrado. Un tamaño impar queda centrado en el puntero. Un tamaño par llega un píxel más hacia arriba y a la izquierda. El pincel se queda en la cara bajo el puntero. La textura muestra el contorno del pincel. Con un ratón o un lápiz, el modelo 3D también marca los píxeles que la herramienta va a cambiar antes de hacer clic. La marca no forma parte de la skin. Una marca roja y un puntero bloqueado indican que un píxel de la capa exterior cubre la capa base en ese punto.
 
@@ -161,11 +178,11 @@ Si tienes cambios sin guardar y pulsas **Cancelar**, `Esc`, el botón Atrás del
 
 Mientras pintas, el estudio guarda un borrador de tus cambios sin guardar en este navegador. El borrador no cambia la skin guardada. Cada editor abierto tiene su propio borrador, así que dos pestañas no se sobrescriben.
 
-Si cierras la pestaña antes de guardar, el borrador se mantiene. La próxima vez que abras el estudio, te pregunta si quieres continuarlo. **Continuar** abre el borrador. **Descartar** lo elimina. El estudio no guarda el historial de deshacer.
+Si cierras la pestaña antes de guardar, el borrador se mantiene. La próxima vez que abras el estudio, te pregunta si quieres continuarlo. **Continuar** abre el borrador. **Descartar** lo elimina, y el mensaje que aparece después tiene un botón **Deshacer**. El estudio no guarda el historial de deshacer. Los borradores que siguen abiertos en otra pestaña no aparecen en esta lista.
 
-Versiones anteriores del editor guardaban un borrador en otro lugar del navegador. El estudio mueve ese borrador a la biblioteca una vez, como una skin llamada "Recovered draft". Si el borrador antiguo está dañado, el estudio lo conserva y muestra un mensaje con el botón **Descartar borrador**.
+Versiones anteriores del editor guardaban un borrador en otro lugar del navegador. El estudio mueve ese borrador a la biblioteca una vez, como una skin llamada "Recovered draft". Si el borrador antiguo está dañado, el estudio lo conserva y muestra un mensaje con el botón **Descartar borrador**. Si el navegador bloquea la biblioteca, el estudio conserva el borrador antiguo y muestra un botón **Descargar borrador**.
 
-Si tu navegador bloquea el almacenamiento del sitio o está lleno, el estudio sigue funcionando, pero no guarda skins ni borradores. Usa el botón de descarga sobre la textura para conservar tu trabajo. En ese caso, el navegador pregunta antes de salir de la página con cambios sin guardar.
+Si tu navegador bloquea el almacenamiento del sitio o está lleno, el estudio sigue funcionando, pero no guarda skins ni borradores. Usa el botón de descarga sobre la textura para conservar tu trabajo. En ese caso, el navegador pregunta antes de salir de la página con cambios sin guardar. El navegador también pregunta si sales antes de que se guarde el primer borrador.
 
 ## La biblioteca [#your-skins]
 

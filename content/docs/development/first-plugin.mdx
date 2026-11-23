@@ -76,7 +76,7 @@ src/main/java/example/ExampleSkinPlugin.java
 </project>
 ```
 
-The Bukkit dependency supplies the compile-time API. Run the result on a compatible platform and Java runtime. Both dependencies use `provided`, so the server supplies them at runtime.
+The Bukkit dependency supplies the compile-time API. The POM compiles for Java 21, so the test server must run Java 21 or newer. Both dependencies use `provided` scope, so the server supplies them at runtime.
 
 ### Plugin metadata
 
@@ -213,7 +213,8 @@ SkinsRestorer's Bukkit applier schedules its own profile refresh. Other Bukkit o
 4. Start the server and read the startup log.
 5. Join as an operator and run `/exampleskin xknat`.
 6. Ask another player to check the skin.
-7. Reconnect and check the saved selection.
+7. Reconnect and check that the skin is still visible.
+8. Run `/sr info player <yourName>` from the console. Check that the output shows a selected skin.
 
 If startup says the API is unavailable on a backend, inspect [shared storage](/docs/development/proxy-api). If compilation fails, check the repository connection and both dependency versions.
 

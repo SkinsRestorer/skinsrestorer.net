@@ -18,23 +18,25 @@ Você precisa de acesso ao proxy e a todos os backends. O encaminhamento legacy 
 
 1. Pare o proxy e os backends.
 2. Ative o encaminhamento de IP na configuração do proxy.
-3. Ative o encaminhamento do BungeeCord em cada backend Bukkit.
-4. Desative a autenticação de contas nos backends.
+3. Mantenha `online_mode: true` no `config.yml` do BungeeCord. O proxy verifica as contas dos jogadores.
+4. Ative o encaminhamento do BungeeCord em cada backend Bukkit.
+5. Desative a autenticação de contas nos backends.
 
-```yaml title="BungeeCord config.yml (excerpt)"
+```yaml title="config.yml do BungeeCord (trecho)"
+online_mode: true
 ip_forward: true
 ```
 
-```yaml title="Backend spigot.yml (excerpt)"
+```yaml title="spigot.yml do backend (trecho)"
 settings:
   bungeecord: true
 ```
 
-```properties title="Backend server.properties (excerpt)"
+```properties title="server.properties do backend (trecho)"
 online-mode=false
 ```
 
-A política de autenticação do proxy é separada da configuração dos backends. Não desative a autenticação do proxy só para usar skins.
+Só os backends usam `online-mode=false`. Não coloque `online_mode: false` no proxy para fazer as skins funcionarem.
 
 ## Instalar [#install]
 
@@ -49,7 +51,7 @@ Um backend com mods precisa do mod correspondente e de suporte compatível a enc
 
 Conclua o [teste da primeira skin](/docs/installation/quick-start), incluindo uma troca entre backends. Conceda as permissões dos comandos no BungeeCord ou no plugin de permissões do proxy.
 
-As skins comuns gerenciadas pelo proxy não exigem armazenamento SQL. Integrações com a API nos backends precisam de [armazenamento compartilhado](/docs/development/proxy-api).
+As skins comuns gerenciadas pelo proxy não exigem armazenamento SQL. Integrações com a API nos backends precisam de [armazenamento compartilhado em MySQL ou PostgreSQL](/docs/configuration/database). Para configurar a API, leia [o guia da API no proxy](/docs/development/proxy-api).
 
 ## Se falhar [#if-it-fails]
 

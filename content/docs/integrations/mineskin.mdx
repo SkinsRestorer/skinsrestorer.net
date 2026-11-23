@@ -12,7 +12,7 @@ MineSkin turns a skin image into a signed property that Minecraft clients can us
 
 ## Server URL generation
 
-`/skin url` and URL-based custom skins use skin generation when needed. You can configure an optional server key:
+`/skin url` and URL-based custom skins use skin generation when needed. Both settings below are optional. You can set a server key and request unlisted skins:
 
 ```yaml title="config.yml (SkinsRestorer excerpt)"
 api:
@@ -22,15 +22,18 @@ api:
 
 Run `/sr reload`. Try one valid URL and inspect the result. Keep the key private. The spelling and capitalization of `mineskinAPIKey` are significant.
 
-`mineskinSecretSkins: true` requests an unlisted generated skin. It does not make a Minecraft texture URL private or prevent others from copying it.
+`mineskinSecretSkins` defaults to `false`. Set it to `true` to request unlisted generated skins. It does not make a Minecraft texture URL private or prevent others from copying it.
 
 ## Website generation
 
 The [Upload](/upload) and [Generator](/generator) pages accept their own optional key. They do not read your server configuration.
 
-Choose **Axolotl** for the free supported-cape route. Choose **Official** to supply your MineSkin key and check its cape grants.
+The pages have two modes:
 
-The Axolotl route handles uploads with a selected cape in Axolotl mode. Plain uploads and Official-mode uploads use MineSkin's queue directly.
+- **Axolotl** sends the upload through Axolotl, the SkinsRestorer upload service at `axolotl.skinsrestorer.net`. It supports some capes for free.
+- **Official** sends the upload straight to MineSkin with your own MineSkin key. The page checks which capes your key can use.
+
+Only an upload with a selected cape in **Axolotl** mode goes through Axolotl. Uploads without a cape and **Official** uploads go straight to MineSkin's queue.
 
 Generated commands can contain a MineSkin URL or an opaque `skinsrestorer-axolotl://` value. SkinsRestorer resolves that opaque value through Axolotl when the command runs.
 

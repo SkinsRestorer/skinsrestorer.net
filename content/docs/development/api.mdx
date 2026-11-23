@@ -59,7 +59,7 @@ BungeeCord uses `depends` or `softDepends` in `bungee.yml`. Velocity declares de
 
 Call `SkinsRestorerProvider.get()` after SkinsRestorer initializes, usually in your enable callback. Do not call it from a static initializer or plugin constructor.
 
-An installed JAR does not prove that the API initialized. The provider throws `IllegalStateException` when unavailable. Backend proxy API mode can require [shared SQL storage](/docs/development/proxy-api).
+An installed JAR does not prove that the API initialized. The provider throws `IllegalStateException` when unavailable. Backend proxy API mode requires [shared SQL storage](/docs/development/proxy-api).
 
 ## Checking API version compatibility
 
@@ -67,7 +67,7 @@ An installed JAR does not prove that the API initialized. The provider throws `I
 
 Pin the dependency version used by your build. Test your integration against the installed release before you change its dependency.
 
-## Error handling
+## Threading
 
 Skin lookup and generation can perform blocking requests. Storage can also perform database I/O. Keep this work outside the platform's main or entity thread.
 

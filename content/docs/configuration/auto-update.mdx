@@ -10,7 +10,7 @@ icon: "RefreshCw"
 
 SkinsRestorer checks for updates at startup and periodically afterward. The repeating interval is randomized between 60 and 240 minutes.
 
-Update checks and automatic downloads are different actions. Download behavior depends on the platform.
+Update checks and automatic downloads are different actions. Every platform checks for updates. Only Bukkit-compatible servers, such as Paper and Spigot, download updates automatically. On BungeeCord, Velocity, Fabric, and NeoForge, update manually.
 
 ## Manual update
 
@@ -29,7 +29,7 @@ On a network, update the proxy and backends together. A Fabric or NeoForge updat
 
 Create an empty `noautoupdate.txt` file in the SkinsRestorer data directory. The older `noupdate.txt` filename is also recognized by this release.
 
-Restart after changing the file. This controls the updater's download behavior. Plan manual updates instead of relying on a disabled downloader.
+Restart the server after you create the file. After you disable downloads, update manually with the steps above.
 
 `advanced.noConnections` also stops update connections, but it disables skin lookups and URL generation too. Do not use it only to manage updates.
 

@@ -14,10 +14,10 @@ Player storage saves an identifier. Skin storage resolves that identifier to a s
 
 The [complete plugin example](/docs/development/first-plugin) performs these operations:
 
-1. Resolve input with `SkinStorage.findOrCreateSkinData(input)`.
-2. Handle an empty result.
-3. Save `result.getIdentifier()` with `PlayerStorage.setSkinIdOfPlayer(uuid, identifier)`.
-4. Apply `result.getProperty()` to the live player with the platform's skin applier.
+1. Resolve input with `SkinStorage.findOrCreateSkinData(input)`. It returns an `Optional<InputDataResult>`.
+2. Handle an empty result. Otherwise, unwrap it: `InputDataResult skin = result.get()`.
+3. Save `skin.getIdentifier()` with `PlayerStorage.setSkinIdOfPlayer(uuid, identifier)`.
+4. Apply `skin.getProperty()` to the live player with the platform's skin applier.
 
 The saved identifier controls future resolution. Applying the already-resolved property avoids another lookup during the immediate refresh.
 
@@ -25,7 +25,7 @@ A storage write and a visual refresh are not one transaction. A player can disco
 
 ## Temporary change
 
-`applySkin(player, property)` changes the live appearance without writing the selected identifier. The same is true of the identifier overload alone.
+`applySkin(player, property)` changes the live appearance without writing the selected identifier. `applySkin(player, identifier)` also changes only the live appearance. Neither overload throws a checked exception.
 
 Use this for previews or temporary effects. On reconnect, normal saved selection and default rules apply again.
 
@@ -37,11 +37,11 @@ Do not assume that every overload performs the same storage work or throws the s
 
 ## Generate a URL property
 
-`MineSkinAPI.genSkin(url, SkinVariant.CLASSIC)` returns a generated property. It can throw `DataRequestException` and `MineSkinException`.
+Get the MineSkin client with `skinsRestorer.getMineSkinAPI()`. Then call `genSkin(url, SkinVariant.CLASSIC)`. It returns a `MineSkinResponse` and can throw `DataRequestException` and `MineSkinException`. Call `response.getProperty()` to get the generated property.
 
-Applying that property directly is temporary. For a persistent URL selection, use the skin storage resolution path and save its identifier, as the tutorial does.
+Applying that property directly is temporary. To store the result as URL skin data, call `SkinStorage.setURLSkinByResponse(url, response)`. This stores the skin data only. It does not change the player's saved selection. For a persistent URL selection, use the skin storage resolution path and save its identifier, as the tutorial does.
 
-File and image generation overloads can also throw `IOException`. Inspect the [release API signatures](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/api/src/main/java/net/skinsrestorer/api) for the overload you use.
+The `File`, `Path`, and `BufferedImage` overloads can also throw `IOException`. The `byte[]` overload does not. Inspect the [release API signatures](https://github.com/SkinsRestorer/SkinsRestorer/tree/15.12.6/api/src/main/java/net/skinsrestorer/api) for the overload you use.
 
 ## Read or create data
 

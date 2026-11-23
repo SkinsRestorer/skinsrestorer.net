@@ -8,7 +8,7 @@ version: "15.12.6"
 icon: "SlidersHorizontal"
 ---
 
-This reference covers every declared configuration property in SkinsRestorer 15.12.6. It separates lookup tables from [server management procedures](/docs/configuration).
+This page links to the key tables for each `config.yml` section. Each table lists exact keys and defaults. For step-by-step tasks, read the [configuration guides](/docs/configuration).
 
 ## File structure
 
@@ -26,11 +26,11 @@ Edit the existing sections in the active `config.yml`. On Bukkit, the file is `p
 
 [Login behavior](/docs/reference/server) controls canceled logins, online-mode selection application, and client warnings.
 
-## Server settings (Backend only)
+## Server settings (backend only)
 
 [Server behavior](/docs/reference/server) covers refresh, mounts, sound, and backend proxy detection. Server-specific values do not configure the proxy itself.
 
-## Proxy settings (Proxy only)
+## Proxy settings (proxy only)
 
 [Proxy command restrictions](/docs/reference/server) allow or block commands by backend name.
 
@@ -52,7 +52,7 @@ Edit the existing sections in the active `config.yml`. On Bukkit, the file is `p
 
 ## Correct common outdated keys
 
-- Use `database.type: MYSQL` or `POSTGRESQL` for new SQL configuration. Earlier `database.enabled` configuration is migrated by the plugin.
+- Use `database.type: MYSQL` or `POSTGRESQL` for new SQL configuration. The plugin migrates earlier `database.enabled` configuration.
 - `commands.perSkinPermissions` is a boolean, not a section with `enabled` and `list`.
 - Use `api.mineskinAPIKey` and `api.mineskinSecretSkins` with that exact capitalization.
 - Use `gui.custom` and `gui.custom.onlyShowList`, rather than `customSkins` and `onlyList`.

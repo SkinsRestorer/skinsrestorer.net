@@ -27,9 +27,11 @@ If the preview shows arm gaps, switch between classic and slim. Read [the model 
 3. Check your API key if the error concerns authorization.
 4. Check the available cape list if the error concerns cape access. If the list shows **Failed to load available capes**, select **Try again** below it.
 
-A selected cape in **Axolotl** mode uses the proxy route. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
+A selected cape in **Axolotl** mode goes through the SkinsRestorer Axolotl service. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
 
 While a job is pending, the generate button shows **Generating…** and stays off. A job can take up to a minute. To stop waiting, select **Stop waiting** below the button, then generate again.
+
+If the upload or the job takes much longer, the page stops waiting and shows an error. MineSkin may still create the skin, so wait a few minutes before you generate again. A second upload of the same skin is not needed.
 
 If you change the file, model, cape, API key, or upload method, the page stops waiting for the previous result. Leaving the page also stops waiting. A job that the service already accepted can continue. The page does not submit that job again automatically.
 

@@ -27,9 +27,11 @@ Se a prévia mostrar espaços vazios nos braços, alterne entre **Clássico** e 
 3. Confira sua chave de API se o erro for de autorização.
 4. Confira a lista de capas disponíveis se o erro for de acesso a capas. Se a lista mostrar **Não foi possível carregar as capas**, selecione **Tentar novamente** abaixo dela.
 
-Uma capa selecionada no modo **Axolotl** usa a rota do proxy. Envios sem capa e o modo **Oficial** usam o MineSkin diretamente. Esses caminhos podem falhar de forma independente.
+Uma capa selecionada no modo **Axolotl** passa pelo serviço Axolotl do SkinsRestorer. Envios sem capa e o modo **Oficial** usam o MineSkin diretamente. Esses caminhos podem falhar de forma independente.
 
 Enquanto um trabalho está pendente, o botão de gerar mostra **Gerando…** e fica desativado. Um trabalho pode levar até um minuto. Para parar de esperar, selecione **Parar de esperar** abaixo do botão e gere novamente.
+
+Se o envio ou o trabalho demorar muito mais, a página para de esperar e mostra um erro. O MineSkin ainda pode criar a skin, então espere alguns minutos antes de gerar de novo. Não é preciso enviar a mesma skin outra vez.
 
 Se você mudar o arquivo, o modelo, a capa, a chave de API ou o método de envio, a página para de esperar o resultado anterior. Sair da página também para a espera. Um trabalho que o serviço já aceitou pode continuar. A página não reenvia esse trabalho automaticamente.
 

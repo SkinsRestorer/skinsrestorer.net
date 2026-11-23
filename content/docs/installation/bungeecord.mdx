@@ -18,10 +18,12 @@ You need access to the proxy and every backend. Legacy forwarding requires backe
 
 1. Stop the proxy and backends.
 2. Enable IP forwarding in the proxy configuration.
-3. Enable BungeeCord forwarding on each Bukkit backend.
-4. Disable account authentication on the backends.
+3. Keep `online_mode: true` in the BungeeCord `config.yml`. The proxy checks player accounts.
+4. Enable BungeeCord forwarding on each Bukkit backend.
+5. Disable account authentication on the backends.
 
 ```yaml title="BungeeCord config.yml (excerpt)"
+online_mode: true
 ip_forward: true
 ```
 
@@ -34,7 +36,7 @@ settings:
 online-mode=false
 ```
 
-Keep the proxy's authentication policy separate from backend configuration. Do not disable proxy authentication just to use skins.
+Only the backends use `online-mode=false`. Do not set `online_mode: false` on the proxy to make skins work.
 
 ## Install
 
@@ -49,7 +51,7 @@ A modded backend needs the matching mod artifact and compatible forwarding suppo
 
 Complete the [first skin check](/docs/installation/quick-start), including a switch between backends. Grant command permissions on BungeeCord or its proxy permission plugin.
 
-Ordinary proxy-managed skins do not require SQL storage. Backend API integrations need [shared storage](/docs/development/proxy-api).
+Ordinary proxy-managed skins do not require SQL storage. Backend API integrations need [shared MySQL or PostgreSQL storage](/docs/configuration/database). For the API setup, read [the proxy API guide](/docs/development/proxy-api).
 
 ## If it fails
 

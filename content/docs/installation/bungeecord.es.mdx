@@ -18,23 +18,25 @@ Necesitas acceso al proxy y a todos los backends. El reenvío legacy exige prote
 
 1. Detén el proxy y los backends.
 2. Activa el reenvío de IP en la configuración del proxy.
-3. Activa el reenvío de BungeeCord en cada backend Bukkit.
-4. Desactiva la autenticación de cuentas en los backends.
+3. Deja `online_mode: true` en el `config.yml` de BungeeCord. El proxy comprueba las cuentas de los jugadores.
+4. Activa el reenvío de BungeeCord en cada backend Bukkit.
+5. Desactiva la autenticación de cuentas en los backends.
 
-```yaml title="BungeeCord config.yml (excerpt)"
+```yaml title="config.yml de BungeeCord (fragmento)"
+online_mode: true
 ip_forward: true
 ```
 
-```yaml title="Backend spigot.yml (excerpt)"
+```yaml title="spigot.yml del backend (fragmento)"
 settings:
   bungeecord: true
 ```
 
-```properties title="Backend server.properties (excerpt)"
+```properties title="server.properties del backend (fragmento)"
 online-mode=false
 ```
 
-La política de autenticación del proxy es independiente de la configuración de los backends. No desactives la autenticación del proxy solo para usar skins.
+Solo los backends usan `online-mode=false`. No pongas `online_mode: false` en el proxy para que funcionen las skins.
 
 ## Instalar [#install]
 
@@ -49,7 +51,7 @@ Un backend con mods necesita el mod correspondiente y compatibilidad con el reen
 
 Completa la [prueba de primera skin](/docs/installation/quick-start), incluido un cambio entre backends. Da los permisos de los comandos en BungeeCord o en su plugin de permisos del proxy.
 
-Las skins normales gestionadas por el proxy no necesitan almacenamiento SQL. Las integraciones con la API en los backends necesitan [almacenamiento compartido](/docs/development/proxy-api).
+Las skins normales gestionadas por el proxy no necesitan almacenamiento SQL. Las integraciones con la API en los backends necesitan [almacenamiento compartido en MySQL o PostgreSQL](/docs/configuration/database). Para configurar la API, lee [la guía de la API en el proxy](/docs/development/proxy-api).
 
 ## Si falla [#if-it-fails]
 
