@@ -152,7 +152,8 @@ export function EditorToolbar(props: {
         </HintTrigger>
       </ToggleGroup>
       <Separator orientation="vertical" className="hidden h-5 sm:block" />
-      <div className="flex gap-1">
+      {/* Phones show Undo and Redo in the editor's bottom bar instead. */}
+      <div className="hidden gap-1 sm:flex">
         <HintTrigger
           hints={hints}
           label={props.canUndo ? t("common.undo") : t("editor.nothingToUndo")}

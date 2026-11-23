@@ -114,7 +114,7 @@ test("oversized and invalid responses fail with typed errors and release readers
     ),
     {
       reason: "response",
-      message: "The service response exceeds the size limit.",
+      messageKey: "errors.serviceResponseExceedsSizeLimit",
     },
   );
   assert.equal(cancelled, 1);

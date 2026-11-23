@@ -1,6 +1,7 @@
 import { Console, Effect } from "effect";
 import { catalogs } from "../src/lib/messages/catalogs";
 import {
+  findDuplicateValues,
   findUnusedKeys,
   validateCatalogs,
   validateRichNames,
@@ -25,6 +26,10 @@ const check = Effect.gen(function* () {
       (key) => `Unused translation key: ${key}`,
     ),
   ];
+  for (const [value, duplicates] of findDuplicateValues(catalogs.en))
+    yield* Console.warn(
+      `Duplicate English value "${value}": ${duplicates.join(", ")}`,
+    );
   if (errors.length > 0)
     return yield* ToolError.make({
       operation: "validate translations",

@@ -71,27 +71,19 @@ export function uploadRoute(options: NormalizedStudioOptions) {
   };
 }
 
-export type StudioOptionErrors = Partial<
-  Record<"customName" | "capeUuid", MessageKey>
->;
+export type StudioOptionErrors = Partial<Record<"customName", MessageKey>>;
 
 /**
- * Field and cross-field checks. The messages are stable keys that the view
- * translates. The custom name is optional and only checked for custom skins.
+ * Field checks. The messages are stable keys that the view translates. The
+ * custom name is optional and only checked for custom skins. A cape needs no
+ * check: the form removes a cape that the method or key cannot apply.
  */
 export function studioOptionErrors(
   options: StudioOptions,
-  context: { readonly purpose: StudioPurpose; readonly capeStatus: CapeStatus },
+  purpose: StudioPurpose,
 ): StudioOptionErrors {
-  const errors: { -readonly [K in keyof StudioOptionErrors]: MessageKey } = {};
-  const { name } = normalizeStudioOptions(options, context.purpose);
-  if (name && !isValidSkinName(name))
-    errors.customName = "studio.useLowercaseLettersNumbersUnderscores";
-  if (
-    options.method === "mineskin" &&
-    options.capeUuid !== NO_CAPE_VALUE &&
-    context.capeStatus !== "granted"
-  )
-    errors.capeUuid = "studio.enterVerifyApiKeyBeforeSelectingCape";
-  return errors;
+  const { name } = normalizeStudioOptions(options, purpose);
+  return name && !isValidSkinName(name)
+    ? { customName: "studio.useLowercaseLettersNumbersUnderscores" }
+    : {};
 }

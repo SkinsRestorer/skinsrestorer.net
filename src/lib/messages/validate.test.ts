@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  findDuplicateValues,
   findUnusedKeys,
   validateCatalogs,
   validateRichNames,
@@ -118,4 +119,17 @@ test("unused key detection reads quoted keys", () => {
   assert.deepEqual(findUnusedKeys(["editor.face"], ["t(`editor.${next}`)"]), [
     "editor.face",
   ]);
+});
+
+test("duplicate detection groups keys with identical English values", () => {
+  assert.deepEqual(
+    findDuplicateValues({
+      "nav.studio": "Skin Studio",
+      "studio.title": "Skin Studio",
+      "home.openStudio": "Open Skin Studio",
+      "common.saved": "Saved",
+      "studio.saved": "Saved.",
+    }),
+    [["Skin Studio", ["nav.studio", "studio.title"]]],
+  );
 });

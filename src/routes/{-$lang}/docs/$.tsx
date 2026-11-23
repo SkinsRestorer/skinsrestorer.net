@@ -57,6 +57,21 @@ const serverLoader = createServerFn({ method: "GET" })
           }
         : undefined;
     };
+    const { getBreadcrumbItems } = await import("fumadocs-core/breadcrumb");
+    const home = source.getPage([], locale);
+    const breadcrumbs = [
+      ...(home && home !== page
+        ? [{ name: home.data.title, url: localizePath(home.url, locale) }]
+        : []),
+      // Folders without an index page have no URL to link to.
+      ...getBreadcrumbItems(page.url, source.getPageTree(locale), {
+        includePage: true,
+      }).flatMap(({ name, url }) =>
+        typeof name === "string" && url
+          ? [{ name, url: localizePath(url, locale) }]
+          : [],
+      ),
+    ];
     const previous = footerLink(-1);
     const next = footerLink(1);
     return {
@@ -69,6 +84,7 @@ const serverLoader = createServerFn({ method: "GET" })
       description: page.data.description,
       image: getPageImage(page).url,
       links,
+      breadcrumbs,
       neighbours: {
         ...(previous === undefined ? {} : { previous }),
         ...(next === undefined ? {} : { next }),

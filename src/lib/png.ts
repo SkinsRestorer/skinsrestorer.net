@@ -382,12 +382,9 @@ export async function decodePng(
   };
   const sample16 = (row: number, index: number) =>
     (byteAt(raw, row + index * 2) << 8) | byteAt(raw, row + index * 2 + 1);
+  // `sample` returns the high byte of a 16-bit sample.
   const scale = (value: number) =>
-    depth === 16
-      ? value
-      : depth === 8
-        ? value
-        : Math.round((value * 255) / max);
+    depth >= 8 ? value : Math.round((value * 255) / max);
   const transparentGray =
     transparency && colorType === 0 && transparency.length >= 2
       ? (byteAt(transparency, 0) << 8) | byteAt(transparency, 1)

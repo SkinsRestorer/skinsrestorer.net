@@ -22,7 +22,7 @@ import { useT } from "@/lib/i18n-react";
 import type { SkinVariant } from "@/lib/skin";
 import type { SelectedSkin } from "@/lib/skin-selection";
 import { defaultSkinName, suggestSkinName } from "@/lib/studio";
-import { NO_CAPE_VALUE, type UploadMethod } from "@/lib/studio-options";
+import type { UploadMethod } from "@/lib/studio-options";
 import type { GenerationResult } from "@/lib/studio-generation";
 import { cn, findOption } from "@/lib/utils";
 import type { StudioCommandForm } from "./use-studio-command-form";
@@ -175,8 +175,13 @@ export function StudioCommandOptions(props: {
                           variant="link"
                           size="sm"
                           className="self-start"
-                          onClick={() => {
+                          // This link unmounts; focus returns to the name.
+                          onClick={(event) => {
+                            const input = event.currentTarget
+                              .closest('[data-slot="field"]')
+                              ?.querySelector("input");
                             field.handleChange(suggestion);
+                            input?.focus();
                           }}
                         >
                           {t("studio.useSuggestedName", { name: suggestion })}
@@ -202,10 +207,7 @@ export function StudioCommandOptions(props: {
 
           <form.Field name="capeUuid">
             {(field) => (
-              <ChoiceSet
-                label={t("studio.cape")}
-                errors={submitted ? field.state.meta.errors : []}
-              >
+              <ChoiceSet label={t("studio.cape")}>
                 {(labelId) => (
                   <CapePicker
                     labelledBy={labelId}
@@ -242,22 +244,8 @@ export function StudioCommandOptions(props: {
           </form.Field>
         </FieldGroup>
 
-        <form.Field
-          name="method"
-          listeners={{
-            onChange: ({ value }) => {
-              // Official needs a checked key to apply a cape.
-              if (
-                value !== "mineskin" ||
-                capes.keyGranted ||
-                form.getFieldValue("capeUuid") === NO_CAPE_VALUE
-              )
-                return;
-              form.setFieldValue("capeUuid", NO_CAPE_VALUE);
-              toast.info(t("studio.capeRemovedOfficialNeedsKey"));
-            },
-          }}
-        >
+        {/* The command form removes a cape that the method cannot apply. */}
+        <form.Field name="method">
           {(methodField) => (
             <AdvancedOptions
               method={methodField.state.value}
@@ -270,11 +258,8 @@ export function StudioCommandOptions(props: {
                 <form.Field
                   name="apiKey"
                   listeners={{
-                    onChange: () => {
-                      // A new key needs a new check before capes.
-                      capes.reset();
-                      form.setFieldValue("capeUuid", NO_CAPE_VALUE);
-                    },
+                    // A new key needs a new check before capes.
+                    onChange: capes.reset,
                   }}
                 >
                   {(field) => (
@@ -282,6 +267,7 @@ export function StudioCommandOptions(props: {
                       <MineSkinKeyField
                         value={field.state.value}
                         status={capes.status}
+                        noCapes={capes.supportedCapes.length === 0}
                         onChange={field.handleChange}
                         onBlur={field.handleBlur}
                         onCheckCapeAccess={() =>
@@ -378,7 +364,6 @@ export function StudioCommandOptions(props: {
  */
 function ChoiceSet(props: {
   label: string;
-  errors?: readonly unknown[] | undefined;
   children: (labelId: string) => React.ReactNode;
 }) {
   const id = useId();
@@ -386,7 +371,6 @@ function ChoiceSet(props: {
     <div className="flex flex-col gap-2">
       <FieldTitle id={id}>{props.label}</FieldTitle>
       {props.children(id)}
-      <LocalizedFieldError errors={props.errors} />
     </div>
   );
 }

@@ -71,10 +71,11 @@ test("full storage stays readable, and blocked storage is reported", async () =>
   const scope = globalThis as { window?: unknown };
   const previous = scope.window;
   try {
-    scope.window = { localStorage: full, sessionStorage: blockedStorage };
-    const storage = required(browserStorage("localStorage"), "storage");
+    scope.window = { localStorage: full };
+    const storage = required(browserStorage(), "storage");
     assert.equal((await readDraft(storage)).status, "found");
-    assert.equal(browserStorage("sessionStorage"), undefined);
+    scope.window = { localStorage: blockedStorage };
+    assert.equal(browserStorage(), undefined);
   } finally {
     scope.window = previous;
   }

@@ -1,12 +1,12 @@
 /* Colors and text shadow follow the Minecraft Java chat. */
 
 .stage {
-  --night: #171913;
+  --night: #16141c;
   background: var(--night);
 }
 
 .backdrop {
-  background: radial-gradient(ellipse at 50% 35%, #4d4a1a, var(--night) 70%);
+  background: radial-gradient(ellipse at 50% 35%, #3a2b5c, var(--night) 70%);
 }
 
 .ground {

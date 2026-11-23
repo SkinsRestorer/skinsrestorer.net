@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { cn, required } from "@/lib/utils";
 import { describePixel, SKIN_SIZE, skinRegions } from "@/lib/skin-regions";
@@ -94,6 +101,11 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const { store, tool, settings, scale, showGrid, highlight, interaction } =
     props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  /**
+   * The brush outlines, on their own canvas above the texture. A hover or
+   * cursor move redraws only this layer, which stays cheap at high zoom.
+   */
+  const outlineRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useAsRef(props);
   const maskCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
   const checkCache = useRef<{ key: string; canvas: HTMLCanvasElement }>(null);
@@ -123,6 +135,11 @@ export function TextureCanvas(props: TextureCanvasProps) {
   const [themeRevision, setThemeRevision] = useState(0);
   const [ratio, setRatio] = useState(1);
   const [revision, setRevision] = useState(() => store.getSnapshot().revision);
+  const variant = useSyncExternalStore(
+    store.subscribe,
+    () => store.getSnapshot().variant,
+    () => store.getSnapshot().variant,
+  );
   const instructionsId = useId();
   /** Touch points on the canvas, to tell one-finger paint from two-finger pan. */
   const touches = useRef(new Map<number, { x: number; y: number }>());
@@ -277,7 +294,6 @@ export function TextureCanvas(props: TextureCanvasProps) {
     canvas.style.width = `${size}px`;
     canvas.style.height = `${size}px`;
     const cell = canvas.width / SKIN_SIZE;
-    const variant = store.getSnapshot().variant;
     // Reading computed styles right after a render forces a style recalc.
     if (colorCache.current?.revision !== themeRevision)
       colorCache.current = {
@@ -334,7 +350,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         canvas.height,
       );
 
-      // A hover or cursor move redraws the view but leaves the pixels alone.
+      // A theme or zoom change redraws the view but leaves the pixels alone.
       if (textureCache.current?.revision !== revision) {
         const texture =
           textureCache.current?.canvas ?? document.createElement("canvas");
@@ -438,41 +454,6 @@ export function TextureCanvas(props: TextureCanvasProps) {
           );
       }
 
-      const outline = (rect: PixelRect, dashed: boolean) => {
-        ctx.setLineDash(dashed ? [cell / 4, cell / 4] : []);
-        ctx.lineWidth = Math.max(2, ratio * 2);
-        ctx.strokeStyle = foreground;
-        ctx.strokeRect(
-          rect.x * cell + 1,
-          rect.y * cell + 1,
-          rect.width * cell - 2,
-          rect.height * cell - 2,
-        );
-        ctx.strokeStyle = background;
-        ctx.lineWidth = Math.max(1, ratio);
-        ctx.strokeRect(
-          rect.x * cell + 3,
-          rect.y * cell + 3,
-          rect.width * cell - 6,
-          rect.height * cell - 6,
-        );
-        ctx.setLineDash([]);
-      };
-      // The pixels the tool changes here: the brush square clipped to the face,
-      // and its mirror image with a dashed line.
-      const footprint = (x: number, y: number, solid: boolean) => {
-        const area = brushArea(
-          variant,
-          usesBrush(tool) ? settings : { ...settings, size: 1 },
-          x,
-          y,
-        );
-        outline(area?.source ?? { x, y, width: 1, height: 1 }, !solid);
-        if (area?.mirror && usesMirror(tool, settings.fillScope))
-          outline(area.mirror, true);
-      };
-      if (hover && interaction === "paint") footprint(hover.x, hover.y, false);
-      if (focused) footprint(cursor.x, cursor.y, true);
       ctx.restore();
     };
     draw();
@@ -483,15 +464,77 @@ export function TextureCanvas(props: TextureCanvasProps) {
   }, [
     store,
     revision,
+    variant,
     settings,
     scale,
     showGrid,
     highlight,
+    themeRevision,
+    ratio,
+  ]);
+
+  // Runs after the texture effect, which sizes the canvas and reads the
+  // theme colors.
+  useEffect(() => {
+    const canvas = outlineRef.current;
+    const ctx = canvas?.getContext("2d");
+    const colors = colorCache.current;
+    if (!canvas || !ctx || !colors) return;
+    const size = SKIN_SIZE * scale;
+    const pixels = Math.round(size * ratio);
+    if (canvas.width !== pixels) canvas.width = pixels;
+    if (canvas.height !== pixels) canvas.height = pixels;
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cell = canvas.width / SKIN_SIZE;
+    const { foreground, background } = colors;
+
+    const outline = (rect: PixelRect, dashed: boolean) => {
+      ctx.setLineDash(dashed ? [cell / 4, cell / 4] : []);
+      ctx.lineWidth = Math.max(2, ratio * 2);
+      ctx.strokeStyle = foreground;
+      ctx.strokeRect(
+        rect.x * cell + 1,
+        rect.y * cell + 1,
+        rect.width * cell - 2,
+        rect.height * cell - 2,
+      );
+      ctx.strokeStyle = background;
+      ctx.lineWidth = Math.max(1, ratio);
+      ctx.strokeRect(
+        rect.x * cell + 3,
+        rect.y * cell + 3,
+        rect.width * cell - 6,
+        rect.height * cell - 6,
+      );
+      ctx.setLineDash([]);
+    };
+    // The pixels the tool changes here: the brush square clipped to the face,
+    // and its mirror image with a dashed line.
+    const footprint = (x: number, y: number, solid: boolean) => {
+      const area = brushArea(
+        variant,
+        usesBrush(tool) ? settings : { ...settings, size: 1 },
+        x,
+        y,
+      );
+      outline(area?.source ?? { x, y, width: 1, height: 1 }, !solid);
+      if (area?.mirror && usesMirror(tool, settings.fillScope))
+        outline(area.mirror, true);
+    };
+    if (hover && interaction === "paint") footprint(hover.x, hover.y, false);
+    if (focused) footprint(cursor.x, cursor.y, true);
+  }, [
+    variant,
+    settings,
+    scale,
     hover,
     focused,
     cursor,
     interaction,
     tool,
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- It refreshes the colors that the texture effect caches.
     themeRevision,
     ratio,
   ]);
@@ -533,208 +576,222 @@ export function TextureCanvas(props: TextureCanvasProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <canvas
-        ref={canvasRef}
-        tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role -- The paint canvas handles its own arrow and paint keys, which needs the application role.
-        role="application"
-        aria-label={t("editor.skinTexture6464Pixels")}
-        aria-describedby={instructionsId}
-        className={cn(
-          "block max-w-none rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-          interaction === "paint"
-            ? "cursor-crosshair touch-none"
-            : "touch-auto",
-        )}
-        onFocus={() => {
-          setFocused(true);
-          setAnnouncement(
-            describePixel(store.getSnapshot().variant, cursor.x, cursor.y, t),
-          );
-        }}
-        onBlur={() => {
-          setFocused(false);
-        }}
-        onKeyDown={(event) => {
-          const steps: Record<string, [number, number]> = {
-            ArrowLeft: [-1, 0],
-            ArrowRight: [1, 0],
-            ArrowUp: [0, -1],
-            ArrowDown: [0, 1],
-          };
-          const step = steps[event.key];
-          if (step) {
-            event.preventDefault();
-            const stride = event.shiftKey ? 4 : 1;
-            const next = {
-              x: Math.min(
-                SKIN_SIZE - 1,
-                Math.max(0, cursor.x + step[0] * stride),
-              ),
-              y: Math.min(
-                SKIN_SIZE - 1,
-                Math.max(0, cursor.y + step[1] * stride),
-              ),
-            };
-            setCursor(next);
-            revealPixel(event.currentTarget, next.x, next.y);
+      <div className="relative self-start">
+        <canvas
+          ref={canvasRef}
+          tabIndex={0}
+          // oxlint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role -- The paint canvas handles its own arrow and paint keys, which needs the application role.
+          role="application"
+          aria-label={t("editor.skinTexture6464Pixels")}
+          aria-describedby={instructionsId}
+          className={cn(
+            "block max-w-none rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+            interaction === "paint"
+              ? "cursor-crosshair touch-none"
+              : "touch-auto",
+          )}
+          onFocus={() => {
+            setFocused(true);
             setAnnouncement(
-              describePixel(store.getSnapshot().variant, next.x, next.y, t),
+              describePixel(store.getSnapshot().variant, cursor.x, cursor.y, t),
             );
-          } else if (event.key === " " || event.key === "Enter") {
-            event.preventDefault();
-            applyAtCursor(cursor.x, cursor.y, event.shiftKey);
-          }
-        }}
-        onPointerDown={(event) => {
-          if (interaction !== "paint") return;
-          const touch = event.pointerType === "touch";
-          const owner = strokePointer.current;
-          // A palm that touches during a pen or mouse stroke is ignored. A
-          // second finger during a finger stroke starts a pan below.
-          if (owner && owner.id !== event.pointerId && !(owner.touch && touch))
-            return;
-          if (touch) {
-            touches.current.set(event.pointerId, {
-              x: event.clientX,
-              y: event.clientY,
-            });
-            if (touches.current.size > 1) {
-              // A second finger pans and pinches the texture. Drop what the
-              // first finger started, so a gesture never leaves a mark.
-              tap.current = null;
-              strokePointer.current = null;
-              store.cancelStroke();
-              const [a, b] = touches.current.values();
-              pinch.current =
-                a && b && touches.current.size === 2
-                  ? { distance: distance(a, b), scale: propsRef.current.scale }
-                  : null;
-              return;
-            }
-          }
-          // Only the main button paints, also for a pen's barrel button and
-          // eraser end.
-          if (!touch && event.button !== 0) return;
-          const pixel = toPixel(event);
-          if (!pixel) return;
-          event.preventDefault();
-          setCursor(pixel);
-          // A finger may become a two-finger pan, so fill and pick wait for a tap.
-          if (
-            event.pointerType === "touch" &&
-            (propsRef.current.tool === "fill" ||
-              propsRef.current.tool === "eyedropper")
-          ) {
-            tap.current = { id: event.pointerId, ...pixel };
-            return;
-          }
-          if (
-            startTool(propsRef.current, pixel.x, pixel.y, {
-              line: event.shiftKey,
-              pick: event.altKey,
-            }) === "stroke"
-          ) {
-            strokePointer.current = { id: event.pointerId, touch };
-            event.currentTarget.setPointerCapture(event.pointerId);
-          }
-        }}
-        onPointerMove={(event) => {
-          const owner = strokePointer.current;
-          if (owner && owner.id !== event.pointerId) return;
-          const last = touches.current.get(event.pointerId);
-          if (last) {
-            const panning = touches.current.size > 1;
-            const next = { x: event.clientX, y: event.clientY };
-            touches.current.set(event.pointerId, next);
-            if (panning) {
-              // Each finger moves the view by half its distance, so two fingers
-              // together move it by their average.
-              panBy(
-                event.currentTarget,
-                (last.x - next.x) / touches.current.size,
-                (last.y - next.y) / touches.current.size,
+          }}
+          onBlur={() => {
+            setFocused(false);
+          }}
+          onKeyDown={(event) => {
+            const steps: Record<string, [number, number]> = {
+              ArrowLeft: [-1, 0],
+              ArrowRight: [1, 0],
+              ArrowUp: [0, -1],
+              ArrowDown: [0, 1],
+            };
+            const step = steps[event.key];
+            if (step) {
+              event.preventDefault();
+              const stride = event.shiftKey ? 4 : 1;
+              const next = {
+                x: Math.min(
+                  SKIN_SIZE - 1,
+                  Math.max(0, cursor.x + step[0] * stride),
+                ),
+                y: Math.min(
+                  SKIN_SIZE - 1,
+                  Math.max(0, cursor.y + step[1] * stride),
+                ),
+              };
+              setCursor(next);
+              revealPixel(event.currentTarget, next.x, next.y);
+              setAnnouncement(
+                describePixel(store.getSnapshot().variant, next.x, next.y, t),
               );
-              const start = pinch.current;
-              const { onZoom, scale: current } = propsRef.current;
-              const [a, b] = touches.current.values();
-              if (start && start.distance > 0 && onZoom && a && b) {
-                const zoomed = Math.round(
-                  (start.scale * distance(a, b)) / start.distance,
-                );
-                if (zoomed !== current) {
-                  const rect = event.currentTarget.getBoundingClientRect();
-                  const x = (a.x + b.x) / 2;
-                  const y = (a.y + b.y) / 2;
-                  anchor.current = {
-                    u: (x - rect.left) / rect.width,
-                    v: (y - rect.top) / rect.height,
-                    x,
-                    y,
-                    to: zoomed,
-                  };
-                  onZoom(zoomed);
-                }
+            } else if (event.key === " " || event.key === "Enter") {
+              event.preventDefault();
+              applyAtCursor(cursor.x, cursor.y, event.shiftKey);
+            }
+          }}
+          onPointerDown={(event) => {
+            if (interaction !== "paint") return;
+            const touch = event.pointerType === "touch";
+            const owner = strokePointer.current;
+            // A palm that touches during a pen or mouse stroke is ignored. A
+            // second finger during a finger stroke starts a pan below.
+            if (
+              owner &&
+              owner.id !== event.pointerId &&
+              !(owner.touch && touch)
+            )
+              return;
+            if (touch) {
+              touches.current.set(event.pointerId, {
+                x: event.clientX,
+                y: event.clientY,
+              });
+              if (touches.current.size > 1) {
+                // A second finger pans and pinches the texture. Drop what the
+                // first finger started, so a gesture never leaves a mark.
+                tap.current = null;
+                strokePointer.current = null;
+                store.cancelStroke();
+                const [a, b] = touches.current.values();
+                pinch.current =
+                  a && b && touches.current.size === 2
+                    ? {
+                        distance: distance(a, b),
+                        scale: propsRef.current.scale,
+                      }
+                    : null;
+                return;
               }
+            }
+            // Only the main button paints, also for a pen's barrel button and
+            // eraser end.
+            if (!touch && event.button !== 0) return;
+            const pixel = toPixel(event);
+            if (!pixel) return;
+            event.preventDefault();
+            setCursor(pixel);
+            // A finger may become a two-finger pan, so fill and pick wait for a tap.
+            if (
+              event.pointerType === "touch" &&
+              (propsRef.current.tool === "fill" ||
+                propsRef.current.tool === "eyedropper")
+            ) {
+              tap.current = { id: event.pointerId, ...pixel };
               return;
             }
-          } else if (event.pointerType !== "touch") {
-            // Most moves stay on the same pixel. A new object would redraw
-            // the whole canvas, which is large at high zoom.
-            const pixel = toPixel(event) ?? null;
-            setHover((current) =>
-              current?.x === pixel?.x && current?.y === pixel?.y
-                ? current
-                : pixel,
-            );
-          }
-          if (!owner || !store.getSnapshot().painting) return;
-          // Older Safari versions lack getCoalescedEvents.
-          const native = event.nativeEvent;
-          const samples =
-            "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
-          for (const sample of samples.length > 0 ? samples : [event]) {
-            const point = toPixel(sample, true);
-            if (point) store.strokeTo(point.x, point.y);
-          }
-        }}
-        onPointerUp={(event) => {
-          touches.current.delete(event.pointerId);
-          if (touches.current.size < 2) {
-            // A pinch past the zoom limit leaves an anchor that no scale used.
-            pinch.current = null;
-            anchor.current = null;
-          }
-          const owner = strokePointer.current;
-          if (owner && owner.id !== event.pointerId) return;
-          const pending = tap.current;
-          tap.current = null;
-          if (pending?.id === event.pointerId) {
-            const result = startTool(propsRef.current, pending.x, pending.y);
-            if (result === "stroke") finishStroke();
-            return;
-          }
-          finishStroke();
-        }}
-        onPointerCancel={(event) => {
-          // The browser took the pointer, for example for a system gesture.
-          touches.current.delete(event.pointerId);
-          if (touches.current.size < 2) {
-            // A pinch past the zoom limit leaves an anchor that no scale used.
-            pinch.current = null;
-            anchor.current = null;
-          }
-          const owner = strokePointer.current;
-          if (owner && owner.id !== event.pointerId) return;
-          tap.current = null;
-          strokePointer.current = null;
-          store.cancelStroke();
-        }}
-        onPointerLeave={() => {
-          setHover(null);
-        }}
-        onLostPointerCapture={finishStroke}
-      />
+            if (
+              startTool(propsRef.current, pixel.x, pixel.y, {
+                line: event.shiftKey,
+                pick: event.altKey,
+              }) === "stroke"
+            ) {
+              strokePointer.current = { id: event.pointerId, touch };
+              event.currentTarget.setPointerCapture(event.pointerId);
+            }
+          }}
+          onPointerMove={(event) => {
+            const owner = strokePointer.current;
+            if (owner && owner.id !== event.pointerId) return;
+            const last = touches.current.get(event.pointerId);
+            if (last) {
+              const panning = touches.current.size > 1;
+              const next = { x: event.clientX, y: event.clientY };
+              touches.current.set(event.pointerId, next);
+              if (panning) {
+                // Each finger moves the view by half its distance, so two fingers
+                // together move it by their average.
+                panBy(
+                  event.currentTarget,
+                  (last.x - next.x) / touches.current.size,
+                  (last.y - next.y) / touches.current.size,
+                );
+                const start = pinch.current;
+                const { onZoom, scale: current } = propsRef.current;
+                const [a, b] = touches.current.values();
+                if (start && start.distance > 0 && onZoom && a && b) {
+                  const zoomed = Math.round(
+                    (start.scale * distance(a, b)) / start.distance,
+                  );
+                  if (zoomed !== current) {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const x = (a.x + b.x) / 2;
+                    const y = (a.y + b.y) / 2;
+                    anchor.current = {
+                      u: (x - rect.left) / rect.width,
+                      v: (y - rect.top) / rect.height,
+                      x,
+                      y,
+                      to: zoomed,
+                    };
+                    onZoom(zoomed);
+                  }
+                }
+                return;
+              }
+            } else if (event.pointerType !== "touch") {
+              // Most moves stay on the same pixel. A new object would redraw
+              // the whole canvas, which is large at high zoom.
+              const pixel = toPixel(event) ?? null;
+              setHover((current) =>
+                current?.x === pixel?.x && current?.y === pixel?.y
+                  ? current
+                  : pixel,
+              );
+            }
+            if (!owner || !store.getSnapshot().painting) return;
+            // Older Safari versions lack getCoalescedEvents.
+            const native = event.nativeEvent;
+            const samples =
+              "getCoalescedEvents" in native ? native.getCoalescedEvents() : [];
+            for (const sample of samples.length > 0 ? samples : [event]) {
+              const point = toPixel(sample, true);
+              if (point) store.strokeTo(point.x, point.y);
+            }
+          }}
+          onPointerUp={(event) => {
+            touches.current.delete(event.pointerId);
+            if (touches.current.size < 2) {
+              // A pinch past the zoom limit leaves an anchor that no scale used.
+              pinch.current = null;
+              anchor.current = null;
+            }
+            const owner = strokePointer.current;
+            if (owner && owner.id !== event.pointerId) return;
+            const pending = tap.current;
+            tap.current = null;
+            if (pending?.id === event.pointerId) {
+              const result = startTool(propsRef.current, pending.x, pending.y);
+              if (result === "stroke") finishStroke();
+              return;
+            }
+            finishStroke();
+          }}
+          onPointerCancel={(event) => {
+            // The browser took the pointer, for example for a system gesture.
+            touches.current.delete(event.pointerId);
+            if (touches.current.size < 2) {
+              // A pinch past the zoom limit leaves an anchor that no scale used.
+              pinch.current = null;
+              anchor.current = null;
+            }
+            const owner = strokePointer.current;
+            if (owner && owner.id !== event.pointerId) return;
+            tap.current = null;
+            strokePointer.current = null;
+            store.cancelStroke();
+          }}
+          onPointerLeave={() => {
+            setHover(null);
+          }}
+          onLostPointerCapture={finishStroke}
+        />
+        <canvas
+          ref={outlineRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 left-0"
+        />
+      </div>
       <p id={instructionsId} className="sr-only">
         {t("editor.useArrowKeysMovePixelCursorHold")}
       </p>

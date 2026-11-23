@@ -40,7 +40,6 @@ import { hasMessages, loadMessages, translate } from "@/lib/messages";
 import { siteTitleKey, siteUrl } from "@/lib/seo";
 import { getSiteRedirect, redirectLocation } from "@/lib/site-redirects";
 import "@/lib/analytics";
-import "@/lib/stale-chunks";
 import appCss from "../style.css?url";
 import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
 import geistCyrillic from "@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2?url";
@@ -74,7 +73,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "application-name", content: "SkinsRestorer" },
       { name: "apple-mobile-web-app-title", content: "SkinsRestorer" },
-      { name: "msapplication-TileColor", content: "#8839EF" },
+      { name: "msapplication-TileColor", content: "#7113EC" },
       { property: "og:site_name", content: "SkinsRestorer" },
       { property: "og:type", content: "website" },
     ],
@@ -144,7 +143,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <meta
           name="theme-color"
           media="(prefers-color-scheme: light)"
-          content="#8839EF"
+          content="#7113EC"
         />
         <meta
           name="theme-color"

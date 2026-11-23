@@ -388,6 +388,11 @@ function LibraryItem(props: {
   const t = useT();
   const { skin } = props;
   const button = useRef<HTMLButtonElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  /** Whether a key on the skin opened the menu, so focus returns there. */
+  const [menuByKey, setMenuByKey] = useState(false);
+  // A controlled menu names its trigger, so it anchors there.
+  const menuTriggerId = useId();
   const setButton = (element: HTMLButtonElement | null) => {
     button.current = element;
     props.register(element);
@@ -403,7 +408,19 @@ function LibraryItem(props: {
         data-skin-id={skin.id}
         tabIndex={props.tabStop ? 0 : -1}
         onFocus={props.onFocus}
-        onKeyDown={props.onKeyDown}
+        onKeyDown={(event) => {
+          // The keyboard's context menu key or Shift+F10 opens this skin's
+          // menu, like a right click would.
+          if (
+            event.key === "ContextMenu" ||
+            (event.shiftKey && event.key === "F10")
+          ) {
+            event.preventDefault();
+            setMenuByKey(true);
+            setMenuOpen(true);
+          } else props.onKeyDown(event);
+        }}
+        aria-keyshortcuts="Shift+F10 ContextMenu"
         aria-current={props.selected || undefined}
         aria-label={t(
           props.draft
@@ -466,10 +483,18 @@ function LibraryItem(props: {
           props.selected && "opacity-100",
         )}
       >
-        <DropdownMenu>
+        <DropdownMenu
+          open={menuOpen}
+          triggerId={menuTriggerId}
+          onOpenChange={(open) => {
+            if (open) setMenuByKey(false);
+            setMenuOpen(open);
+          }}
+        >
           <DropdownMenuTrigger
             render={
               <Button
+                id={menuTriggerId}
                 variant="ghost"
                 size="icon-sm"
                 aria-label={t("library.moreActionsName", { name: skin.name })}
@@ -481,7 +506,12 @@ function LibraryItem(props: {
           >
             <Ellipsis />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuContent
+            align="end"
+            className="w-52"
+            // A menu opened from the skin returns focus to the skin.
+            finalFocus={menuByKey ? button : undefined}
+          >
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={props.onRename}>
                 <PencilLine />

@@ -425,9 +425,7 @@ export class EditorSession {
     const library = this.library;
     if (!library) return "missing";
     const generation = this.generation;
-    const imported = await importSkinPng(
-      new Uint8Array(await draft.png.arrayBuffer()),
-    );
+    const document = await documentOf(draft.png, draft.variant);
     let base: SkinDocument | undefined;
     let owner = draft.skinId;
     if (owner)
@@ -485,17 +483,11 @@ export class EditorSession {
       return "superseded";
     }
     this.begin(
-      { pixels: imported.document.pixels, variant: draft.variant },
+      document,
       owner
         ? { skinId: owner, baseRevision: draft.baseRevision, name: draft.name }
         : { name: draft.name },
-      {
-        sessionId,
-        base: base ?? {
-          pixels: imported.document.pixels,
-          variant: draft.variant,
-        },
-      },
+      { sessionId, base: base ?? document },
       lock,
     );
     this.forget(draft.id);
@@ -739,12 +731,11 @@ export class EditorSession {
   }
 
   /** Save the work as a new skin. The source skin does not change. */
-  saveCopy(options: { readonly keep?: boolean } = {}) {
+  saveCopy() {
     return this.finish(async (content) => {
       const { target, sessionId } = this.state;
       const name = copyName(target.name, this.options.locale?.());
-      const library =
-        options.keep === false || this.unavailable ? undefined : this.library;
+      const library = this.unavailable ? undefined : this.library;
       if (!library) return { content, skin: undefined, name };
       const skin = await library.run(
         withLibrary((l) =>

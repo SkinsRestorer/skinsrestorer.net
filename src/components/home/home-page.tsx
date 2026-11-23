@@ -14,7 +14,6 @@ import { type ReactNode, useEffect, useState } from "react";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Image } from "@/components/image";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { getLatestRelease } from "@/lib/release-server";
 import styles from "./minecraft.module.css";
 import { CopyCommand, HomeFaq } from "./home-interactions";
@@ -274,12 +273,7 @@ export default function IndexPage() {
   const t = useT();
   const faqItems = useFaqItems();
   return (
-    <div
-      className={cn(
-        "[--brand-ink:#7a720a] [--primary-foreground:#201e0b] [--primary:#d4c72e] [--ring:#b2a711] dark:[--brand-ink:#d4c72e]",
-        "flex w-full flex-col",
-      )}
-    >
+    <div className="flex w-full flex-col">
       <section
         aria-labelledby="home-title"
         className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-10 pb-16 sm:px-6 md:pt-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-14 lg:px-8 lg:pt-16 lg:pb-20"
@@ -419,16 +413,10 @@ export default function IndexPage() {
             <p className="max-w-xl text-sm text-muted-foreground">
               {t("home.pluginFabricNeoforgeModsSeparateDownloadsModrinth")}
             </p>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <a href={downloadLink} className={linkClassName}>
-                Modrinth
-                <ArrowUpRight aria-hidden="true" className="size-3.5" />
-              </a>
-              <a href={releasesLink} className={linkClassName}>
-                {t("home.githubReleases")}
-                <ArrowUpRight aria-hidden="true" className="size-3.5" />
-              </a>
-            </div>
+            <a href={releasesLink} className={linkClassName}>
+              {t("home.githubReleases")}
+              <ArrowUpRight aria-hidden="true" className="size-3.5" />
+            </a>
           </div>
         </div>
       </section>
@@ -489,12 +477,9 @@ export default function IndexPage() {
               <Link
                 key={tool.href}
                 href={tool.href}
-                className="group flex flex-col gap-3 rounded-lg border p-5 transition-colors hover:border-(--brand-ink) hover:bg-muted/40"
+                className="group flex flex-col gap-3 rounded-lg border p-5 transition-colors hover:border-primary hover:bg-muted/40"
               >
-                <tool.icon
-                  aria-hidden="true"
-                  className="size-5 text-(--brand-ink)"
-                />
+                <tool.icon aria-hidden="true" className="size-5 text-primary" />
                 <div className="flex flex-1 flex-col gap-1.5">
                   <h3 className="font-semibold">{t(tool.title)}</h3>
                   <p className="text-sm text-muted-foreground">

@@ -7,11 +7,12 @@ import { NO_CAPE_VALUE } from "@/lib/studio-options";
 
 const noop = () => {};
 
-function render(status: CapeStatus) {
+function render(status: CapeStatus, noCapes = false) {
   const html = renderToStaticMarkup(
     <MineSkinKeyField
       value="key"
       status={status}
+      noCapes={noCapes}
       onChange={noop}
       onBlur={noop}
       onCheckCapeAccess={noop}
@@ -57,6 +58,18 @@ test("a granted key keeps a visible confirmation tied to the field", () => {
     html,
     new RegExp(
       `id="${describedBy}"[^>]*>Cape support enabled for this API key.<`,
+      "u",
+    ),
+  );
+});
+
+test("a granted key without capes says so on the field", () => {
+  const { html, input, describedBy } = render("granted", true);
+  assert.ok(!input.includes(`aria-invalid="`));
+  assert.match(
+    html,
+    new RegExp(
+      `id="${describedBy}"[^>]*>No supported capes are currently available.<`,
       "u",
     ),
   );

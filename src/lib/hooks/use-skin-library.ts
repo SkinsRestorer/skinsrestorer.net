@@ -43,7 +43,7 @@ let migration: Promise<MigrationResult> | undefined;
 
 /** Move the old editor draft into the library once per page load. */
 function migrateOnce(client: LibraryClient, t: Translator, locale: string) {
-  const storage = browserStorage("localStorage");
+  const storage = browserStorage();
   migration ??= migrateLegacyDraft(client, storage, {
     name: (updatedAt) =>
       t("library.recoveredDraftName", {

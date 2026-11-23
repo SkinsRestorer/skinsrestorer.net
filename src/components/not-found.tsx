@@ -9,7 +9,7 @@ import type { MessageKey } from "@/lib/messages";
 const popularPages: { href: string; label: MessageKey; external?: true }[] = [
   { href: "/docs/installation", label: "common.installationGuide" },
   { href: "/docs/troubleshooting", label: "notfound.troubleshooting" },
-  { href: "/studio", label: "nav.studio" },
+  { href: "/studio", label: "studio.title" },
   { href: "/discord", label: "notfound.askOnDiscord", external: true },
 ];
 

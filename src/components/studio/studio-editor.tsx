@@ -174,6 +174,8 @@ export function StudioEditor(props: {
   const textureFrame = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const saveButton = useRef<HTMLButtonElement>(null);
+  /** The Save button of the phone bar, shown instead of `saveButton`. */
+  const barSaveButton = useRef<HTMLButtonElement>(null);
   // The control that opened the editor unmounts: start keyboard users here.
   useEffect(() => {
     heading.current?.focus();
@@ -331,8 +333,19 @@ export function StudioEditor(props: {
   const zoomTo = useCallback((next: number) => {
     setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next)));
   }, []);
+  // Buttons and keys announce the new zoom. A pinch or wheel zooms in many
+  // small steps, so it stays quiet.
+  const announceZoom = (next: number) => {
+    announce("editor.textureZoom", t("editor.zoomScale", { scale: next }));
+  };
   const zoomBy = (step: number) => {
-    zoomTo(scale + step);
+    const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, scale + step));
+    setZoom(next);
+    announceZoom(next);
+  };
+  const fit = () => {
+    setZoom("fit");
+    announceZoom(fitScale);
   };
 
   const pointerAction = (next: EditorInteraction) => {
@@ -417,9 +430,7 @@ export function StudioEditor(props: {
         },
         true,
       ),
-      ...run("fit", () => {
-        setZoom("fit");
-      }),
+      ...run("fit", fit),
       ...run(
         "undo",
         () => {
@@ -570,332 +581,346 @@ export function StudioEditor(props: {
 
   return (
     <TooltipProvider>
-      <section
-        aria-label={t("studio.skinBeingEdited")}
-        className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground ph-no-capture sm:p-4"
-      >
-        <div className="flex min-h-8 items-center gap-2">
-          <h2
-            ref={heading}
-            tabIndex={-1}
-            className="truncate text-base font-semibold outline-none"
-          >
-            {props.isNew
-              ? work.target.name
-              : t("studio.editingName", { name: work.target.name })}
-          </h2>
-          <SaveStatus state={saveState} label={saveLabel} />
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className={cn("ml-auto", coarse)}
-                  aria-label={t("common.downloadPng")}
-                  onClick={() => void download()}
-                />
-              }
+      {/* On phones the sections stack in one column. This wrapper lets the
+          Save bar stick to the screen bottom through both of them. */}
+      <div className="flex min-w-0 flex-col gap-2 sm:contents">
+        <section
+          aria-label={t("studio.skinBeingEdited")}
+          className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground ph-no-capture sm:p-4"
+        >
+          <div className="flex min-h-8 items-center gap-2">
+            <h2
+              ref={heading}
+              tabIndex={-1}
+              className="truncate text-base font-semibold outline-none"
             >
-              <Download />
-            </TooltipTrigger>
-            <TooltipContent>{t("common.downloadPng")}</TooltipContent>
-          </Tooltip>
-        </div>
-        {draftsOff && (
-          <Alert>
-            <AlertTitle>{t("studio.draftsOff")}</AlertTitle>
-            <AlertDescription>
-              {t("studio.downloadPngKeepWork")}
-            </AlertDescription>
-          </Alert>
-        )}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <EditorToolbar
-            tool={tool}
-            layer={layer}
-            interaction={interaction}
-            canUndo={snapshot.canUndo}
-            canRedo={snapshot.canRedo}
-            onTool={changeTool}
-            onInteraction={setInteraction}
-            onUndo={() => {
-              store.undo();
-            }}
-            onRedo={() => {
-              store.redo();
-            }}
-          />
-          <LayerToggle layer={layer} onLayerChange={changeLayer} />
-          <span className="ml-auto flex items-center">
-            <ShortcutHints handle={zoomHints} />
-            <HintTrigger
-              hints={zoomHints}
-              label={t("studio.zoomTextureOut")}
-              commands={["zoomOut"]}
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className={coarse}
-                  aria-label={t("studio.zoomTextureOut")}
-                  aria-keyshortcuts={editorShortcuts.zoomOut.join(" ")}
-                  disabled={scale <= MIN_ZOOM}
-                  focusableWhenDisabled
-                  onClick={() => {
-                    zoomBy(-2);
-                  }}
-                />
-              }
-            >
-              <ZoomOut />
-            </HintTrigger>
-            <HintTrigger
-              hints={zoomHints}
-              label={t("studio.zoomTexture")}
-              commands={["zoomIn"]}
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className={coarse}
-                  aria-label={t("studio.zoomTexture")}
-                  aria-keyshortcuts={zoomInKeys}
-                  disabled={scale >= MAX_ZOOM}
-                  focusableWhenDisabled
-                  onClick={() => {
-                    zoomBy(2);
-                  }}
-                />
-              }
-            >
-              <ZoomIn />
-            </HintTrigger>
-            <HintTrigger
-              hints={zoomHints}
-              label={t("studio.fit")}
-              commands={["fit"]}
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className={coarse}
-                  aria-label={t("studio.fit")}
-                  aria-keyshortcuts={editorShortcuts.fit.join(" ")}
-                  aria-pressed={zoom === "fit"}
-                  onClick={() => {
-                    setZoom("fit");
-                  }}
-                />
-              }
-            >
-              <Maximize />
-            </HintTrigger>
+              {props.isNew
+                ? work.target.name
+                : t("studio.editingName", { name: work.target.name })}
+            </h2>
+            <SaveStatus state={saveState} label={saveLabel} />
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Toggle
-                    size="sm"
-                    className={coarse}
-                    aria-label={t("studio.pixelGrid")}
-                    pressed={showGrid}
-                    onPressedChange={setShowGrid}
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={cn("ml-auto", coarse)}
+                    aria-label={t("common.downloadPng")}
+                    onClick={() => void download()}
                   />
                 }
               >
-                <Grid3x3 />
+                <Download />
               </TooltipTrigger>
-              <TooltipContent>
-                {/* Below this scale the texture draws no grid lines. */}
-                {showGrid && scale < GRID_MIN_SCALE
-                  ? t("studio.pixelGridZoomIn")
-                  : t("studio.pixelGrid")}
-              </TooltipContent>
+              <TooltipContent>{t("common.downloadPng")}</TooltipContent>
             </Tooltip>
-          </span>
-        </div>
-        <ToolOptions
-          tool={tool}
-          size={size}
-          mirror={mirror}
-          shade={shade}
-          shadeStrength={shadeStrength}
-          fillScope={fillScope}
-          onSize={setSize}
-          onMirror={setMirror}
-          onShade={setShade}
-          onShadeStrength={setShadeStrength}
-          onFillScope={setFillScope}
-        />
-        <output
-          className={status ? "text-xs text-muted-foreground" : "sr-only"}
-          aria-live="polite"
-        >
-          {t.message(status)}
-        </output>
-        <p className="sr-only" aria-live="polite">
-          {shortcutNote}
-        </p>
-        <div
-          ref={textureFrame}
-          className={cn(
-            "max-h-[70dvh] overflow-auto",
-            zoom === "fit" && "flex justify-center",
+          </div>
+          {draftsOff && (
+            <Alert>
+              <AlertTitle>{t("studio.draftsOff")}</AlertTitle>
+              <AlertDescription>
+                {t("studio.downloadPngKeepWork")}
+              </AlertDescription>
+            </Alert>
           )}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <EditorToolbar
+              tool={tool}
+              layer={layer}
+              interaction={interaction}
+              canUndo={snapshot.canUndo}
+              canRedo={snapshot.canRedo}
+              onTool={changeTool}
+              onInteraction={setInteraction}
+              onUndo={() => {
+                store.undo();
+              }}
+              onRedo={() => {
+                store.redo();
+              }}
+            />
+            <LayerToggle layer={layer} onLayerChange={changeLayer} />
+            <span className="ml-auto flex items-center">
+              <ShortcutHints handle={zoomHints} />
+              <HintTrigger
+                hints={zoomHints}
+                label={t("studio.zoomTextureOut")}
+                commands={["zoomOut"]}
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={coarse}
+                    aria-label={t("studio.zoomTextureOut")}
+                    aria-keyshortcuts={editorShortcuts.zoomOut.join(" ")}
+                    disabled={scale <= MIN_ZOOM}
+                    focusableWhenDisabled
+                    onClick={() => {
+                      zoomBy(-2);
+                    }}
+                  />
+                }
+              >
+                <ZoomOut />
+              </HintTrigger>
+              <HintTrigger
+                hints={zoomHints}
+                label={t("studio.zoomTexture")}
+                commands={["zoomIn"]}
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={coarse}
+                    aria-label={t("studio.zoomTexture")}
+                    aria-keyshortcuts={zoomInKeys}
+                    disabled={scale >= MAX_ZOOM}
+                    focusableWhenDisabled
+                    onClick={() => {
+                      zoomBy(2);
+                    }}
+                  />
+                }
+              >
+                <ZoomIn />
+              </HintTrigger>
+              <HintTrigger
+                hints={zoomHints}
+                label={t("studio.fit")}
+                commands={["fit"]}
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className={coarse}
+                    aria-label={t("studio.fit")}
+                    aria-keyshortcuts={editorShortcuts.fit.join(" ")}
+                    aria-pressed={zoom === "fit"}
+                    onClick={fit}
+                  />
+                }
+              >
+                <Maximize />
+              </HintTrigger>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Toggle
+                      size="sm"
+                      className={coarse}
+                      aria-label={t("studio.pixelGrid")}
+                      pressed={showGrid}
+                      onPressedChange={setShowGrid}
+                    />
+                  }
+                >
+                  <Grid3x3 />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {/* Below this scale the texture draws no grid lines. */}
+                  {showGrid && scale < GRID_MIN_SCALE
+                    ? t("studio.pixelGridZoomIn")
+                    : t("studio.pixelGrid")}
+                </TooltipContent>
+              </Tooltip>
+            </span>
+          </div>
+          <ToolOptions
+            tool={tool}
+            size={size}
+            mirror={mirror}
+            shade={shade}
+            shadeStrength={shadeStrength}
+            fillScope={fillScope}
+            onSize={setSize}
+            onMirror={setMirror}
+            onShade={setShade}
+            onShadeStrength={setShadeStrength}
+            onFillScope={setFillScope}
+          />
+          <output
+            className={status ? "text-xs text-muted-foreground" : "sr-only"}
+            aria-live="polite"
+          >
+            {t.message(status)}
+          </output>
+          <p className="sr-only" aria-live="polite">
+            {shortcutNote}
+          </p>
+          <div
+            ref={textureFrame}
+            className={cn(
+              "max-h-[70dvh] overflow-auto",
+              zoom === "fit" && "flex justify-center",
+            )}
+          >
+            <TextureCanvas
+              store={store}
+              tool={tool}
+              settings={settings}
+              interaction={interaction}
+              scale={scale}
+              showGrid={showGrid}
+              highlight={highlightedPixels}
+              onZoom={zoomTo}
+              onPick={onPick}
+              onPainted={onPainted}
+              onStatus={showStatus}
+            />
+          </div>
+          <ColorControls
+            color={color}
+            layer={layer}
+            recent={recent}
+            onChange={setColor}
+          />
+        </section>
+
+        <section
+          aria-label={t("studio.livePreview")}
+          className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground ph-no-capture sm:p-4"
         >
-          <TextureCanvas
+          <ModelCanvas
             store={store}
             tool={tool}
             settings={settings}
             interaction={interaction}
-            scale={scale}
-            showGrid={showGrid}
-            highlight={highlightedPixels}
-            onZoom={zoomTo}
             onPick={onPick}
             onPainted={onPainted}
             onStatus={showStatus}
+            frameClassName="min-h-56"
           />
-        </div>
-        <ColorControls
-          color={color}
-          layer={layer}
-          recent={recent}
-          onChange={setColor}
-        />
-      </section>
-
-      <section
-        aria-label={t("studio.livePreview")}
-        className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground ph-no-capture sm:p-4"
-      >
-        <ModelCanvas
-          store={store}
-          tool={tool}
-          settings={settings}
-          interaction={interaction}
-          onPick={onPick}
-          onPainted={onPainted}
-          onStatus={showStatus}
-          frameClassName="min-h-56"
-          actions={
-            // On phones the texture toolbar is a screen away from the model,
-            // so the model gets its own Undo and Redo.
-            <span className="ml-auto flex gap-1 sm:hidden">
+          <Button
+            ref={saveButton}
+            className="max-sm:hidden"
+            disabled={work.busy}
+            onClick={() => void save()}
+          >
+            {props.isNew ? t("common.saveLibrary") : t("studio.saveChanges")}
+          </Button>
+          <div className="flex flex-wrap gap-2">
+            {!props.isNew && (
               <Button
-                variant="ghost"
-                size="icon-sm"
-                className="pointer-coarse:size-9"
-                aria-label={t("common.undo")}
-                disabled={!snapshot.canUndo}
-                focusableWhenDisabled
-                onClick={() => {
-                  store.undo();
-                }}
+                variant="outline"
+                className="flex-1"
+                disabled={work.busy}
+                onClick={() => void saveCopy()}
               >
-                <Undo2 />
+                {t("common.saveCopy")}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="pointer-coarse:size-9"
-                aria-label={t("common.redo")}
-                disabled={!snapshot.canRedo}
-                focusableWhenDisabled
-                onClick={() => {
-                  store.redo();
-                }}
-              >
-                <Redo2 />
-              </Button>
-            </span>
-          }
-        />
-        <Button
-          ref={saveButton}
-          disabled={work.busy}
-          onClick={() => void save()}
-        >
-          {props.isNew ? t("common.saveLibrary") : t("studio.saveChanges")}
-        </Button>
-        <div className="flex flex-wrap gap-2">
-          {!props.isNew && (
+            )}
             <Button
-              variant="outline"
+              variant="ghost"
               className="flex-1"
               disabled={work.busy}
-              onClick={() => void saveCopy()}
+              onClick={requestExit}
             >
-              {t("common.saveCopy")}
+              {t("common.cancel")}
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            className="flex-1"
-            disabled={work.busy}
-            onClick={requestExit}
-          >
-            {t("common.cancel")}
-          </Button>
-        </div>
-        <SkinIssueAlerts
-          issues={issues}
-          highlighted={highlight}
-          onHighlight={setHighlight}
-          onAllFixed={() => saveButton.current?.focus()}
-          onRepair={(id) => {
-            store.apply((pixels, builder) => {
-              repairSkin(id, pixels, store.getSnapshot().variant, builder);
-            });
-            setHighlight(null);
-            void analytics.capture("editor_check_fix_applied", { issue: id });
-          }}
-          onVariant={(variant) => {
-            store.setVariant(variant);
-          }}
-        />
-        <div className="flex flex-col gap-1.5">
-          <span id={modelId} className="text-sm font-medium">
-            {t("common.model")}
-          </span>
-          <ModelSelector
-            aria-labelledby={modelId}
-            layout="stacked"
-            value={snapshot.variant}
-            onValueChange={(variant) => {
+          </div>
+          <SkinIssueAlerts
+            issues={issues}
+            highlighted={highlight}
+            onHighlight={setHighlight}
+            onAllFixed={() => {
+              const visible = saveButton.current?.offsetParent
+                ? saveButton.current
+                : barSaveButton.current;
+              visible?.focus();
+            }}
+            onRepair={(id) => {
+              store.apply((pixels, builder) => {
+                repairSkin(id, pixels, store.getSnapshot().variant, builder);
+              });
+              setHighlight(null);
+              void analytics.capture("editor_check_fix_applied", { issue: id });
+            }}
+            onVariant={(variant) => {
               store.setVariant(variant);
             }}
           />
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-auto min-h-8 max-w-full self-start text-left whitespace-normal"
-                  onClick={convertArms}
-                />
-              }
-            >
-              {snapshot.variant === "classic"
-                ? t("studio.convertArmsSlim")
-                : t("studio.convertArmsClassic")}
-            </TooltipTrigger>
-            <TooltipContent>
-              {t("studio.changesArmPixelsModelUndoRestoresThem")}
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex flex-col gap-1.5">
+            <span id={modelId} className="text-sm font-medium">
+              {t("common.model")}
+            </span>
+            <ModelSelector
+              aria-labelledby={modelId}
+              layout="stacked"
+              value={snapshot.variant}
+              onValueChange={(variant) => {
+                store.setVariant(variant);
+              }}
+            />
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-auto min-h-8 max-w-full self-start text-left whitespace-normal"
+                    onClick={convertArms}
+                  />
+                }
+              >
+                {snapshot.variant === "classic"
+                  ? t("studio.convertArmsSlim")
+                  : t("studio.convertArmsClassic")}
+              </TooltipTrigger>
+              <TooltipContent>
+                {t("studio.changesArmPixelsModelUndoRestoresThem")}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <PartActions
+            layer={layer}
+            visibility={visibility}
+            onAction={transformPart}
+          />
+          <VisibleParts
+            visibility={visibility}
+            onVisibilityChange={setVisibility}
+          />
+        </section>
+
+        {/* On phones the toolbar and Save are a screen apart, so Undo, Redo,
+          and Save stay at the bottom of the screen. */}
+        <div className="sticky bottom-2 z-10 flex items-center gap-1 rounded-xl border bg-card p-2 text-card-foreground shadow-md sm:hidden">
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            aria-label={t("common.undo")}
+            disabled={!snapshot.canUndo}
+            focusableWhenDisabled
+            onClick={() => {
+              store.undo();
+            }}
+          >
+            <Undo2 />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            aria-label={t("common.redo")}
+            disabled={!snapshot.canRedo}
+            focusableWhenDisabled
+            onClick={() => {
+              store.redo();
+            }}
+          >
+            <Redo2 />
+          </Button>
+          <Button
+            ref={barSaveButton}
+            size="lg"
+            className="ml-auto"
+            disabled={work.busy}
+            onClick={() => void save()}
+          >
+            {props.isNew ? t("common.saveLibrary") : t("studio.saveChanges")}
+          </Button>
         </div>
-        <PartActions
-          layer={layer}
-          visibility={visibility}
-          onAction={transformPart}
-        />
-        <VisibleParts
-          visibility={visibility}
-          onVisibilityChange={setVisibility}
-        />
-      </section>
+      </div>
 
       <AlertDialog
         open={shown !== null}

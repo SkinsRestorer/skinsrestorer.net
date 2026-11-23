@@ -16,7 +16,7 @@ export interface SkinPatch {
 /** Collect pixel writes. A pixel keeps the value it had before the first write. */
 export class PatchBuilder {
   private readonly pixels: Uint8ClampedArray;
-  private readonly positions = new Map<number, number>();
+  private readonly seen = new Set<number>();
   private readonly indices: number[] = [];
   private readonly before: number[] = [];
 
@@ -26,25 +26,15 @@ export class PatchBuilder {
 
   write(pixel: number, rgba: ArrayLike<number>) {
     const at = pixel * 4;
-    if (!this.positions.has(pixel)) {
-      if (
-        this.pixels[at] === rgba[0] &&
-        this.pixels[at + 1] === rgba[1] &&
-        this.pixels[at + 2] === rgba[2] &&
-        this.pixels[at + 3] === rgba[3]
-      )
-        return false;
-      this.positions.set(pixel, this.indices.length);
+    if (!this.seen.has(pixel)) {
+      if (samePixel(this.pixels, at, rgba, 0)) return false;
+      this.seen.add(pixel);
       this.indices.push(pixel);
       this.before.push(...this.pixels.subarray(at, at + 4));
     }
     // Callers pass four channels, so the fallback is never used.
     for (let c = 0; c < 4; c++) this.pixels[at + c] = rgba[c] ?? 0;
     return true;
-  }
-
-  get size() {
-    return this.indices.length;
   }
 
   /** Return the patch, without pixels that ended at their old value. */
@@ -54,12 +44,10 @@ export class PatchBuilder {
     const after: number[] = [];
     this.indices.forEach((pixel, i) => {
       const at = pixel * 4;
-      const old = this.before.slice(i * 4, i * 4 + 4);
-      const current = Array.from(this.pixels.subarray(at, at + 4));
-      if (old.every((value, c) => value === current[c])) return;
+      if (samePixel(this.pixels, at, this.before, i * 4)) return;
       indices.push(pixel);
-      before.push(...old);
-      after.push(...current);
+      before.push(...this.before.slice(i * 4, i * 4 + 4));
+      after.push(...this.pixels.subarray(at, at + 4));
     });
     if (indices.length === 0) return undefined;
     return {
@@ -68,6 +56,17 @@ export class PatchBuilder {
       after: Uint8ClampedArray.from(after),
     };
   }
+}
+
+function samePixel(
+  pixels: Uint8ClampedArray,
+  at: number,
+  rgba: ArrayLike<number>,
+  from: number,
+) {
+  for (let c = 0; c < 4; c++)
+    if (pixels[at + c] !== rgba[from + c]) return false;
+  return true;
 }
 
 export function applyPatch(
@@ -121,9 +120,5 @@ export class EditHistory {
 
   get canRedo() {
     return this.future.length > 0;
-  }
-
-  get size() {
-    return this.past.length;
   }
 }

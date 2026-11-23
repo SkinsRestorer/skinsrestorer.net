@@ -86,9 +86,9 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
         }
         setKeyStatus("granted");
         setKeyCapes(capes);
-        if (capes.length === 0)
-          toast.info(t("capes.noSupportedCapesCurrentlyAvailable"));
-        else toast.success(t("capes.capeSupportEnabledApiKey"));
+        // The key field says when the key has no capes.
+        if (capes.length > 0)
+          toast.success(t("capes.capeSupportEnabledApiKey"));
       },
       (error) => {
         setKeyStatus("idle");

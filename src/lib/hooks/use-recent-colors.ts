@@ -22,7 +22,7 @@ export function useRecentColors() {
 
   useEffect(() => {
     const load = () => {
-      const read = readRecentColors(browserStorage("localStorage"));
+      const read = readRecentColors(browserStorage());
       writable.current = read.status !== "newer";
       const next = shownRecentColors(read);
       if (!next) return;
@@ -44,8 +44,7 @@ export function useRecentColors() {
     const next = addRecentColor(current.current, color);
     current.current = next;
     setColors(next);
-    if (writable.current)
-      writeRecentColors(browserStorage("localStorage"), next);
+    if (writable.current) writeRecentColors(browserStorage(), next);
   }, []);
 
   return [colors, add] as const;

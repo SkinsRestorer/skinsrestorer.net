@@ -131,8 +131,7 @@ export class SkinEditorStore {
 
   /** Open another skin as one undo step, so an accidental open can be undone. */
   replace(document: SkinDocument) {
-    this.endStroke();
-    this.anchor = undefined;
+    this.settle();
     const builder = new PatchBuilder(this.pixels);
     for (let pixel = 0; pixel < SKIN_SIZE * SKIN_SIZE; pixel++)
       builder.write(pixel, document.pixels.subarray(pixel * 4, pixel * 4 + 4));
@@ -315,17 +314,14 @@ export class SkinEditorStore {
   }
 
   fill(settings: PaintSettings, x: number, y: number) {
-    this.endStroke();
-    this.anchor = undefined;
-    const builder = new PatchBuilder(this.pixels);
-    fillFace(this.pixels, builder, this.variant, settings, x, y);
-    return this.commit(builder.finish());
+    return this.apply((pixels, builder) => {
+      fillFace(pixels, builder, this.variant, settings, x, y);
+    });
   }
 
   /** Apply a prepared change, such as a skin check repair, as one undo step. */
   apply(change: (pixels: Uint8ClampedArray, builder: PatchBuilder) => void) {
-    this.endStroke();
-    this.anchor = undefined;
+    this.settle();
     const builder = new PatchBuilder(this.pixels);
     change(this.pixels, builder);
     return this.commit(builder.finish());
@@ -347,8 +343,7 @@ export class SkinEditorStore {
    */
   convertVariant(variant: SkinVariant) {
     if (variant === this.variant) return false;
-    this.endStroke();
-    this.anchor = undefined;
+    this.settle();
     const builder = new PatchBuilder(this.pixels);
     convertArms(this.pixels, builder, this.variant, variant);
     this.pushModelChange(builder.finish(), variant);
@@ -357,14 +352,12 @@ export class SkinEditorStore {
 
   setVariant(variant: SkinVariant) {
     if (variant === this.variant) return;
-    this.endStroke();
-    this.anchor = undefined;
+    this.settle();
     this.pushModelChange(undefined, variant);
   }
 
   undo() {
-    this.endStroke();
-    this.anchor = undefined;
+    this.settle();
     const patch = this.history.undo();
     if (!patch) return false;
     applyPatch(this.pixels, patch, "undo");
@@ -374,14 +367,19 @@ export class SkinEditorStore {
   }
 
   redo() {
-    this.endStroke();
-    this.anchor = undefined;
+    this.settle();
     const patch = this.history.redo();
     if (!patch) return false;
     applyPatch(this.pixels, patch, "redo");
     if (patch.variant) this.variant = patch.variant.after;
     this.emit(true);
     return true;
+  }
+
+  /** Finish any stroke and forget the line anchor before another edit. */
+  private settle() {
+    this.endStroke();
+    this.anchor = undefined;
   }
 
   /** Record pixel changes and a model change as one undo step. */

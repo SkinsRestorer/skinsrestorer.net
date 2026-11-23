@@ -214,15 +214,6 @@ export function filledClassicOnlyArmPixels(pixels: Uint8ClampedArray) {
   );
 }
 
-const mirrorParts: Record<SkinPart, SkinPart> = {
-  head: "head",
-  body: "body",
-  rightArm: "leftArm",
-  leftArm: "rightArm",
-  rightLeg: "leftLeg",
-  leftLeg: "rightLeg",
-};
-
 /** The arm or leg on the other side of the body. The head and body have none. */
 export const pairedParts: Partial<Record<SkinPart, SkinPart>> = {
   rightArm: "leftArm",
@@ -252,7 +243,7 @@ function pixelMap(variant: SkinVariant, kind: PixelMap): Int16Array {
         ? region.part
         : kind === "pair"
           ? pairedParts[region.part]
-          : mirrorParts[region.part];
+          : (pairedParts[region.part] ?? region.part);
     if (!part) continue;
     const reflect = kind !== "pair";
     const face = !reflect

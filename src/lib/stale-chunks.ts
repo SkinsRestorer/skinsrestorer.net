@@ -10,10 +10,7 @@ const reloadKey = "skinsrestorer:stale-chunk-reload";
 /** Reload at most once in this window, so a broken deploy cannot loop. */
 const RELOAD_WINDOW_MS = 60_000;
 
-export function shouldReloadForStaleChunk(
-  lastReload: string | null,
-  now: number,
-) {
+function shouldReloadForStaleChunk(lastReload: string | null, now: number) {
   const last = Number(lastReload);
   return (
     !lastReload || !Number.isFinite(last) || now - last >= RELOAD_WINDOW_MS

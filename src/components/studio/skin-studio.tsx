@@ -2,19 +2,13 @@
 
 import type { MessageKey } from "@/lib/messages";
 
-import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { Effect } from "effect";
 import {
-  Check,
-  Download,
   FileArchive,
-  FolderPlus,
   Images,
-  Link2,
   PanelLeft,
   Pencil,
-  TriangleAlert,
   Upload,
   X,
 } from "lucide-react";
@@ -30,24 +24,10 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { SaveStatus, type SaveState } from "@/components/save-status";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
-import { Field, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import {
   Sheet,
   SheetClose,
@@ -55,7 +35,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LocalizedDialogContent } from "@/components/localized-dialog";
 import { useAsRef } from "@/hooks/use-as-ref";
 import {
   documentOf,
@@ -73,7 +52,6 @@ import { browserStorage, discardDraft, readDraft } from "@/lib/skin-draft";
 import { SkinEditorStore } from "@/lib/skin-editor-store";
 import { browserLibrary, withLibrary } from "@/lib/skin-library-client";
 import { prepareSkinContent, type StoredSkin } from "@/lib/skin-library";
-import { selectionEditable, type SelectedSkin } from "@/lib/skin-selection";
 import { galleryPermalink, type GallerySkin } from "@/lib/skin-gallery";
 import {
   readSkinFileTexture,
@@ -84,8 +62,9 @@ import {
 } from "@/lib/studio";
 import { useLocale, useT } from "@/lib/i18n-react";
 import { cn, findOption } from "@/lib/utils";
-import { SkinThumbnail } from "./skin-thumbnail";
 import { DraftRecovery } from "./draft-recovery";
+import { loadSkinView } from "./load-skin-view";
+import { SelectedSkinView } from "./selected-skin-view";
 import { StudioCommandOptions } from "./studio-command-options";
 import { StudioGallery } from "./studio-gallery";
 import {
@@ -96,14 +75,11 @@ import {
 import { useEditorHistoryEntry } from "./use-editor-history-entry";
 import { useStudioCommandForm } from "./use-studio-command-form";
 import { useStudioSearch } from "./use-studio-search";
+import { TextureDialog } from "./texture-dialog";
 import { useStudioUrlImports } from "./use-studio-url-imports";
 
-// The 3D view and the editor bring in three.js. Load them after hydration
-// so the upload form works sooner.
-const loadSkinView = () => import("./skin-view");
-const SkinView = lazy(() =>
-  loadSkinView().then((module) => ({ default: module.SkinView })),
-);
+// The editor brings in three.js. Load it after hydration so the upload
+// form works sooner.
 const StudioEditor = lazy(() =>
   import("./studio-editor").then((module) => ({
     default: module.StudioEditor,
@@ -847,199 +823,13 @@ export function SkinStudio(props: {
   );
 }
 
-function SelectedSkinView(props: {
-  selection: SelectedSkin;
-  variant: "classic" | "slim";
-  previewUrl: string | null;
-  capeUrl?: string | undefined;
-  onEdit: () => void;
-  onUseLatest: () => void;
-  onKeep?: (() => void) | undefined;
-  /** The browser cannot keep skins, so Download is the only way to keep one. */
-  storageBlocked?: boolean;
-  galleryLink?: string | undefined;
-  /** Element ids, so the Studio can move focus here after a view change. */
-  headingId?: string;
-  editButtonId?: string;
-  keepButtonId?: string;
-}) {
-  const t = useT();
-  const { selection, galleryLink } = props;
-  const editable = selectionEditable(selection);
-  const editHintId = useId();
-  const editHint =
-    selection.status === "ready" && !editable
-      ? t("studio.only64646432Skins")
-      : undefined;
-  // Library skins have Download in their menu. Offer it here for skins the
-  // library does not hold.
-  const downloadable =
-    selection.status !== "invalid" &&
-    (galleryLink !== undefined ||
-      props.storageBlocked ||
-      selection.keep.kind === "off" ||
-      selection.keep.kind === "removed");
-  const [copied, setCopied] = useState(false);
-  useEffect((): (() => void) | undefined => {
-    if (!copied) return undefined;
-    const timer = setTimeout(() => {
-      setCopied(false);
-    }, 1400);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [copied]);
-  return (
-    <>
-      <div className="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 ph-no-capture">
-        <h2
-          id={props.headingId}
-          tabIndex={-1}
-          className="min-w-0 truncate text-base font-semibold outline-none"
-        >
-          {selection.name}
-        </h2>
-        {selection.status !== "invalid" &&
-          selection.keep.kind !== "catalog" && (
-            <KeepStatus selection={selection} />
-          )}
-        {selection.keep.kind === "changed" && (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            {t("studio.changedSkinNotice")}
-            <Button variant="link" size="sm" onClick={props.onUseLatest}>
-              {t("studio.useNewVersion")}
-            </Button>
-          </span>
-        )}
-      </div>
-      {selection.status === "invalid" ? (
-        <Alert variant="destructive">
-          <TriangleAlert aria-hidden="true" />
-          <AlertTitle>{t("studio.fileCannotUsed")}</AlertTitle>
-          <AlertDescription>
-            {t.message(selection.error ?? "")}
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <Suspense fallback={<Skeleton className="h-[300px] sm:h-[360px]" />}>
-          <SkinView
-            skinUrl={props.previewUrl}
-            capeUrl={props.capeUrl}
-            variant={props.variant}
-            label={t("studio.name3dViewDragUseArrowKeys", {
-              name: selection.name,
-            })}
-            fallback={
-              selection.status === "ready" && (
-                <SkinThumbnail
-                  png={selection.file}
-                  variant={props.variant}
-                  className="h-40 w-20"
-                />
-              )
-            }
-          />
-        </Suspense>
-      )}
-      <div className="flex flex-wrap justify-center gap-2">
-        <Button
-          id={props.editButtonId}
-          variant="outline"
-          disabled={!editable}
-          focusableWhenDisabled
-          title={editHint}
-          aria-describedby={editHint ? editHintId : undefined}
-          onClick={props.onEdit}
-        >
-          <Pencil data-icon="inline-start" />
-          {t("studio.editSkin")}
-        </Button>
-        {editHint && (
-          <span id={editHintId} className="sr-only">
-            {editHint}
-          </span>
-        )}
-        {props.onKeep && (
-          <Button
-            id={props.keepButtonId}
-            size="icon"
-            variant="ghost"
-            disabled={selection.status !== "ready"}
-            aria-label={t("common.saveLibrary")}
-            title={t("common.saveLibrary")}
-            onClick={props.onKeep}
-          >
-            <FolderPlus />
-          </Button>
-        )}
-        {galleryLink && (
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label={t("common.copyGalleryLink")}
-            title={t("common.copyGalleryLink")}
-            onClick={() =>
-              void navigator.clipboard
-                .writeText(new URL(galleryLink, window.location.origin).href)
-                .then(
-                  () => {
-                    setCopied(true);
-                    // The icon change alone is easy to miss.
-                    toast.success(t("common.copiedClipboard"));
-                  },
-                  () => toast.error(t("common.failedCopy")),
-                )
-            }
-          >
-            {copied ? <Check /> : <Link2 />}
-          </Button>
-        )}
-        {downloadable && (
-          <Button
-            size="icon"
-            variant="ghost"
-            disabled={selection.status !== "ready"}
-            aria-label={t("common.downloadPng")}
-            title={t("common.downloadPng")}
-            onClick={() => {
-              downloadSkin(selection.file, selection.name);
-            }}
-          >
-            <Download />
-          </Button>
-        )}
-      </div>
-    </>
-  );
-}
-
-/** Whether the selected skin is kept in this browser, as a quiet icon. */
-function KeepStatus(props: { selection: SelectedSkin }) {
-  const t = useT();
-  const keep = props.selection.keep;
-  const [state, label]: [SaveState, string] =
-    keep.kind === "saving"
-      ? ["saving", t("studio.savingLibrary")]
-      : keep.kind === "off"
-        ? [
-            "unavailable",
-            t("studio.notSavedError", { error: t.message(keep.message) }),
-          ]
-        : keep.kind === "removed"
-          ? ["unavailable", t("studio.removedLibrary")]
-          : keep.kind === "changed"
-            ? ["unsaved", t("studio.changedAnotherTab")]
-            : ["saved", t("studio.savedLibrary")];
-  return <SaveStatus state={state} label={label} />;
-}
-
 function LegacyDraftAlerts(props: { migrated?: string | undefined }) {
   const t = useT();
   const locale = useLocale();
   const [hidden, setHidden] = useState(false);
   const downloadLegacyDraft = async () => {
     try {
-      const draft = await readDraft(browserStorage("localStorage"));
+      const draft = await readDraft(browserStorage());
       if (draft.status !== "found") {
         toast.error(t("studio.oldDraftCouldNotRead"));
         return;
@@ -1089,7 +879,7 @@ function LegacyDraftAlerts(props: { migrated?: string | undefined }) {
           variant="outline"
           className="mt-1"
           onClick={() => {
-            discardDraft(browserStorage("localStorage"));
+            discardDraft(browserStorage());
             setHidden(true);
           }}
         >
@@ -1097,80 +887,5 @@ function LegacyDraftAlerts(props: { migrated?: string | undefined }) {
         </Button>
       </AlertDescription>
     </Alert>
-  );
-}
-
-function TextureDialog(props: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onOpen: (reference: string) => void;
-}) {
-  const t = useT();
-  const id = useId();
-  const form = useForm({
-    defaultValues: { reference: "" },
-    onSubmit: ({ value, formApi }) => {
-      props.onOpen(value.reference.trim());
-      // The next open starts empty instead of showing the last link.
-      formApi.reset();
-    },
-  });
-  return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <LocalizedDialogContent>
-        <form
-          // The typed link names a texture; keep it out of session replays.
-          className="flex flex-col gap-4 ph-no-capture"
-          onSubmit={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            void form.handleSubmit();
-          }}
-        >
-          <DialogHeader>
-            <DialogTitle>{t("common.openTextureUrl")}</DialogTitle>
-            <DialogDescription>
-              {t("studio.texturesMinecraftNetOnly")}
-            </DialogDescription>
-          </DialogHeader>
-          <form.Field name="reference">
-            {(field) => (
-              <Field>
-                <FieldLabel htmlFor={id}>
-                  {t("common.textureUrlHash")}
-                </FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon>
-                    <Link2 aria-hidden="true" />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    id={id}
-                    value={field.state.value}
-                    spellCheck={false}
-                    autoComplete="off"
-                    placeholder="https://textures.minecraft.net/texture/…"
-                    onChange={(event) => {
-                      field.handleChange(event.target.value);
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                </InputGroup>
-              </Field>
-            )}
-          </form.Field>
-          <DialogFooter>
-            <form.Subscribe
-              selector={(formState) => formState.values.reference.trim() !== ""}
-            >
-              {(filled) => (
-                <Button type="submit" disabled={!filled}>
-                  {t("studio.open")}
-                </Button>
-              )}
-            </form.Subscribe>
-          </DialogFooter>
-        </form>
-      </LocalizedDialogContent>
-    </Dialog>
   );
 }

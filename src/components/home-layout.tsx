@@ -58,7 +58,7 @@ export function HomeLayout({ children }: { children: ReactNode }) {
           },
           {
             type: "main",
-            text: t("nav.studio"),
+            text: t("studio.title"),
             url: localizeHref("/studio", linkLocale),
             active: "nested-url",
             description: t("common.editSkinsGetSkinUrlSrCreatecustom"),

@@ -2,7 +2,7 @@ import { Clock, Effect, Schema } from "effect";
 import { readHttpJson, runHttpEffect } from "./effect-http";
 import { type SharedCache, workerCache } from "./worker-cache";
 
-export const RELEASE_TTL_SECONDS = 120;
+const RELEASE_TTL_SECONDS = 120;
 // Workers share the Cache API across isolates in a data center. The key only
 // has to belong to the site's zone; nothing serves this URL.
 const SHARED_RELEASE_CACHE_KEY =

@@ -121,6 +121,10 @@ export type MigrationResult =
  * the draft text, so two tabs that migrate at once add one skin. The old key
  * is removed only after the transaction commits. A damaged or newer draft is
  * left in place.
+ *
+ * The site stopped writing this draft on 2026-11-09. Delete the migration,
+ * `skin-draft.ts`, and the "unmoved" Studio notice once visitors from before
+ * then are unlikely to return.
  */
 export async function migrateLegacyDraft(
   client: LibraryClient,

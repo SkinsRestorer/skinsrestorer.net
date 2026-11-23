@@ -15,50 +15,18 @@ const options = (change: Partial<StudioOptions> = {}): StudioOptions => ({
 });
 
 test("the custom name is optional and checked only for custom skins", () => {
-  const context = { purpose: "createcustom", capeStatus: "granted" } as const;
-  assert.deepEqual(studioOptionErrors(options(), context), {});
+  assert.deepEqual(studioOptionErrors(options(), "createcustom"), {});
   assert.deepEqual(
-    studioOptionErrors(options({ customName: "  lobby_2 " }), context),
+    studioOptionErrors(options({ customName: "  lobby_2 " }), "createcustom"),
     {},
   );
   assert.deepEqual(
-    studioOptionErrors(options({ customName: "Lobby skin" }), context),
+    studioOptionErrors(options({ customName: "Lobby skin" }), "createcustom"),
     { customName: "studio.useLowercaseLettersNumbersUnderscores" },
   );
   // /skin url ignores the name, so it cannot block the form.
   assert.deepEqual(
-    studioOptionErrors(options({ customName: "Lobby skin" }), {
-      ...context,
-      purpose: "skin-url",
-    }),
-    {},
-  );
-});
-
-test("a cape with the Official method needs a checked key", () => {
-  const chosen = options({ method: "mineskin", capeUuid: "cape-1" });
-  for (const capeStatus of ["idle", "loading", "denied"] as const)
-    assert.deepEqual(
-      studioOptionErrors(chosen, { purpose: "skin-url", capeStatus }),
-      { capeUuid: "studio.enterVerifyApiKeyBeforeSelectingCape" },
-    );
-  assert.deepEqual(
-    studioOptionErrors(chosen, { purpose: "skin-url", capeStatus: "granted" }),
-    {},
-  );
-  // Axolotl applies capes without a key.
-  assert.deepEqual(
-    studioOptionErrors(options({ capeUuid: "cape-1" }), {
-      purpose: "skin-url",
-      capeStatus: "idle",
-    }),
-    {},
-  );
-  assert.deepEqual(
-    studioOptionErrors(options({ method: "mineskin" }), {
-      purpose: "skin-url",
-      capeStatus: "idle",
-    }),
+    studioOptionErrors(options({ customName: "Lobby skin" }), "skin-url"),
     {},
   );
 });

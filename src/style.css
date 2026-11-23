@@ -7,75 +7,67 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Catppuccin's light muted text (hsl 233 10% 47%) is below 4.5:1 on the
- * search field, docs sidebar, and search results. Dark mode already passes.
+ * Light-mode fixes to Catppuccin. The docs and the app share these tokens.
+ * Contrast is measured on the page (95%), card (92%), and accent (83%)
+ * surfaces. Dark mode passes with Catppuccin's own values.
  */
 @theme {
-  --color-fd-muted-foreground: hsl(233, 10%, 38%);
+  /* Catppuccin's is 3.2:1 on accent. This is 6.6, 6.1, and 4.8:1. */
+  --color-fd-muted-foreground: hsl(233, 10%, 36%);
   /*
-   * Catppuccin's light focus ring (hsl 267 84% 81%) is about 2:1 on the docs
-   * background. The brand purple reaches 3:1 on every docs surface. The dark
-   * theme sets its own ring, which already passes.
+   * Mauve (58%) is 4.5:1 or less as text on cards, on accent, and on the
+   * active sidebar link's purple tint. 50% is 4.6:1 or more on all of them,
+   * and light text on it is 5.8:1.
    */
-  --color-fd-ring: hsl(266, 85%, 58%);
-  /*
-   * Catppuccin's light text (hsl 234 16% 35%) is close to its muted text,
-   * so docs headings barely stand out from the body. Dark mode is fine.
-   */
+  --color-fd-primary: hsl(266, 85%, 50%);
+  /* Catppuccin's light ring is about 2:1. The primary is 6.2:1. */
+  --color-fd-ring: hsl(266, 85%, 50%);
+  /* Catppuccin's light text (35%) barely stands out from muted text. */
   --color-fd-foreground: hsl(234, 16%, 20%);
 }
 
+/*
+ * The app surfaces use the docs' Catppuccin tokens, so the docs, Studio,
+ * pricing, and home pages share one surface system. Catppuccin's muted and
+ * secondary equal the card color, so fills on cards (skeletons, slider
+ * tracks, tab lists) use the accent step instead. The .dark tokens resolve
+ * here because next-themes puts .dark on the same root element.
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: var(--color-fd-background);
+  --foreground: var(--color-fd-foreground);
+  --card: var(--color-fd-card);
+  --card-foreground: var(--color-fd-foreground);
+  --popover: var(--color-fd-popover);
+  --popover-foreground: var(--color-fd-foreground);
+  --primary: var(--color-fd-primary);
+  --primary-foreground: var(--color-fd-primary-foreground);
+  --secondary: var(--color-fd-accent);
+  --secondary-foreground: var(--color-fd-foreground);
+  --muted: var(--color-fd-accent);
+  --muted-foreground: var(--color-fd-muted-foreground);
+  --accent: var(--color-fd-accent);
+  --accent-foreground: var(--color-fd-foreground);
+  --border: var(--color-fd-border);
+  /* Catppuccin red. Text is 4.8:1 on cards, white on it is 5.9:1. */
+  --destructive: hsl(347, 87%, 42%);
+  /* Input and checkbox edges are 3.3:1 on the page and 3.1:1 on cards. */
+  --input: hsl(223, 16%, 55%);
   /*
-   * Brand purple, the same as the docs (Catppuccin mauve). White text on it
-   * is 5.4:1, and it is 4.8:1 or more as text on every light surface.
+   * Components draw focus rings with ring-ring/50. This half-strength ring
+   * is 3.1:1 or more on the page and cards in both themes.
    */
-  --primary: hsl(266, 85%, 58%);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  /*
-   * Components draw focus rings with ring-ring/50. These darker and lighter
-   * brand purples keep that half-strength ring at 3:1 or more on the page,
-   * card, and muted surfaces in both themes.
-   */
-  --ring: hsl(266, 85%, 30%);
+  --ring: hsl(266, 85%, 24%);
   --chart-2: oklch(0.6 0.118 184.704);
   --radius: 0.625rem;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: hsl(267, 84%, 81%);
-  --primary-foreground: hsl(240, 23%, 9%);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: hsl(267, 84%, 84%);
+  /* Text is 7:1 on the page, white on its 60% fill is 4.8:1. */
+  --destructive: hsl(343, 81%, 75%);
+  /* 3.1:1 on the page, 3.3:1 on cards. */
+  --input: hsl(237, 16%, 48%);
+  --ring: hsl(267, 84%, 88%);
   --chart-2: oklch(0.696 0.17 162.48);
 }
 
@@ -124,14 +116,6 @@
     outline: 2px solid var(--color-foreground);
     outline-offset: 2px;
   }
-}
-
-/*
- * The active docs sidebar link uses brand purple on a purple tint, which is
- * about 3.9:1 in light mode. A darker purple for that link alone reaches 4.5:1.
- */
-:root:not(.dark) :is(#nd-sidebar, #nd-sidebar-mobile) [data-active="true"] {
-  --color-fd-primary: hsl(266, 85%, 50%);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -36,6 +36,8 @@ import { cn } from "@/lib/utils";
 export function MineSkinKeyField(props: {
   value: string;
   status: CapeStatus;
+  /** The key passed its check, but MineSkin offers no capes for it. */
+  noCapes?: boolean;
   onChange: (value: string) => void;
   onBlur: () => void;
   onCheckCapeAccess: () => void;
@@ -141,7 +143,11 @@ export function MineSkinKeyField(props: {
       )}
       {status === "granted" && (
         <FieldDescription id={statusId}>
-          {t("capes.capeSupportEnabledApiKey")}
+          {t(
+            props.noCapes
+              ? "capes.noSupportedCapesCurrentlyAvailable"
+              : "capes.capeSupportEnabledApiKey",
+          )}
         </FieldDescription>
       )}
     </Field>

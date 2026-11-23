@@ -112,3 +112,20 @@ export function findUnusedKeys(
     for (const [, key = ""] of source.matchAll(quotedKey)) used.add(key);
   return keys.filter((key) => !used.has(key));
 }
+
+/**
+ * English values that more than one key uses, with those keys. Each entry is
+ * a candidate for one shared key, unless the contexts need different
+ * translations.
+ */
+export function findDuplicateValues(
+  english: Record<string, string>,
+): [value: string, keys: string[]][] {
+  const keysByValue = Map.groupBy(
+    Object.entries(english),
+    ([, value]) => value,
+  );
+  return [...keysByValue].flatMap(([value, entries]) =>
+    entries.length > 1 ? [[value, entries.map(([key]) => key)]] : [],
+  );
+}

@@ -1,22 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  createStaleChunkHandler,
-  isPageLoading,
-  shouldReloadForStaleChunk,
-} from "./stale-chunks";
-
-test("a stale chunk reloads the page once per minute at most", () => {
-  const now = 1_000_000;
-  assert.equal(shouldReloadForStaleChunk(null, now), true);
-  assert.equal(shouldReloadForStaleChunk(String(now - 5000), now), false);
-  assert.equal(shouldReloadForStaleChunk(String(now - 60_000), now), true);
-  assert.equal(shouldReloadForStaleChunk("not a time", now), true);
-});
+import { createStaleChunkHandler, isPageLoading } from "./stale-chunks";
 
 function setup(navigating: boolean) {
   const stored = new Map<string, string>();
-  const state = { navigating, reloads: 0, prevented: 0 };
+  const state = { navigating, reloads: 0, prevented: 0, now: 1_000_000 };
   const handler = createStaleChunkHandler({
     isNavigating: () => state.navigating,
     reload: () => {
@@ -28,14 +16,14 @@ function setup(navigating: boolean) {
         stored.set(key, value);
       },
     }),
-    now: () => 1_000_000,
+    now: () => state.now,
   });
   const event = {
     preventDefault: () => {
       state.prevented += 1;
     },
   };
-  return { handler, state, event };
+  return { handler, state, event, stored };
 }
 
 test("a chunk that fails during a navigation reloads at once", () => {
@@ -44,6 +32,25 @@ test("a chunk that fails during a navigation reloads at once", () => {
   assert.equal(state.reloads, 1);
   assert.equal(state.prevented, 1);
   // A second failure within the guard window shows the error instead.
+  handler.onPreloadError(event);
+  assert.equal(state.reloads, 1);
+});
+
+test("a navigation reloads again once the guard window has passed", () => {
+  const { handler, state, event } = setup(true);
+  handler.onPreloadError(event);
+  state.now += 59_999;
+  handler.onPreloadError(event);
+  assert.equal(state.reloads, 1);
+  state.now += 1;
+  handler.onPreloadError(event);
+  assert.equal(state.reloads, 2);
+  assert.equal(state.prevented, 2);
+});
+
+test("an unreadable reload time does not block a reload", () => {
+  const { handler, state, event, stored } = setup(true);
+  stored.set("skinsrestorer:stale-chunk-reload", "not a time");
   handler.onPreloadError(event);
   assert.equal(state.reloads, 1);
 });

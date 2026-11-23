@@ -14,7 +14,6 @@ test("a patch keeps the value from before the first write and drops restored pix
   builder.write(1, [8, 8, 8, 8]);
   builder.write(2, [5, 5, 5, 5]);
   builder.write(2, [0, 0, 0, 0]); // back to the old value
-  assert.equal(builder.size, 2);
   const patch = builder.finish();
   assert.ok(patch);
   assert.deepEqual([...patch.indices], [1]);
@@ -44,7 +43,6 @@ const step = (n: number) => ({
 test("history drops the oldest step past its limit and a new step clears redo", () => {
   const history = new EditHistory(2);
   for (const n of [1, 2, 3]) history.push(step(n));
-  assert.equal(history.size, 2);
   assert.equal(history.undo()?.indices[0], 3);
   assert.equal(history.undo()?.indices[0], 2);
   assert.equal(history.undo(), undefined, "step 1 was dropped");

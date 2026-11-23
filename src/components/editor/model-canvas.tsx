@@ -88,8 +88,6 @@ type PickFrame = DOMRect;
 export function ModelCanvas(
   props: EditorSurfaceProps & {
     readonly frameClassName?: string;
-    /** Extra controls at the end of the view toolbar. */
-    readonly actions?: ReactNode;
   },
 ) {
   const t = useT();
@@ -503,7 +501,6 @@ export function ModelCanvas(
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {props.actions}
       </div>
       <div
         ref={frameRef}

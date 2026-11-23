@@ -193,11 +193,11 @@ export function createTemplate(variant: SkinVariant): SkinDocument {
         const shade = region.face === "bottom" || region.face === "back";
         if (region.part === "head")
           color =
-            region.face === "top" || (y < 2 && region.face !== "bottom")
+            region.face === "top" ||
+            region.face === "back" ||
+            (y < 2 && region.face !== "bottom")
               ? templateColors.hair
-              : region.face === "back"
-                ? templateColors.hair
-                : templateColors.skin;
+              : templateColors.skin;
         else if (region.part === "body")
           color = shade ? templateColors.shirtShade : templateColors.shirt;
         else if (region.part === "rightArm" || region.part === "leftArm")

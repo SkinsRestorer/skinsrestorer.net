@@ -21,7 +21,6 @@ import {
   normalizeStudioOptions,
   studioOptionErrors,
   uploadRoute,
-  type CapeStatus,
   type StudioOptions,
 } from "@/lib/studio-options";
 
@@ -44,7 +43,6 @@ export function useStudioCommandForm(props: {
   const { current, pendingGallery } = props;
   const generation = useStudioGeneration();
   const fixed = fixedPurpose(props.entry, props.intent);
-  const capeStatusRef = useRef<CapeStatus>("granted");
   const purposeRef = useRef<StudioPurpose>("skin-url");
   const submitRef = useRef<(options: StudioOptions) => Promise<void>>(
     async () => {},
@@ -58,10 +56,7 @@ export function useStudioCommandForm(props: {
     onSubmit: ({ value }) => submitRef.current(value),
   });
   function optionErrors(value: StudioOptions) {
-    const fields = studioOptionErrors(value, {
-      purpose: purposeRef.current,
-      capeStatus: capeStatusRef.current,
-    });
+    const fields = studioOptionErrors(value, purposeRef.current);
     return Object.keys(fields).length > 0 ? { fields } : undefined;
   }
   const options = useSelector(form.store, (formState) => formState.values);
@@ -77,22 +72,29 @@ export function useStudioCommandForm(props: {
   const capes = useCapeAccess({ keyRequired: options.method === "mineskin" });
   useIsomorphicLayoutEffect(() => {
     purposeRef.current = purpose;
-    capeStatusRef.current = capes.status;
-  }, [purpose, capes.status]);
-  // Axolotl shows the public capes and Official the checked key's capes.
-  // The lists can differ, so a method switch may hide the chosen cape:
-  // never send a cape the picker does not show.
-  const capeShown =
-    options.capeUuid === NO_CAPE_VALUE ||
-    capes.supportedCapes.some((cape) => cape.uuid === options.capeUuid);
+  }, [purpose]);
+  // Never send a cape the method or key cannot apply. Official needs a key
+  // that passed its check; a new check keeps the cape until it ends. Axolotl
+  // shows the public capes and Official the key's capes, and the lists can
+  // differ. Say why the cape is gone.
+  const capeRemoval: MessageKey | undefined =
+    options.capeUuid === NO_CAPE_VALUE
+      ? undefined
+      : capes.status !== "granted" && capes.status !== "loading"
+        ? "studio.capeRemovedOfficialNeedsKey"
+        : capes.supportedCapes.some((cape) => cape.uuid === options.capeUuid)
+          ? undefined
+          : "studio.capeRemovedNotOffered";
   useEffect(() => {
-    if (!capeShown) form.setFieldValue("capeUuid", NO_CAPE_VALUE);
-  }, [form, capeShown]);
-  // A fixed purpose or a key check changes which checks apply.
+    if (!capeRemoval) return;
+    form.setFieldValue("capeUuid", NO_CAPE_VALUE);
+    toast.info(t(capeRemoval));
+  }, [form, t, capeRemoval]);
+  // A fixed purpose changes which checks apply.
   useEffect(() => {
     void form.validate("change");
-    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- The validators read `purpose` and the key check through refs.
-  }, [form, purpose, capes.status]);
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- The validators read `purpose` through a ref.
+  }, [form, purpose]);
 
   // Generation: the input is everything the result depends on.
   const normalized = normalizeStudioOptions(options, purpose);
@@ -108,8 +110,7 @@ export function useStudioCommandForm(props: {
     : null;
   const shown = generation.for(input);
   const nameInvalid =
-    studioOptionErrors(options, { purpose, capeStatus: capes.status })
-      .customName !== undefined;
+    studioOptionErrors(options, purpose).customName !== undefined;
   // Any change to the inputs stops waiting for a pending upload.
   /* oxlint-disable react/exhaustive-effect-dependencies -- Each listed input ends the wait for the previous upload. */
   useEffect(

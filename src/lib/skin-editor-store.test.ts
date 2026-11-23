@@ -222,6 +222,17 @@ test("opening another skin is one undo step that restores pixels and model", () 
   assert.deepEqual(store.pixels, before);
 });
 
+test("opening an identical skin adds no undo step", () => {
+  const store = setup("classic");
+  store.replace(createTemplate("classic"));
+  assert.equal(store.getSnapshot().canUndo, false);
+  // A model change alone is still one undo step.
+  store.replace({ ...store.document(), variant: "slim" });
+  assert.equal(store.getSnapshot().canUndo, true);
+  assert.equal(store.undo(), true);
+  assert.equal(store.getSnapshot().variant, "classic");
+});
+
 const changedPixels = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
   const changed: number[] = [];
   for (let i = 0; i < SKIN_SIZE * SKIN_SIZE; i++)

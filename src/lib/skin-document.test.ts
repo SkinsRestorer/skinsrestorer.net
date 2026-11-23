@@ -65,6 +65,15 @@ test("an opaque legacy hat is cleared, as Java Edition does", () => {
   assert.equal(pixels[pixelOffset(44, 20) + 3], 255);
 });
 
+test("a legacy hat with one see-through pixel keeps every hat pixel", () => {
+  const legacy = legacyFixture();
+  legacy[pixelOffset(60, 30) + 3] = 127;
+  const pixels = convertLegacySkin(legacy);
+  for (let y = 0; y < 16; y++)
+    for (let x = 32; x < 64; x++)
+      assert.equal(pixels[pixelOffset(x, y) + 3], 255, `${x},${y}`);
+});
+
 test("a 64×32 PNG opens as a converted 64×64 skin and exports as 64×64", async () => {
   const imported = await importSkinPng(
     await encodePng(legacyFixture(), 64, 32),
