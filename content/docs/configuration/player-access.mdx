@@ -26,7 +26,9 @@ Deny the node of that command in your permission plugin. Find the nodes in the [
 
 On a Velocity proxy, LuckPerms uses `/lpv` instead of `/lp`. On BungeeCord, it uses `/lpb`.
 
-This also blocks `/skin upload`, because it uses the same node. Deny the specific node, not `skinsrestorer.player`. A denied `skinsrestorer.player` removes the group only on Paper and Spigot.
+This also blocks `/skin upload`, because it uses the same node.
+
+To block all player commands on Paper or Spigot, deny `skinsrestorer.player`. Velocity, Fabric, and NeoForge ignore a denied `skinsrestorer.player`. On these platforms, deny each command node.
 
 ### BungeeCord
 

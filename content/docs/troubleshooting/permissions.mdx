@@ -27,7 +27,7 @@ A server listed in `proxy.notAllowedCommandServers.list` can block commands inde
 
 ## Check additional restrictions
 
-- Per-skin permissions take effect only when `commands.perSkinPermissionsConsent` is exactly `I will follow the rules`. Then each skin needs `skinsrestorer.skin.<name>`, and a player's own account skin needs `skinsrestorer.ownskin`. Read [Restrict skins and URLs](/docs/configuration/restrict-skins).
+- Per-skin permissions take effect only when `commands.perSkinPermissions` is `true` and `commands.perSkinPermissionsConsent` is `I will follow the rules`. Then each skin needs `skinsrestorer.skin.<name>`, and a player's own account skin needs `skinsrestorer.ownskin`. Read [Restrict skins and URLs](/docs/configuration/restrict-skins).
 - An allowed command does not bypass a disabled skin or URL restriction.
 - A cooldown is a timing restriction, not a missing permission.
 - A disabled command needs configuration and a restart, not another grant.

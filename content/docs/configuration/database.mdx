@@ -33,7 +33,7 @@ database:
   connectionOptions: "sslMode=trust&serverTimezone=UTC"
 ```
 
-If your MySQL server does not use SSL, change `sslMode=trust` to `sslMode=disable`.
+The default `sslMode=trust` encrypts the connection but does not check the server certificate. If your MySQL server does not use SSL, change `sslMode=trust` to `sslMode=disable`.
 
 ## PostgreSQL example
 

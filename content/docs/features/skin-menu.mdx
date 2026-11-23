@@ -32,8 +32,16 @@ The administrator sets the size of the history and the favorites list. A size of
 
 ## Search for a skin
 
-Run `/skin search <tag>` to get a link to the skins with that tag on NameMC, an external skin site. This command does not choose a skin for you. Download the chosen PNG and [upload it](/docs/features/skin-upload).
+Run `/skin search <tag>` to get a link to the skins with that tag on NameMC, an external skin site. This command does not choose a skin for you.
+
+To use a NameMC skin, copy the address of its skin page, then run it with `/skin`:
+
+```text
+/skin https://namemc.com/skin/SKIN_ID
+```
+
+The server treats this address as a skin URL, so you need `skinsrestorer.command.set.url`. A NameMC profile link does not work. If the server allows URLs only from some sites, download the PNG instead and [upload it](/docs/features/skin-upload).
 
 ## If access is denied
 
-The menu needs `skinsrestorer.command.gui`. Favorites need `skinsrestorer.command.favourite`. History and undo need `skinsrestorer.command.undo`. Ask the administrator to check [the command reference](/docs/reference/commands-permissions).
+The menu needs `skinsrestorer.command.gui`. Favorites need `skinsrestorer.command.favourite`. History and undo need `skinsrestorer.command.undo`. Search needs `skinsrestorer.command.search`. Ask the administrator to check [the command reference](/docs/reference/commands-permissions).

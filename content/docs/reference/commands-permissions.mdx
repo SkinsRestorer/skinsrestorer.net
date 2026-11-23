@@ -8,9 +8,9 @@ version: "15.12.6"
 icon: "Terminal"
 ---
 
-`<argument>` is required. `[argument]` is optional. `a|b` lists aliases. Keep URLs and multi-word quoted arguments inside quotation marks.
+`<argument>` is required. `[argument]` is optional. `a|b` lists aliases. `/skinsrestorer` is an alias of `/sr`. Put quotation marks around a skin name, skin input, or URL that contains spaces.
 
-Run player-only commands in game. Console commands omit the leading slash. Availability depends on the platform and proxy mode.
+In the console, omit the leading slash. Commands without a `<selector>` act on the sender, so they work only in game. The short forms `/skin <skinName> <selector>` and `/skull <skinName> <selector>` also work only in game. From the console, use `/skin set` or `/skull get` instead. `/sr purgeolddata` works only in the console. Proxy mode changes which commands a server registers.
 
 ## Commands
 
@@ -46,7 +46,7 @@ Run player-only commands in game. Console commands omit the leading slash. Avail
 | `/skin favourites` | `skinsrestorer.command.favourite` |
 | `/skin favourites <selector>` | `skinsrestorer.command.favourite.other` |
 | `/skin menu\|gui` | `skinsrestorer.command.gui` |
-| `/skin notification ignore-cracked-client` | No explicit command permission |
+| `/skin notification ignore-cracked-client` | `skinsrestorer.command` |
 
 </Accordion>
 
@@ -103,7 +103,7 @@ Run player-only commands in game. Console commands omit the leading slash. Avail
 
 | Permission | Purpose |
 | --- | --- |
-| `skinsrestorer.player` | Built-in player group: ordinary self-service commands and the menu |
+| `skinsrestorer.player` | Built-in player group: self-service commands and the menu. Every player has it by default. |
 | `skinsrestorer.command.*` | Alternate grant for the built-in player group |
 | `skinsrestorer.admin` | Built-in admin group, including the player group and other-player operations |
 | `skinsrestorer.admincommand.*` | Alternate grant for the built-in admin group |
@@ -112,17 +112,26 @@ Run player-only commands in game. Console commands omit the leading slash. Avail
 | `skinsrestorer.ownskin` | Select your own account name with per-skin permissions enabled |
 | `skinsrestorer.skin.<name>` | Select an individual permitted skin |
 
-The built-in admin group omits `reload`, `dump`, and `purgeolddata`. Grant those nodes explicitly when needed. A permission plugin can interpret wildcards differently.
+The built-in admin group omits `reload`, `dump`, and `purgeolddata`. No built-in group includes `skinsrestorer.command.skull` or `skinsrestorer.ownskin`. Grant these nodes explicitly when needed. `skinsrestorer.command.skull` controls only `/skull` and `/skull help`.
 
-Commands can require their parent command access too. The root nodes are `skinsrestorer.command`, `skinsrestorer.admincommand`, and `skinsrestorer.command.skull`.
+SkinsRestorer reads the two wildcard nodes as group names. A permission plugin that expands wildcards itself can grant more. For example, it can treat `skinsrestorer.command.*` as a grant for `skinsrestorer.command.set.other`.
 
 Use [player access](/docs/configuration/player-access) to configure groups. Use [skin restrictions](/docs/configuration/restrict-skins) for blocked names, URL prefixes, per-skin access, and required consent.
 
 ## Target selectors and administrative behavior
 
-A `<selector>` identifies the target player or players through the platform's selector parser. Use an explicit player name first. Selector support can depend on the platform.
+A `<selector>` accepts one or more targets:
 
-`/skin set <skinName> <selector>` changes a target's saved selection. `/sr applyskin <selector>` reapplies the skin resolved for the target. There are no `setskinall` or `applyskinall` commands in this release.
+- An online player name. An exact match wins over a case-insensitive match.
+- A player UUID.
+- `-all` for every online player.
+- `-random` for one random online player.
+
+Join several targets with `+`, for example `/sr applyskin Steve+Alex`.
+
+`/skin set <skinName> <selector>` changes a target's saved selection. `/sr applyskin <selector>` reapplies the skin resolved for the target.
+
+`/skin notification ignore-cracked-client` dismisses the warning for offline-mode clients. The command is available only while the player has not dismissed the warning.
 
 `/sr createcustom` stores a named skin. `/sr setcustomname` changes its display label and uses the same permission. `drop` and `purgeolddata` remove stored data, so [back up first](/docs/configuration/backups).
 

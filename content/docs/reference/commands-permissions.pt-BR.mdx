@@ -8,9 +8,9 @@ version: "15.12.6"
 icon: "Terminal"
 ---
 
-`<argument>` é obrigatório. `[argument]` é opcional. `a|b` indica aliases. Coloque URLs e argumentos com várias palavras entre aspas.
+`<argument>` é obrigatório. `[argument]` é opcional. `a|b` indica aliases. `/skinsrestorer` é um alias de `/sr`. Coloque entre aspas um nome de skin, uma entrada de skin ou uma URL que tenha espaços.
 
-Execute no jogo os comandos exclusivos de jogadores. No console, digite os comandos sem a barra inicial. A disponibilidade depende da plataforma e do modo proxy.
+No console, digite os comandos sem a barra inicial. Comandos sem `<selector>` agem sobre quem os executa, por isso só funcionam no jogo. As formas curtas `/skin <skinName> <selector>` e `/skull <skinName> <selector>` também só funcionam no jogo. No console, use `/skin set` ou `/skull get`. O `/sr purgeolddata` só funciona no console. O modo proxy muda quais comandos um servidor registra.
 
 ## Comandos [#commands]
 
@@ -46,7 +46,7 @@ Execute no jogo os comandos exclusivos de jogadores. No console, digite os coman
 | `/skin favourites` | `skinsrestorer.command.favourite` |
 | `/skin favourites <selector>` | `skinsrestorer.command.favourite.other` |
 | `/skin menu\|gui` | `skinsrestorer.command.gui` |
-| `/skin notification ignore-cracked-client` | Sem permissão de comando explícita |
+| `/skin notification ignore-cracked-client` | `skinsrestorer.command` |
 
 </Accordion>
 
@@ -103,7 +103,7 @@ Execute no jogo os comandos exclusivos de jogadores. No console, digite os coman
 
 | Permissão | Finalidade |
 | --- | --- |
-| `skinsrestorer.player` | Grupo de jogador integrado: comandos comuns para si mesmo e o menu |
+| `skinsrestorer.player` | Grupo de jogador integrado: comandos para si mesmo e o menu. Todo jogador o tem por padrão. |
 | `skinsrestorer.command.*` | Outra forma de conceder o grupo de jogador integrado |
 | `skinsrestorer.admin` | Grupo de administrador integrado: contém o grupo de jogador e as ações sobre outros jogadores |
 | `skinsrestorer.admincommand.*` | Outra forma de conceder o grupo de administrador integrado |
@@ -112,17 +112,26 @@ Execute no jogo os comandos exclusivos de jogadores. No console, digite os coman
 | `skinsrestorer.ownskin` | Permite escolher o nome da própria conta quando as permissões por skin estão ativadas |
 | `skinsrestorer.skin.<name>` | Permite escolher uma skin específica |
 
-O grupo de administrador integrado não contém `reload`, `dump` nem `purgeolddata`. Conceda esses nós explicitamente quando precisar. Cada plugin de permissões pode interpretar curingas de forma diferente.
+O grupo de administrador integrado não contém `reload`, `dump` nem `purgeolddata`. Nenhum grupo integrado contém `skinsrestorer.command.skull` nem `skinsrestorer.ownskin`. Conceda esses nós explicitamente quando precisar. `skinsrestorer.command.skull` controla apenas `/skull` e `/skull help`.
 
-Os comandos também podem exigir acesso ao comando principal. Os nós raiz são `skinsrestorer.command`, `skinsrestorer.admincommand` e `skinsrestorer.command.skull`.
+O SkinsRestorer lê os dois nós curinga como nomes de grupos. Um plugin de permissões que expande curingas por conta própria pode conceder mais. Por exemplo, ele pode tratar `skinsrestorer.command.*` como uma concessão de `skinsrestorer.command.set.other`.
 
 Use [acesso dos jogadores](/docs/configuration/player-access) para configurar os grupos. Use [restrições de skins](/docs/configuration/restrict-skins) para nomes bloqueados, prefixos de URL, acesso por skin e consentimento obrigatório.
 
 ## Seletores de alvo e ações administrativas [#target-selectors-and-administrative-behavior]
 
-Um `<selector>` identifica o jogador ou os jogadores alvo pelo interpretador de seletores da plataforma. Teste primeiro com um nome de jogador explícito. O suporte a seletores pode depender da plataforma.
+Um `<selector>` aceita um ou mais alvos:
 
-`/skin set <skinName> <selector>` muda a seleção salva do alvo. `/sr applyskin <selector>` aplica de novo a skin definida para o alvo. Esta versão não tem os comandos `setskinall` nem `applyskinall`.
+- O nome de um jogador online. Uma correspondência exata tem prioridade sobre uma que ignora maiúsculas e minúsculas.
+- O UUID de um jogador.
+- `-all` para todos os jogadores online.
+- `-random` para um jogador online aleatório.
+
+Junte vários alvos com `+`, por exemplo `/sr applyskin Steve+Alex`.
+
+`/skin set <skinName> <selector>` muda a seleção salva do alvo. `/sr applyskin <selector>` aplica de novo a skin definida para o alvo.
+
+`/skin notification ignore-cracked-client` dispensa o aviso sobre clientes em modo offline. O comando só fica disponível enquanto o jogador não tiver dispensado o aviso.
 
 `/sr createcustom` salva uma skin com nome. `/sr setcustomname` muda o nome exibido e usa a mesma permissão. `drop` e `purgeolddata` apagam dados salvos, então [faça uma cópia de segurança antes](/docs/configuration/backups).
 

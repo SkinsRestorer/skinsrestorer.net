@@ -56,7 +56,7 @@ Leave `server.proxyMode.detection: AUTO` on the backends unless detection fails.
 
 ## Check
 
-Complete the [first skin and server-switch check](/docs/installation/quick-start). Skin commands use proxy permissions, so grant access on the proxy.
+Complete the [first skin and server-switch check](/docs/installation/quick-start). Skin commands run on the proxy. Set their permissions there.
 
 The default file storage is enough for ordinary proxy-managed skins. A backend plugin that calls the API needs [shared MySQL or PostgreSQL storage](/docs/configuration/database). For the API setup, read [the proxy API guide](/docs/development/proxy-api).
 

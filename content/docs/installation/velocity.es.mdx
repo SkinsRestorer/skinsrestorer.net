@@ -45,18 +45,18 @@ Paper 1.18.2 y versiones anteriores usan `settings.velocity-support` en `paper.y
 
 ## Instala SkinsRestorer [#install-skinsrestorer]
 
-1. Pon el JAR de servidor/proxy de SkinsRestorer en la carpeta `plugins` del proxy.
+1. Pon `SkinsRestorer.jar` en la carpeta `plugins` del proxy.
 2. Pon la misma versión en la carpeta `plugins` de cada backend Bukkit.
 3. Inicia los backends y el proxy.
 4. Revisa todos los registros de arranque para buscar errores de reenvío o de SkinsRestorer.
 
-Para backends Fabric o NeoForge, instala el mod correspondiente en lugar de un JAR de Bukkit.
+En backends Fabric o NeoForge, instala en su lugar el JAR del mod correspondiente y un mod de reenvío. Lee la guía de [Fabric](/docs/installation/fabric) o de [NeoForge](/docs/installation/neoforge).
 
 Deja `server.proxyMode.detection: AUTO` en los backends salvo que la detección falle. Con un reenvío correcto, SkinsRestorer suele detectar el proxy por sí solo.
 
 ## Comprobar [#check]
 
-Completa la [prueba de la primera skin y del cambio de servidor](/docs/installation/quick-start). Los comandos de skin usan los permisos del proxy, así que da el acceso en el proxy.
+Completa la [prueba de la primera skin y del cambio de servidor](/docs/installation/quick-start). Los comandos de skin se ejecutan en el proxy. Configura allí sus permisos.
 
 El almacenamiento en archivos predeterminado basta para las skins normales gestionadas por el proxy. Un plugin de backend que llama a la API necesita [almacenamiento compartido en MySQL o PostgreSQL](/docs/configuration/database). Para configurar la API, lee [la guía de la API en el proxy](/docs/development/proxy-api).
 

@@ -8,24 +8,24 @@ version: "15.12.6"
 icon: "Boxes"
 ---
 
-Esta guía trata de un servidor Fabric independiente. Si el backend está detrás de un proxy, configura también el reenvío con la [guía de Velocity](/docs/installation/velocity) y revisa el [modo proxy](/docs/troubleshooting/proxy-mode).
+Esta guía trata de un servidor Fabric. Si el backend está detrás de un proxy, sigue también la [guía de Velocity](/docs/installation/velocity) e instala FabricProxy-Lite o FabricProxy para el reenvío. SkinsRestorer solo detecta el proxy cuando uno de estos mods está instalado.
 
 ## Antes de empezar [#before-you-start]
 
 Descarga el mod que corresponde a tu versión de Minecraft. SkinsRestorer 15.12.6 es para Minecraft 26.3. Lee los [requisitos](/docs/installation/requirements) antes de actualizar un modpack existente.
 
-La versión empaquetada de Fabric incluye Fabric API, Cloud y la API de permisos. No uses el JAR de desarrollo `raw`.
+El JAR de Fabric incluye Fabric API, Cloud y la API de permisos de Fabric. No hace falta instalarlos por separado.
 
 ## Instalar [#install]
 
 1. Detén el servidor.
-2. Descarga el archivo de Fabric de la [versión oficial](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
+2. Descarga `SkinsRestorer-Mod-Fabric-15.12.6.jar` de la [versión oficial](https://github.com/SkinsRestorer/SkinsRestorer/releases/tag/15.12.6).
 3. Quita los JAR antiguos del mod SkinsRestorer de `mods`. Conserva la configuración y los datos.
 4. Pon el JAR nuevo del mod en `mods`.
 5. Inicia el servidor.
 6. Revisa el registro para buscar errores de dependencias del loader y errores de SkinsRestorer al arrancar.
 
-El mod guarda su configuración en `config/skinsrestorer/config.yml`, dentro de la carpeta del servidor. No copies un JAR del plugin de Bukkit en `mods`.
+El mod guarda su configuración en `config/skinsrestorer/config.yml`, dentro de la carpeta del servidor. No pongas `SkinsRestorer.jar` en `mods`. Ese archivo es el plugin para Paper y los proxies.
 
 ## Comprobar [#check]
 
