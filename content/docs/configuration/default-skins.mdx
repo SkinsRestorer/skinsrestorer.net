@@ -28,7 +28,7 @@ storage:
 4. Run `/skin clear` with a test player.
 5. Reconnect and check the resolved skin.
 
-A default applies only to players without a saved selection. Two settings decide which of these players get it:
+A default applies only to players without a saved selection. These rules decide which of these players get it:
 
 - **Online-mode joins:** A player who joins with an authenticated account keeps the account skin. To give these players a default, also set `login.alwaysApplyPremium: true`.
 - **`applyForPremium: false`:** SkinsRestorer first looks for a Minecraft account with the player's name. If it finds one, the player gets that account skin. Otherwise, the player gets a default.

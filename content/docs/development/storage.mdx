@@ -53,7 +53,15 @@ Applying that property directly is temporary. To store the result as URL skin da
 
 ## React to skin application
 
-Subscribe to `SkinApplyEvent` through the event bus. The event fires when a platform skin applier changes the skin of a player who is already online. This includes `applySkin` calls from other plugins. It does not fire when SkinsRestorer sets the profile during login, for example through the Paper join listener.
+Subscribe to `SkinApplyEvent` through the event bus. The event fires each time the platform skin applier runs on Bukkit, Fabric, NeoForge, Velocity, or BungeeCord. This includes `applySkin` calls from other plugins.
+
+The event at join depends on the platform:
+
+- **Bukkit:** It fires at join only when SkinsRestorer does not use the Paper join listener, for example on Spigot or with `advanced.enablePaperJoinListener: false`.
+- **BungeeCord:** It fires during login. At that point, `getPlayer` returns `null`.
+- **Velocity, Fabric, and NeoForge:** It does not fire at login. SkinsRestorer sets the login profile directly.
+
+On a proxy network, the proxy fires the event when it changes a skin. The backend fires it again when it applies the skin that the proxy sent.
 
 ```java
 skinsRestorer.getEventBus().subscribe(this, SkinApplyEvent.class, event -> {

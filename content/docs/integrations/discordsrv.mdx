@@ -3,12 +3,12 @@ title: "Show skins in DiscordSRV"
 description: "Use the current profile texture for player message avatars."
 docType: "how-to"
 appliesTo: "Bukkit-compatible servers with DiscordSRV and PlaceholderAPI"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "MessageCircle"
 ---
 
-This guide changes DiscordSRV's player avatar source. Complete DiscordSRV's bot and channel setup first.
+An avatar URL that uses the account UUID shows the account's original skin. An avatar URL that uses the texture hash shows the skin that SkinsRestorer applied. This guide changes DiscordSRV's player avatar to the texture hash. Complete DiscordSRV's bot and channel setup first.
 
 ## Before you start
 
@@ -27,12 +27,23 @@ AvatarUrl: "https://mc-heads.net/avatar/%skinsrestorer_texture_id_or_steve%.png#
 4. Change your skin and send a new chat message.
 5. Check the new message's avatar in Discord.
 
-The URL uses a skin texture hash instead of an account UUID. The `{texture}` fragment follows DiscordSRV's cache workaround. DiscordSRV documents both this fragment and PlaceholderAPI support in [its AvatarUrl reference](https://docs.discordsrv.com/config/#avatarurl).
+The `{texture}` fragment follows DiscordSRV's cache workaround. DiscordSRV documents both this fragment and PlaceholderAPI support in [its AvatarUrl reference](https://docs.discordsrv.com/config/#avatarurl).
 
 ## If the avatar is unchanged
 
-Parse the PlaceholderAPI value first. If it is literal or `Error`, fix that before changing DiscordSRV.
+Run `/papi parse me %skinsrestorer_texture_id_or_steve%` and compare the result:
 
-If the hash is correct, open the resulting avatar URL and compare a newly sent message. Discord can cache older avatars. Also inspect DiscordSRV's linked-account avatar configuration if it uses Discord avatars.
+- **Literal placeholder:** PlaceholderAPI or the SkinsRestorer expansion did not load.
+- **`Error`:** Inspect the SkinsRestorer log.
+- **Steve texture hash:** The player has no resolved skin property.
+- **Correct hash, old avatar:** Open the avatar URL and compare a newly sent message. Discord and the image service can cache older avatars.
+
+If DiscordSRV uses Discord avatars for linked accounts, also inspect that setting.
+
+MC-Heads is an external image service. If it is unavailable, the avatar fails even when the server shows the skin correctly.
+
+## Other plugins
+
+The same URL works in other plugins if their avatar field expands PlaceholderAPI placeholders. Remove the `#{texture}` fragment, because it is specific to DiscordSRV. For Discord-MC-Chat, use [its own guide](/docs/integrations/discord-mc-chat).
 
 For backend storage requirements, read [proxy API setup](/docs/development/proxy-api).

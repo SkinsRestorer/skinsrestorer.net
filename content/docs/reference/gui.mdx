@@ -8,8 +8,6 @@ version: "15.12.6"
 icon: "PanelsTopLeft"
 ---
 
-These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
-
 For a task-based guide, read [Configure the skin menu](/docs/configuration/skin-menu).
 
 ## Keys and defaults
@@ -30,8 +28,8 @@ For a task-based guide, read [Configure the skin menu](/docs/configuration/skin-
 | `gui.recommendations.list` | string list | `["vampire", "space-suit"]` | Allowed recommendations entries when onlyShowList is true. |
 | `gui.recommendations.onlyShowList` | boolean | `false` | Show only entries from this category's list. |
 
-## Source and reload behavior
+To apply a change, read [Apply an excerpt](/docs/reference#apply-an-excerpt).
 
-Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+## Source
 
 - [GUIConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/GUIConfig.java).

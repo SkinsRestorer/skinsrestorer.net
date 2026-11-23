@@ -8,8 +8,6 @@ version: "15.12.6"
 icon: "Server"
 ---
 
-These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
-
 For a task-based guide, read [Proxy mode and the backend API](/docs/troubleshooting/proxy-mode).
 
 ## Keys and defaults
@@ -32,9 +30,9 @@ For a task-based guide, read [Proxy mode and the backend API](/docs/troubleshoot
 | `server.sound.enabled` | boolean | `true` | Play the skin-change sound. |
 | `server.sound.value` | string | `"ENTITY_PLAYER_TELEPORT, 0.7"` | Sound name and playback parameters. |
 
-## Source and reload behavior
+To apply a change, read [Apply an excerpt](/docs/reference#apply-an-excerpt).
 
-Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+## Source
 
 - [LoginConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/LoginConfig.java).
 - [ProxyConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/ProxyConfig.java).

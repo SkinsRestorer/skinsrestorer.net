@@ -8,8 +8,6 @@ version: "15.12.6"
 icon: "Terminal"
 ---
 
-These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
-
 For a task-based guide, read [Grant player access](/docs/configuration/player-access).
 
 ## Keys and defaults
@@ -35,8 +33,8 @@ For a task-based guide, read [Grant player access](/docs/configuration/player-ac
 | `commands.skullErrorCooldown` | integer | `5` | Seconds of cooldown after a skull error. |
 | `commands.skullGetCooldown` | integer | `30` | Seconds between skull requests. Zero disables the cooldown. |
 
-## Source and reload behavior
+To apply a change, read [Apply an excerpt](/docs/reference#apply-an-excerpt).
 
-Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+## Source
 
 - [CommandConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/CommandConfig.java).

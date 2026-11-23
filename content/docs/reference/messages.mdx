@@ -8,8 +8,6 @@ version: "15.12.6"
 icon: "MessagesSquare"
 ---
 
-These values describe SkinsRestorer 15.12.6. Keys are case-sensitive. Defaults describe a new installation, not your existing configuration.
-
 For a task-based guide, read [Change messages and translations](/docs/configuration/locale-translations).
 
 ## Keys and defaults
@@ -23,9 +21,9 @@ For a task-based guide, read [Change messages and translations](/docs/configurat
 | `messages.locale` | locale | `"en"` | Default player locale. Language-country codes use underscores. |
 | `messages.perIssuerLocale` | boolean | `true` | Use each player's client locale when a translation exists. |
 
-## Source and reload behavior
+To apply a change, read [Apply an excerpt](/docs/reference#apply-an-excerpt).
 
-Edit the existing section in the active `config.yml`. Use `/sr reload` for ordinary behavior changes. Restart after storage, proxy detection, or command registration changes.
+## Source
 
 - [DevConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/DevConfig.java).
 - [MessageConfig.java](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/shared/src/main/java/net/skinsrestorer/shared/config/MessageConfig.java).

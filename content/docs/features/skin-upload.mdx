@@ -51,7 +51,7 @@ The page keeps uploaded PNGs in the **Library** of this browser. The next time, 
 
 If you upload several PNG files, the page keeps all valid skins and selects the first one. It does not generate commands for the others.
 
-The library stays in this browser only. Read [the library](/docs/features/skin-editor#your-skins) to rename, download, or remove skins. If the browser cannot keep skins, for example in some private windows, the selected skin still works on the page. The icon next to the skin name shows if the browser kept it. Point at the icon to see the reason.
+The library stays in this browser only. Read [the library](/docs/features/skin-editor#your-skins) to rename, download, or remove skins. If the browser cannot save skins, for example in some private windows, the selected skin still works on the page. The icon next to the skin name shows if the browser kept it. Point at the icon to see the reason.
 
 Gallery skins stay separate. Read [the gallery guide](/docs/features/skin-editor#gallery) to save or edit a personal copy.
 
@@ -65,14 +65,8 @@ The key field on the website and `api.mineskinAPIKey` on your server are separat
 
 Read [capes](/docs/features/capes) for what a cape on a server can and cannot do.
 
-## If generation fails
+## If something fails
 
-The page shows **The skin was not uploaded** with the reason. Your skin and options stay as they were. With **Axolotl**, try again, or switch to **Official** under **Advanced options**. With **Official**, check your MineSkin API key under **Advanced options**, then try again. The page never sends a failed upload again on its own. For more checks, read [upload problems](/docs/troubleshooting/uploads).
-
-- **Invalid image:** Export a standard PNG skin template again.
-- **Queue or rate limit:** Wait for the queue to finish before you retry.
-- **Unauthorized key:** Check the key and its current account grants.
-- **Arm artifacts:** Generate again with the [correct model](/docs/features/skin-design).
-- **Command denied:** Check [URL permissions and restrictions](/docs/configuration/restrict-skins).
+If the page shows **The skin was not uploaded**, or the server denies the command, read [upload problems](/docs/troubleshooting/uploads).
 
 To give the result a reusable server name, [create a custom skin](/docs/configuration/custom-skins).
