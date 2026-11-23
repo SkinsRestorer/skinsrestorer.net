@@ -447,7 +447,7 @@ export default function IndexPage() {
           title={t("home.commandsPlayers")}
           action={
             <Link
-              href="/docs/configuration/commands-permissions"
+              href="/docs/reference/commands-permissions"
               className={linkClassName}
             >
               {t("home.allCommandsPermissions")}

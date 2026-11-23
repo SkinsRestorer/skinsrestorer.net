@@ -6,7 +6,8 @@ import { Dithering } from "@paper-design/shaders-react";
 import { Pause, Play } from "lucide-react";
 import {
   AnimatePresence,
-  motion,
+  LazyMotion,
+  m,
   useInView,
   useReducedMotion,
 } from "motion/react";
@@ -87,6 +88,11 @@ function useWebGl2Supported() {
   return useSyncExternalStore(subscribeNever, supportsWebGl2, () => false);
 }
 
+// The animation features load after the page, so the first paint stays light.
+// Until then the elements render in their final state.
+const loadMotionFeatures = () =>
+  import("./motion-features").then((module) => module.default);
+
 function SkinHead() {
   return <span aria-hidden="true" className={styles["head"]} />;
 }
@@ -138,195 +144,212 @@ export function SkinStage() {
   }, [autoplay, reduceMotion, inView, latest]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        ref={stageRef}
-        className={`${styles["stage"]} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-5/4 lg:aspect-4/5`}
-      >
-        {webGl2 ? (
-          <Dithering
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 size-full"
-            colorBack="#171913"
-            colorFront="#4d4a1a"
-            shape="simplex"
-            type="4x4"
-            size={3}
-            scale={0.7}
-            speed={autoplay && inView && !reduceMotion ? 0.35 : 0}
-            maxPixelCount={1200 * 1500}
-          />
-        ) : (
+    <LazyMotion features={loadMotionFeatures} strict>
+      <div className="flex flex-col gap-3">
+        <div
+          ref={stageRef}
+          className={`${styles["stage"]} relative isolate aspect-square overflow-hidden rounded-lg border border-black/40 shadow-sm sm:aspect-5/4 lg:aspect-4/5`}
+        >
+          {webGl2 ? (
+            <Dithering
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 size-full"
+              colorBack="#171913"
+              colorFront="#4d4a1a"
+              shape="simplex"
+              type="4x4"
+              size={3}
+              scale={0.7}
+              speed={autoplay && inView && !reduceMotion ? 0.35 : 0}
+              maxPixelCount={1200 * 1500}
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className={`${styles["backdrop"]} absolute inset-0 -z-10`}
+            />
+          )}
           <div
             aria-hidden="true"
-            className={`${styles["backdrop"]} absolute inset-0 -z-10`}
+            className={`${styles["ground"]} absolute inset-x-0 bottom-0 -z-10 h-1/4`}
           />
-        )}
-        <div
-          aria-hidden="true"
-          className={`${styles["ground"]} absolute inset-x-0 bottom-0 -z-10 h-1/4`}
-        />
 
-        <motion.div
-          className="absolute inset-x-0 top-[6%] bottom-[30%] flex justify-center"
-          animate={{
-            opacity: cleared ? 0.55 : 1,
-            filter: cleared
-              ? "grayscale(1) brightness(0.35)"
-              : "grayscale(0) brightness(1)",
-          }}
-          transition={{
-            duration: reduceMotion ? 0 : 0.5,
-            delay: typingDuration,
-          }}
-        >
-          <motion.div
-            key={cleared ? "cleared" : lastSkinChange?.id}
-            className="relative aspect-640/760 h-full"
-            initial={
-              animateLatest && !cleared
-                ? { clipPath: "inset(0% 0% 100% 0%)" }
-                : false
-            }
-            animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+          <m.div
+            className="absolute inset-x-0 top-[6%] bottom-[30%] flex justify-center"
+            animate={{
+              opacity: cleared ? 0.55 : 1,
+              filter: cleared
+                ? "grayscale(1) brightness(0.35)"
+                : "grayscale(0) brightness(1)",
+            }}
             transition={{
-              duration: 0.7,
+              duration: reduceMotion ? 0 : 0.5,
               delay: typingDuration,
-              ease: steppedEase(10),
             }}
           >
-            <img
-              src="/skinsrestorer-character.png"
-              alt={
-                cleared
-                  ? t("home.minecraftCharacterWithoutSelectedSkin")
-                  : t("home.minecraftCharacterWearingSelectedSkin")
-              }
-              width={640}
-              height={760}
-              className="absolute inset-0 size-full object-contain [image-rendering:pixelated]"
-              fetchPriority="high"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* WCAG 2.2.2: the demo and shader move for more than 5 seconds, so they need a pause control. */}
-        <Button
-          type="button"
-          variant="secondary"
-          size="icon-sm"
-          onClick={() => {
-            setAutoplay((value) => !value);
-          }}
-          aria-label={
-            autoplay ? t("home.pauseAnimation") : t("home.playAnimation")
-          }
-          className="absolute top-2 right-2 motion-reduce:hidden"
-        >
-          {autoplay ? (
-            <Pause aria-hidden="true" />
-          ) : (
-            <Play aria-hidden="true" />
-          )}
-        </Button>
-
-        <div
-          className={`${styles["chat"]} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}
-        >
-          <ol
-            aria-label={t("home.chat")}
-            className="flex flex-col items-start gap-0.5"
-          >
-            <AnimatePresence initial={false}>
-              {entries.map((entry, index) => (
-                <motion.li
-                  key={entry.id}
-                  layout={!reduceMotion}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{
-                    opacity: index === entries.length - 1 ? 1 : 0.6,
-                    y: 0,
-                  }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: reduceMotion ? 0 : 0.2,
-                    delay: entry === latest ? typingDuration : 0,
-                  }}
-                  className="max-w-full bg-black/50 px-1.5 py-0.5 text-white"
-                >
-                  <span className={styles["yellow"]}>
-                    [<span className={styles["darkGreen"]}>SkinsRestorer</span>]
-                  </span>{" "}
-                  <span className={entry.command.replyClassName}>
-                    {t(entry.command.reply)}
-                  </span>
-                  {entry.command.showHead ? (
-                    <>
-                      {" "}
-                      <SkinHead />
-                    </>
-                  ) : null}
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </ol>
-          <p className="flex items-center bg-black/60 px-1.5 py-1 text-white">
-            <span className="sr-only">{`${t("home.chatInput")}: `}</span>
-            <motion.span
-              key={latest.id}
+            <m.div
+              key={cleared ? "cleared" : lastSkinChange?.id}
+              className="relative aspect-640/760 h-full"
               initial={
-                animateLatest ? { clipPath: "inset(0 100% 0 0)" } : false
+                animateLatest && !cleared
+                  ? { clipPath: "inset(0% 0% 100% 0%)" }
+                  : false
               }
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
               transition={{
-                duration: typingDuration,
-                ease: steppedEase(latest.command.command.length),
+                duration: 0.7,
+                delay: typingDuration,
+                ease: steppedEase(10),
               }}
-              className="whitespace-pre"
             >
-              {latest.command.command}
-            </motion.span>
-            <span
-              aria-hidden="true"
+              <img
+                src="/skinsrestorer-character.png"
+                alt={
+                  cleared
+                    ? t("home.minecraftCharacterWithoutSelectedSkin")
+                    : t("home.minecraftCharacterWearingSelectedSkin")
+                }
+                width={640}
+                height={760}
+                className="absolute inset-0 size-full object-contain [image-rendering:pixelated]"
+                fetchPriority="high"
+              />
+            </m.div>
+          </m.div>
+
+          {/* WCAG 2.2.2: the demo and shader move for more than 5 seconds, so they need a pause control. */}
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon-sm"
+            onClick={() => {
+              setAutoplay((value) => !value);
+            }}
+            aria-label={
+              autoplay ? t("home.pauseAnimation") : t("home.playAnimation")
+            }
+            className="absolute top-2 right-2 motion-reduce:hidden"
+          >
+            {autoplay ? (
+              <Pause aria-hidden="true" />
+            ) : (
+              <Play aria-hidden="true" />
+            )}
+          </Button>
+
+          <div
+            className={`${styles["chat"]} absolute inset-x-3 bottom-3 flex flex-col gap-1.5 font-mono leading-snug`}
+          >
+            <ol
+              aria-label={t("home.chat")}
+              className="flex flex-col items-start gap-0.5"
+            >
+              <AnimatePresence initial={false}>
+                {entries.map((entry, index) => (
+                  <m.li
+                    key={entry.id}
+                    layout={!reduceMotion}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{
+                      opacity: index === entries.length - 1 ? 1 : 0.6,
+                      y: 0,
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: reduceMotion ? 0 : 0.2,
+                      delay: entry === latest ? typingDuration : 0,
+                    }}
+                    className="max-w-full bg-black/50 px-1.5 py-0.5 text-white"
+                  >
+                    <span className={styles["yellow"]}>
+                      [
+                      <span className={styles["darkGreen"]}>SkinsRestorer</span>
+                      ]
+                    </span>{" "}
+                    <span className={entry.command.replyClassName}>
+                      {t(entry.command.reply)}
+                    </span>
+                    {entry.command.showHead ? (
+                      <>
+                        {" "}
+                        <SkinHead />
+                      </>
+                    ) : null}
+                  </m.li>
+                ))}
+              </AnimatePresence>
+            </ol>
+            <p className="flex items-center bg-black/60 px-1.5 py-1 text-white">
+              <span className="sr-only">{`${t("home.chatInput")}: `}</span>
+              <m.span
+                key={latest.id}
+                initial={
+                  animateLatest ? { clipPath: "inset(0 100% 0 0)" } : false
+                }
+                animate={{ clipPath: "inset(0 0% 0 0)" }}
+                transition={{
+                  duration: typingDuration,
+                  ease: steppedEase(latest.command.command.length),
+                }}
+                className="whitespace-pre"
+              >
+                {latest.command.command}
+              </m.span>
+              <span
+                aria-hidden="true"
+                className={
+                  autoplay
+                    ? "ml-px animate-pulse motion-reduce:animate-none"
+                    : "ml-px"
+                }
+              >
+                _
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <fieldset className="flex min-w-0 flex-wrap gap-2">
+          <legend className="sr-only">{t("home.commandsPreview")}</legend>
+          {demoCommands.map((item) => (
+            <Button
+              key={item.command}
+              type="button"
+              variant={latest.command === item ? "secondary" : "outline"}
+              size="sm"
+              aria-pressed={latest.command === item}
+              onClick={() => {
+                setAutoplay(false);
+                setAnnouncement(t(item.description));
+                run(item);
+              }}
+              className="flex-auto"
+            >
+              <code className="text-xs">{item.command}</code>
+            </Button>
+          ))}
+        </fieldset>
+        {/* Every description shares one grid cell, so the row keeps the height of the
+            longest one in any locale and autoplay does not move the page below it. */}
+        <div className="grid text-sm text-muted-foreground">
+          {demoCommands.map((item) => (
+            <p
+              key={item.command}
               className={
-                autoplay
-                  ? "ml-px animate-pulse motion-reduce:animate-none"
-                  : "ml-px"
+                latest.command === item
+                  ? "[grid-area:1/1]"
+                  : "invisible [grid-area:1/1]"
               }
             >
-              _
-            </span>
-          </p>
+              {t(item.description)}
+            </p>
+          ))}
         </div>
+        {/* Stay mounted and polite so the first picked command is announced, but not autoplay steps. */}
+        <p aria-live="polite" className="sr-only">
+          {announcement}
+        </p>
       </div>
-
-      <fieldset className="flex min-w-0 flex-wrap gap-2">
-        <legend className="sr-only">{t("home.commandsPreview")}</legend>
-        {demoCommands.map((item) => (
-          <Button
-            key={item.command}
-            type="button"
-            variant={latest.command === item ? "secondary" : "outline"}
-            size="sm"
-            aria-pressed={latest.command === item}
-            onClick={() => {
-              setAutoplay(false);
-              setAnnouncement(t(item.description));
-              run(item);
-            }}
-            className="flex-auto"
-          >
-            <code className="text-xs">{item.command}</code>
-          </Button>
-        ))}
-      </fieldset>
-      <p className="min-h-10 text-sm text-muted-foreground">
-        {t(latest.command.description)}
-      </p>
-      {/* Stay mounted and polite so the first picked command is announced, but not autoplay steps. */}
-      <p aria-live="polite" className="sr-only">
-        {announcement}
-      </p>
-    </div>
+    </LazyMotion>
   );
 }
