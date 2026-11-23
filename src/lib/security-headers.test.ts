@@ -5,7 +5,7 @@ import { localizedSitePages } from "./site-pages";
 import { splitLocalePath } from "./i18n";
 import { GALLERY_URL } from "./skin-gallery";
 import { TEXTURE_HOST } from "./skin-texture";
-import { cspReportUrl, securityHeaders } from "./security-headers";
+import { cspReportPath, securityHeaders } from "./security-headers";
 
 interface Rule {
   pattern: string;
@@ -129,17 +129,17 @@ test("the policy blocks plugins, base rewrites, and foreign framing", () => {
   assert.deepEqual(csp.get("frame-ancestors"), ["'self'"]);
 });
 
-test("violation reports go to the PostHog report endpoint", () => {
+test("violation reports go to the first-party report route", () => {
   const csp = directives();
-  const url = new URL(cspReportUrl);
-  assert.equal(url.pathname, "/report/");
-  assert.match(url.searchParams.get("token") ?? "", /^phc_/u);
-  assert.deepEqual(csp.get("report-uri"), [cspReportUrl]);
-  assert.deepEqual(csp.get("report-to"), ["posthog"]);
+  assert.equal(cspReportPath, "/api/csp-report");
+  assert.deepEqual(csp.get("report-uri"), [cspReportPath]);
+  assert.deepEqual(csp.get("report-to"), ["csp"]);
   assert.equal(
     securityHeaders["Reporting-Endpoints"],
-    `posthog="${cspReportUrl}"`,
+    `csp="${cspReportPath}"`,
   );
+  // Reports must not reach a third party straight from the browser.
+  assert.ok(!securityHeaders["Content-Security-Policy"].includes("token="));
 });
 
 test("browser hardening headers keep payment popups and clipboard working", () => {

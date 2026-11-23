@@ -4,11 +4,10 @@
  */
 
 const posthogHost = "https://t.skinsrestorer.net";
-// The public project token, the same one the browser bundle sends events with.
-// vite.config.ts imports this file in Node, where import.meta.env is not set,
-// so it cannot read VITE_POSTHOG_KEY like src/lib/analytics.ts does.
-const posthogToken = "phc_PiA4lEVOouI4hJ8fsh6wNy1GB3HWe8VcLcjdluef34m";
-export const cspReportUrl = `${posthogHost}/report/?token=${posthogToken}`;
+// Browsers send violation reports to the site, which removes page addresses'
+// query and fragment before it forwards them (src/routes/api/csp-report.ts).
+// vite.config.ts imports this file in Node, so it cannot import that route.
+export const cspReportPath = "/api/csp-report";
 
 const cspDirectives = {
   "default-src": ["'self'"],
@@ -56,8 +55,8 @@ const cspDirectives = {
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
   "frame-ancestors": ["'self'"],
-  "report-uri": [cspReportUrl],
-  "report-to": ["posthog"],
+  "report-uri": [cspReportPath],
+  "report-to": ["csp"],
 };
 
 const contentSecurityPolicy = Object.entries(cspDirectives)
@@ -89,7 +88,7 @@ export const securityHeaders = {
   // Donation checkouts open PayPal and Stripe in popups that need the opener.
   "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-  // Enforced; violations are still reported to PostHog.
+  // Enforced; violations are still reported.
   "Content-Security-Policy": contentSecurityPolicy,
-  "Reporting-Endpoints": `posthog="${cspReportUrl}"`,
+  "Reporting-Endpoints": `csp="${cspReportPath}"`,
 };

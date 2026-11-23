@@ -38,11 +38,16 @@ function CookiePolicyPage() {
           <tbody>
             <tr>
               <td>
-                <code>__ph_opt_in_out_</code> followed by the PostHog project
-                token
+                <code>skinsrestorer:analytics-consent</code>
               </td>
               <td>Local storage</td>
-              <td>Your choice in the analytics banner</td>
+              <td>
+                Your choice in the analytics banner: <code>1</code> if you
+                allowed analytics, <code>0</code> if you declined. Older
+                versions of the site stored it as <code>__ph_opt_in_out_</code>{" "}
+                followed by the PostHog project token. The site moves that entry
+                to the new name.
+              </td>
             </tr>
             <tr>
               <td>
@@ -131,8 +136,8 @@ function CookiePolicyPage() {
         <h2>2. Analytics cookies</h2>
         <p>
           Before you make a choice, and after you select{" "}
-          <strong>Decline</strong>, the site sends nothing to PostHog or Ahrefs
-          and sets no analytics cookies.
+          <strong>Decline</strong>, your browser does not load PostHog or
+          Ahrefs, sends nothing to them, and gets no analytics cookies.
         </p>
         <p>
           If you select <strong>Allow analytics</strong>, PostHog saves a
@@ -140,13 +145,15 @@ function CookiePolicyPage() {
           <code>ph_</code> followed by the project token and{" "}
           <code>_posthog</code>. They hold a random visitor ID and the current
           session, so PostHog can connect the pages you view during a visit. The
-          cookie expires after 365 days. The site also loads Ahrefs Analytics,
-          which handles your visit under the{" "}
+          cookie expires after 365 days. The site also loads Ahrefs Analytics on
+          pages other than the Studio, upload, and generator pages. Ahrefs
+          handles your visit under the{" "}
           <a href="https://ahrefs.com/privacy">Ahrefs privacy policy</a>.
         </p>
         <p>
-          If you decline later, PostHog stops and deletes its cookie and storage
-          entries at once. Ahrefs Analytics stops on the next page load.
+          If you decline later, PostHog stops, including any session recording,
+          and deletes its cookie and storage entries at once. Ahrefs Analytics
+          stops on the next page load.
         </p>
 
         <h2>3. Cloudflare Web Analytics</h2>

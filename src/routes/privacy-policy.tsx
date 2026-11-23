@@ -51,12 +51,27 @@ function PrivacyPolicyPage() {
           sends page views and load times to Cloudflare without cookies. It runs
           whatever you choose in the analytics banner.
         </p>
+        <p>
+          The site has security rules, called a Content Security Policy, that
+          tell your browser which scripts, images, and other content it may
+          load. When your browser blocks something under these rules, it sends a
+          report to skinsrestorer.net. The report names the page, the blocked
+          address, and the rule, and can include your browser&apos;s user agent.
+          The site removes the query string and fragment from every address in
+          the report, because they can hold skin texture hashes, and then
+          forwards the report to PostHog. The forwarded report does not contain
+          your IP address. This happens whatever you choose in the analytics
+          banner. We use these reports to find broken pages and injected
+          content.
+        </p>
 
         <h2>3. Analytics with your consent</h2>
         <p>
           The site asks before it starts analytics. Until you select{" "}
           <strong>Allow analytics</strong>, and after you select{" "}
-          <strong>Decline</strong>, the site sends nothing to PostHog or Ahrefs.
+          <strong>Decline</strong>, your browser does not load PostHog or Ahrefs
+          and sends nothing to them. If Ahrefs already runs on the page when you
+          decline, it stops on the next page load.
         </p>
         <p>
           If you allow analytics, your browser sends this data to PostHog
@@ -79,12 +94,16 @@ function PrivacyPolicyPage() {
           <li>Your browser, operating system, device type, and screen size</li>
         </ul>
         <p>
-          The site also loads Ahrefs Analytics, which receives the pages you
-          view and their referrer.
-        </p>
-        <p>
           Before an event leaves your browser, the site removes skin texture
           hashes and editor handoff IDs from page addresses and other values.
+        </p>
+        <p>
+          The site also loads Ahrefs Analytics, except on the Studio, upload,
+          and generator pages. Ahrefs receives the address of each page you
+          view, with skin texture hashes and handoff IDs removed, the referrer,
+          and the addresses of links you click and forms you submit. If you go
+          to a Studio page from another page, the site loads the Studio page
+          again so that Ahrefs does not run on it.
         </p>
 
         <h2>4. Session recordings</h2>
@@ -104,8 +123,8 @@ function PrivacyPolicyPage() {
             out of recordings.
           </li>
           <li>
-            Skin texture hashes and handoff IDs are removed from page addresses
-            in recordings.
+            Skin texture hashes and handoff IDs are removed from every address
+            in a recording, such as page addresses, links, and images.
           </li>
         </ul>
 
@@ -169,6 +188,7 @@ function PrivacyPolicyPage() {
           </li>
           <li>
             Ahrefs (<code>analytics.ahrefs.com</code>), only with your consent
+            and not on the Studio, upload, and generator pages
           </li>
           <li>
             GitHub, on the home page, for team member avatars from{" "}

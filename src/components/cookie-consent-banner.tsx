@@ -2,14 +2,7 @@
 
 import { Cookie, X } from "lucide-react";
 import { Link } from "fumadocs-core/link";
-import { posthog } from "posthog-js";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,50 +14,35 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAsRef } from "@/hooks/use-as-ref";
-import { allowAnalytics, declineAnalytics } from "@/lib/analytics";
+import { analytics } from "@/lib/analytics";
+import { consentBannerState } from "@/lib/analytics-consent";
+import {
+  onCookieSettingsOpen,
+  openCookieSettings,
+  useAnalyticsConsent,
+} from "@/lib/hooks/use-analytics-consent";
 import { useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
-
-const reopenListeners = new Set<(opener: HTMLElement | null) => void>();
-
-/** Show the consent banner again so visitors can change their choice. */
-function openCookieSettings(opener: HTMLElement | null) {
-  for (const listener of reopenListeners) listener(opener);
-}
-
-type ConsentState = ReturnType<typeof posthog.get_explicit_consent_status>;
-
-const subscribeNever = () => () => {};
 
 const CookieConsentBanner = () => {
   const t = useT();
   const titleId = useId();
   const section = useRef<HTMLElement>(null);
   const opener = useRef<HTMLElement | null>(null);
-  // The stored choice is read after hydration. A choice made here replaces it.
-  const storedConsent = useSyncExternalStore<ConsentState | "">(
-    subscribeNever,
-    () => posthog.get_explicit_consent_status(),
-    () => "",
-  );
-  const [chosenConsent, setChosenConsent] = useState<ConsentState>();
-  const consentState = chosenConsent ?? storedConsent;
+  // The stored choice is read after hydration and updates with each choice.
+  const consentState = useAnalyticsConsent();
   const [reopened, setReopened] = useState(false);
 
-  useEffect(() => {
-    const reopen = (element: HTMLElement | null) => {
-      opener.current = element;
-      // Read the stored choice again so the banner shows the current value.
-      setChosenConsent(posthog.get_explicit_consent_status());
-      setReopened(true);
-      // Already open: move focus now, because the effect below will not rerun.
-      section.current?.focus();
-    };
-    reopenListeners.add(reopen);
-    return () => {
-      reopenListeners.delete(reopen);
-    };
-  }, []);
+  useEffect(
+    () =>
+      onCookieSettingsOpen((element) => {
+        opener.current = element;
+        setReopened(true);
+        // Already open: move focus now, because the effect below will not rerun.
+        section.current?.focus();
+      }),
+    [],
+  );
 
   // Opened from cookie settings: move focus so keyboard users land on the choice.
   useEffect(() => {
@@ -80,7 +58,7 @@ const CookieConsentBanner = () => {
 
   // Escape dismisses the reopened banner without changing the stored choice.
   // A first-time visitor must still pick an option.
-  const dismissible = reopened && consentState !== "pending";
+  const { visible, dismissible } = consentBannerState(consentState, reopened);
   const closeRef = useAsRef(close);
   useEffect((): (() => void) | undefined => {
     if (!dismissible) return undefined;
@@ -96,20 +74,16 @@ const CookieConsentBanner = () => {
   }, [closeRef, dismissible]);
 
   const handleAcceptCookies = () => {
-    allowAnalytics();
-    setChosenConsent("granted");
+    analytics.allow();
     close();
   };
 
   const handleDeclineCookies = () => {
-    declineAnalytics();
-    setChosenConsent("denied");
+    analytics.decline();
     close();
   };
 
-  if (consentState !== "pending" && !reopened) {
-    return null;
-  }
+  if (!visible) return null;
 
   return (
     <section

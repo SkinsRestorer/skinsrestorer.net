@@ -5,7 +5,6 @@ import {
   CollapsibleContent,
 } from "fumadocs-ui/components/ui/collapsible";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { posthog } from "posthog-js";
 import {
   type SubmitEvent,
   useEffect,
@@ -15,7 +14,12 @@ import {
   useSyncExternalStore,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { analytics } from "@/lib/analytics";
+import {
+  openCookieSettings,
+  useAnalyticsConsent,
+} from "@/lib/hooks/use-analytics-consent";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
@@ -73,6 +77,10 @@ export function Feedback({ url, version }: { url: string; version: string }) {
   const questionId = useId();
   const [opinion, setOpinion] = useState<"good" | "bad" | null>(null);
   const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
+  // Feedback goes to PostHog, so it can only be sent with analytics allowed.
+  const analyticsAllowed = useAnalyticsConsent() === "granted";
   // The form unmounts on submit, so focus moves to the thank-you message.
   const [submitted, setSubmitted] = useState(false);
   const thanksRef = useRef<HTMLDivElement>(null);
@@ -97,12 +105,24 @@ export function Feedback({ url, version }: { url: string; version: string }) {
     setChoice({ key: storageKey, feedback });
   };
 
-  function submit(event: SubmitEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (opinion === null) return;
+    if (opinion === null || sending) return;
 
     const feedback = { opinion, message: message.trim() };
-    posthog.capture("on_rate_docs", { url, version, ...feedback });
+    setSending(true);
+    setFailed(false);
+    const sent = await analytics.capture("on_rate_docs", {
+      url,
+      version,
+      ...feedback,
+    });
+    setSending(false);
+    // Keep the form filled in so the visitor can try again.
+    if (!sent) {
+      setFailed(true);
+      return;
+    }
     setPrevious(feedback);
     setMessage("");
     setOpinion(null);
@@ -189,8 +209,13 @@ export function Feedback({ url, version }: { url: string; version: string }) {
               </Button>
             </div>
           </div>
-        ) : (
-          <form className="flex flex-col gap-3" onSubmit={submit}>
+        ) : analyticsAllowed ? (
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={(event) => {
+              void submit(event);
+            }}
+          >
             <Field>
               <FieldLabel htmlFor={messageId}>
                 {t("feedback.whatWorkedWhichStepNeedsCorrection")}{" "}
@@ -218,10 +243,32 @@ export function Feedback({ url, version }: { url: string; version: string }) {
                 }}
               />
             </Field>
-            <Button type="submit" variant="outline" className="w-fit">
+            {failed ? <FieldError>{t("feedback.notSent")}</FieldError> : null}
+            <Button
+              type="submit"
+              variant="outline"
+              className="w-fit"
+              // Keeps focus on the button when sending fails; submit ignores
+              // clicks while sending.
+              aria-disabled={sending}
+            >
               {t("feedback.submit")}
             </Button>
           </form>
+        ) : (
+          <div className="flex flex-col items-start gap-3 rounded-xl bg-fd-card p-3 text-sm text-fd-muted-foreground">
+            <p>{t("feedback.needsAnalytics")}</p>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={(event) => {
+                openCookieSettings(event.currentTarget);
+              }}
+            >
+              {t("footer.cookieSettings")}
+            </Button>
+          </div>
         )}
       </CollapsibleContent>
     </Collapsible>
