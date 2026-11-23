@@ -9,8 +9,12 @@ import type { VFile } from "vfile";
  */
 export function remarkDocsStringify() {
   return (tree: Root, file: VFile) => {
-    function visit(node: Nodes) {
-      if ("children" in node) node.children.forEach(visit);
+    function visit(node: Nodes, last = true) {
+      if ("children" in node) {
+        for (const [index, child] of node.children.entries()) {
+          visit(child, index === node.children.length - 1);
+        }
+      }
       if (
         (node.type !== "mdxJsxFlowElement" &&
           node.type !== "mdxJsxTextElement") ||
@@ -36,10 +40,14 @@ export function remarkDocsStringify() {
         const href = attribute("href");
         label = href ? `[${title}](${href})` : title;
       }
+      // Sibling cards and tabs sit on adjacent source lines. A block element
+      // followed by another one ends with a newline, so the next one starts a
+      // new paragraph instead of joining this content.
+      const end = node.type === "mdxJsxFlowElement" && !last ? "\n" : "";
       replaceSource(file, node, (stringifier) => {
         const content = stringifier.inner(node).trim();
-        if (!label) return content;
-        return content ? `${label}\n\n${content}` : label;
+        if (!label) return `${content}${end}`;
+        return `${content ? `${label}\n\n${content}` : label}${end}`;
       });
     }
     visit(tree);

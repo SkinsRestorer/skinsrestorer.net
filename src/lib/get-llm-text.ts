@@ -22,15 +22,16 @@ const getLLMTextEffect = Effect.fn("Docs.getText")(function* (page: DocsPage) {
     catch: (cause) => DocumentTextError.make({ url: page.url, cause }),
   });
   const locale = isLocale(page.locale) ? page.locale : "en";
+  const url = absoluteDocsUrl(page.url, locale);
   return `# ${page.data.title}
-URL: ${absoluteDocsUrl(page.url, locale)}
+URL: ${url}
 SkinsRestorer: ${page.data.version}
 Applies to: ${page.data.appliesTo}
 Reviewed: ${page.data.reviewed}
 
 ${page.data.description}
 
-${formatExportedMarkdown(processed, locale)}`;
+${formatExportedMarkdown(processed, locale, url)}`;
 });
 
 /**

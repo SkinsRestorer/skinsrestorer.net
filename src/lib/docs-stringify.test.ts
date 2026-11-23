@@ -81,3 +81,36 @@ implementation 'net.skinsrestorer:skinsrestorer-api:15.0.0'
   assert.ok(markdown.indexOf("**Kotlin**") < markdown.indexOf("**Groovy**"));
   assert.doesNotMatch(markdown, /<Tabs|<Tab/u);
 });
+
+test("consecutive related guides stay separate Markdown blocks", () => {
+  const markdown = String(
+    extract(`<Cards>
+  <Card title="Install" href="/docs/installation">
+    Choose your server.
+  </Card>
+  <Card title="Fix a problem" href="/docs/troubleshooting">
+    Start with the symptom.
+  </Card>
+</Cards>
+
+After the cards.`)["markdown"],
+  );
+  // A single newline would join a description and the next link into one
+  // paragraph.
+  assert.match(markdown, /Choose your server\.\n\n\[Fix a problem\]/u);
+  assert.match(markdown, /Start with the symptom\.\n\nAfter the cards\./u);
+});
+
+test("consecutive tabs with prose stay separate Markdown blocks", () => {
+  const markdown = String(
+    extract(`<Tabs items={['Paper', 'Velocity']}>
+<Tab value="Paper">
+Use the Bukkit file.
+</Tab>
+<Tab value="Velocity">
+Use the Velocity file.
+</Tab>
+</Tabs>`)["markdown"],
+  );
+  assert.match(markdown, /Use the Bukkit file\.\n\n\*\*Velocity\*\*/u);
+});

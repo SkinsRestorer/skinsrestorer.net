@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { absoluteDocsUrl, formatExportedMarkdown } from "./llm-markdown";
+import {
+  absoluteDocsUrl,
+  formatExportedMarkdown as formatWithPage,
+} from "./llm-markdown";
+import type { Locale } from "./i18n";
+
+const page = "https://skinsrestorer.net/docs/features/skin-editor";
+const formatExportedMarkdown = (markdown: string, locale: Locale) =>
+  formatWithPage(markdown, locale, page);
 
 test("root-relative links become absolute in the reader's language", () => {
   assert.equal(
@@ -12,10 +20,18 @@ test("root-relative links become absolute in the reader's language", () => {
   );
 });
 
-test("external, protocol-relative, and anchor links are unchanged", () => {
+test("external and protocol-relative links are unchanged", () => {
   const markdown =
-    "[GitHub](https://github.com/SkinsRestorer) [CDN](//cdn.example) [Below](#check)";
+    "[GitHub](https://github.com/SkinsRestorer) [CDN](//cdn.example)";
   assert.equal(formatExportedMarkdown(markdown, "es"), markdown);
+});
+
+test("anchor links point at the section on the HTML page", () => {
+  // llms-full.txt joins every page, so a bare #privacy would be ambiguous.
+  assert.equal(
+    formatExportedMarkdown("Read [Privacy](#privacy).", "en"),
+    `Read [Privacy](${page}#privacy).`,
+  );
 });
 
 test("heading IDs are removed from headings", () => {

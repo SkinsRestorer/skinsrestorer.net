@@ -9,10 +9,16 @@ export function absoluteDocsUrl(href: string, locale: Locale = "en") {
 
 /**
  * Exported Markdown leaves the site, so root-relative links must become
- * absolute. Fumadocs heading IDs (`## Title [#id]`) are not standard Markdown
- * and only add noise. Code blocks stay unchanged.
+ * absolute. Anchor links point at the HTML page (`pageUrl`): the Markdown file
+ * has no anchors, and llms-full.txt joins many pages. Fumadocs heading IDs
+ * (`## Title [#id]`) are not standard Markdown and only add noise. Code blocks
+ * stay unchanged.
  */
-export function formatExportedMarkdown(markdown: string, locale: Locale) {
+export function formatExportedMarkdown(
+  markdown: string,
+  locale: Locale,
+  pageUrl: string,
+) {
   let fence: string | undefined;
   return markdown
     .split("\n")
@@ -28,8 +34,9 @@ export function formatExportedMarkdown(markdown: string, locale: Locale) {
       return line
         .replace(/^(#{1,6}\s.*?)\s+\[#[^\]\s]+\]\s*$/u, "$1")
         .replaceAll(
-          /\]\((\/(?!\/)[^)\s]*)\)/gu,
-          (_, href: string) => `](${absoluteDocsUrl(href, locale)})`,
+          /\]\((\/(?!\/)[^)\s]*|#[^)\s]+)\)/gu,
+          (_, href: string) =>
+            `](${href.startsWith("#") ? `${pageUrl}${href}` : absoluteDocsUrl(href, locale)})`,
         );
     })
     .join("\n");
