@@ -11,7 +11,21 @@ With the preview running, run `bun run test:site` to test production routes and 
 
 File routes live in `src/routes`. TanStack generates `src/routeTree.gen.ts`.
 Fumadocs generates the browser and server collections in `.source`.
-Run `bun run typecheck` to regenerate both before TypeScript checks.
+`bun install` generates both. Run `bun run typecheck` to regenerate them and run `tsc`.
+
+## Checks and tests
+
+- `bun run check` runs oxlint, Knip, the formatter check, and the translation and documentation checks.
+  Oxlint uses type-aware rules with `typeCheck`, so it also reports TypeScript errors.
+  It needs the Worker types from `bun run cf-typegen`.
+- `bun run test` runs the Bun unit tests. Tests run without a DOM by default.
+  A `.dom.test.tsx` file calls `registerDom()` from `src/test/dom.ts` to get happy-dom globals.
+  Read [the contribution guide](CONTRIBUTING.md#test-focus-and-interaction) for details.
+- `bun run docs:java` compiles the documented Java plugin. It needs JDK 21 or newer and Maven.
+
+GitHub Actions runs the tests, Worker type generation, `check`, `docs:java`, the build, the deployment dry run, and the production-route tests.
+CI does not run `bun run typecheck`, because lint already reports compiler errors.
+Lefthook runs lint and format on commit, and the checks and tests on push.
 
 Public configuration uses the `VITE_` variables in `.env`.
 Cloudflare build overrides must use the same names. These values are included in browser code.

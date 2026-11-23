@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -31,5 +30,5 @@
     "allowImportingTsExtensions": true
   },
   "include": ["**/*.ts", "**/*.tsx", ".cloudflare/types/index.d.ts"],
-  "exclude": ["node_modules", "dist", ".cloudflare/output"]
+  "exclude": ["node_modules", ".cloudflare/output"]
 }

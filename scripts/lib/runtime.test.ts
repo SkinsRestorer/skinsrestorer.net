@@ -12,6 +12,25 @@ import {
   withTemporaryDirectory,
 } from "./runtime";
 
+// Child processes can take seconds to start on a busy machine. These limits
+// leave room for that and still fail a real hang well before CI times out.
+const childStartLimit = 20_000;
+const childTestTimeout = { timeout: 30_000 };
+
+/** Wait for the test child to write its process ID to `ready`. */
+async function readChildPid(directory: string) {
+  for (let waited = 0; waited < childStartLimit; waited += 20) {
+    const current = await readFile(path.join(directory, "ready"), "utf8").catch(
+      () => null,
+    );
+    if (current) return Number(current);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20);
+    });
+  }
+  throw new Error("Child did not start");
+}
+
 const run = <A, E>(program: Effect.Effect<A, E, ToolFiles>) =>
   Effect.runPromise(program.pipe(Effect.provide(toolFilesLayer)));
 
@@ -42,61 +61,53 @@ test("temporary directories are removed after successful and failed programs", a
   }
 });
 
-test("interrupted child processes are reaped before temporary directory cleanup", async () => {
-  let directory = "";
-  let pid = 0;
-  await run(
-    withTemporaryDirectory("sr-effect-child-", (value) =>
-      Effect.gen(function* () {
-        directory = value;
-        const program = runChild(
-          process.execPath,
-          [
-            "-e",
-            "require('node:fs').writeFileSync('ready', String(process.pid)); setInterval(() => {}, 1000)",
-          ],
-          value,
-        );
-        const child = yield* Effect.forkChild(program);
-        yield* Effect.promise(async () => {
-          for (let attempt = 0; attempt < 400; attempt++) {
-            const current = await readFile(
-              path.join(value, "ready"),
-              "utf8",
-            ).catch(() => null);
-            if (current) {
-              pid = Number(current);
-              return;
-            }
-            await new Promise((resolve) => {
-              setTimeout(resolve, 5);
-            });
-          }
-          throw new Error("Child did not start");
-        });
-        yield* Fiber.interrupt(child);
-        assert.throws(() => process.kill(pid, 0));
-      }),
-    ),
-  );
-  await assert.rejects(access(directory));
-});
+test(
+  "interrupted child processes are reaped before temporary directory cleanup",
+  childTestTimeout,
+  async () => {
+    let directory = "";
+    await run(
+      withTemporaryDirectory("sr-effect-child-", (value) =>
+        Effect.gen(function* () {
+          directory = value;
+          const program = runChild(
+            process.execPath,
+            [
+              "-e",
+              "require('node:fs').writeFileSync('ready', String(process.pid)); setInterval(() => {}, 1000)",
+            ],
+            value,
+          );
+          const child = yield* Effect.forkChild(program);
+          const pid = yield* Effect.promise(() => readChildPid(value));
+          yield* Fiber.interrupt(child);
+          assert.throws(() => process.kill(pid, 0));
+        }),
+      ),
+    );
+    await assert.rejects(access(directory));
+  },
+);
 
-test("compiler exit status and missing-command errors remain observable", async () => {
-  await run(
-    withTemporaryDirectory("sr-effect-exit-", (directory) =>
-      Effect.gen(function* () {
-        const exitCode = yield* runChild(
-          process.execPath,
-          ["-e", "process.exit(3)"],
-          directory,
-        );
-        assert.equal(exitCode, 3);
-        const outcome = yield* Effect.result(
-          runChild("sr-missing-test-compiler", [], directory),
-        );
-        assert.equal(outcome._tag, "Failure");
-      }),
-    ),
-  );
-});
+test(
+  "compiler exit status and missing-command errors remain observable",
+  childTestTimeout,
+  async () => {
+    await run(
+      withTemporaryDirectory("sr-effect-exit-", (directory) =>
+        Effect.gen(function* () {
+          const exitCode = yield* runChild(
+            process.execPath,
+            ["-e", "process.exit(3)"],
+            directory,
+          );
+          assert.equal(exitCode, 3);
+          const outcome = yield* Effect.result(
+            runChild("sr-missing-test-compiler", [], directory),
+          );
+          assert.equal(outcome._tag, "Failure");
+        }),
+      ),
+    );
+  },
+);
