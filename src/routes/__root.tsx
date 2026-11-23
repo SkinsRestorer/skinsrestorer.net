@@ -30,13 +30,15 @@ import {
   splitLocalePath,
   isLocale,
   hasLocalizedPages,
+  browserStorage,
 } from "@/lib/i18n";
-import { useLocale, useT } from "@/lib/i18n-react";
+import { recordLanguageAnswer } from "@/lib/language-suggestion";
+import { useLocale, useShownLocale, useT } from "@/lib/i18n-react";
 import { LocaleProvider } from "@/lib/locale-provider";
 import { fumadocsMessages } from "@/lib/messages/fumadocs";
-import { translate } from "@/lib/messages";
-import { siteTitleKey } from "@/lib/seo";
-import { getSiteRedirect } from "@/lib/site-redirects";
+import { hasMessages, loadMessages, translate } from "@/lib/messages";
+import { siteTitleKey, siteUrl } from "@/lib/seo";
+import { getSiteRedirect, redirectLocation } from "@/lib/site-redirects";
 import "@/lib/analytics";
 import "@/lib/stale-chunks";
 import appCss from "../style.css?url";
@@ -51,16 +53,17 @@ export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
     const target = getSiteRedirect(location.pathname);
     if (target) {
-      // Keep the query only on this site. External targets, such as Discord,
-      // must not receive texture links or other parameters.
-      const search = target.destination.startsWith("/")
-        ? location.searchStr
-        : "";
       throw redirect({
-        href: `${target.destination}${search}${location.hash ? `#${location.hash}` : ""}`,
+        href: redirectLocation(
+          target.destination,
+          new URL(location.href, siteUrl),
+        ),
         statusCode: target.status,
       });
     }
+    // Pages render in one language, so its catalog loads before they do.
+    const { locale } = splitLocalePath(location.pathname);
+    return hasMessages(locale) ? undefined : loadMessages(locale);
   },
   head: ({ matches }) => ({
     meta: [
@@ -104,10 +107,13 @@ const localeOptions = locales.map((code) => ({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   // Select only the locale. Search changes, such as opening the Studio
-  // gallery, would otherwise re-render the whole document.
-  const locale = useRouterState({
-    select: (state) => splitLocalePath(state.location.pathname).locale,
-  });
+  // gallery, would otherwise re-render the whole document. The URL changes
+  // before its catalog loads, so keep the shown language until then.
+  const locale = useShownLocale(
+    useRouterState({
+      select: (state) => splitLocalePath(state.location.pathname).locale,
+    }),
+  );
   const router = useRouter();
   const i18n = useMemo(
     () => ({
@@ -116,6 +122,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       translations: fumadocsMessages(locale),
       onLocaleChange: (next: string) => {
         if (!isLocale(next)) return;
+        // A manual choice answers the browser-language offer for good.
+        recordLanguageAnswer(browserStorage(), "chose");
         const { href } = router.state.location;
         // English-only pages, such as legal text, have no localized URL.
         void router.navigate({

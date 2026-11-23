@@ -1,9 +1,10 @@
-import { useRouterState } from "@tanstack/react-router";
+import { usePathname } from "fumadocs-core/framework";
 import { HomeLayout as FumadocsHomeLayout } from "fumadocs-ui/layouts/home";
 import type { ComponentProps, ReactNode } from "react";
 import { getBaseOptions } from "@/lib/layout-options";
-import { useLocale, useT } from "@/lib/i18n-react";
-import { localizeHref, splitLocalePath } from "@/lib/i18n";
+import { useT } from "@/lib/i18n-react";
+import { useLinkLocale } from "@/hooks/use-link-locale";
+import { hasLocalizedPages, localizeHref, splitLocalePath } from "@/lib/i18n";
 import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
 
@@ -29,12 +30,12 @@ function LayoutContainer({
 const slots = { container: LayoutContainer };
 
 export function HomeLayout({ children }: { children: ReactNode }) {
-  const locale = useLocale();
-  const baseOptions = getBaseOptions(locale);
   const t = useT();
-  const path = useRouterState({
-    select: (state) => splitLocalePath(state.location.pathname).path,
-  });
+  // Fumadocs' framework provider supplies the router's pathname.
+  const pathname = usePathname();
+  const path = splitLocalePath(pathname).path;
+  const linkLocale = useLinkLocale(hasLocalizedPages(pathname));
+  const baseOptions = getBaseOptions(linkLocale);
   return (
     <>
       <a
@@ -56,20 +57,20 @@ export function HomeLayout({ children }: { children: ReactNode }) {
           {
             type: "main",
             text: t("nav.documentation"),
-            url: localizeHref("/docs", locale),
+            url: localizeHref("/docs", linkLocale),
             description: t("common.installConfigureTroubleshootSkinsrestorer"),
           },
           {
             type: "main",
             text: t("nav.studio"),
-            url: localizeHref("/studio", locale),
+            url: localizeHref("/studio", linkLocale),
             active: "nested-url",
             description: t("common.editSkinsGetSkinUrlSrCreatecustom"),
           },
           {
             type: "main",
             text: t("nav.support"),
-            url: localizeHref("/pricing", locale),
+            url: localizeHref("/pricing", linkLocale),
             description: t("common.optionalSupporterPlansDonations"),
           },
           ...(baseOptions.links ?? []),

@@ -72,10 +72,15 @@ export function rankDocsResults(
     .flatMap(({ group }) => group);
 }
 
-/** Match the server tokenizer when loading each exported locale database. */
+/** The build prerenders one search index file per locale. */
+export function docsSearchUrl(locale: Locale) {
+  return `/api/search/${locale}`;
+}
+
+/** Match the server tokenizer when loading the exported locale database. */
 export function createDocsSearchClient(
   locale: Locale,
-  from = "/api/search",
+  from = docsSearchUrl(locale),
 ): SearchClient {
   const connect = (url: string) =>
     staticClient({

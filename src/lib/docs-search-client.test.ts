@@ -8,6 +8,7 @@ import {
   searchLanguages,
 } from "./docs-search-client";
 import type { Locale } from "./i18n";
+import { mockFetch } from "@/test/fakes";
 
 const cases: { locale: Locale; title: string; query: string }[] = [
   { locale: "en", title: "Upload a skin", query: "upload" },
@@ -34,15 +35,10 @@ for (const { locale, title, query } of cases) {
     });
     const data: unknown = await (await server.staticGET()).json();
     const from = `https://docs-search.test/${locale}`;
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = Object.assign(
-      (...args: Parameters<typeof fetch>) =>
-        (args[0] instanceof Request ? args[0].url : args[0].toString()) === from
-          ? Promise.resolve(
-              Response.json({ type: "i18n", data: { [locale]: data } }),
-            )
-          : originalFetch(...args),
-      { preconnect: originalFetch.preconnect },
+    const network = mockFetch((url) =>
+      url === from
+        ? Response.json({ type: "i18n", data: { [locale]: data } })
+        : new Response("Not found", { status: 404 }),
     );
     try {
       const results = await createDocsSearchClient(locale, from).search(query);
@@ -51,7 +47,7 @@ for (const { locale, title, query } of cases) {
         results.some((result) => result.url === "/docs/features/skin-upload"),
       );
     } finally {
-      globalThis.fetch = originalFetch;
+      network.restore();
     }
   });
 }
@@ -73,30 +69,40 @@ test("search loads the database again after a failed download", async () => {
   });
   const data: unknown = await (await server.staticGET()).json();
   const from = "https://docs-search.test/retry";
-  const requested: string[] = [];
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = Object.assign(
-    (...args: Parameters<typeof fetch>) => {
-      const url = args[0] instanceof Request ? args[0].url : args[0].toString();
-      if (!url.startsWith(from)) return originalFetch(...args);
-      requested.push(url);
-      return Promise.resolve(
-        requested.length === 1
-          ? new Response("Unavailable", { status: 503 })
-          : Response.json({ type: "i18n", data: { en: data } }),
-      );
-    },
-    { preconnect: originalFetch.preconnect },
+  let reads = 0;
+  const network = mockFetch(() =>
+    ++reads === 1
+      ? new Response("Unavailable", { status: 503 })
+      : Response.json({ type: "i18n", data: { en: data } }),
   );
   try {
     const client = createDocsSearchClient("en", from);
     await assert.rejects(async () => client.search("install"));
     const results = await client.search("install");
     assert.ok(results.some((result) => result.url === "/docs/installation"));
-    assert.equal(requested.length, 2);
-    assert.notEqual(requested[0], requested[1]);
+    const [failed, retried] = network.calls.map((call) => call.url);
+    assert.equal(network.calls.length, 2);
+    assert.ok(failed?.startsWith(from));
+    assert.ok(retried?.startsWith(from));
+    // A new URL, so an HTTP cache cannot replay the failed response.
+    assert.notEqual(failed, retried);
   } finally {
-    globalThis.fetch = originalFetch;
+    network.restore();
+  }
+});
+
+test("each locale loads only its own index file", async () => {
+  const network = mockFetch(() => new Response("Unavailable", { status: 503 }));
+  try {
+    await assert.rejects(async () =>
+      createDocsSearchClient("pt-BR").search("skin"),
+    );
+    assert.deepEqual(
+      network.calls.map((call) => call.url),
+      ["/api/search/pt-BR"],
+    );
+  } finally {
+    network.restore();
   }
 });
 
@@ -142,12 +148,12 @@ test("ranking keeps each page's hits with their page", () => {
 
 test("a plural query still matches a singular title", () => {
   const list = [
-    ...page("/docs/configuration/options", "Configuration reference"),
+    ...page("/docs/reference/storage", "Configuration reference"),
     ...page("/docs/troubleshooting/permissions", "Permission problems"),
   ];
   assert.deepEqual(pageOrder(rankDocsResults(list, "permissions")), [
     "/docs/troubleshooting/permissions",
-    "/docs/configuration/options",
+    "/docs/reference/storage",
   ]);
 });
 

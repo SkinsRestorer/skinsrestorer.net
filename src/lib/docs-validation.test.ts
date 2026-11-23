@@ -32,6 +32,7 @@ test("enforces declared integer bounds and does not coerce quoted numbers", () =
 
 test("requires valid enums and lists of strings", () => {
   assert.equal(validate({ database: { type: "mysql" } }).length, 1);
+  assert.equal(validate({ database: { type: ["MYSQL"] } }).length, 1);
   assert.equal(
     validate({ storage: { defaultSkins: { list: [false] } } }).length,
     1,

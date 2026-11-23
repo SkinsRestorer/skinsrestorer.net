@@ -49,11 +49,18 @@ export function validateConfig(
               Array.isArray(node) && node.every((v) => typeof v === "string")
             );
           }
+          // String() would accept a one-item list such as [MYSQL].
           case "DatabaseType": {
-            return ["FILE", "MYSQL", "POSTGRESQL"].includes(String(node));
+            return (
+              typeof node === "string" &&
+              ["FILE", "MYSQL", "POSTGRESQL"].includes(node)
+            );
           }
           case "ProxyMode": {
-            return ["ENABLED", "DISABLED", "AUTO"].includes(String(node));
+            return (
+              typeof node === "string" &&
+              ["ENABLED", "DISABLED", "AUTO"].includes(node)
+            );
           }
           case "String":
           case "Locale": {

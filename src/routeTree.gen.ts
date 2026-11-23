@@ -17,16 +17,19 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as Char123LangChar125RouteRouteImport } from './routes/{-$lang}/route'
-import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as ApiCspReportRouteImport } from './routes/api/csp-report'
 import { Route as DiscordEmbedSplatRouteImport } from './routes/discord-embed/$'
 import { Route as DocsOgSplatRouteImport } from './routes/docs-og/$'
 import { Route as LlmsDotmdxSplatRouteImport } from './routes/llms[.]mdx/$'
 import { Route as Char123LangChar125IndexRouteImport } from './routes/{-$lang}/index'
+import { Route as Char123LangChar125DocsRouteRouteImport } from './routes/{-$lang}/docs/route'
 import { Route as Char123LangChar125DocsDotmdxRouteImport } from './routes/{-$lang}/docs[.]mdx'
 import { Route as Char123LangChar125GeneratorRouteImport } from './routes/{-$lang}/generator'
 import { Route as Char123LangChar125PricingRouteImport } from './routes/{-$lang}/pricing'
 import { Route as Char123LangChar125StudioRouteImport } from './routes/{-$lang}/studio'
 import { Route as Char123LangChar125UploadRouteImport } from './routes/{-$lang}/upload'
+import { Route as ApiDocsTreeLangRouteImport } from './routes/api/docs-tree.$lang'
+import { Route as ApiSearchLangRouteImport } from './routes/api/search.$lang'
 import { Route as Char123LangChar125DocsSplatRouteImport } from './routes/{-$lang}/docs/$'
 import { Route as Char123LangChar125DocsChar123Char125DotmdxRouteImport } from './routes/{-$lang}/docs/{$}[.]mdx'
 
@@ -70,9 +73,9 @@ const Char123LangChar125RouteRoute = Char123LangChar125RouteRouteImport.update({
   path: '/{-$lang}',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiSearchRoute = ApiSearchRouteImport.update({
-  id: '/api/search',
-  path: '/api/search',
+const ApiCspReportRoute = ApiCspReportRouteImport.update({
+  id: '/api/csp-report',
+  path: '/api/csp-report',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscordEmbedSplatRoute = DiscordEmbedSplatRouteImport.update({
@@ -95,6 +98,12 @@ const Char123LangChar125IndexRoute = Char123LangChar125IndexRouteImport.update({
   path: '/',
   getParentRoute: () => Char123LangChar125RouteRoute,
 } as any)
+const Char123LangChar125DocsRouteRoute =
+  Char123LangChar125DocsRouteRouteImport.update({
+    id: '/docs',
+    path: '/docs',
+    getParentRoute: () => Char123LangChar125RouteRoute,
+  } as any)
 const Char123LangChar125DocsDotmdxRoute =
   Char123LangChar125DocsDotmdxRouteImport.update({
     id: '/docs.mdx',
@@ -125,17 +134,27 @@ const Char123LangChar125UploadRoute =
     path: '/upload',
     getParentRoute: () => Char123LangChar125RouteRoute,
   } as any)
+const ApiDocsTreeLangRoute = ApiDocsTreeLangRouteImport.update({
+  id: '/api/docs-tree/$lang',
+  path: '/api/docs-tree/$lang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSearchLangRoute = ApiSearchLangRouteImport.update({
+  id: '/api/search/$lang',
+  path: '/api/search/$lang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char123LangChar125DocsSplatRoute =
   Char123LangChar125DocsSplatRouteImport.update({
-    id: '/docs/$',
-    path: '/docs/$',
-    getParentRoute: () => Char123LangChar125RouteRoute,
+    id: '/$',
+    path: '/$',
+    getParentRoute: () => Char123LangChar125DocsRouteRoute,
   } as any)
 const Char123LangChar125DocsChar123Char125DotmdxRoute =
   Char123LangChar125DocsChar123Char125DotmdxRouteImport.update({
-    id: '/docs/{$}.mdx',
-    path: '/docs/{$}.mdx',
-    getParentRoute: () => Char123LangChar125RouteRoute,
+    id: '/{$}.mdx',
+    path: '/{$}.mdx',
+    getParentRoute: () => Char123LangChar125DocsRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -147,7 +166,8 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/api/search': typeof ApiSearchRoute
+  '/{-$lang}/docs': typeof Char123LangChar125DocsRouteRouteWithChildren
+  '/api/csp-report': typeof ApiCspReportRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
@@ -157,6 +177,8 @@ export interface FileRoutesByFullPath {
   '/{-$lang}/studio': typeof Char123LangChar125StudioRoute
   '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
   '/{-$lang}/': typeof Char123LangChar125IndexRoute
+  '/api/docs-tree/$lang': typeof ApiDocsTreeLangRoute
+  '/api/search/$lang': typeof ApiSearchLangRoute
   '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
   '/{-$lang}/docs/{$}.mdx': typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
@@ -168,7 +190,8 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/api/search': typeof ApiSearchRoute
+  '/{-$lang}/docs': typeof Char123LangChar125DocsRouteRouteWithChildren
+  '/api/csp-report': typeof ApiCspReportRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
@@ -178,6 +201,8 @@ export interface FileRoutesByTo {
   '/{-$lang}/studio': typeof Char123LangChar125StudioRoute
   '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
   '/{-$lang}': typeof Char123LangChar125IndexRoute
+  '/api/docs-tree/$lang': typeof ApiDocsTreeLangRoute
+  '/api/search/$lang': typeof ApiSearchLangRoute
   '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
   '/{-$lang}/docs/{$}.mdx': typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
@@ -191,7 +216,8 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/api/search': typeof ApiSearchRoute
+  '/{-$lang}/docs': typeof Char123LangChar125DocsRouteRouteWithChildren
+  '/api/csp-report': typeof ApiCspReportRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
   '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
@@ -201,6 +227,8 @@ export interface FileRoutesById {
   '/{-$lang}/studio': typeof Char123LangChar125StudioRoute
   '/{-$lang}/upload': typeof Char123LangChar125UploadRoute
   '/{-$lang}/': typeof Char123LangChar125IndexRoute
+  '/api/docs-tree/$lang': typeof ApiDocsTreeLangRoute
+  '/api/search/$lang': typeof ApiSearchLangRoute
   '/{-$lang}/docs/$': typeof Char123LangChar125DocsSplatRoute
   '/{-$lang}/docs/{$}.mdx': typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
@@ -215,7 +243,8 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/api/search'
+    | '/{-$lang}/docs'
+    | '/api/csp-report'
     | '/discord-embed/$'
     | '/docs-og/$'
     | '/llms.mdx/$'
@@ -225,6 +254,8 @@ export interface FileRouteTypes {
     | '/{-$lang}/studio'
     | '/{-$lang}/upload'
     | '/{-$lang}/'
+    | '/api/docs-tree/$lang'
+    | '/api/search/$lang'
     | '/{-$lang}/docs/$'
     | '/{-$lang}/docs/{$}.mdx'
   fileRoutesByTo: FileRoutesByTo
@@ -236,7 +267,8 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/api/search'
+    | '/{-$lang}/docs'
+    | '/api/csp-report'
     | '/discord-embed/$'
     | '/docs-og/$'
     | '/llms.mdx/$'
@@ -246,6 +278,8 @@ export interface FileRouteTypes {
     | '/{-$lang}/studio'
     | '/{-$lang}/upload'
     | '/{-$lang}'
+    | '/api/docs-tree/$lang'
+    | '/api/search/$lang'
     | '/{-$lang}/docs/$'
     | '/{-$lang}/docs/{$}.mdx'
   id:
@@ -258,7 +292,8 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms-of-service'
-    | '/api/search'
+    | '/{-$lang}/docs'
+    | '/api/csp-report'
     | '/discord-embed/$'
     | '/docs-og/$'
     | '/llms.mdx/$'
@@ -268,6 +303,8 @@ export interface FileRouteTypes {
     | '/{-$lang}/studio'
     | '/{-$lang}/upload'
     | '/{-$lang}/'
+    | '/api/docs-tree/$lang'
+    | '/api/search/$lang'
     | '/{-$lang}/docs/$'
     | '/{-$lang}/docs/{$}.mdx'
   fileRoutesById: FileRoutesById
@@ -281,10 +318,12 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
-  ApiSearchRoute: typeof ApiSearchRoute
+  ApiCspReportRoute: typeof ApiCspReportRoute
   DiscordEmbedSplatRoute: typeof DiscordEmbedSplatRoute
   DocsOgSplatRoute: typeof DocsOgSplatRoute
   LlmsDotmdxSplatRoute: typeof LlmsDotmdxSplatRoute
+  ApiDocsTreeLangRoute: typeof ApiDocsTreeLangRoute
+  ApiSearchLangRoute: typeof ApiSearchLangRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -345,11 +384,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LangChar125RouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/search': {
-      id: '/api/search'
-      path: '/api/search'
-      fullPath: '/api/search'
-      preLoaderRoute: typeof ApiSearchRouteImport
+    '/api/csp-report': {
+      id: '/api/csp-report'
+      path: '/api/csp-report'
+      fullPath: '/api/csp-report'
+      preLoaderRoute: typeof ApiCspReportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discord-embed/$': {
@@ -378,6 +417,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/{-$lang}/'
       preLoaderRoute: typeof Char123LangChar125IndexRouteImport
+      parentRoute: typeof Char123LangChar125RouteRoute
+    }
+    '/{-$lang}/docs': {
+      id: '/{-$lang}/docs'
+      path: '/docs'
+      fullPath: '/{-$lang}/docs'
+      preLoaderRoute: typeof Char123LangChar125DocsRouteRouteImport
       parentRoute: typeof Char123LangChar125RouteRoute
     }
     '/{-$lang}/docs.mdx': {
@@ -415,45 +461,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LangChar125UploadRouteImport
       parentRoute: typeof Char123LangChar125RouteRoute
     }
+    '/api/docs-tree/$lang': {
+      id: '/api/docs-tree/$lang'
+      path: '/api/docs-tree/$lang'
+      fullPath: '/api/docs-tree/$lang'
+      preLoaderRoute: typeof ApiDocsTreeLangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/search/$lang': {
+      id: '/api/search/$lang'
+      path: '/api/search/$lang'
+      fullPath: '/api/search/$lang'
+      preLoaderRoute: typeof ApiSearchLangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/{-$lang}/docs/$': {
       id: '/{-$lang}/docs/$'
-      path: '/docs/$'
+      path: '/$'
       fullPath: '/{-$lang}/docs/$'
       preLoaderRoute: typeof Char123LangChar125DocsSplatRouteImport
-      parentRoute: typeof Char123LangChar125RouteRoute
+      parentRoute: typeof Char123LangChar125DocsRouteRoute
     }
     '/{-$lang}/docs/{$}.mdx': {
       id: '/{-$lang}/docs/{$}.mdx'
-      path: '/docs/{$}.mdx'
+      path: '/{$}.mdx'
       fullPath: '/{-$lang}/docs/{$}.mdx'
       preLoaderRoute: typeof Char123LangChar125DocsChar123Char125DotmdxRouteImport
-      parentRoute: typeof Char123LangChar125RouteRoute
+      parentRoute: typeof Char123LangChar125DocsRouteRoute
     }
   }
 }
 
+interface Char123LangChar125DocsRouteRouteChildren {
+  Char123LangChar125DocsSplatRoute: typeof Char123LangChar125DocsSplatRoute
+  Char123LangChar125DocsChar123Char125DotmdxRoute: typeof Char123LangChar125DocsChar123Char125DotmdxRoute
+}
+
+const Char123LangChar125DocsRouteRouteChildren: Char123LangChar125DocsRouteRouteChildren =
+  {
+    Char123LangChar125DocsSplatRoute: Char123LangChar125DocsSplatRoute,
+    Char123LangChar125DocsChar123Char125DotmdxRoute:
+      Char123LangChar125DocsChar123Char125DotmdxRoute,
+  }
+
+const Char123LangChar125DocsRouteRouteWithChildren =
+  Char123LangChar125DocsRouteRoute._addFileChildren(
+    Char123LangChar125DocsRouteRouteChildren,
+  )
+
 interface Char123LangChar125RouteRouteChildren {
+  Char123LangChar125DocsRouteRoute: typeof Char123LangChar125DocsRouteRouteWithChildren
   Char123LangChar125DocsDotmdxRoute: typeof Char123LangChar125DocsDotmdxRoute
   Char123LangChar125GeneratorRoute: typeof Char123LangChar125GeneratorRoute
   Char123LangChar125PricingRoute: typeof Char123LangChar125PricingRoute
   Char123LangChar125StudioRoute: typeof Char123LangChar125StudioRoute
   Char123LangChar125UploadRoute: typeof Char123LangChar125UploadRoute
   Char123LangChar125IndexRoute: typeof Char123LangChar125IndexRoute
-  Char123LangChar125DocsSplatRoute: typeof Char123LangChar125DocsSplatRoute
-  Char123LangChar125DocsChar123Char125DotmdxRoute: typeof Char123LangChar125DocsChar123Char125DotmdxRoute
 }
 
 const Char123LangChar125RouteRouteChildren: Char123LangChar125RouteRouteChildren =
   {
+    Char123LangChar125DocsRouteRoute:
+      Char123LangChar125DocsRouteRouteWithChildren,
     Char123LangChar125DocsDotmdxRoute: Char123LangChar125DocsDotmdxRoute,
     Char123LangChar125GeneratorRoute: Char123LangChar125GeneratorRoute,
     Char123LangChar125PricingRoute: Char123LangChar125PricingRoute,
     Char123LangChar125StudioRoute: Char123LangChar125StudioRoute,
     Char123LangChar125UploadRoute: Char123LangChar125UploadRoute,
     Char123LangChar125IndexRoute: Char123LangChar125IndexRoute,
-    Char123LangChar125DocsSplatRoute: Char123LangChar125DocsSplatRoute,
-    Char123LangChar125DocsChar123Char125DotmdxRoute:
-      Char123LangChar125DocsChar123Char125DotmdxRoute,
   }
 
 const Char123LangChar125RouteRouteWithChildren =
@@ -470,10 +545,12 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
-  ApiSearchRoute: ApiSearchRoute,
+  ApiCspReportRoute: ApiCspReportRoute,
   DiscordEmbedSplatRoute: DiscordEmbedSplatRoute,
   DocsOgSplatRoute: DocsOgSplatRoute,
   LlmsDotmdxSplatRoute: LlmsDotmdxSplatRoute,
+  ApiDocsTreeLangRoute: ApiDocsTreeLangRoute,
+  ApiSearchLangRoute: ApiSearchLangRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

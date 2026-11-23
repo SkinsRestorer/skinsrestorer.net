@@ -13,47 +13,20 @@ import {
   ExternalLinkIcon,
   MessageCircleIcon,
 } from "lucide-react";
-import { Effect, Schema } from "effect";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { readHttpText, runHttpEffect } from "@/lib/effect-http";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n-react";
 
-const cache = new Map<string, string>();
+/** Effect loads with the copy action, not with every docs page. */
+const loadPageMarkdown = (url: string) =>
+  import("@/lib/page-markdown").then((module) => module.loadMarkdown(url));
 
-// oxlint-disable-next-line unicorn/throw-new-error -- Schema.TaggedError is a class factory.
-class MarkdownLoadError extends Schema.TaggedError<
-  MarkdownLoadError,
-  { readonly brand: unique symbol }
->()("MarkdownLoadError", {
-  url: Schema.String,
-  cause: Schema.Unknown,
-}) {}
-
-/** The read has a deadline, so the copy button cannot stay busy. */
-async function loadMarkdown(url: string) {
-  const cached = cache.get(url);
-  if (cached !== undefined) return cached;
-  const content = await runHttpEffect(
-    readHttpText(url).pipe(
-      Effect.flatMap((response) =>
-        response.ok
-          ? Effect.succeed(response.text)
-          : Effect.fail(
-              MarkdownLoadError.make({ url, cause: response.status }),
-            ),
-      ),
-      Effect.mapError((cause) =>
-        cause instanceof MarkdownLoadError
-          ? cause
-          : MarkdownLoadError.make({ url, cause }),
-      ),
-    ),
-  );
-  cache.set(url, content);
-  return content;
-}
+const isMarkdownLoadError = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  "_tag" in error &&
+  error._tag === "MarkdownLoadError";
 
 export function LLMCopyButton({
   /**
@@ -76,8 +49,9 @@ export function LLMCopyButton({
   );
 
   async function copy() {
+    if (isLoading) return;
     setIsLoading(true);
-    const markdown = loadMarkdown(markdownUrl);
+    const markdown = loadPageMarkdown(markdownUrl);
     const blob = markdown.then(
       (text) => new Blob([text], { type: "text/plain" }),
     );
@@ -102,7 +76,7 @@ export function LLMCopyButton({
       }, 1500);
     } catch (error) {
       toast.error(
-        error instanceof MarkdownLoadError
+        isMarkdownLoadError(error)
           ? t("docs.failedLoadPageMarkdown")
           : t("common.failedCopy"),
       );
@@ -113,15 +87,16 @@ export function LLMCopyButton({
 
   return (
     <>
+      {/* aria-disabled, not disabled: a disabled button drops keyboard focus. */}
       <button
-        disabled={isLoading}
+        aria-disabled={isLoading}
         aria-busy={isLoading}
         className={cn(
           buttonVariants({
             color: "secondary",
             size: "sm",
             className:
-              "gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground",
+              "gap-2 aria-disabled:opacity-50 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground",
           }),
         )}
         onClick={() => void copy()}

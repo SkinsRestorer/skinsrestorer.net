@@ -1,29 +1,17 @@
 import assert from "node:assert/strict";
-import { mock, test } from "bun:test";
+import { test } from "bun:test";
 import { FrameworkProvider } from "fumadocs-core/framework";
 import { RootProvider } from "fumadocs-ui/provider/base";
 import { renderToStaticMarkup } from "react-dom/server";
-
-// Bun keeps module mocks for later test files, so keep every real export.
-const router = await import("@tanstack/react-router");
-void mock.module("@tanstack/react-router", () => ({
-  ...router,
-  useRouterState: ({
-    select,
-  }: {
-    select: (state: { location: { pathname: string } }) => unknown;
-  }) => select({ location: { pathname: "/" } }),
-}));
-
-const { HomeLayout } = await import("./home-layout");
-const { fumadocsMessages } = await import("@/lib/messages/fumadocs");
+import { fumadocsMessages } from "@/lib/messages/fumadocs";
+import { HomeLayout } from "./home-layout";
 
 const navigation = { push: () => {}, refresh: () => {} };
 
-function render() {
+function render(pathname = "/") {
   return renderToStaticMarkup(
     <FrameworkProvider
-      usePathname={() => "/"}
+      usePathname={() => pathname}
       useParams={() => ({})}
       useRouter={() => navigation}
     >
@@ -64,4 +52,12 @@ test("the skip link targets the focusable main landmark that holds the page", ()
   assert.ok(main?.[1]?.includes('id="main-content"'));
   assert.ok(main?.[1]?.includes('tabindex="-1"'));
   assert.equal(main?.[2], "<h1>Page content</h1>");
+});
+
+test("the language switch shows on translated pages and hides on English-only policies", () => {
+  const languageSwitch = /aria-label="[^"]*Choose a language"/u;
+  for (const path of ["/", "/es/pricing"])
+    assert.match(render(path), languageSwitch, path);
+  for (const path of ["/privacy-policy", "/terms-of-service", "/cookie-policy"])
+    assert.doesNotMatch(render(path), languageSwitch, path);
 });

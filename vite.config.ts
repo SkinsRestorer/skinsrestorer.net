@@ -33,6 +33,12 @@ function getDocsPrerenderPages() {
   );
 }
 
+// One search index and one navigation tree per locale, as static files.
+const staticApiPaths = locales.flatMap((locale) => [
+  `/api/search/${locale}`,
+  `/api/docs-tree/${locale}`,
+]);
+
 export default defineConfig(({ command }) => {
   const posthogKey =
     command === "build"
@@ -55,11 +61,11 @@ export default defineConfig(({ command }) => {
         pages: [
           ...getDocsPrerenderPages(),
           ...localizedSitePages.map((path) => ({ path })),
-          {
-            path: "/api/search",
-            prerender: { enabled: true, outputPath: "/api/search" },
+          ...staticApiPaths.map((path) => ({
+            path,
+            prerender: { enabled: true, outputPath: path },
             sitemap: { exclude: true },
-          },
+          })),
         ],
         prerender: {
           enabled: true,
@@ -68,7 +74,7 @@ export default defineConfig(({ command }) => {
           failOnError: true,
           concurrency: 4,
           filter: ({ path }) =>
-            path === "/api/search" ||
+            staticApiPaths.includes(path) ||
             (!/[?#]/u.test(path) &&
               (localizedSitePages.includes(path) ||
                 ((splitLocalePath(path).path === "/docs" ||

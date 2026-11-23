@@ -1,19 +1,16 @@
 import { splitLocalePath } from "@/lib/i18n";
 import { createMiddleware, createStart } from "@tanstack/react-start";
-import { getSiteRedirect } from "@/lib/site-redirects";
+import { getSiteRedirect, redirectLocation } from "@/lib/site-redirects";
 import { securityHeaders } from "@/lib/security-headers";
 
 const siteMiddleware = createMiddleware().server(async ({ request, next }) => {
   const url = new URL(request.url);
   const redirect = getSiteRedirect(url.pathname);
   if (redirect) {
-    const destination = new URL(redirect.destination, url);
-    // Keep the query only on this site. External targets, such as Discord,
-    // must not receive texture links or other parameters.
-    if (destination.origin === url.origin) destination.search = url.search;
+    const location = new URL(redirectLocation(redirect.destination, url), url);
     return new Response(null, {
       status: redirect.status,
-      headers: { ...securityHeaders, Location: destination.href },
+      headers: { ...securityHeaders, Location: location.href },
     });
   }
   const result = await next();

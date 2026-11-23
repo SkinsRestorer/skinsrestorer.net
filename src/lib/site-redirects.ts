@@ -1,6 +1,8 @@
 import { splitLocalePath, localizeHref } from "./i18n";
 import { docsRedirects } from "./docs-redirects";
 
+const origin = "https://skinsrestorer.net";
+
 const github =
   import.meta.env["VITE_GITHUB_LINK"] ??
   "https://github.com/SkinsRestorer/SkinsRestorer";
@@ -10,7 +12,6 @@ const github =
  * its locale even when the configured target is a full URL.
  */
 function sitePath(href: string) {
-  const origin = "https://skinsrestorer.net";
   return href.startsWith(`${origin}/`) ? href.slice(origin.length) : href;
 }
 
@@ -29,7 +30,7 @@ const aliases: Record<string, string> = {
   "/modrinth":
     import.meta.env["VITE_MODRINTH_LINK"] ??
     "https://modrinth.com/plugin/skinsrestorer",
-  "/perms": "/docs/configuration/commands-permissions",
+  "/perms": "/docs/reference/commands-permissions",
   "/skinurl": "/upload",
   "/skinedit": "/docs/features/skin-edit",
   "/unicode":
@@ -67,4 +68,18 @@ export function getSiteRedirect(pathname: string): SiteRedirect | undefined {
   if (aliases[path])
     return { destination: localizeHref(aliases[path], locale), status: 307 };
   return undefined;
+}
+
+/**
+ * Build the Location of a redirect from the requested URL. A move on this site
+ * keeps the request's query and hash. A link to another site, such as Discord,
+ * gets neither, so texture links and other parameters stay on this site.
+ * Destinations on this site are returned as a path.
+ */
+export function redirectLocation(destination: string, from: URL): string {
+  const target = new URL(destination, from);
+  if (target.origin !== from.origin) return target.href;
+  if (from.search) target.search = from.search;
+  if (from.hash) target.hash = from.hash;
+  return `${target.pathname}${target.search}${target.hash}`;
 }

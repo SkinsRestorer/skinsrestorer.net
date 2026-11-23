@@ -13,14 +13,20 @@ import type { Locale } from "@/lib/i18n";
 import { getLinkTarget } from "@/lib/link-target";
 import { LocaleLink } from "./locale-link";
 
-async function render(href: string, locale: Locale = "en") {
+async function render(
+  href: string,
+  locale: Locale = "en",
+  props: Omit<React.ComponentProps<typeof LocaleLink>, "href"> = {},
+) {
   const rootRoute = createRootRoute();
   const docsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "$",
     component: () => (
       <LocaleContext value={locale}>
-        <LocaleLink href={href}>Link</LocaleLink>
+        <LocaleLink href={href} {...props}>
+          Link
+        </LocaleLink>
       </LocaleContext>
     ),
   });
@@ -51,11 +57,7 @@ test("a link to another page keeps its fragment", async () => {
 
 test("preloading a link with a fragment matches the page without the fragment", async () => {
   const { router } = await render("/docs/features#gallery");
-  const target = getLinkTarget(
-    "/docs/features#gallery",
-    "en",
-    router.options.parseSearch,
-  );
+  const target = getLinkTarget("/docs/features#gallery", "en", router.options);
   assert.ok(target);
   const location = router.buildLocation(target);
   assert.equal(location.pathname, "/docs/features");
@@ -73,4 +75,32 @@ test("non-ASCII fragments are encoded once", async () => {
 test("localized links keep their query and fragment", async () => {
   const link = await render("/docs/features?mode=a#gallery", "ru");
   assert.equal(link.href, "/ru/docs/features?mode=a#gallery");
+});
+
+test("a parent page link is not marked as the current page", async () => {
+  const link = await render("/docs");
+  assert.equal(link.href, "/docs");
+  assert.equal(link.current, false);
+});
+
+test("a link to the current page is marked as the current page", async () => {
+  const link = await render("/docs/current?tab=a");
+  assert.equal(link.current, true);
+});
+
+test("the sidebar's own current page marking is kept", async () => {
+  const link = await render("/docs", "en", { "aria-current": "page" });
+  assert.equal(link.current, true);
+});
+
+test("relative and query-only links keep their href", async () => {
+  for (const href of ["./other", "other.mdx", "../other", "?q=1"]) {
+    const link = await render(href, "ru");
+    assert.equal(link.href, href);
+  }
+});
+
+test("a repeated query key is not rewritten", async () => {
+  const link = await render("/docs/features?a=1&a=2", "es");
+  assert.equal(link.href, "/es/docs/features?a=1&a=2");
 });

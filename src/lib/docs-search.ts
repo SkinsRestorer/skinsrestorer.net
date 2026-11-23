@@ -1,4 +1,6 @@
 import { createFromSource } from "fumadocs-core/search/server";
+import { Schema } from "effect";
+import type { Locale } from "./i18n";
 import { source } from "./source";
 
 const searchAPI = createFromSource(source, {
@@ -12,6 +14,18 @@ const searchAPI = createFromSource(source, {
   search: { groupBy: { properties: ["page_id"], maxResult: 3 } },
 });
 
-export async function getDocsSearchIndex() {
-  return searchAPI.staticGET();
+const decodeExport = Schema.decodeUnknownSync(
+  Schema.Struct({
+    type: Schema.Literal("i18n"),
+    data: Schema.Record(Schema.String, Schema.Unknown),
+  }),
+);
+
+/** Export one locale, so the browser downloads and builds only its index. */
+export async function getDocsSearchIndex(locale: Locale) {
+  const exported = decodeExport(await searchAPI.export());
+  return Response.json({
+    type: "i18n",
+    data: { [locale]: exported.data[locale] },
+  });
 }

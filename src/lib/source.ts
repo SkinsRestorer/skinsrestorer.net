@@ -44,3 +44,7 @@ export function getDocLanguages(slugs: string[]): Locale[] {
     return page && docFileInfo(page.path).locale === locale;
   });
 }
+
+export function serializeDocsTree(locale: Locale) {
+  return source.serializePageTree(source.getPageTree(locale));
+}
