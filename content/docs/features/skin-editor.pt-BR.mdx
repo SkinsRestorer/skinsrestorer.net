@@ -3,7 +3,7 @@ title: "Estúdio de skins"
 description: "Guarde skins no navegador, corrija e pinte-as em 2D ou 3D e obtenha um comando do SkinsRestorer."
 docType: "how-to"
 appliesTo: "Usuários do site e jogadores do Java Edition"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Brush"
 ---
@@ -16,9 +16,9 @@ O [Estúdio de skins](/studio) trabalha com skins do Java Edition no navegador. 
 
 No celular, a biblioteca abre pelo botão **Biblioteca** e as opções ficam abaixo do modelo.
 
-[Enviar skin](/upload) e o [gerador](/generator) abrem o mesmo estúdio. Enviar skin sempre cria um comando `/skin url`. O gerador sempre cria um comando `/sr createcustom`.
+As páginas [Enviar skin](/upload) e [Gerador](/generator) abrem o mesmo Estúdio de skins. **Enviar skin** sempre cria um comando `/skin url`. **Gerador** sempre cria um comando `/sr createcustom`.
 
-Na página do estúdio, escolha **Usar em um servidor** ou **Skin personalizada**. A linha abaixo da escolha explica o comando:
+Na página do [Estúdio de skins](/studio), escolha **Usar em um servidor** ou **Skin personalizada**. A linha abaixo da escolha explica o comando:
 
 - `/skin url` aplica a skin ao jogador que executa o comando.
 - `/sr createcustom` salva a skin no servidor com um nome. Depois, os jogadores podem usar esse nome com `/skin set`.
@@ -31,7 +31,7 @@ Selecione **+** na biblioteca e escolha uma opção:
 
 - **Enviar PNG**: uma skin PNG de até 5 MB. Você também pode soltar arquivos PNG no centro da página.
 - **Criar skin**: uma figura clássica ou fina simples que você pinta e salva.
-- **Abrir arquivo .skin**: um arquivo de armazenamento do SkinsRestorer, como `.customskin`. O estúdio lê a URL de textura do arquivo e abre essa textura. Se o arquivo não servir, o estúdio mostra **Não foi possível abrir o arquivo de skin** com o motivo. No [gerador](/generator), **Abrir arquivo .skin** também aparece no centro quando nenhuma skin está selecionada.
+- **Abrir arquivo .skin**: um arquivo de armazenamento do SkinsRestorer, como `.customskin`. O estúdio lê a URL de textura do arquivo e abre essa textura. Se o arquivo não servir, o estúdio mostra **Não foi possível abrir o arquivo de skin** com o motivo. Na página do [Gerador](/generator), **Abrir arquivo .skin** também aparece no centro quando nenhuma skin está selecionada.
 - **Abrir URL de textura**: um hash de textura ou uma URL `https://textures.minecraft.net/texture/…`.
 
 Quando a biblioteca está vazia, ela também mostra os botões **Enviar PNG** e **Criar skin**. O estúdio adiciona cada skin nova à biblioteca e a seleciona. Se a mesma skin com o mesmo modelo já estiver na biblioteca, ele usa essa skin. A skin selecionada aparece na hora e nada é enviado.
@@ -56,7 +56,7 @@ Selecione uma skin, confira o modelo e a capa e selecione o botão de gerar. O e
 
 Quando o comando fica pronto, o estúdio mostra **Seu comando está pronto** com o comando e um botão de copiar. Depois, o botão de gerar mostra **Comando pronto**. Ele fica desativado até você mudar a skin ou uma opção.
 
-Se o envio falhar, o estúdio mantém suas escolhas e diz o que conferir antes de tentar novamente. O [guia de envio](/docs/features/skin-upload) e as [skins personalizadas](/docs/features/custom-skins) explicam cada comando.
+Se o envio falhar, o estúdio mantém suas escolhas e diz o que conferir antes de tentar novamente. O [guia de envio](/docs/features/skin-upload) e as [skins personalizadas](/docs/configuration/custom-skins) explicam cada comando.
 
 ## Editar uma skin [#edit-a-skin]
 
@@ -178,7 +178,9 @@ Se você tiver alterações não salvas e selecionar **Cancelar**, pressionar `E
 
 Enquanto você pinta, o estúdio guarda um rascunho das alterações não salvas neste navegador. O rascunho não muda a skin salva. Cada editor aberto tem seu próprio rascunho, então duas abas não se sobrescrevem.
 
-Se você fechar a aba antes de salvar, o rascunho fica. Na próxima vez que abrir o estúdio, ele pergunta se você quer continuar. **Continuar** abre o rascunho. **Descartar** o exclui, e a mensagem que aparece depois tem um botão **Desfazer**. O estúdio não guarda o histórico de desfazer. Rascunhos que ainda estão abertos em outra aba não aparecem nesta lista.
+Se você fechar a aba antes de salvar, o rascunho fica. Na próxima vez que abrir o estúdio, ele pergunta se você quer continuar. **Continuar** abre o rascunho. **Descartar** o exclui, e a mensagem que aparece depois tem um botão **Desfazer**. O estúdio não guarda o histórico de desfazer. Rascunhos que ainda estão abertos em outra aba não aparecem nesta lista. Se um rascunho não tem mais uma skin salva, **Salvar como nova skin** a adiciona à biblioteca e a seleciona. Se a lista não carregar, selecione **Tentar novamente**.
+
+Se você selecionar **Salvar rascunho e fechar** e o navegador não conseguir guardar o rascunho, o editor continua aberto. Ele mostra o motivo e um botão para baixar o PNG, assim você não perde seu trabalho.
 
 Versões anteriores do editor guardavam um rascunho em outro lugar do navegador. O estúdio move esse rascunho para a biblioteca uma vez, como uma skin chamada "Recovered draft". Se o rascunho antigo estiver danificado, o estúdio o mantém e mostra uma mensagem com o botão **Descartar rascunho**. Se o navegador bloquear a biblioteca, o estúdio mantém o rascunho antigo e mostra um botão **Baixar rascunho**.
 
@@ -186,7 +188,7 @@ Se o navegador bloquear o armazenamento do site ou ele estiver cheio, o estúdio
 
 ## A biblioteca [#your-skins]
 
-O estúdio, Enviar skin e o gerador compartilham uma biblioteca neste navegador. Uma skin da biblioteca mantém o arquivo original e a versão atual, o modelo de cada uma e o nome.
+O Estúdio de skins e as páginas Enviar skin e Gerador compartilham uma biblioteca neste navegador. Uma skin da biblioteca mantém o arquivo original e a versão atual, o modelo de cada uma e o nome.
 
 - A biblioteca fica apenas neste navegador e dispositivo. Ela não sincroniza com outros dispositivos ou contas.
 - Se você limpar os dados do site, ou se o navegador remover dados antigos, a biblioteca é apagada. Use **Baixar PNG** para guardar uma cópia.
@@ -196,11 +198,11 @@ O estúdio, Enviar skin e o gerador compartilham uma biblioteca neste navegador.
 - Depois de remover uma skin, selecione **Desfazer** na mensagem para recuperá-la.
 - A marca ao lado de **Biblioteca** indica que o navegador guarda suas skins. Um disco riscado indica que não pode. Passe o ponteiro sobre o ícone para ver o motivo.
 
-## Editar em Enviar skin ou no gerador [#edit-from-upload-or-generator]
+## Editar em Enviar skin ou no Gerador [#edit-from-upload-or-generator]
 
-[Enviar skin](/upload) e o [gerador](/generator) têm o mesmo botão **Editar skin** e o mesmo editor. Ao salvar, a skin editada fica selecionada e a página mantém as outras opções. A página não envia nada até você selecionar o botão de gerar.
+As páginas [Enviar skin](/upload) e [Gerador](/generator) têm o mesmo botão **Editar skin** e o mesmo editor. Ao salvar, a skin editada fica selecionada e a página mantém as outras opções. A página não envia nada até você selecionar o botão de gerar.
 
-Links antigos para a página do editor abrem o estúdio. Um link com um hash de textura abre essa textura no estúdio.
+Links antigos para a antiga página `/editor` abrem o Estúdio de skins. Um link com um hash de textura abre essa textura no estúdio.
 
 ## Privacidade [#privacy]
 
@@ -208,7 +210,7 @@ Ao explorar a galeria, o navegador baixa o catálogo de `cool-skins.skinsrestore
 
 Edição, biblioteca, rascunhos e downloads de PNG acontecem no seu navegador. O estúdio não envia a imagem da sua skin ao SkinsRestorer nem a outro servidor até você selecionar um botão de gerar. Adicionar, renomear ou remover uma skin da biblioteca também não a envia.
 
-Se você abrir uma URL de textura ou um arquivo `.skin`, o navegador baixa a textura de `textures.minecraft.net`. O botão de gerar envia o PNG selecionado ao MineSkin, diretamente ou pelo proxy SkinsRestorer Axolotl. Veja [integração com MineSkin](/docs/integrations/mineskin).
+Se você abrir uma URL de textura ou um arquivo `.skin`, o navegador baixa a textura de `textures.minecraft.net`. O botão de gerar envia o PNG selecionado ao MineSkin. Com o método **Axolotl** e uma capa selecionada, ele envia o PNG ao Axolotl, o serviço do SkinsRestorer para enviar skins com capa. Veja [integração com MineSkin](/docs/integrations/mineskin).
 
 ## Se o modelo 3D não aparecer [#if-the-3d-model-does-not-show]
 

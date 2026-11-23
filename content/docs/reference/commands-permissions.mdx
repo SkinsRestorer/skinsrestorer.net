@@ -3,7 +3,7 @@ title: "Commands and permissions"
 description: "Exact command forms, aliases, permission nodes, and built-in groups."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Terminal"
 ---
@@ -120,7 +120,7 @@ A `<selector>` identifies the target player or players through the platform's se
 
 ## Proxy mode
 
-Run normal player commands and storage administration through the proxy. Proxy-mode backends provide local `/sr status` and `/sr dump`. Other commands can be unavailable there by design.
+Run player commands and storage administration through the proxy. In proxy mode, a backend registers only `/sr`, `/sr help [query]`, `/sr status`, and `/sr dump`. It does not register `/skin`, `/skins`, `/skull`, or the other `/sr` commands.
 
 ## Cooldowns
 

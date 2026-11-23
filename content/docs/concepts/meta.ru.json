@@ -1,11 +1,6 @@
 {
   "title": "Как работают скины",
-  "pages": [
-    "[Workflow][Жизненный цикл скина](/docs/development/inner-workings)",
-    "skin-properties",
-    "proxy",
-    "[Flag][Плащи](/docs/features/capes)"
-  ],
+  "pages": ["skin-lifecycle", "skin-properties", "proxy"],
   "defaultOpen": false,
   "icon": "Lightbulb",
   "pagesIndex": "index"

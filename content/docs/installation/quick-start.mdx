@@ -3,7 +3,7 @@ title: "Check your first skin"
 description: "Check commands, persistence, and network switching after installation."
 docType: "tutorial"
 appliesTo: "All platforms"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "CircleCheck"
 ---
@@ -37,10 +37,18 @@ Run `/skin clear`. This removes the skin that you selected. You then get the ski
 
 | Result | Next step |
 | --- | --- |
-| Unknown command | Read the server console from the start for a SkinsRestorer error, and check that you installed the correct file for your platform |
+| Unknown command | Read the server console from the start for a SkinsRestorer error, and check that you installed the correct file for your platform. Also check that `commands.disableSkinCommand` is `false` in `config.yml` |
 | Permission denied | [Check permissions](/docs/troubleshooting/permissions) |
 | Name or URL cannot load | [Check service connections](/docs/troubleshooting/firewall) |
 | Success message, unchanged skin | [Check profile application](/docs/troubleshooting/no-skin) |
 | Selection disappears after reconnect | [Check join and proxy behavior](/docs/troubleshooting/skin-resets) |
 
-After these checks pass, read [change or reset a skin](/docs/features/change-skin).
+## Next
+
+After these checks pass, set up the server for your players:
+
+- [Grant player access](/docs/configuration/player-access) to choose which players can use skin commands.
+- [Set default skins](/docs/configuration/default-skins) for players without their own skin.
+- Read [Manage your server](/docs/configuration) for the other settings, such as the skin menu and storage.
+
+Players can read [change or reset a skin](/docs/features/change-skin).

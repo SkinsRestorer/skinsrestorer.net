@@ -3,7 +3,7 @@ title: "Prueba tu primera skin"
 description: "Comprueba los comandos, la persistencia y el cambio entre servidores después de instalar."
 docType: "tutorial"
 appliesTo: "Todas las plataformas"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "CircleCheck"
 ---
@@ -37,10 +37,18 @@ Ejecuta `/skin clear`. Esto quita la skin que elegiste. Después tendrás la ski
 
 | Resultado | Siguiente paso |
 | --- | --- |
-| Comando desconocido | Lee la consola del servidor desde el principio para buscar un error de SkinsRestorer y comprueba que instalaste el archivo correcto para tu plataforma |
+| Comando desconocido | Lee la consola del servidor desde el principio para buscar un error de SkinsRestorer y comprueba que instalaste el archivo correcto para tu plataforma. Comprueba también que `commands.disableSkinCommand` sea `false` en `config.yml` |
 | Permiso denegado | [Revisa los permisos](/docs/troubleshooting/permissions) |
 | No se puede cargar el nombre o la URL | [Revisa las conexiones con los servicios](/docs/troubleshooting/firewall) |
 | Mensaje de éxito, pero la skin no cambia | [Revisa cómo se aplica el perfil](/docs/troubleshooting/no-skin) |
 | La selección desaparece al reconectarte | [Revisa la entrada y el comportamiento del proxy](/docs/troubleshooting/skin-resets) |
 
-Cuando todas las pruebas funcionen, lee [cambiar o restablecer una skin](/docs/features/change-skin).
+## Siguientes pasos [#next]
+
+Cuando todas las pruebas funcionen, prepara el servidor para tus jugadores:
+
+- [Da acceso a los jugadores](/docs/configuration/player-access) para elegir quién puede usar los comandos de skins.
+- [Configura skins predeterminadas](/docs/configuration/default-skins) para los jugadores sin skin propia.
+- Lee [Administra tu servidor](/docs/configuration) para los demás ajustes, como el menú de skins y el almacenamiento.
+
+Los jugadores pueden leer [cambiar o restablecer una skin](/docs/features/change-skin).

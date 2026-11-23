@@ -3,7 +3,7 @@ title: "An upload or generated command fails"
 description: "Separate image problems, generation queues, and server command failures."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -27,7 +27,7 @@ If the preview shows arm gaps, switch between classic and slim. Read [the model 
 3. Check your API key if the error concerns authorization.
 4. Check the available cape list if the error concerns cape access. If the list shows **Failed to load available capes**, select **Try again** below it.
 
-A selected cape in **Axolotl** mode goes through the SkinsRestorer Axolotl service. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
+In **Axolotl** mode, an upload with a selected cape goes to Axolotl, the SkinsRestorer cape upload service. Plain uploads and **Official** mode use MineSkin directly. These paths can fail independently.
 
 While a job is pending, the generate button shows **Generating…** and stays off. A job can take up to a minute. To stop waiting, select **Stop waiting** below the button, then generate again.
 
@@ -39,7 +39,7 @@ If you change the file, model, cape, API key, or upload method, the page stops w
 
 Keep the URL quoted and the generated model value intact. An opaque `skinsrestorer-axolotl://` result is valid command input, rather than a browser link. Run a `/skin url` result in game chat for your own player.
 
-A `/sr createcustom` result needs administrative access on the server or proxy that owns storage. It creates a named skin, rather than selecting it for a player.
+Run a `/sr createcustom` result as an administrator on the proxy (or on the server, if you have no proxy). It creates a named skin, rather than selecting it for a player.
 
 Inspect `skinsrestorer.command.set.url` and [URL restrictions](/docs/configuration/restrict-skins). If generation succeeded but the server cannot load the result, inspect [service connections](/docs/troubleshooting/firewall).
 

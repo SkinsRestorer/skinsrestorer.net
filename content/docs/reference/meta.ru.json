@@ -1,8 +1,7 @@
 {
   "title": "Справочник",
   "pages": [
-    "[Terminal][Команды и разрешения](/docs/configuration/commands-permissions)",
-    "[SlidersHorizontal][Обзор настроек](/docs/configuration/options)",
+    "commands-permissions",
     "storage",
     "commands",
     "database",
@@ -11,9 +10,7 @@
     "gui",
     "messages",
     "advanced",
-    "[Braces][Плейсхолдеры](/docs/integrations/placeholderapi)",
-    "network",
-    "documentation"
+    "network"
   ],
   "defaultOpen": false,
   "icon": "List",

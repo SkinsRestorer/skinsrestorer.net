@@ -3,7 +3,7 @@ title: "Create a named custom skin"
 description: "Save a reusable server skin for commands, defaults, and the menu."
 docType: "how-to"
 appliesTo: "Server and proxy administrators"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Tag"
 ---
@@ -12,7 +12,7 @@ A custom skin gives a signed texture a server-owned name, such as `lobby`. Playe
 
 ## Before you start
 
-You need console access or `skinsrestorer.admincommand.createcustom`. On a network, create the skin through the proxy that owns skin storage.
+You need console access or `skinsrestorer.admincommand.createcustom`. Run the command on the proxy (or on the server, if you have no proxy).
 
 ## Create from a PNG
 
@@ -25,11 +25,11 @@ You need console access or `skinsrestorer.admincommand.createcustom`. On a netwo
 7. Select **Generate /sr createcustom**.
 8. Copy the command and run it in the server or proxy console.
 
-The generator returns a command. It does not download a storage file or install the skin on your server.
+The Generator page returns a command. It does not download a storage file or install the skin on your server.
 
-Without a name, the command uses MineSkin's name when available. Axolotl returns no name, so the Studio uses the PNG filename or `custom_skin`.
+If you leave the name empty, the command uses the name of the PNG file, such as `forest_ranger` for `Forest ranger.png`. For a skin in the library, this is its library name. If no usable name is left, the command uses `custom_skin`. The empty field shows this name as a placeholder.
 
-The generator is the [Skin Studio](/docs/features/skin-editor) with the `/sr createcustom` command selected. To change the skin first, select **Edit skin**. Read [Edit from Upload or Generator](/docs/features/skin-editor#edit-from-upload-or-generator).
+The Generator page is the [Skin Studio](/docs/features/skin-editor) with the `/sr createcustom` command selected. To change the skin first, select **Edit skin** to open the editor. Read [Edit from Upload or Generator](/docs/features/skin-editor#edit-from-upload-or-generator).
 
 ## Create from a player name or URL
 
@@ -57,7 +57,7 @@ To change the menu label, run `/sr setcustomname lobby Lobby skin`. The command 
 
 ## Existing skin files
 
-The generator can read supported existing skin storage files. When no skin is selected, select **Open .skin file** in the center of the page. You can also select **+** in the **Library**, then **Open .skin file**. The texture of the file opens as a new skin, so you can edit it or generate a command again. Do not hand-edit a texture value or signature.
+The Generator page can read supported existing skin storage files. When no skin is selected, select **Open .skin file** in the center of the page. You can also select **+** in the **Library**, then **Open .skin file**. The texture of the file opens as a new skin, so you can edit it or generate a command again. Do not hand-edit a texture value or signature.
 
 If the page shows **This skin file could not be opened**, read the reason below it. Choose a SkinsRestorer storage file, such as a `.customskin` file. The page reads only the texture URL in the file.
 

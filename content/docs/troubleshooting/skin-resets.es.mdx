@@ -3,7 +3,7 @@ title: "La skin se restablece al entrar o cambiar de servidor"
 description: "Revisa la persistencia, el comportamiento al entrar, los paquetes de recursos y el reenvío de perfiles."
 docType: "how-to"
 appliesTo: "Todas las plataformas"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "RotateCcw"
 ---
@@ -13,7 +13,7 @@ Saber qué evento restablece la skin es una pista útil. Anota si ocurre al reco
 ## Revisa primero la persistencia [#check-persistence-first]
 
 1. Elige una skin con `/skin set xknat`.
-2. Revisa `/sr info player <playerName>` en la instancia que gestiona el almacenamiento.
+2. Ejecuta `/sr info player <playerName>` en el proxy (o en el servidor, si no tienes proxy). Revisa el resultado.
 3. Reconéctate.
 4. Vuelve a revisar el registro del jugador.
 
@@ -23,7 +23,7 @@ Si una integración solo llama a `applySkin(player, property)`, cambia el aspect
 
 Revisa `advanced.disableOnJoinSkins`. Si está activado, impide que la skin se aplique automáticamente al entrar.
 
-En un servidor con modo online, `login.alwaysApplyPremium` controla si las skins guardadas se aplican a los jugadores con cuenta autenticada. Si esa es la política que quieres, actívalo y repite la prueba.
+Las selecciones guardadas se aplican cada vez que el jugador entra. En un servidor con modo online, un jugador sin selección guardada conserva la skin de su cuenta, salvo que `login.alwaysApplyPremium` sea `true`. Por eso, una [skin predeterminada](/docs/configuration/default-skins) puede desaparecer tras reconectarse si esa opción es `false`.
 
 Las reglas de skins predeterminadas y las selecciones guardadas también influyen en el resultado. `/skin clear` quita a propósito la selección guardada.
 

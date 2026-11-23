@@ -39,7 +39,7 @@ Follow [the backend API guide](/docs/development/proxy-api), then inspect databa
 
 First correct the platform's forwarding configuration. If detection still fails on a known proxy backend, set `server.proxyMode.detection: ENABLED` there and restart.
 
-Use `DISABLED` only for a genuinely standalone server or an intentional independent installation. Forcing a backend into standalone mode can produce competing skin behavior.
+Use `DISABLED` only on a standalone server, or on a backend that must manage its own skins. A backend in standalone mode can compete with the proxy for skin changes.
 
 ## Where to run diagnostics
 

@@ -3,7 +3,7 @@ title: "Um envio ou comando gerado falha"
 description: "Separe problemas de imagem, filas de geração e falhas de comandos no servidor."
 docType: "how-to"
 appliesTo: "Todas as plataformas"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Upload"
 ---
@@ -27,7 +27,7 @@ Se a prévia mostrar espaços vazios nos braços, alterne entre **Clássico** e 
 3. Confira sua chave de API se o erro for de autorização.
 4. Confira a lista de capas disponíveis se o erro for de acesso a capas. Se a lista mostrar **Não foi possível carregar as capas**, selecione **Tentar novamente** abaixo dela.
 
-Uma capa selecionada no modo **Axolotl** passa pelo serviço Axolotl do SkinsRestorer. Envios sem capa e o modo **Oficial** usam o MineSkin diretamente. Esses caminhos podem falhar de forma independente.
+No modo **Axolotl**, um envio com capa selecionada vai para o Axolotl, o serviço do SkinsRestorer para enviar skins com capa. Envios sem capa e o modo **Oficial** usam o MineSkin diretamente. Esses caminhos podem falhar de forma independente.
 
 Enquanto um trabalho está pendente, o botão de gerar mostra **Gerando…** e fica desativado. Um trabalho pode levar até um minuto. Para parar de esperar, selecione **Parar de esperar** abaixo do botão e gere novamente.
 
@@ -39,7 +39,7 @@ Se você mudar o arquivo, o modelo, a capa, a chave de API ou o método de envio
 
 Mantenha a URL entre aspas e o valor do modelo gerado sem alterações. Um resultado opaco `skinsrestorer-axolotl://` é uma entrada válida para o comando, e não um link para o navegador. Execute um resultado `/skin url` no chat do jogo para o seu próprio jogador.
 
-Um resultado `/sr createcustom` precisa de acesso administrativo no servidor ou proxy responsável pelo armazenamento. Ele cria uma skin com nome, sem selecioná-la para um jogador.
+Execute um resultado `/sr createcustom` como administrador no proxy (ou no servidor, se você não tiver proxy). Ele cria uma skin com nome, sem selecioná-la para um jogador.
 
 Confira `skinsrestorer.command.set.url` e as [restrições de URL](/docs/configuration/restrict-skins). Se a geração funcionou mas o servidor não consegue carregar o resultado, confira as [conexões com os serviços](/docs/troubleshooting/firewall).
 

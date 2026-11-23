@@ -3,7 +3,7 @@ title: "Requirements and compatibility"
 description: "Match the SkinsRestorer artifact, Minecraft version, and Java runtime."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "ClipboardCheck"
 ---
@@ -12,7 +12,16 @@ There are three release artifacts: a server/proxy plugin, a Fabric mod, and a Ne
 
 ## Server and proxy plugins
 
-Use the server/proxy artifact on Bukkit-compatible servers, BungeeCord, and Velocity. Choose a Java runtime that satisfies both your platform and the plugin release.
+Use the server/proxy artifact on Bukkit-compatible servers, BungeeCord, and Velocity. For 15.12.6, the artifact has these requirements:
+
+| Requirement | 15.12.6 |
+| --- | --- |
+| Java | 8 or newer. The build converts the JAR to Java 8 bytecode. |
+| Paper and other Bukkit-compatible servers | Minecraft 1.8 to 26.1.1 |
+| Velocity | 3.0 to 3.4 |
+| BungeeCord and Waterfall | Waterfall 1.17 to 1.21 |
+
+The version ranges are the ones that the release declares on [Hangar](https://hangar.papermc.io/SRTeam/SkinsRestorer). They come from the [release build configuration](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties).
 
 The platform can require a newer Java version than SkinsRestorer. Read [Paper's requirements](https://docs.papermc.io/paper/getting-started/) or [Velocity's requirements](https://docs.papermc.io/velocity/getting-started/) for your exact release.
 

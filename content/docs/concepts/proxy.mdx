@@ -3,7 +3,7 @@ title: "Who owns skins on a proxy network?"
 description: "Separate proxy selections, backend forwarding, and backend API access."
 docType: "explanation"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Network"
 ---
@@ -12,7 +12,7 @@ The public proxy receives the player connection. It owns ordinary SkinsRestorer 
 
 ## Normal forwarding
 
-SkinsRestorer runs on the proxy and every backend. The platform forwards identity and profile information. Backend SkinsRestorer detects proxy mode and participates in the skin application path.
+SkinsRestorer runs on the proxy and every backend. The proxy forwards each player's identity and profile to the backend. SkinsRestorer on the backend detects the proxy and switches to proxy mode. When the proxy changes a skin, it sends the new skin to the backend. The backend then refreshes the player, so the change shows without a reconnect. The backend also opens the skin menu and gives skulls when the proxy asks it to.
 
 The proxy can use file storage. The backends do not need shared SQL storage solely to display forwarded skins.
 
@@ -26,7 +26,7 @@ A plugin on a backend can ask for stored selections or change them through the J
 
 Grant player command permissions where the commands run, usually the proxy. Use the proxy for storage administration.
 
-Proxy-mode backends expose local status and dump diagnostics. A backend warning can concern API availability while visible forwarded skins still work.
+In proxy mode, a backend registers only `/sr`, `/sr help`, `/sr status`, and `/sr dump`. Use these to check that backend. A backend can log a warning about the backend API, for example when it has no shared SQL storage. Forwarded skins can still show correctly when this warning appears.
 
 ## Why mismatches happen
 

@@ -3,7 +3,7 @@ title: "A skin change is not visible"
 description: "Separate fetching, profile application, and client rendering problems."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "EyeOff"
 ---
@@ -21,7 +21,7 @@ If another player sees the new skin, the server applied it. Inspect the affected
 
 ## Inspect the selected data
 
-Run `/sr info player <playerName>` on the instance that owns storage. Inspect the texture and selected skin. On a network, use the proxy console for ordinary administrative commands.
+Run `/sr info player <playerName>` on the proxy (or on the server, if you have no proxy). Inspect the texture and selected skin.
 
 If a texture cannot load, read [service connections](/docs/troubleshooting/firewall). If the stored selection is correct, continue with profile application.
 

@@ -3,7 +3,7 @@ title: "A skin é redefinida ao entrar ou trocar de servidor"
 description: "Confira a persistência, o comportamento ao entrar, os pacotes de recursos e o encaminhamento de perfis."
 docType: "how-to"
 appliesTo: "Todas as plataformas"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "RotateCcw"
 ---
@@ -13,7 +13,7 @@ O evento que redefine a skin é uma pista útil. Anote se acontece ao reconectar
 ## Confira primeiro a persistência [#check-persistence-first]
 
 1. Escolha uma skin com `/skin set xknat`.
-2. Confira `/sr info player <playerName>` na instância responsável pelo armazenamento.
+2. Execute `/sr info player <playerName>` no proxy (ou no servidor, se você não tiver proxy). Confira o resultado.
 3. Reconecte.
 4. Confira o registro do jogador outra vez.
 
@@ -23,7 +23,7 @@ Se uma integração só chama `applySkin(player, property)`, ela muda a aparênc
 
 Confira `advanced.disableOnJoinSkins`. Quando ativado, ele impede a aplicação automática da skin ao entrar.
 
-Em um servidor com modo online, `login.alwaysApplyPremium` controla se as skins salvas são aplicadas aos jogadores com conta autenticada. Se essa for a política desejada, ative-o e repita o teste.
+As seleções salvas são aplicadas sempre que o jogador entra. Em um servidor com modo online, um jogador sem seleção salva mantém a skin da conta, a menos que `login.alwaysApplyPremium` seja `true`. Por isso, uma [skin padrão](/docs/configuration/default-skins) pode sumir depois de reconectar quando essa opção é `false`.
 
 As regras de skins padrão e as seleções salvas também afetam o resultado. O `/skin clear` remove a seleção salva de propósito.
 

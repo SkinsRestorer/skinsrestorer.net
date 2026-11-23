@@ -1,9 +1,9 @@
 ---
-title: "Command behavior"
-description: "Exact keys, types, and defaults for command behavior."
+title: "Command settings"
+description: "Exact keys, types, and defaults for command settings in config.yml."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Terminal"
 ---
@@ -29,7 +29,7 @@ For a task-based guide, read [Grant player access](/docs/configuration/player-ac
 | `commands.perSkinPermissions` | boolean | `false` | Require a `skinsrestorer.skin.<name>` permission. |
 | `commands.perSkinPermissionsConsent` | string | `""` | Must be exactly `I will follow the rules` before `commands.perSkinPermissions` takes effect. Read [Restrict skins and URLs](/docs/configuration/restrict-skins). |
 | `commands.restrictSkinUrls.enabled` | boolean | `false` | Restrict skin URLs to the configured list. |
-| `commands.restrictSkinUrls.list` | string list | `["https://i.imgur.com", "http://i.imgur.com", "https://storage.googleapis.com", "http://storage.googleapis.com", "https://cdn.discordapp.com", "http://cdn.discordapp.com", "https://textures.minecraft.net", "http://textures.minecraft.net"]` | Allowed URL prefixes for restricted URL selection. |
+| `commands.restrictSkinUrls.list` | string list | `["https://i.imgur.com", "http://i.imgur.com", "https://storage.googleapis.com", "http://storage.googleapis.com", "https://cdn.discordapp.com", "http://cdn.discordapp.com", "https://textures.minecraft.net", "http://textures.minecraft.net"]` | Allowed URL prefixes for restricted URL selection. The default list does not allow commands from the website. Add `https://minesk.in/` and `skinsrestorer-axolotl://` for them. |
 | `commands.skinChangeCooldown` | integer | `30` | Seconds between successful skin changes. Zero disables the cooldown. |
 | `commands.skinErrorCooldown` | integer | `5` | Seconds of cooldown after a skin error. |
 | `commands.skullErrorCooldown` | integer | `5` | Seconds of cooldown after a skull error. |

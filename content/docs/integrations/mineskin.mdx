@@ -3,7 +3,7 @@ title: "MineSkin keys and generation"
 description: "Understand signed skin generation, service limits, and optional API keys."
 docType: "explanation"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "CloudUpload"
 ---
@@ -12,7 +12,9 @@ MineSkin turns a skin image into a signed property that Minecraft clients can us
 
 ## Server URL generation
 
-`/skin url` and URL-based custom skins use skin generation when needed. Both settings below are optional. You can set a server key and request unlisted skins:
+SkinsRestorer saves each skin that it generates from a URL. When a player runs `/skin url`, or an administrator runs `/sr createcustom` with an image URL, the server first looks for a saved skin with the same URL and model. If there is none, the server sends the URL to MineSkin and saves the signed result.
+
+Both settings below are optional. You can set a server key and request unlisted skins:
 
 ```yaml title="config.yml (SkinsRestorer excerpt)"
 api:
@@ -26,14 +28,12 @@ Run `/sr reload`. Try one valid URL and inspect the result. Keep the key private
 
 ## Website generation
 
-The [Upload](/upload) and [Generator](/generator) pages accept their own optional key. They do not read your server configuration.
+The [Upload](/upload) and [Generator](/generator) pages of the Skin Studio accept their own optional key. They do not read your server configuration.
 
 The pages have two modes:
 
-- **Axolotl** sends the upload through Axolotl, the SkinsRestorer upload service at `axolotl.skinsrestorer.net`. It supports some capes for free.
+- **Axolotl** is the default and needs no key. With a selected cape, the page sends the upload to Axolotl, the SkinsRestorer cape upload service at `axolotl.skinsrestorer.net`. Axolotl supports some capes for free. Without a cape, the page sends the upload straight to MineSkin without a key.
 - **Official** sends the upload straight to MineSkin with your own MineSkin key. The page checks which capes your key can use.
-
-Only an upload with a selected cape in **Axolotl** mode goes through Axolotl. Uploads without a cape and **Official** uploads go straight to MineSkin's queue.
 
 Generated commands can contain a MineSkin URL or an opaque `skinsrestorer-axolotl://` value. SkinsRestorer resolves that opaque value through Axolotl when the command runs.
 

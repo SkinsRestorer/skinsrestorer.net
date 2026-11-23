@@ -1,31 +1,46 @@
 ---
 title: "Reference"
-description: "Look up commands, permissions, configuration, placeholders, and network hosts."
+description: "Look up commands, permissions, configuration keys, and network hosts."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "List"
 ---
 
-Use these pages when you know the task and need an exact name, value, or syntax.
+Use these pages when you know the task and need an exact name, value, or syntax. For step-by-step instructions, start with [installation](/docs/installation) or [server management](/docs/configuration).
 
-- [Commands and permissions](/docs/configuration/commands-permissions).
-- [Configuration sections](/docs/configuration/options).
-- [PlaceholderAPI values](/docs/integrations/placeholderapi).
+- [Commands and permissions](/docs/reference/commands-permissions).
 - [Network hosts and services](/docs/reference/network).
+- [PlaceholderAPI values](/docs/integrations/placeholderapi).
 - [Platform requirements](/docs/installation/requirements).
-- [Documentation sources and maintenance](/docs/reference/documentation).
-
-For step-by-step instructions, start with [installation](/docs/installation) or [server management](/docs/configuration).
 
 ## Configuration keys
 
-- [Storage and caches](/docs/reference/storage).
-- [Command behavior](/docs/reference/commands).
-- [Database configuration](/docs/reference/database).
-- [Server, login, and proxy behavior](/docs/reference/server).
-- [External services](/docs/reference/services).
-- [Skin menu configuration](/docs/reference/gui).
-- [Messages and diagnostics](/docs/reference/messages).
-- [Advanced behavior](/docs/reference/advanced).
+Each page below lists the exact keys and defaults of one part of `config.yml`. Edit the existing sections in the active `config.yml`. On Bukkit, the file is `plugins/SkinsRestorer/config.yml`.
+
+| Section | Page | What it controls |
+| --- | --- | --- |
+| `storage` | [Storage settings](/docs/reference/storage) | Default skins and the durations of the skin and UUID caches. |
+| `commands` | [Command settings](/docs/reference/commands) | Cooldowns, restrictions, history, favorites, and command registration. |
+| `database` | [Database configuration](/docs/reference/database) | The storage backend and the SQL connection. |
+| `login`, `server`, `proxy` | [Server, login, and proxy behavior](/docs/reference/server) | Join behavior, skin refresh, sound, proxy detection on backends, and command limits by backend name on the proxy. |
+| `api` | [External services](/docs/reference/services) | MineSkin keys, recommended skins, account lookup batches, and Ely.by. |
+| `gui` | [Skin menu configuration](/docs/reference/gui) | Menu categories and entries. |
+| `messages`, `dev` | [Messages and diagnostics](/docs/reference/messages) | Locales, the message prefix, dates, and `dev.debug`. |
+| `advanced` | [Advanced behavior](/docs/reference/advanced) | Join application, refresh workarounds, and external connections. |
+
+The `server` keys apply to backends. They do not configure the proxy itself. The `proxy` keys apply only to the proxy.
+
+## Correct common outdated keys
+
+- Use `database.type: MYSQL` or `POSTGRESQL` for new SQL configuration. The plugin migrates earlier `database.enabled` configuration.
+- `commands.perSkinPermissions` is a boolean, not a section with `enabled` and `list`.
+- Use `api.mineskinAPIKey` and `api.mineskinSecretSkins` with that exact capitalization.
+- Use `gui.custom` and `gui.custom.onlyShowList`, rather than `customSkins` and `onlyList`.
+- Use `proxy.notAllowedCommandServers.ifNoServerBlockCommand`.
+- Mount refresh keys include `OnSkinUpdate`, such as `server.dismountPlayerOnSkinUpdate`.
+
+## Apply an excerpt
+
+Edit the matching section in the existing file. Do not paste duplicate top-level keys. Use `/sr reload` for ordinary changes. Restart after storage, proxy detection, or command registration changes.

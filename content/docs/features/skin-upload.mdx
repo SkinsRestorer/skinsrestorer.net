@@ -3,12 +3,12 @@ title: "Upload a PNG skin"
 description: "Turn a PNG into a /skin url command and apply it in game."
 docType: "how-to"
 appliesTo: "Website users and Java server players"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Upload"
 ---
 
-Use the [skin upload page](/upload) to generate a command from a skin PNG. The page is the [Skin Studio](/docs/features/skin-editor) with the `/skin url` command selected. It does not connect to your Minecraft server. You apply the result yourself.
+Use the [Upload](/upload) page to generate a command from a skin PNG. The page is the [Skin Studio](/docs/features/skin-editor) with the `/skin url` command selected. It does not connect to your Minecraft server. You apply the result yourself.
 
 ## Before you start
 
@@ -35,13 +35,13 @@ To stop waiting for a slow upload, select **Stop waiting** below the button. The
 
 After the command is ready, the button shows **Command ready** and stays off. The same choices give the same command, so the page does not upload again. If you change the skin, the model, the cape, or the method, the page hides the old command and turns the button on again. Generate again to get a command for the new choices.
 
-Keep the generated URL inside quotation marks. The command includes the model selected on the page. A result can use a MineSkin URL or an opaque `skinsrestorer-axolotl://` value.
+Keep the generated URL inside quotation marks. The command includes the model selected on the page. The URL in the command is a MineSkin link, such as `https://minesk.in/SKIN_ID`, or an opaque `skinsrestorer-axolotl://` value from Axolotl.
 
-Copy that value exactly. **Skin URL** contains the permanent texture link when MineSkin supplies one. With Axolotl, it contains the same opaque value for Minecraft commands. An Axolotl value is not a browser link.
-
-```text title="Command shape, not a ready-to-use texture URL"
-/skin url "https://textures.minecraft.net/texture/TEXTURE_HASH" slim
+```text title="Command shape. Your command has a real ID instead of SKIN_ID."
+/skin url "https://minesk.in/SKIN_ID" slim
 ```
+
+Copy the command exactly. The **Skin URL** field below the command contains the permanent `textures.minecraft.net` texture link when MineSkin supplies one. Otherwise, it contains the same value as the command. An Axolotl value is not a browser link.
 
 Wait for a success message. Ask another player to check your skin, then reconnect to check persistence.
 
@@ -59,7 +59,7 @@ Gallery skins stay separate. Read [the gallery guide](/docs/features/skin-editor
 
 The **Axolotl** method offers supported capes without your own key. The **Official** method accepts a MineSkin key and checks its cape grants. Both settings are under **Advanced options**. The cape list is always visible. A selected cape turns the model to show its back. While the list loads, it shows **Loading capes…**. If it cannot load, select **Try again** below the list.
 
-A selected cape with **Axolotl** uses the proxy route. **Official** uploads and uploads without a selected cape use MineSkin directly. Only **Official** sends your API key.
+With **Axolotl** and a selected cape, the page sends the upload to Axolotl, the SkinsRestorer cape upload service. **Official** uploads and uploads without a selected cape go to MineSkin directly. Only **Official** sends your API key.
 
 The key field on the website and `api.mineskinAPIKey` on your server are separate. Read [MineSkin integration](/docs/integrations/mineskin) for queues, limits, and privacy.
 
@@ -75,4 +75,4 @@ The page shows **The skin was not uploaded** with the reason. Your skin and opti
 - **Arm artifacts:** Generate again with the [correct model](/docs/features/skin-design).
 - **Command denied:** Check [URL permissions and restrictions](/docs/configuration/restrict-skins).
 
-To give the result a reusable server name, [create a custom skin](/docs/features/custom-skins).
+To give the result a reusable server name, [create a custom skin](/docs/configuration/custom-skins).

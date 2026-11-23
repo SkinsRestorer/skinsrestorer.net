@@ -39,7 +39,7 @@ Siga [o guia da API no backend](/docs/development/proxy-api) e depois confira os
 
 Primeiro corrija a configuração de encaminhamento da plataforma. Se a detecção ainda falhar em um backend que você sabe estar atrás de um proxy, defina `server.proxyMode.detection: ENABLED` nele e reinicie.
 
-Use `DISABLED` apenas em um servidor realmente independente ou em uma instalação independente intencional. Forçar um backend para o modo independente pode fazer duas instâncias disputarem as skins.
+Use `DISABLED` apenas em um servidor independente ou em um backend que precisa gerenciar as próprias skins. Um backend em modo independente pode disputar as mudanças de skin com o proxy.
 
 ## Onde executar os diagnósticos [#where-to-run-diagnostics]
 

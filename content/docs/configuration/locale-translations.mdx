@@ -29,14 +29,14 @@ Run `/sr reload`, then check a player message and the console. Use a locale code
 
 ## Customize messages
 
-1. Back up the `locales` directory inside the SkinsRestorer data folder.
-2. Open the locale file for the language in use.
-3. Change the message text without removing its placeholders.
+1. Open `locales/repository` inside the SkinsRestorer data folder. English is `locale.json`. Other languages use the locale code, such as `locale_de.json`.
+2. Copy the file for your language into `locales/custom`. Keep the filename.
+3. In the copy, change the message text without removing its placeholders. You can delete the keys that you do not change.
 4. Keep the JSON valid.
 5. Run `/sr reload`.
 6. Trigger the changed message with a test account.
 
-The bundled default file is `locales/locale.json`. Inspect the generated directory for the exact filenames of other languages.
+Do not edit the files in `locales/repository`. SkinsRestorer writes the bundled text into them again at each start and reload. Only the files in `locales/custom` override messages.
 
 MiniMessage tags control formatting. A placeholder such as `<name>` supplies data from the command. Removing it can make a message less useful.
 

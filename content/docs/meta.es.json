@@ -3,13 +3,13 @@
   "pages": [
     "index",
     "installation",
-    "features",
-    "troubleshooting",
     "configuration",
+    "features",
     "integrations",
+    "troubleshooting",
+    "concepts",
     "development",
-    "reference",
-    "concepts"
+    "reference"
   ],
   "defaultOpen": true
 }

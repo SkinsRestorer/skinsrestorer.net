@@ -3,7 +3,7 @@ title: "Signed skin properties"
 description: "Understand texture URLs, models, signatures, and cape data."
 docType: "explanation"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "FingerprintPattern"
 ---
@@ -26,7 +26,7 @@ Changing the encoded value without a matching signature makes the signature inva
 
 Classic and slim use different arm layouts. The image and model metadata must agree.
 
-A cape belongs to the complete profile property. Copying an account property can copy its equipped cape. The website can also generate a skin with a supported cape. In **Axolotl** mode, it sends the upload through Axolotl, the SkinsRestorer upload service at `axolotl.skinsrestorer.net`, which supports some capes for free. In **Official** mode, it sends the upload straight to MineSkin with your own key.
+A cape belongs to the complete profile property. Copying an account property can copy its equipped cape. The website can also generate a skin with a supported cape. In **Axolotl** mode, an upload with a selected cape goes to Axolotl, the SkinsRestorer cape upload service at `axolotl.skinsrestorer.net`. Axolotl supports some capes for free. An upload without a cape goes straight to MineSkin. In **Official** mode, every upload goes straight to MineSkin with your own key.
 
 Showing that property on a server does not transfer account ownership of a cape.
 

@@ -3,7 +3,7 @@ title: "Comandos y permisos"
 description: "Formas exactas de los comandos, alias, nodos de permisos y grupos incluidos."
 docType: "reference"
 appliesTo: "Todas las plataformas"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Terminal"
 ---
@@ -120,7 +120,7 @@ Un `<selector>` identifica al jugador o jugadores objetivo con el analizador de 
 
 ## Modo proxy [#proxy-mode]
 
-Ejecuta los comandos normales de jugador y la administración del almacenamiento a través del proxy. Los backends en modo proxy ofrecen `/sr status` y `/sr dump` locales. Es normal que otros comandos no estén disponibles en ellos.
+Ejecuta los comandos de jugador y la administración del almacenamiento a través del proxy. En modo proxy, un backend solo registra `/sr`, `/sr help [query]`, `/sr status` y `/sr dump`. No registra `/skin`, `/skins`, `/skull` ni los demás comandos `/sr`.
 
 ## Tiempos de espera [#cooldowns]
 

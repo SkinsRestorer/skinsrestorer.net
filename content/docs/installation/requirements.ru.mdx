@@ -3,7 +3,7 @@ title: "Требования и совместимость"
 description: "Подберите сборку SkinsRestorer, версию Minecraft и Java."
 docType: "reference"
 appliesTo: "Все платформы"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "ClipboardCheck"
 ---
@@ -12,7 +12,16 @@ icon: "ClipboardCheck"
 
 ## Плагины для серверов и прокси [#server-and-proxy-plugins]
 
-Используйте сборку для серверов и прокси на серверах, совместимых с Bukkit, а также на BungeeCord и Velocity. Выберите версию Java, которая подходит и вашей платформе, и релизу плагина.
+Используйте сборку для серверов и прокси на серверах, совместимых с Bukkit, а также на BungeeCord и Velocity. У сборки 15.12.6 такие требования:
+
+| Требование | 15.12.6 |
+| --- | --- |
+| Java | 8 или новее. При сборке JAR переводится в байт-код Java 8. |
+| Paper и другие серверы, совместимые с Bukkit | Minecraft от 1.8 до 26.1.1 |
+| Velocity | от 3.0 до 3.4 |
+| BungeeCord и Waterfall | Waterfall от 1.17 до 1.21 |
+
+Эти диапазоны релиз указывает на [Hangar](https://hangar.papermc.io/SRTeam/SkinsRestorer). Они взяты из [настроек сборки релиза](https://github.com/SkinsRestorer/SkinsRestorer/blob/15.12.6/gradle.properties).
 
 Платформе может требоваться более новая Java, чем SkinsRestorer. Проверьте [требования Paper](https://docs.papermc.io/paper/getting-started/) или [требования Velocity](https://docs.papermc.io/velocity/getting-started/) для вашей версии.
 

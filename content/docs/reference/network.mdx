@@ -3,7 +3,7 @@ title: "Network hosts and services"
 description: "Identify outbound HTTPS requests by the feature that uses them."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Network"
 ---
@@ -26,13 +26,11 @@ SkinsRestorer uses outbound connections. It does not require a new inbound port 
 
 HTTPS uses port 443. DNS transport follows your host's resolver configuration. Do not assume one static IP per API host.
 
-The exact request list depends on enabled features and the release. GitHub downloads can involve additional redirected asset hosts. Inspect the failed request instead of opening every domain indiscriminately.
+The hosts that SkinsRestorer contacts depend on the features you turn on. GitHub downloads can redirect to more asset hosts. If a firewall blocks a request, find the host in the error message or the log, and allow only that host. Do not allow every host in the table if you do not use the feature.
 
 ## Status check scope
 
 `/sr status` exercises account UUID and profile services. It does not check MineSkin, Axolotl uploads, recommendations, or database access.
-
-The website's MineSkin availability indicator also does not prove every cape or upload route works.
 
 ## Sources
 

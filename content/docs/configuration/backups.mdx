@@ -3,7 +3,7 @@ title: "Back up and restore skin data"
 description: "Preserve selections, custom skins, and configuration before an update."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Archive"
 ---
@@ -40,6 +40,6 @@ Use a compatible release for the restored data. Older releases can fail to read 
 
 `/sr purgeolddata <days>` removes old skin data. `/sr drop player <target>` removes a player record. `/sr drop skin <target>` removes stored skin data.
 
-Back up before these operations. They are administrative maintenance commands, not fixes for every skin problem.
+Back up before you run these commands. They delete data that you no longer need. They do not fix a skin that does not show. For that, read [A skin change is not visible](/docs/troubleshooting/no-skin).
 
 Continue with [updates](/docs/configuration/auto-update) or [shared storage](/docs/configuration/database).

@@ -3,7 +3,7 @@ title: "Use skins with capes"
 description: "Copy an equipped cape or select a supported cape during upload."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Flag"
 ---
@@ -20,7 +20,7 @@ The copied property contains the skin and the equipped cape together. If the sou
 
 ## Add a supported cape to an uploaded skin
 
-The website's [Upload](/upload) and [Generator](/generator) pages show the capes that the selected upload method supports. **Axolotl** is the default method. It is SkinsRestorer's upload service, and it supports some capes for free without a MineSkin API key. **Official** uploads to MineSkin with your own API key.
+The [Upload](/upload) and [Generator](/generator) pages of the Skin Studio show the capes that the selected upload method supports. **Axolotl** is the default method. It sends a skin with a cape to Axolotl, the SkinsRestorer cape upload service. Axolotl supports some capes for free without a MineSkin API key. **Official** uploads to MineSkin with your own API key.
 
 1. Upload your skin PNG.
 2. Open **Advanced options** and choose **Axolotl** or **Official** under **Upload method**. **Official** needs a MineSkin API key that grants cape access.
@@ -37,6 +37,6 @@ The list and service grants can change. If a cape is unavailable, inspect the av
 - Editing signed texture data invalidates its signature.
 - Client cape mods can override the server-provided cape.
 
-With **Axolotl**, a skin with a cape goes through the SkinsRestorer Axolotl proxy. With **Official**, the website sends the skin to MineSkin with your key.
+With **Axolotl**, a skin with a cape goes to Axolotl. With **Official**, the website sends the skin to MineSkin with your key.
 
 Read [skin properties and signatures](/docs/concepts/skin-properties) for the technical model, or [upload a PNG](/docs/features/skin-upload) to try it.

@@ -14,7 +14,7 @@ Start with the behavior you want to change. The guides use configuration excerpt
 
 - [Grant player access](/docs/configuration/player-access).
 - [Set default skins](/docs/configuration/default-skins).
-- [Create named custom skins](/docs/features/custom-skins).
+- [Create named custom skins](/docs/configuration/custom-skins).
 - [Restrict skins and URLs](/docs/configuration/restrict-skins).
 - [Configure the skin menu](/docs/configuration/skin-menu).
 - [Change messages and translations](/docs/configuration/locale-translations).
@@ -32,6 +32,6 @@ Start with the behavior you want to change. The guides use configuration excerpt
 
 Do not paste a second copy of the same top-level section. A YAML parser can replace one copy silently.
 
-On Bukkit servers, the file is `plugins/SkinsRestorer/config.yml`. On Fabric and NeoForge, it is `config/skinsrestorer/config.yml`. On a proxy, look in the SkinsRestorer folder inside the proxy's `plugins` folder.
+On Bukkit servers and BungeeCord, the file is `plugins/SkinsRestorer/config.yml`. On Velocity, it is `plugins/skinsrestorer/config.yml`, with a lowercase folder name. On Fabric and NeoForge, it is `config/skinsrestorer/config.yml`.
 
-The [configuration reference](/docs/configuration/options) links to the key tables for each `config.yml` section. Command registration, storage changes, and platform forwarding need a restart.
+The [configuration reference](/docs/reference) links to the key tables for each `config.yml` section. Command registration, storage changes, and platform forwarding need a restart.

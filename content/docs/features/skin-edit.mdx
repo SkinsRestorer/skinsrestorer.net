@@ -1,14 +1,14 @@
 ---
 title: "Edit your current skin"
-description: "Open the editor, export a PNG, and apply the revised skin."
+description: "Edit your current skin in Nova Skin or the Skin Studio, then apply it with /skin url."
 docType: "how-to"
 appliesTo: "Players on a SkinsRestorer server"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Pencil"
 ---
 
-`/skin edit` gives you a browser link for your current skin. The editor does not save changes directly to the server.
+`/skin edit` sends you a link to [Nova Skin](https://minecraft.novaskin.me/), an online skin editor that is not part of SkinsRestorer. The link opens your current skin in Nova Skin. Nova Skin does not save changes to the server. To apply your changes, you make a `/skin url` command on the [Upload](/upload) page.
 
 ## Before you start
 
@@ -17,17 +17,28 @@ You need `skinsrestorer.command.edit` for the editor link and `skinsrestorer.com
 ## Edit and apply
 
 1. Run `/skin edit` in game chat.
-2. Open the editor link from the message.
-3. Change the skin in the editor.
-4. Export or save the two-dimensional PNG template.
-5. Open [Upload](/upload).
-6. Upload the PNG and choose its model.
-7. Generate and run the `/skin url` command.
+2. Select **this online editor** in the message. Nova Skin opens with your current skin.
+3. Change the skin in Nova Skin.
+4. Download the skin as a PNG file. Save the flat skin template, not a screenshot of the 3D model.
+5. Open [Upload](/upload) and select **Upload skin**. Choose the PNG file that you downloaded.
+6. Choose **Classic** or **Slim** under **Model**, then select **Generate /skin url**.
+7. Copy the command and run it in game chat.
 
-Editor controls can change. Save the skin template, rather than a screenshot of the three-dimensional preview.
+Nova Skin can change its controls at any time. If you cannot find the download, read the help of Nova Skin.
 
-The new selection must remain after a reconnect. If the arms show gaps, choose the other [model](/docs/features/skin-design) and generate again.
+The new skin must stay after you reconnect. If the arms show gaps, choose the other [model](/docs/features/skin-design) and generate again.
+
+## Edit in the Skin Studio instead
+
+The [Skin Studio](/docs/features/skin-editor) has its own editor. With it, you edit and generate the command on one page:
+
+1. Get a PNG of your skin, for example from Nova Skin or from the place where you made it.
+2. Open [Upload](/upload), select **Upload skin**, and choose the PNG.
+3. Select **Edit skin**, make your changes, and select **Save changes**.
+4. Select **Generate /skin url** and run the command in game chat.
+
+Read [Edit a skin](/docs/features/skin-editor#edit-a-skin) for the editor tools.
 
 ## If the link is unavailable
 
-Upload your original PNG in the [Skin Studio](/docs/features/skin-editor), select **Edit skin**, and save your changes. Then generate the command on the same page. You can also follow [the upload guide](/docs/features/skin-upload) with a PNG from another editor. If the command itself is denied, ask the administrator to check the edit permission.
+If the server denies `/skin edit`, ask the administrator to grant `skinsrestorer.command.edit`. You can still edit a PNG in the Skin Studio, as in the steps above, or follow [the upload guide](/docs/features/skin-upload) with a PNG from another editor.

@@ -1,9 +1,9 @@
 ---
-title: "Storage and caches"
-description: "Exact keys, types, and defaults for storage and caches."
+title: "Storage settings"
+description: "Exact keys, types, and defaults for default skins and caches in config.yml."
 docType: "reference"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Database"
 ---
@@ -16,7 +16,7 @@ For a task-based guide, read [Set default skins](/docs/configuration/default-ski
 
 | Key | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `storage.defaultSkins.applyForPremium` | boolean | `false` | Apply default skins to account players without a saved selection too. |
+| `storage.defaultSkins.applyForPremium` | boolean | `false` | Apply a default without first looking up a Minecraft account with the player's name. Online-mode joins also need `login.alwaysApplyPremium`. |
 | `storage.defaultSkins.enabled` | boolean | `false` | Use the configured fallback list. |
 | `storage.defaultSkins.list` | string list | `["xknat", "pistonmaster", "<random>"]` | Choose a listed name randomly. `<random>` uses recommendations. |
 | `storage.disallowAutoUpdateSkin` | boolean | `false` | Require `/skin update` for newer cached account skin data. |

@@ -3,7 +3,7 @@ title: "Set default skins"
 description: "Choose the fallback skin for players without a saved selection."
 docType: "how-to"
 appliesTo: "All platforms"
-reviewed: "2026-10-01"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Users"
 ---
@@ -12,7 +12,7 @@ Default skins apply during skin resolution. An explicit player selection takes p
 
 ## Configure one default
 
-1. [Create a custom skin](/docs/features/custom-skins) named `lobby`.
+1. [Create a custom skin](/docs/configuration/custom-skins) named `lobby`.
 2. Edit the existing `storage` section.
 
 ```yaml title="config.yml (SkinsRestorer excerpt)"
@@ -24,20 +24,26 @@ storage:
       - "lobby"
 ```
 
-3. Run `/sr reload` on the server or proxy that owns storage.
+3. Run `/sr reload` on the proxy (or on the server, if you have no proxy).
 4. Run `/skin clear` with a test player.
 5. Reconnect and check the resolved skin.
 
-With `applyForPremium: false`, players with an account skin keep that skin. Set it to `true` if the default must also apply to those players without a saved selection.
+A default applies only to players without a saved selection. Two settings decide which of these players get it:
+
+- **Online-mode joins:** A player who joins with an authenticated account keeps the account skin. To give these players a default, also set `login.alwaysApplyPremium: true`.
+- **`applyForPremium: false`:** SkinsRestorer first looks for a Minecraft account with the player's name. If it finds one, the player gets that account skin. Otherwise, the player gets a default.
+- **`applyForPremium: true`:** The player gets a default without the account lookup.
+
+`/skin clear` ignores the online-mode rule. On an online-mode server, a default can show after `/skin clear` and disappear after a reconnect. In that case, check `login.alwaysApplyPremium`.
 
 ## Use several defaults
 
 Add more names to `storage.defaultSkins.list`. SkinsRestorer chooses a list entry at random. `"<random>"` requests a random recommended skin.
 
-Recommended skins need `api.fetchRecommendedSkins`. If recommendations are unavailable, a random entry cannot provide one.
+Recommended skins need `api.fetchRecommendedSkins`. If no recommendations are available, `"<random>"` gives no skin, and the console shows a warning.
 
 ## If the default does not appear
 
-Check that the custom name exists with `/sr info skin lobby`. Remove the test player's saved selection with `/skin clear`. Then inspect proxy mode and `advanced.disableOnJoinSkins`.
+Check that the custom name exists with `/sr info skin lobby`. Remove the test player's saved selection with `/skin clear`. Then inspect `login.alwaysApplyPremium`, proxy mode, and `advanced.disableOnJoinSkins`.
 
-For priorities and caching, read [the skin lifecycle](/docs/development/inner-workings).
+For priorities and caching, read [the skin lifecycle](/docs/concepts/skin-lifecycle).

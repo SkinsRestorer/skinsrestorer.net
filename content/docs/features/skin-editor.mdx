@@ -3,7 +3,7 @@ title: "Use the Skin Studio"
 description: "Keep skins in your browser, fix and paint them in 2D or 3D, and get a SkinsRestorer command."
 docType: "how-to"
 appliesTo: "Website users and Java server players"
-reviewed: "2026-11-16"
+reviewed: "2026-11-23"
 version: "15.12.6"
 icon: "Brush"
 ---
@@ -16,9 +16,9 @@ The [Skin Studio](/studio) works with Java Edition skins in your browser. It has
 
 On a phone, the library opens from the **Library** button, and the options are below the model.
 
-[Upload](/upload) and the [generator](/generator) open the same Studio. Upload always makes a `/skin url` command. The generator always makes a `/sr createcustom` command.
+The [Upload](/upload) and [Generator](/generator) pages open the same Skin Studio. **Upload** always makes a `/skin url` command. **Generator** always makes a `/sr createcustom` command.
 
-On the Studio page, choose **Use on a server** or **Custom skin**. The line under the choice explains the command:
+On the [Skin Studio](/studio) page, choose **Use on a server** or **Custom skin**. The line under the choice explains the command:
 
 - `/skin url` sets the skin on the player who runs it.
 - `/sr createcustom` saves the skin on the server under a name. Players can then use that name with `/skin set`.
@@ -31,7 +31,7 @@ Select **+** in the library, then choose one of these:
 
 - **Upload PNG**: a skin PNG up to 5 MB. You can also drop PNG files on the center of the page.
 - **Create skin**: a plain classic or slim figure that you paint and save.
-- **Open .skin file**: a SkinsRestorer storage file, such as `.customskin`. The Studio reads the texture URL in the file and opens that texture. If the file cannot be used, the Studio shows **This skin file could not be opened** with the reason. On the [generator](/generator), **Open .skin file** also shows in the center when no skin is selected.
+- **Open .skin file**: a SkinsRestorer storage file, such as `.customskin`. The Studio reads the texture URL in the file and opens that texture. If the file cannot be used, the Studio shows **This skin file could not be opened** with the reason. On the [Generator](/generator) page, **Open .skin file** also shows in the center when no skin is selected.
 - **Open texture URL**: a texture hash or a `https://textures.minecraft.net/texture/…` URL.
 
 When the library is empty, it also shows **Upload PNG** and **Create skin** buttons. The Studio adds each new skin to the library and selects it. If the same skin with the same model is already in the library, the Studio uses that skin. A selected skin shows at once, and nothing is uploaded.
@@ -56,7 +56,7 @@ Select a skin, check the model and the cape, then select the generate button. Up
 
 When the command is ready, the Studio shows **Your command is ready** with the command and a copy button. The generate button then shows **Command ready**. It stays off until you change the skin or an option.
 
-If the upload fails, the Studio keeps your choices and tells you what to check before you try again. The [upload guide](/docs/features/skin-upload) and [custom skins](/docs/features/custom-skins) explain each command.
+If the upload fails, the Studio keeps your choices and tells you what to check before you try again. The [upload guide](/docs/features/skin-upload) and [custom skins](/docs/configuration/custom-skins) explain each command.
 
 ## Edit a skin [#edit-a-skin]
 
@@ -178,7 +178,9 @@ If you have unsaved changes and you select **Cancel**, press `Esc`, use the brow
 
 While you paint, the Studio keeps a draft of your unsaved changes in this browser. The draft does not change the saved skin. Each open editor has its own draft, so two tabs do not overwrite each other.
 
-If you close the tab before you save, the draft stays. The next time you open the Studio, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it, and the message that follows has an **Undo** button. The Studio does not keep the undo history. Drafts that are still open in another tab do not appear in this list.
+If you close the tab before you save, the draft stays. The next time you open the Studio, it asks if you want to continue the draft. **Continue** opens the draft. **Discard** deletes it, and the message that follows has an **Undo** button. The Studio does not keep the undo history. Drafts that are still open in another tab do not appear in this list. If a draft has no saved skin anymore, **Save as new skin** adds it to the library and selects it. If the list cannot load, select **Try again**.
+
+If you select **Keep draft and close** and the browser cannot keep the draft, the editor stays open. It shows the reason and a button to download the PNG, so you do not lose your work.
 
 Earlier versions of the editor kept one draft in another place in the browser. The Studio moves that draft to the library once, as a skin named "Recovered draft". If the old draft is damaged, the Studio keeps it and shows a message with a **Discard draft** button. If the browser blocks the library, the Studio keeps the old draft and shows a **Download draft** button.
 
@@ -186,7 +188,7 @@ If your browser blocks site storage or the storage is full, the Studio still wor
 
 ## The library [#your-skins]
 
-The Studio, Upload, and the generator share one library in this browser. A skin in the library keeps its original file and its current version, the model for each, and its name.
+The Skin Studio, Upload, and Generator pages share one library in this browser. A skin in the library keeps its original file and its current version, the model for each, and its name.
 
 - The library stays only in this browser on this device. It does not sync to other devices or accounts.
 - If you clear the site data, or if the browser removes old site data, the library is deleted. Use **Download PNG** to keep a copy of a skin.
@@ -198,9 +200,9 @@ The Studio, Upload, and the generator share one library in this browser. A skin 
 
 ## Edit from Upload or Generator [#edit-from-upload-or-generator]
 
-[Upload](/upload) and the [generator](/generator) have the same **Edit skin** button and the same editor. When you save, the edited skin is selected, and the page keeps its other choices. The page sends nothing until you select its generate button.
+The [Upload](/upload) and [Generator](/generator) pages have the same **Edit skin** button and the same editor. When you save, the edited skin is selected, and the page keeps its other choices. The page sends nothing until you select its generate button.
 
-Old links to the editor page open the Studio. A link with a texture hash opens that texture in the Studio.
+Old links to the former `/editor` page open the Skin Studio. A link with a texture hash opens that texture in the Studio.
 
 ## Privacy
 
@@ -208,7 +210,7 @@ Browsing Gallery downloads its catalog from `cool-skins.skinsrestorer.net` and t
 
 Editing, the library, drafts, and PNG downloads happen in your browser. The Studio does not send your skin image to SkinsRestorer or to any other server until you select a generate button. Adding, renaming, or removing a skin in the library does not send it either.
 
-If you open a texture URL or a `.skin` file, your browser downloads the texture from `textures.minecraft.net`. The generate button sends the selected PNG to MineSkin, directly or through the SkinsRestorer Axolotl proxy. Read [MineSkin integration](/docs/integrations/mineskin) for more.
+If you open a texture URL or a `.skin` file, your browser downloads the texture from `textures.minecraft.net`. The generate button sends the selected PNG to MineSkin. With the **Axolotl** method and a selected cape, it sends the PNG to Axolotl, the SkinsRestorer cape upload service, instead. Read [MineSkin integration](/docs/integrations/mineskin) for more.
 
 ## If the 3D model does not show
 

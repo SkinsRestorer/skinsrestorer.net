@@ -3,7 +3,7 @@
   "pages": [
     "player-access",
     "default-skins",
-    "[Tag][Named custom skins](/docs/features/custom-skins)",
+    "custom-skins",
     "restrict-skins",
     "skin-menu",
     "locale-translations",
