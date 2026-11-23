@@ -18,6 +18,11 @@
    * theme sets its own ring, which already passes.
    */
   --color-fd-ring: hsl(266, 85%, 58%);
+  /*
+   * Catppuccin's light text (hsl 234 16% 35%) is close to its muted text,
+   * so docs headings barely stand out from the body. Dark mode is fine.
+   */
+  --color-fd-foreground: hsl(234, 16%, 20%);
 }
 
 :root {
@@ -57,13 +62,6 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --status-loading-bg: #fef9c3;
-  --status-loading-foreground: #854d0e;
-  --status-online-bg: #dcfce7;
-  --status-online-foreground: #166534;
-  --status-online-border: #bbf7d0;
-  --status-offline-bg: #fee2e2;
-  --status-offline-foreground: #991b1b;
 }
 
 .dark {
@@ -98,13 +96,6 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --status-loading-bg: rgb(113 63 18 / 20%);
-  --status-loading-foreground: #facc15;
-  --status-online-bg: rgb(20 83 45 / 20%);
-  --status-online-foreground: #4ade80;
-  --status-online-border: #15803d;
-  --status-offline-bg: rgb(127 29 29 / 20%);
-  --status-offline-foreground: #f87171;
 }
 
 @theme inline {
@@ -143,13 +134,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-status-loading: var(--status-loading-bg);
-  --color-status-loading-foreground: var(--status-loading-foreground);
-  --color-status-online: var(--status-online-bg);
-  --color-status-online-foreground: var(--status-online-foreground);
-  --color-status-online-border: var(--status-online-border);
-  --color-status-offline: var(--status-offline-bg);
-  --color-status-offline-foreground: var(--status-offline-foreground);
   /*noinspection CssUnresolvedCustomProperty*/
   --font-sans: var(--font-geist-sans);
   /*noinspection CssUnresolvedCustomProperty*/

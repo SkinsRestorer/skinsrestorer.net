@@ -8,7 +8,7 @@ import type { MessageKey } from "./messages";
 export const richMessages = {
   "capes.mineskinCoupon": ["code", "link"],
   "common.sponsoredByEnderDash": ["link"],
-  "consent.allowAnalyticsDetails": ["allow", "policy"],
+  "consent.allowAnalyticsDetails": ["policy"],
   "home.faqFreeAnswer": ["github", "plans"],
   "home.faqHelpAnswer": ["discord", "guides", "issues"],
   "home.faqIntro": ["docs"],

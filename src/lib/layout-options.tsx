@@ -1,11 +1,12 @@
-import { SiDiscord, SiKofi, SiModrinth } from "@icons-pack/react-simple-icons";
+import { SiDiscord } from "@icons-pack/react-simple-icons";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { Image } from "@/components/image";
 import type { Locale } from "./i18n";
 
 const discordLink = import.meta.env["VITE_DISCORD_LINK"];
-const modrinthLink = import.meta.env["VITE_MODRINTH_LINK"];
 
+// The header keeps only Discord and GitHub. Downloads and donations have
+// their own buttons and the Support page.
 const socialLinks: BaseLayoutProps["links"] = [];
 
 if (discordLink) {
@@ -17,24 +18,6 @@ if (discordLink) {
     external: true,
   });
 }
-
-if (modrinthLink) {
-  socialLinks.push({
-    type: "icon",
-    icon: <SiModrinth />,
-    text: "Modrinth",
-    url: modrinthLink,
-    external: true,
-  });
-}
-
-socialLinks.push({
-  type: "icon",
-  icon: <SiKofi />,
-  text: "Ko-fi",
-  url: "https://ko-fi.com/skinsrestorer/tiers",
-  external: true,
-});
 
 const baseOptions: BaseLayoutProps = {
   nav: {

@@ -291,10 +291,6 @@ export default function IndexPage() {
         className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-10 pb-16 sm:px-6 md:pt-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-14 lg:px-8 lg:pt-16 lg:pb-20"
       >
         <div className="flex flex-col items-start gap-6">
-          <p className="flex items-center gap-2.5 text-sm font-medium">
-            <Image src="/logo.png" alt="" width={28} height={28} priority />
-            SkinsRestorer
-          </p>
           <h1
             id="home-title"
             className={cn(
@@ -458,7 +454,7 @@ export default function IndexPage() {
           {t("home.playersTypeTheseChatServerStaffDecide")}
         </SectionHeading>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start">
           <ul className="divide-y rounded-lg border">
             {commands.map((item) => (
               <li

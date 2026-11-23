@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useState, type ReactNode } from "react";
 import { useLocale, useT } from "@/lib/i18n-react";
 import type { Locale } from "@/lib/i18n";
 
@@ -80,7 +81,7 @@ function PricingPage() {
             <CardContent className="flex-1">
               <div className="mb-6">
                 <span className="text-4xl font-bold tracking-tight">
-                  {t("pricing.free")}
+                  {formatEuros(0, locale)}
                 </span>
               </div>
               <ul className="flex flex-col gap-3">
@@ -172,6 +173,9 @@ function PricingPage() {
                   className="underline underline-offset-2 hover:text-foreground"
                 />
               ),
+            })}{" "}
+            {t.rich("pricing.onlyMembershipGrantsPerks", {
+              strong: <strong />,
             })}
           </p>
         </div>
@@ -189,11 +193,6 @@ function PricingPage() {
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
             {t("pricing.wantSupportSkinsrestorerWithoutRecurringCommitmentYou")}
           </p>
-          <p className="max-w-[500px] text-sm text-muted-foreground">
-            {t.rich("pricing.onlyMembershipGrantsPerks", {
-              strong: <strong />,
-            })}
-          </p>
         </div>
 
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
@@ -210,17 +209,19 @@ function PricingPage() {
                 {t("pricing.donateViaPaypalCardMembershipOneTime")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1">
-              {/* oxlint-disable-next-line react/iframe-missing-sandbox -- The Ko-fi checkout opens PayPal and Stripe flows that a sandbox can break, and it cannot be tested without a real payment. */}
-              <iframe
-                src={`${koFiUrl}/?hidefeed=true&widget=true&embed=true&preview=true`}
-                className="w-full border-none"
-                height="712"
-                loading="lazy"
-                title={t("pricing.koFiDonationWidgetSkinsrestorer")}
-              />
-            </CardContent>
-            <WidgetFallback href={koFiUrl} label={t("pricing.openKoFi")} />
+            <DonationWidget
+              href={koFiUrl}
+              label={t("pricing.openKoFi")}
+              widget={
+                // oxlint-disable-next-line react/iframe-missing-sandbox -- The Ko-fi checkout opens PayPal and Stripe flows that a sandbox can break, and it cannot be tested without a real payment.
+                <iframe
+                  src={`${koFiUrl}/?hidefeed=true&widget=true&embed=true&preview=true`}
+                  className="w-full border-none"
+                  height="712"
+                  title={t("pricing.koFiDonationWidgetSkinsrestorer")}
+                />
+              }
+            />
           </Card>
 
           {/* NOWPayments Crypto Widget */}
@@ -236,20 +237,19 @@ function PricingPage() {
                 {t("pricing.donateCryptocurrencyViaNowpayments")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-1 items-center justify-center">
-              {/* oxlint-disable-next-line react/iframe-missing-sandbox -- The NOWPayments checkout opens wallet and payment flows that a sandbox can break, and it cannot be tested without a real payment. */}
-              <iframe
-                src={nowPaymentsUrl}
-                width="346"
-                height="623"
-                loading="lazy"
-                className="max-w-full overflow-y-hidden border-none"
-                title={t("pricing.nowpaymentsCryptoDonationWidget")}
-              />
-            </CardContent>
-            <WidgetFallback
+            <DonationWidget
               href={nowPaymentsUrl}
               label={t("pricing.openNowpayments")}
+              widget={
+                // oxlint-disable-next-line react/iframe-missing-sandbox -- The NOWPayments checkout opens wallet and payment flows that a sandbox can break, and it cannot be tested without a real payment.
+                <iframe
+                  src={nowPaymentsUrl}
+                  width="346"
+                  height="623"
+                  className="mx-auto block max-w-full overflow-y-hidden border-none"
+                  title={t("pricing.nowpaymentsCryptoDonationWidget")}
+                />
+              }
             />
           </Card>
         </div>
@@ -258,22 +258,52 @@ function PricingPage() {
   );
 }
 
-/** A direct link for visitors whose browser or blocker hides the embed. */
-function WidgetFallback({ href, label }: { href: string; label: string }) {
+/**
+ * A donation form that loads only when the visitor asks for it. The page
+ * stays short, and Ko-fi and NOWPayments are not contacted on page view.
+ */
+function DonationWidget(props: {
+  href: string;
+  label: string;
+  widget: ReactNode;
+}) {
   const t = useT();
-  return (
-    <CardFooter className="justify-center">
-      <p className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground">
-        {t("pricing.widgetNotLoading")}
-        <a
-          href={href}
-          className="inline-flex items-center gap-0.5 font-medium text-foreground underline underline-offset-2"
+  const [shown, setShown] = useState(false);
+  const link = (
+    <a
+      href={props.href}
+      className="inline-flex items-center gap-0.5 font-medium text-foreground underline underline-offset-2"
+    >
+      {props.label}
+      <ArrowUpRight aria-hidden className="size-3.5" />
+    </a>
+  );
+  if (!shown) {
+    return (
+      <CardFooter className="mt-auto flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setShown(true);
+          }}
         >
-          {label}
-          <ArrowUpRight aria-hidden className="size-3.5" />
-        </a>
-      </p>
-    </CardFooter>
+          {t("pricing.showDonationForm")}
+        </Button>
+        {link}
+      </CardFooter>
+    );
+  }
+  return (
+    <>
+      <CardContent className="flex-1">{props.widget}</CardContent>
+      <CardFooter className="justify-center">
+        <p className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground">
+          {t("pricing.widgetNotLoading")}
+          {link}
+        </p>
+      </CardFooter>
+    </>
   );
 }
 

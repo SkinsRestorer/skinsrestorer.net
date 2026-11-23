@@ -166,10 +166,11 @@ function CookiePolicyPage() {
         <h2>4. Third-party content</h2>
         <p>
           Some pages load content from other services, which can set their own
-          cookies under their own policies. The pricing page embeds the Ko-fi
-          and NOWPayments donation widgets. A Ko-fi payment can open PayPal or
-          Stripe. The <Link href="/privacy-policy">Privacy Policy</Link> lists
-          every service your browser contacts.
+          cookies under their own policies. The pricing page loads the Ko-fi and
+          NOWPayments donation forms when you open them. A Ko-fi payment can
+          open PayPal or Stripe. The{" "}
+          <Link href="/privacy-policy">Privacy Policy</Link> lists every service
+          your browser contacts.
         </p>
 
         <h2>5. Managing cookies</h2>

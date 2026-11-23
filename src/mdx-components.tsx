@@ -9,6 +9,7 @@ import * as TabsComponents from "fumadocs-ui/components/tabs";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import type { ComponentProps } from "react";
+import { DocsCard } from "@/components/docs-card";
 
 type HeadingLevel = "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -40,6 +41,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Accordion,
     Accordions,
     Callout,
+    Card: DocsCard,
     Step,
     Steps,
     ...TabsComponents,

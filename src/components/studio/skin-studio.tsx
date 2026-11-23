@@ -555,7 +555,7 @@ export function SkinStudio(props: {
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-4 pt-4 pb-10 sm:pt-6">
       <header className="flex flex-col gap-0.5">
-        <h1 className="text-lg font-semibold tracking-tight">
+        <h1 className="text-2xl font-semibold tracking-tight">
           {t(info.title)}
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -573,7 +573,15 @@ export function SkinStudio(props: {
         </p>
       </header>
 
-      <div className="grid items-start gap-2 sm:grid-cols-[108px_minmax(0,1fr)_236px] md:grid-cols-[132px_minmax(0,1fr)_272px] lg:grid-cols-[184px_minmax(0,1fr)_320px] xl:gap-3">
+      <div
+        className={cn(
+          "grid items-start gap-2 xl:gap-3",
+          // The options wait for a skin, so the center takes their space.
+          current || editing
+            ? "sm:grid-cols-[108px_minmax(0,1fr)_236px] md:grid-cols-[132px_minmax(0,1fr)_272px] lg:grid-cols-[184px_minmax(0,1fr)_320px]"
+            : "sm:grid-cols-[108px_minmax(0,1fr)] md:grid-cols-[132px_minmax(0,1fr)] lg:grid-cols-[184px_minmax(0,1fr)]",
+        )}
+      >
         <div className="flex items-center gap-2 sm:hidden">
           <Button
             variant="outline"
@@ -749,19 +757,21 @@ export function SkinStudio(props: {
               )}
             </section>
 
-            <section
-              aria-label={t("studio.options")}
-              className={cn(panel, "flex flex-col gap-4")}
-            >
-              <StudioCommandOptions
-                command={command}
-                current={current}
-                variant={state.variant}
-                onVariant={(value) => {
-                  store.setVariant(value);
-                }}
-              />
-            </section>
+            {current && (
+              <section
+                aria-label={t("studio.options")}
+                className={cn(panel, "flex flex-col gap-4")}
+              >
+                <StudioCommandOptions
+                  command={command}
+                  current={current}
+                  variant={state.variant}
+                  onVariant={(value) => {
+                    store.setVariant(value);
+                  }}
+                />
+              </section>
+            )}
           </>
         )}
       </div>

@@ -159,9 +159,14 @@ export function StudioLibrary(props: {
       !section.current?.contains(active)
     )
       return;
+    // The empty state's buttons show only in the phone drawer. Beside the
+    // center panel, which has the same buttons, focus the add menu instead.
+    const empty = emptyAction.current;
     const target =
       request.target === EMPTY
-        ? emptyAction.current
+        ? empty?.checkVisibility()
+          ? empty
+          : section.current?.querySelector<HTMLElement>("button")
         : items.current.get(request.target);
     target?.focus();
   };
@@ -319,7 +324,7 @@ export function StudioLibrary(props: {
               <EmptyTitle>{t("library.noSkinsYet")}</EmptyTitle>
               <EmptyDescription>{t("library.noSkinsYetHint")}</EmptyDescription>
             </EmptyHeader>
-            <EmptyContent>
+            <EmptyContent className="sm:hidden">
               <div className="flex flex-wrap justify-center gap-2">
                 <Button
                   ref={emptyAction}

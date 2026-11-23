@@ -211,8 +211,8 @@ function PrivacyPolicyPage() {
           </li>
           <li>
             Ko-fi (<code>ko-fi.com</code>) and NOWPayments (
-            <code>nowpayments.io</code>), whose donation widgets load on the
-            pricing page. A Ko-fi payment can open PayPal or Stripe.
+            <code>nowpayments.io</code>), when you open their donation forms on
+            the pricing page. A Ko-fi payment can open PayPal or Stripe.
           </li>
           <li>
             GitHub, Discord, Modrinth, SpigotMC, or bStats, when you follow a

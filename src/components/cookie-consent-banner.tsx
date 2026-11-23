@@ -1,18 +1,10 @@
 "use client";
 
-import { Cookie, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Link } from "fumadocs-core/link";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { analytics } from "@/lib/analytics";
 import { consentBannerState } from "@/lib/analytics-consent";
@@ -85,80 +77,68 @@ const CookieConsentBanner = () => {
 
   if (!visible) return null;
 
+  // A slim bar along the bottom edge, so it never covers the page's own
+  // buttons in a corner.
   return (
     <section
       ref={section}
       tabIndex={-1}
       aria-labelledby={titleId}
-      className="group fixed inset-x-0 bottom-0 z-50 outline-none sm:right-auto sm:bottom-4 sm:left-4"
+      className="group fixed inset-x-0 bottom-0 z-50 border-t bg-background shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
     >
-      {/* Shows focus when the banner is reopened from Cookie settings. */}
-      <div className="m-3 rounded-xl group-focus-visible:ring-2 group-focus-visible:ring-ring sm:max-w-md">
-        <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between gap-0 pb-2">
-            <CardTitle id={titleId} className="text-lg">
-              {t("consent.websiteAnalytics")}
-            </CardTitle>
-            {dismissible ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={close}
-                aria-label={t("common.close")}
-              >
-                <X aria-hidden="true" />
-              </Button>
-            ) : (
-              <Cookie aria-hidden="true" className="size-5" />
-            )}
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            <CardDescription>
-              {t("consent.weUseAnalyticsCookiesSeeWhichPages")}
-            </CardDescription>
-            {dismissible ? (
-              <p className="text-sm font-medium">
-                {consentState === "granted"
-                  ? t("consent.currentChoiceAllowed")
-                  : t("consent.currentChoiceDeclined")}
-              </p>
-            ) : null}
-            <p className="text-xs text-muted-foreground">
-              {t.rich("consent.allowAnalyticsDetails", {
-                allow: (
-                  <span className="font-medium">
-                    {t("common.allowAnalytics")}
-                  </span>
-                ),
-                policy: (
-                  <Link
-                    href="/cookie-policy"
-                    className="underline underline-offset-2"
-                  />
-                ),
-              })}
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-6 lg:px-8">
+        <div className="flex flex-1 flex-col gap-1 text-sm">
+          <h2 id={titleId} className="font-semibold">
+            {t("consent.websiteAnalytics")}
+          </h2>
+          <p className="text-muted-foreground">
+            {t("consent.weUseAnalyticsCookiesSeeWhichPages")}{" "}
+            {t.rich("consent.allowAnalyticsDetails", {
+              policy: (
+                <Link
+                  href="/cookie-policy"
+                  className="text-foreground underline underline-offset-2"
+                />
+              ),
+            })}
+          </p>
+          {dismissible ? (
+            <p className="font-medium">
+              {consentState === "granted"
+                ? t("consent.currentChoiceAllowed")
+                : t("consent.currentChoiceDeclined")}
             </p>
-          </CardContent>
-          <CardFooter className="flex gap-2 pt-2">
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            onClick={handleDeclineCookies}
+            variant={consentState === "denied" ? "default" : "secondary"}
+            className="flex-1 md:flex-none"
+          >
+            {t("consent.decline")}
+          </Button>
+          <Button
+            type="button"
+            onClick={handleAcceptCookies}
+            variant={consentState === "denied" ? "secondary" : "default"}
+            className="flex-1 md:flex-none"
+          >
+            {t("common.allowAnalytics")}
+          </Button>
+          {dismissible ? (
             <Button
               type="button"
-              onClick={handleDeclineCookies}
-              variant={consentState === "denied" ? "default" : "secondary"}
-              className="flex-1"
+              variant="ghost"
+              size="icon-sm"
+              onClick={close}
+              aria-label={t("common.close")}
             >
-              {t("consent.decline")}
+              <X aria-hidden="true" />
             </Button>
-            <Button
-              type="button"
-              onClick={handleAcceptCookies}
-              variant={consentState === "denied" ? "secondary" : "default"}
-              className="flex-1"
-            >
-              {t("common.allowAnalytics")}
-            </Button>
-          </CardFooter>
-        </Card>
+          ) : null}
+        </div>
       </div>
     </section>
   );
