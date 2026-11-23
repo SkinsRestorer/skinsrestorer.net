@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { readHttpBytes } from "./effect-http";
+import { POSTHOG_HOST } from "./posthog-hosts";
 
 // The public project token that the browser bundle also sends events with.
 // Vite inlines it at build time, in the worker as in the browser.
@@ -114,7 +115,7 @@ export function isCspReportContentType(contentType: string | null) {
 export function forwardCspReport(body: string, contentType: string) {
   if (!posthogToken) return Effect.void;
   return readHttpBytes(
-    `https://t.skinsrestorer.net/report/?token=${encodeURIComponent(posthogToken)}`,
+    `${POSTHOG_HOST}/report/?token=${encodeURIComponent(posthogToken)}`,
     { method: "POST", headers: { "Content-Type": contentType }, body },
     { timeoutMs: 5000, maxBytes: 16 * 1024 },
   ).pipe(Effect.asVoid, Effect.ignore);

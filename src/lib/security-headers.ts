@@ -3,7 +3,8 @@
  * assets, which Cloudflare serves without running the worker.
  */
 
-const posthogHost = "https://t.skinsrestorer.net";
+import { POSTHOG_HOST, POSTHOG_UI_HOST } from "./posthog-hosts";
+
 // Browsers send violation reports to the site, which removes page addresses'
 // query and fragment before it forwards them (src/routes/api/csp-report.ts).
 // vite.config.ts imports this file in Node, so it cannot import that route.
@@ -16,7 +17,7 @@ const cspDirectives = {
   "script-src": [
     "'self'",
     "'unsafe-inline'",
-    posthogHost,
+    POSTHOG_HOST,
     "https://analytics.ahrefs.com",
     // Cloudflare injects its Web Analytics beacon into production pages.
     "https://static.cloudflareinsights.com",
@@ -36,8 +37,8 @@ const cspDirectives = {
   "font-src": ["'self'"],
   "connect-src": [
     "'self'",
-    posthogHost,
-    "https://eu.posthog.com",
+    POSTHOG_HOST,
+    POSTHOG_UI_HOST,
     "https://analytics.ahrefs.com",
     "https://cloudflareinsights.com",
     "https://api.mineskin.org",

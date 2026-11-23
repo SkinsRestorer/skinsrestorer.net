@@ -8,6 +8,7 @@ import {
   writeConsent,
 } from "./analytics-consent";
 import { splitLocalePath } from "./i18n";
+import { POSTHOG_HOST, POSTHOG_UI_HOST } from "./posthog-hosts";
 
 interface PostHogClient extends Pick<
   PostHog,
@@ -30,8 +31,8 @@ interface AnalyticsOptions {
 
 function postHogConfig(): Partial<PostHogConfig> {
   return {
-    api_host: "https://t.skinsrestorer.net",
-    ui_host: "https://eu.posthog.com",
+    api_host: POSTHOG_HOST,
+    ui_host: POSTHOG_UI_HOST,
     defaults: "2025-05-24",
     // PostHog reads and writes the choice under the site's own key.
     consent_persistence_name: CONSENT_STORAGE_KEY,

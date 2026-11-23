@@ -16,6 +16,10 @@ const headersFile = readFileSync(
   new URL("../../public/_headers", import.meta.url),
   "utf8",
 );
+const privacyPolicy = readFileSync(
+  new URL("../routes/privacy-policy.tsx", import.meta.url),
+  "utf8",
+);
 
 function parseHeadersFile(source: string): Rule[] {
   const rules: Rule[] = [];
@@ -120,6 +124,17 @@ test("the policy allows the origins the site loads from", () => {
   assert.ok(csp.get("img-src")?.includes("blob:"));
   assert.ok(csp.get("script-src")?.includes("https://analytics.ahrefs.com"));
   assert.ok(csp.get("frame-src")?.includes("https://ko-fi.com"));
+});
+
+test("the privacy policy names every external origin the policy allows", () => {
+  const csp = directives();
+  const hosts = ["script-src", "img-src", "connect-src", "frame-src"]
+    .flatMap((name) => csp.get(name) ?? [])
+    .filter((source) => source.startsWith("https://"))
+    .map((source) => new URL(source).host);
+  assert.ok(hosts.length > 0);
+  for (const host of new Set(hosts))
+    assert.ok(privacyPolicy.includes(`<code>${host}</code>`), host);
 });
 
 test("the policy blocks plugins, base rewrites, and foreign framing", () => {

@@ -148,7 +148,8 @@ function PrivacyPolicyPage() {
           </li>
           <li>
             PostHog through <code>t.skinsrestorer.net</code>, only with your
-            consent
+            consent. The PostHog toolbar, which only site staff open, also
+            contacts <code>eu.posthog.com</code>.
           </li>
           <li>
             Ahrefs (<code>analytics.ahrefs.com</code>), only with your consent
