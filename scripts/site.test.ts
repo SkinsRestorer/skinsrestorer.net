@@ -222,6 +222,7 @@ test(
 
     const index = await (await request("/llms.txt")).text();
     assert.ok(index.includes("/docs/installation"));
+    assert.ok(index.includes("(https://skinsrestorer.net/studio)"));
     const fullResponse = await request("/llms-full.txt");
     assert.equal(
       fullResponse.headers.get("cache-control"),

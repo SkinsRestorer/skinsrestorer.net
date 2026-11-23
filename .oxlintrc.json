@@ -40,12 +40,7 @@
     "browser": true,
     "node": true
   },
-  "ignorePatterns": [
-    "src/routeTree.gen.ts",
-    ".cloudflare/**",
-    ".next/**",
-    "next-env.d.ts"
-  ],
+  "ignorePatterns": ["src/routeTree.gen.ts", ".cloudflare/**"],
   "settings": {
     "better-tailwindcss": {
       "entryPoint": "src/style.css"
@@ -520,7 +515,7 @@
     },
     {
       // Vite targets Safari 16.4, which lacks the static Response.json method.
-      "files": ["src/**/*.{js,jsx,ts,tsx}", "public/**/*.js"],
+      "files": ["src/**/*.{ts,tsx}"],
       "rules": {
         "unicorn/prefer-response-static-json": "off"
       }

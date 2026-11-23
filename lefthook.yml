@@ -16,6 +16,7 @@ pre-commit:
 # Typecheck, docs:java, and the build stay in CI. They need generated
 # Cloudflare types, Maven, or a full Vite build and take minutes.
 pre-push:
+  parallel: true
   commands:
     knip:
       run: bun run knip

@@ -19,7 +19,7 @@ Keep private keys in variables without the `VITE_` prefix.
 
 ## Deployment
 
-The project uses the Cloudflare Vite plugin and `cf` CLI, matching SoulFire's deployment setup.
+The project uses the Cloudflare Vite plugin and `cf` CLI.
 `cloudflare.config.ts` defines the `skinsrestorer-website` Worker, Node.js compatibility, logs, and traces.
 Builds write the deployable Worker and static assets to `.cloudflare/output/v0`.
 

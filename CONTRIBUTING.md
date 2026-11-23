@@ -13,15 +13,14 @@ Keep each change focused. Avoid unrelated formatting and dependency updates.
 
 ## Prepare a checkout
 
-Use the Bun version in `package.json`. Use Node.js 22.18 or later. Java example checks need JDK 21 and Maven.
+Use the Bun version in `package.json`. Use Node.js 22.18 or later. The Java example check needs JDK 21 or newer and Maven.
 
 ```bash
 bun install --frozen-lockfile
 bun run dev
 ```
 
-Run the commands below from the repository root unless a command names another directory.
-On Windows, use `gradlew.bat` in place of `./gradlew` for Gradle commands.
+Run the commands below from the repository root.
 
 ## Repository layout
 
@@ -67,7 +66,8 @@ Remove credentials and private data from examples, logs, and screenshots.
 
 ## Git hooks
 
-`bun install` installs Lefthook for this checkout and preserves the existing preparation steps.
-Run `bun run pre-commit` to run the commit checks manually.
-Pre-commit runs staged-file lint and formatting. Before pushing, formatting, translation, and documentation checks run for relevant changes.
-Full lint, formatting, and TypeScript checks run in CI through `bun run check` and `bun run typecheck`.
+`bun install` installs the Lefthook hooks for this checkout.
+Pre-commit lints and formats the staged files and stages the fixes.
+Pre-push runs `bun run check` and `bun run test` as parallel jobs.
+CI also runs `bun run typecheck`, `bun run docs:java`, the build, and the production route tests.
+Run `bunx --no-install lefthook run pre-commit` or `bunx --no-install lefthook run pre-push` to run a hook manually.

@@ -9,7 +9,6 @@
   "scripts": {
     "dev": "bun run generate:images && cf dev",
     "build": "bun run generate:images && cf build",
-    "start": "vite preview",
     "test": "bun test",
     "typecheck": "bun run cf-typegen && bun run generate:docs && bun run generate:routes && tsc --noEmit",
     "lint": "oxlint",
@@ -32,8 +31,7 @@
     "deploy:check": "cf deploy --dry-run --prebuilt --mode production",
     "cf-typegen": "cf workers types",
     "i18n:check": "bun scripts/check-translations.ts",
-    "prepare": "lefthook install && effect-tsgo patch --no-typescript --oxlint",
-    "pre-commit": "lefthook run pre-commit"
+    "prepare": "lefthook install && effect-tsgo patch --no-typescript --oxlint"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
