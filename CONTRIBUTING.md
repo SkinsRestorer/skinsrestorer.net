@@ -47,6 +47,23 @@ Keep generated artifacts consistent with their source and review their diff.
 
 Follow the existing code conventions and repository formatter. Keep commit hooks enabled.
 Add focused tests for changed logic when practical. Avoid tests that only assert source strings.
+
+## Test focus and interaction
+
+Most tests run in plain Bun without a DOM. To test focus, clicks, or other
+browser behavior, give the test file a `.dom.test.tsx` suffix and call
+`registerDom()` from `src/test/dom.ts` at its top level. It adds
+[happy-dom](https://github.com/capricorn86/happy-dom) globals for that file
+only and removes them after the file's tests, so other files keep Bun's own
+`fetch`, `Request`, and `URL`. Use `render` and `click` from the same module.
+They wrap React updates in `act`. See
+`src/components/editor/skin-issue-alerts.dom.test.tsx` for an example.
+
+```tsx
+import { registerDom, render } from "@/test/dom";
+
+registerDom();
+```
 Update documentation when commands, APIs, configuration, or expected behavior change.
 Keep examples small and reproducible. Preserve exact identifiers, commands, and error messages.
 
@@ -69,5 +86,6 @@ Remove credentials and private data from examples, logs, and screenshots.
 `bun install` installs the Lefthook hooks for this checkout.
 Pre-commit lints and formats the staged files and stages the fixes.
 Pre-push runs `bun run check` and `bun run test` as parallel jobs.
-CI also runs `bun run typecheck`, `bun run docs:java`, the build, and the production route tests.
+CI also runs `bun run docs:java`, the build, and the production route tests.
+Lint reports TypeScript errors through oxlint's `typeCheck` option, so CI does not run `tsc` again.
 Run `bunx --no-install lefthook run pre-commit` or `bunx --no-install lefthook run pre-push` to run a hook manually.

@@ -99,7 +99,8 @@ in the release review instead of waiting for a separate rewrite.
    For website workflow changes, follow
    [Website source review](#website-source-review).
 5. Update affected guides and reference tables. Revise Java dependency versions
-   and compile the tutorial against that release.
+   and compile the tutorial against that release. Change the release tag in the
+   [Sources and framework](#sources-and-framework) links.
 6. Update page version and review metadata after the review. Do not label an
    unchanged page reviewed without inspecting its applicable source.
 7. Check external forwarding and integration instructions against their current

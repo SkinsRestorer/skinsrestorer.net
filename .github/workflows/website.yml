@@ -56,8 +56,10 @@ jobs:
       - name: Run tests
         run: bun run test
 
-      - name: Run typecheck
-        run: bun run typecheck
+      # Lint runs with oxlint's typeCheck, which reports the same compiler
+      # diagnostics as `tsc --noEmit`. It only needs the Worker types.
+      - name: Generate Cloudflare types
+        run: bun run cf-typegen
 
       - name: Run check
         run: bun run check
