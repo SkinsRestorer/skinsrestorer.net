@@ -161,12 +161,9 @@ export function brushPixels(
 ): number[] {
   const area = brushArea(variant, settings, x, y, lock);
   if (!area) return [];
-  const pixels = new Set<number>();
-  for (const rect of [area.source, area.mirror])
-    if (rect)
-      for (let py = rect.y; py < rect.y + rect.height; py++)
-        for (let px = rect.x; px < rect.x + rect.width; px++)
-          pixels.add(py * SKIN_SIZE + px);
+  const pixels = new Set(rectPixels(area.source));
+  if (area.mirror)
+    for (const index of rectPixels(area.mirror)) pixels.add(index);
   return [...pixels];
 }
 
@@ -395,8 +392,7 @@ export function toolFootprint(
   if (tool === "fill") return fillTargets(pixels, variant, settings, x, y);
   if (tool === "eraser" && !toolColor("eraser", settings.layer, settings.color))
     return undefined;
-  const region = paintableRegion(variant, settings, x, y);
-  const area = region && brushArea(variant, settings, x, y, region);
+  const area = brushArea(variant, settings, x, y);
   if (!area) return undefined;
   const source = rectPixels(area.source);
   const seen = new Set(source);

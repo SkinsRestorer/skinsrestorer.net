@@ -153,7 +153,7 @@ const commands = [
     command: "/skin undo",
     example: "/skin undo",
     description: "home.goBackPreviousSkin",
-    href: "/docs/features/change-skin#undo-a-change",
+    href: "/docs/features/skin-menu#reuse-a-previous-skin",
   },
   {
     command: "/skin update",
@@ -259,9 +259,7 @@ function SectionHeading({
       <div className="flex max-w-xl flex-col gap-2">
         <h2
           id={id}
-          className={cn(
-            "text-3xl/tight font-semibold tracking-tight sm:text-4xl",
-          )}
+          className="text-3xl/tight font-semibold tracking-tight sm:text-4xl"
         >
           {title}
         </h2>
@@ -289,9 +287,7 @@ export default function IndexPage() {
         <div className="flex flex-col items-start gap-6">
           <h1
             id="home-title"
-            className={cn(
-              "text-5xl/tight font-semibold tracking-tight text-balance sm:text-6xl xl:text-7xl",
-            )}
+            className="text-5xl/tight font-semibold tracking-tight text-balance sm:text-6xl xl:text-7xl"
           >
             {t("home.playerSkinsMinecraftServer")}
           </h1>
@@ -370,7 +366,7 @@ export default function IndexPage() {
                     <li key={software.name}>
                       <Link
                         href={software.href}
-                        className="flex w-16 flex-col items-center gap-2 text-xs font-medium"
+                        className="flex min-w-16 flex-col items-center gap-2 text-xs font-medium"
                       >
                         <span
                           className={`${styles["slot"]} flex size-14 items-center justify-center`}

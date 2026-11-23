@@ -75,12 +75,14 @@ async function build(
   colorType: number,
   raw: number[],
   extra: Uint8Array[] = [],
+  interlace = 0,
 ) {
   const header = new Uint8Array(13);
   new DataView(header.buffer).setUint32(0, width);
   new DataView(header.buffer).setUint32(4, height);
   header[8] = depth;
   header[9] = colorType;
+  header[12] = interlace;
   const compressed = new Uint8Array(
     await new Response(
       new Blob([new Uint8Array(raw)])
@@ -144,4 +146,95 @@ test("RGB rows with Sub, Up, Average and Paeth filters decode exactly", async ()
       [10, 20, 30, 255, 40, 50, 60, 255],
       `row ${y}`,
     );
+});
+
+const rgba = async (png: Promise<Uint8Array>) => [
+  ...(await decodePng(await png, any)).pixels,
+];
+
+test("1-bit grayscale scales each sample to the full byte range", async () => {
+  // Row 0 = [1, 0, 1].
+  assert.deepEqual(
+    await rgba(build(3, 1, 1, 0, [0, 0b1010_0000])),
+    [255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255],
+  );
+});
+
+test("16-bit grayscale keeps the high byte and matches tRNS on all 16 bits", async () => {
+  const transparent = chunk("tRNS", new Uint8Array([0x12, 0x34]));
+  const png = build(
+    3,
+    1,
+    16,
+    0,
+    [0, 0x12, 0x34, 0x12, 0xff, 0xab, 0xcd],
+    [transparent],
+  );
+  assert.deepEqual(
+    await rgba(png),
+    [0x12, 0x12, 0x12, 0, 0x12, 0x12, 0x12, 255, 0xab, 0xab, 0xab, 255],
+  );
+});
+
+test("16-bit gray with alpha and 16-bit RGB with tRNS decode to 8-bit RGBA", async () => {
+  assert.deepEqual(
+    await rgba(build(1, 1, 16, 4, [0, 0x80, 0x01, 0x40, 0x02])),
+    [0x80, 0x80, 0x80, 0x40],
+  );
+  const transparent = chunk(
+    "tRNS",
+    new Uint8Array([0x00, 0x10, 0x00, 0x20, 0x00, 0x30]),
+  );
+  const png = build(
+    2,
+    1,
+    16,
+    2,
+    [0, 0x00, 0x10, 0x00, 0x20, 0x00, 0x30, 0x00, 0x10, 0x00, 0x20, 0x00, 0x31],
+    [transparent],
+  );
+  assert.deepEqual(await rgba(png), [0, 0, 0, 0, 0, 0, 0, 255]);
+});
+
+test("8-bit RGB with tRNS makes only the matching color clear", async () => {
+  const transparent = chunk("tRNS", new Uint8Array([0, 1, 0, 2, 0, 3]));
+  const png = build(2, 1, 8, 2, [0, 1, 2, 3, 1, 2, 4], [transparent]);
+  assert.deepEqual(await rgba(png), [1, 2, 3, 0, 1, 2, 4, 255]);
+});
+
+// 3×3 grayscale where pixel (x, y) has the value 10 * (y * 3 + x).
+const v = (x: number, y: number) => 10 * (y * 3 + x);
+
+test("Adam7 interlaced images place every pass at its pixels", async () => {
+  const raw = [
+    [0, v(0, 0)], // pass 1
+    [0, v(2, 0)], // pass 4; passes 2 and 3 are empty
+    [0, v(0, 2), v(2, 2)], // pass 5
+    [0, v(1, 0)], // pass 6, two rows
+    [0, v(1, 2)],
+    [0, v(0, 1), v(1, 1), v(2, 1)], // pass 7
+  ].flat();
+  const pixels = await rgba(build(3, 3, 8, 0, raw, [], 1));
+  for (let y = 0; y < 3; y++)
+    for (let x = 0; x < 3; x++) {
+      const at = (y * 3 + x) * 4;
+      assert.deepEqual(
+        pixels.slice(at, at + 4),
+        [v(x, y), v(x, y), v(x, y), 255],
+        `pixel ${x},${y}`,
+      );
+    }
+});
+
+test("short image data and unknown row filters are rejected", async () => {
+  await assert.rejects(decodePng(await build(2, 2, 8, 0, [0, 1, 2]), any), {
+    name: "PngError",
+  });
+  await assert.rejects(decodePng(await build(1, 1, 8, 0, [5, 1]), any), {
+    name: "PngError",
+  });
+  await assert.rejects(
+    decodePng(await build(1, 1, 8, 3, [0, 0]), any),
+    /palette/iu,
+  );
 });

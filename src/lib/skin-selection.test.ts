@@ -325,6 +325,28 @@ test("a multi-file drop counts a first file that fails as not added", async () =
   store.dispose();
 });
 
+test("without a library, a multi-file drop selects the first file and reports no import", async () => {
+  const imported: [number, number][] = [];
+  const store = new SkinSelectionStore({
+    preview: autoPreview(),
+    events: {
+      imported: (kept, failed) => {
+        imported.push([kept, failed]);
+      },
+    },
+  });
+  store.selectFiles([await skinFile(1, "a.png"), await skinFile(2, "b.png")]);
+  await until(() => store.getSnapshot().selection?.status === "ready");
+  await new Promise((resolve) => {
+    setImmediate(resolve);
+  });
+  // The selection says the browser keeps nothing; the other files are not
+  // counted as broken.
+  assert.equal(store.getSnapshot().selection?.keep.kind, "off");
+  assert.deepEqual(imported, []);
+  store.dispose();
+});
+
 test("a change in another tab is offered, never swapped into the form", async () => {
   const factory = new IDBFactory();
   const tabA = library(factory);

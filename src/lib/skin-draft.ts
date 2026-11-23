@@ -1,10 +1,6 @@
 import { Schema } from "effect";
 import type { SkinVariant } from "./skin";
-import {
-  exportSkinPng,
-  importSkinPng,
-  type SkinDocument,
-} from "./skin-document";
+import { importSkinPng, type SkinDocument } from "./skin-document";
 
 export const DRAFT_KEY = "skinsrestorer:editor:draft";
 const DRAFT_VERSION = 1;
@@ -126,44 +122,19 @@ export interface SkinHandoff {
 }
 
 /**
- * A handoff is a snapshot for one navigation in this tab. It does not read the
- * draft, so another tab or a later edit cannot change what the target page
- * receives. Pages in this tab can still read it after a reload.
+ * Read a handoff that the earlier editor (November 2026) left in this tab's
+ * session storage for a `?handoff=` link. Nothing writes handoffs any more.
  */
-const memoryHandoffs = new Map<string, string>();
-
-export async function writeHandoff(
-  storage: KeyValueStorage | undefined,
-  document: SkinDocument,
-  id: string = crypto.randomUUID(),
-) {
-  const record = JSON.stringify({
-    version: DRAFT_VERSION,
-    id,
-    variant: document.variant,
-    png: bytesToBase64(await exportSkinPng(document.pixels)),
-  });
-  memoryHandoffs.clear();
-  memoryHandoffs.set(id, record);
-  try {
-    storage?.setItem(HANDOFF_KEY, record);
-  } catch {
-    // Client-side navigation still reads the copy in memory.
-  }
-  return id;
-}
-
 export async function readHandoff(
-  storage: KeyValueStorage | undefined,
+  storage: Pick<KeyValueStorage, "getItem"> | undefined,
   id: string,
 ): Promise<SkinHandoff | undefined> {
-  let raw = memoryHandoffs.get(id);
-  if (!raw)
-    try {
-      raw = storage?.getItem(HANDOFF_KEY) ?? undefined;
-    } catch {
-      raw = undefined;
-    }
+  let raw: string | null | undefined;
+  try {
+    raw = storage?.getItem(HANDOFF_KEY);
+  } catch {
+    return undefined;
+  }
   if (!raw) return undefined;
   let value: unknown;
   try {

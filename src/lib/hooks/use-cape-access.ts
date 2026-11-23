@@ -57,11 +57,9 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
   const capeOptionsDisabled =
     status !== "granted" || supportedCapes.length === 0;
 
+  // useLatestTask cancels the load on unmount.
   useEffect(() => {
     loadPublicCapes(availableCapes, setPublicCapes, setPublicStatus);
-    return () => {
-      availableCapes.cancel();
-    };
   }, [availableCapes]);
 
   /** The key changed: its earlier check and capes no longer apply. */

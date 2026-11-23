@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { getBaseOptions } from "@/lib/layout-options";
 import { useT } from "@/lib/i18n-react";
 import { useLinkLocale } from "@/hooks/use-link-locale";
-import { hasLocalizedPages, localizeHref, splitLocalePath } from "@/lib/i18n";
+import { hasLocalizedPages, localizeHref } from "@/lib/i18n";
 import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
 
@@ -33,8 +33,8 @@ export function HomeLayout({ children }: { children: ReactNode }) {
   const t = useT();
   // Fumadocs' framework provider supplies the router's pathname.
   const pathname = usePathname();
-  const path = splitLocalePath(pathname).path;
-  const linkLocale = useLinkLocale(hasLocalizedPages(pathname));
+  const localizedPage = hasLocalizedPages(pathname);
+  const linkLocale = useLinkLocale(localizedPage);
   const baseOptions = getBaseOptions(linkLocale);
   return (
     <>
@@ -47,12 +47,8 @@ export function HomeLayout({ children }: { children: ReactNode }) {
       <FumadocsHomeLayout
         {...baseOptions}
         slots={slots}
-        // oxlint-disable-next-line typescript/no-deprecated -- the replacement is a custom slot; this prop hides the language switch on English-only pages
-        i18n={
-          !["/privacy-policy", "/terms-of-service", "/cookie-policy"].includes(
-            path,
-          )
-        }
+        // oxlint-disable-next-line typescript/no-deprecated -- the replacement is a custom slot; this prop hides the language switch on pages without a translated URL
+        i18n={localizedPage}
         links={[
           {
             type: "main",

@@ -36,7 +36,7 @@ export function useSkinSelection() {
               }),
               failed
                 ? {
-                    description: t("common.countFilesWereNotSkinPngs", {
+                    description: t("common.countFilesNotAdded", {
                       count: failed,
                     }),
                   }

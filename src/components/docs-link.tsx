@@ -30,7 +30,9 @@ export function DocsLink({ href = "", ...props }: ComponentProps<"a">) {
       <HoverCardTrigger render={<Link href={found.url} {...props} />} />
       <HoverCardContent className="text-sm">
         <p className="font-medium">{found.title}</p>
-        <p className="text-fd-muted-foreground">{found.description}</p>
+        {found.description ? (
+          <p className="text-fd-muted-foreground">{found.description}</p>
+        ) : null}
       </HoverCardContent>
     </HoverCard>
   );

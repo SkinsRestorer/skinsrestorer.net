@@ -34,6 +34,7 @@ import { ColorControls } from "@/components/editor/color-panel";
 import { toHex } from "@/components/editor/color-hex";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import {
+  GRID_MIN_SCALE,
   toolLabels,
   usesMirror,
   type EditorInteraction,
@@ -92,6 +93,9 @@ function popupOpen() {
     "[role=menu],[role=listbox],[role=dialog],[role=alertdialog]",
   );
 }
+
+/** Larger hit areas when the main pointer is a finger. */
+const coarse = "pointer-coarse:size-9";
 
 /** Texture zoom limits, in CSS pixels for each skin pixel. */
 const MIN_ZOOM = 3;
@@ -558,16 +562,22 @@ export function StudioEditor(props: {
               : t("studio.editingName", { name: work.target.name })}
           </h2>
           <SaveStatus state={saveState} label={saveLabel} />
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="ml-auto"
-            aria-label={t("common.downloadPng")}
-            title={t("common.downloadPng")}
-            onClick={() => void download()}
-          >
-            <Download />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className={cn("ml-auto", coarse)}
+                  aria-label={t("common.downloadPng")}
+                  onClick={() => void download()}
+                />
+              }
+            >
+              <Download />
+            </TooltipTrigger>
+            <TooltipContent>{t("common.downloadPng")}</TooltipContent>
+          </Tooltip>
         </div>
         {draftsOff && (
           <Alert>
@@ -601,6 +611,7 @@ export function StudioEditor(props: {
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    className={coarse}
                     aria-label={t("studio.zoomTextureOut")}
                     disabled={scale <= MIN_ZOOM}
                     focusableWhenDisabled
@@ -620,6 +631,7 @@ export function StudioEditor(props: {
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    className={coarse}
                     aria-label={t("studio.zoomTexture")}
                     disabled={scale >= MAX_ZOOM}
                     focusableWhenDisabled
@@ -639,6 +651,7 @@ export function StudioEditor(props: {
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    className={coarse}
                     aria-label={t("studio.fit")}
                     aria-pressed={zoom === "fit"}
                     onClick={() => {
@@ -656,6 +669,7 @@ export function StudioEditor(props: {
                 render={
                   <Toggle
                     size="sm"
+                    className={coarse}
                     aria-label={t("studio.pixelGrid")}
                     pressed={showGrid}
                     onPressedChange={setShowGrid}
@@ -664,7 +678,12 @@ export function StudioEditor(props: {
               >
                 <Grid3x3 />
               </TooltipTrigger>
-              <TooltipContent>{t("studio.pixelGrid")}</TooltipContent>
+              <TooltipContent>
+                {/* Below this scale the texture draws no grid lines. */}
+                {showGrid && scale < GRID_MIN_SCALE
+                  ? t("studio.pixelGridZoomIn")
+                  : t("studio.pixelGrid")}
+              </TooltipContent>
             </Tooltip>
           </span>
         </div>

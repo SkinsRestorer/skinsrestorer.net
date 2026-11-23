@@ -353,7 +353,7 @@ test("an unsaved draft survives a reload and continues in a new session", async 
   const reloaded = tab(factory);
   const after = editor(reloaded);
   await open(after.session, skin);
-  const recovery = await after.session.loadRecovery({ skinId: skin.id });
+  const recovery = await after.session.loadRecovery();
   assert.deepEqual(
     recovery.map((draft) => draft.id),
     [oldId],
@@ -643,6 +643,48 @@ test("recovery leaves out drafts that an open editor in another tab owns", async
     (await b.session.loadRecovery()).map((draft) => draft.id),
     [draftId],
   );
+});
+
+test("a failed skin read leaves the draft in place instead of losing its base", async () => {
+  const factory = new IDBFactory();
+  const tabA = tab(factory);
+  const skin = await keptSkin(tabA);
+  const a = editor(tabA);
+  await open(a.session, skin);
+  paint(a.store, 6);
+  await a.session.flush();
+  await a.session.dispose();
+
+  const real = tab(factory);
+  /** Only the next call fails, as a busy disk would fail one read. */
+  let failNext = false;
+  const library: LibraryClient = {
+    ...real,
+    run: (effect, signal) => {
+      if (!failNext) return real.run(effect, signal);
+      failNext = false;
+      return Promise.reject(libraryError("failed"));
+    },
+  };
+  const b = editor(library);
+  const [draft] = await b.session.loadRecovery();
+  const recovered = required(draft, "recovered draft");
+  failNext = true;
+  await assert.rejects(b.session.continueDraft(recovered), {
+    reason: "failed",
+  });
+  // Nothing moved: the draft is still offered under its own id.
+  assert.deepEqual(
+    (await list(real)).sessions.map((entry) => entry.id),
+    [recovered.id],
+  );
+  assert.equal(b.session.getSnapshot().dirty, false);
+  // Trying again opens the draft against its skin, so Discard returns to it.
+  assert.equal(await b.session.continueDraft(recovered), "continued");
+  assert.equal(b.session.getSnapshot().target.skinId, skin.id);
+  await b.session.discard();
+  const original = await documentOf(skin.current.png, skin.current.variant);
+  assert.deepEqual(b.store.pixels, original.pixels);
 });
 
 test("continuing a draft that is gone drops it from the list", async () => {

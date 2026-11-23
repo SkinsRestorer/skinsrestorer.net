@@ -37,7 +37,7 @@ const wrappingToggle =
  */
 export function StudioCommandOptions(props: {
   command: StudioCommandForm;
-  current: SelectedSkin | null;
+  current: SelectedSkin;
   variant: SkinVariant;
   onVariant: (variant: SkinVariant) => void;
 }) {
@@ -62,15 +62,22 @@ export function StudioCommandOptions(props: {
   // reader users land on the command, and phones scroll to it.
   const resultHeading = useRef<HTMLHeadingElement>(null);
   const generateButton = useRef<HTMLButtonElement>(null);
+  /** After "Stop waiting" or a failure, once the button is enabled again. */
+  const refocusGenerate = useRef(false);
   const previousStatus = useRef(shown.status);
   useEffect(() => {
     const before = previousStatus.current;
     previousStatus.current = shown.status;
-    if (before === "pending" && shown.status === "done")
-      resultHeading.current?.focus();
+    if (before !== "pending") return;
+    if (shown.status === "done") resultHeading.current?.focus();
+    // The disabled button lost focus while waiting. Return it, so the
+    // user can try again, unless they moved focus elsewhere.
+    else if (
+      shown.status === "failed" &&
+      (!document.activeElement || document.activeElement === document.body)
+    )
+      refocusGenerate.current = true;
   }, [shown.status]);
-  /** After "Stop waiting", once the button is enabled again. */
-  const refocusGenerate = useRef(false);
   useEffect(() => {
     if (!refocusGenerate.current || submitting) return;
     refocusGenerate.current = false;
@@ -150,11 +157,7 @@ export function StudioCommandOptions(props: {
                   label={t("studio.skinNameOptional")}
                   description={t("studio.skinNameHint")}
                   value={field.state.value}
-                  placeholder={
-                    current
-                      ? defaultSkinName(current.file.name)
-                      : "cool_skin_name"
-                  }
+                  placeholder={defaultSkinName(current.file.name)}
                   errors={
                     field.state.meta.isTouched || submitted
                       ? field.state.meta.errors

@@ -19,6 +19,11 @@ import {
 import { useAsRef } from "@/hooks/use-as-ref";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { readPixel, toolFootprint } from "@/lib/skin-paint";
 import {
@@ -393,53 +398,46 @@ export function ModelCanvas(
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex flex-wrap items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t("editor.turnModelLeft")}
+        <ViewButton
+          label={t("editor.turnModelLeft")}
           disabled={!!failure}
           onClick={() => {
             rotate(-Math.PI / 4);
           }}
         >
           <RotateCcw />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t("editor.turnModelRight")}
+        </ViewButton>
+        <ViewButton
+          label={t("editor.turnModelRight")}
           disabled={!!failure}
           onClick={() => {
             rotate(Math.PI / 4);
           }}
         >
           <RotateCw />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t("editor.zoomModelOut")}
+        </ViewButton>
+        <ViewButton
+          label={t("editor.zoomModelOut")}
           disabled={!!failure}
           onClick={() => {
             zoom(1 / 1.2);
           }}
         >
           <ZoomOut />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t("editor.zoomModelIn")}
+        </ViewButton>
+        <ViewButton
+          label={t("editor.zoomModelIn")}
           disabled={!!failure}
           onClick={() => {
             zoom(1.2);
           }}
         >
           <ZoomIn />
-        </Button>
+        </ViewButton>
         <Button
           variant="ghost"
           size="sm"
+          className="pointer-coarse:h-9"
           disabled={!!failure}
           onClick={() => {
             const viewer = viewerRef.current;
@@ -455,6 +453,7 @@ export function ModelCanvas(
         <Toggle
           variant="outline"
           size="sm"
+          className="pointer-coarse:h-9"
           pressed={animate}
           disabled={!!failure}
           onPressedChange={setAnimate}
@@ -618,5 +617,33 @@ export function ModelCanvas(
         </p>
       )}
     </div>
+  );
+}
+
+/** An icon button of the view toolbar, with its name in a tooltip. */
+function ViewButton(props: {
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="pointer-coarse:size-9"
+            aria-label={props.label}
+            disabled={props.disabled}
+            onClick={props.onClick}
+          />
+        }
+      >
+        {props.children}
+      </TooltipTrigger>
+      <TooltipContent>{props.label}</TooltipContent>
+    </Tooltip>
   );
 }

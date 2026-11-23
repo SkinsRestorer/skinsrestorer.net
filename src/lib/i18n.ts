@@ -38,10 +38,15 @@ export function localizePath(path: string, locale: Locale): string {
   return `${localized}${url.search}${url.hash}`;
 }
 
+/** The path of `href` without its locale, query, or hash. */
+export function pagePath(href: string): string {
+  const [pathname = ""] = href.split(/[?#]/u);
+  return splitLocalePath(pathname).path;
+}
+
 /** Legal text and service endpoints remain at their existing English URLs. */
 export function hasLocalizedPages(href: string): boolean {
-  const [pathname = ""] = href.split(/[?#]/u);
-  const path = splitLocalePath(pathname).path;
+  const path = pagePath(href);
   return (
     path === "/" ||
     [
@@ -98,11 +103,14 @@ export function localizeHref(href: string, locale: Locale): string {
   return hasLocalizedPages(href) ? localizePath(href, locale) : href;
 }
 
+const docFilePattern = new RegExp(
+  `^(.*?)(?:\\.(${locales.join("|")}))?\\.mdx?$`,
+  "u",
+);
+
 /** Parse Fumadocs' dot convention without treating the locale as a slug. */
 export function docFileInfo(file: string) {
-  const match = /^(.*?)(?:\.(en|ru|es|pt-BR))?\.mdx?$/u.exec(
-    file.replaceAll("\\", "/"),
-  );
+  const match = docFilePattern.exec(file.replaceAll("\\", "/"));
   if (!match) throw new Error(`Invalid documentation file: ${file}`);
   const [, name = "", suffix] = match;
   const locale: Locale = isLocale(suffix) ? suffix : "en";

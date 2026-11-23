@@ -1,7 +1,12 @@
 import { messageFields } from "./messages";
 import { messageKeySchema, messageValuesSchema } from "./messages/schema";
 import { Effect, Schedule, Schema } from "effect";
-import { HttpError, readHttpJson, runHttpEffect } from "./effect-http";
+import {
+  HttpError,
+  type HttpReadOptions,
+  readHttpJson,
+  runHttpEffect,
+} from "./effect-http";
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
 
@@ -21,7 +26,7 @@ const errorsSchema = Schema.optional(
 const skinSchema = Schema.Struct({
   uuid: Schema.String,
   url: Schema.optional(Schema.String),
-  name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  name: Schema.optional(Schema.NullOr(Schema.String)),
   texture: Schema.Struct({
     data: Schema.Struct({ value: Schema.String, signature: Schema.String }),
   }),
@@ -56,7 +61,7 @@ const axolotlResponseSchema = Schema.Struct({
   error: Schema.optional(Schema.String),
   success: Schema.optional(Schema.Boolean),
   errors: errorsSchema,
-  skin: Schema.optional(Schema.Union([axolotlSkinSchema, Schema.Null])),
+  skin: Schema.optional(Schema.NullOr(axolotlSkinSchema)),
 });
 const capeSchema = Schema.Struct({
   uuid: Schema.String,
@@ -115,7 +120,7 @@ function mineSkinRequest<A extends MineSkinBody>(
   url: string,
   init: RequestInit,
   schema: Schema.Decoder<A>,
-  options?: { timeoutMs?: number },
+  options?: HttpReadOptions,
 ) {
   return readHttpJson(url, init, schema, options).pipe(
     Effect.flatMap((response) => {
@@ -149,7 +154,7 @@ function mineSkinUpload<A extends MineSkinBody>(
   url: string,
   init: RequestInit,
   schema: Schema.Decoder<A>,
-  options?: { timeoutMs?: number },
+  options?: HttpReadOptions,
 ) {
   return mineSkinRequest(url, init, schema, options).pipe(
     Effect.mapError((error) =>

@@ -174,12 +174,13 @@ export class SkinSelectionStore {
   /**
    * Select files from the drop zone. The first one is selected at once. The
    * others are only kept in the library; nothing is generated for them.
+   * Without a library, the selection already says that nothing is kept.
    */
   selectFiles(files: readonly File[]) {
     const [first, ...rest] = files;
     if (!first) return;
     this.select(first, { origin: "file" });
-    if (rest.length === 0) return;
+    if (rest.length === 0 || !this.deps.library) return;
     const firstKept = new Promise<boolean>((resolve) => {
       this.firstKept = { token: this.token, done: resolve };
     });

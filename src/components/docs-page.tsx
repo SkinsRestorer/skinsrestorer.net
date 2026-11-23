@@ -112,22 +112,26 @@ export const docsClientLoader =
             <DocsDescription lang={page.contentLocale} className="mb-2.5">
               {frontmatter.description}
             </DocsDescription>
-            <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fd-muted-foreground">
-              <span>SkinsRestorer {frontmatter.version}</span>
-              <span lang={page.contentLocale}>{frontmatter.appliesTo}</span>
-              <span>
-                {t("common.reviewed")}{" "}
-                <time dateTime={frontmatter.reviewed}>
-                  {formatReviewedDate(frontmatter.reviewed, locale)}
-                </time>
-              </span>
-            </p>
-            <div className="flex flex-row items-center gap-2 border-b pt-2 pb-6">
-              <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
-              <ViewOptions
-                markdownUrl={`https://skinsrestorer.net${page.url}.mdx`}
-                githubUrl={`https://github.com/SkinsRestorer/skinsrestorer.net/blob/main/content/docs/${page.path}`}
-              />
+            {/* Page facts and actions share one row, so the article starts
+                higher. The actions wrap below the facts on narrow screens. */}
+            <div className="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b pb-6">
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fd-muted-foreground">
+                <span>SkinsRestorer {frontmatter.version}</span>
+                <span lang={page.contentLocale}>{frontmatter.appliesTo}</span>
+                <span>
+                  {t("common.reviewed")}{" "}
+                  <time dateTime={frontmatter.reviewed}>
+                    {formatReviewedDate(frontmatter.reviewed, locale)}
+                  </time>
+                </span>
+              </p>
+              <div className="flex flex-row items-center gap-2">
+                <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+                <ViewOptions
+                  markdownUrl={`https://skinsrestorer.net${page.url}.mdx`}
+                  githubUrl={`https://github.com/SkinsRestorer/skinsrestorer.net/blob/main/content/docs/${page.path}`}
+                />
+              </div>
             </div>
           </div>
           <DocsBody lang={page.contentLocale}>

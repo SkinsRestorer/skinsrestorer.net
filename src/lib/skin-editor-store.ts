@@ -138,17 +138,7 @@ export class SkinEditorStore {
       builder.write(pixel, document.pixels.subarray(pixel * 4, pixel * 4 + 4));
     const patch = builder.finish();
     if (!patch && document.variant === this.variant) return;
-    this.history.push({
-      indices: patch?.indices ?? new Uint16Array(),
-      before: patch?.before ?? new Uint8ClampedArray(),
-      after: patch?.after ?? new Uint8ClampedArray(),
-      variant:
-        document.variant === this.variant
-          ? undefined
-          : { before: this.variant, after: document.variant },
-    });
-    this.variant = document.variant;
-    this.emit(true);
+    this.pushModelChange(patch, document.variant);
   }
 
   colorAt(x: number, y: number) {
@@ -361,15 +351,7 @@ export class SkinEditorStore {
     this.anchor = undefined;
     const builder = new PatchBuilder(this.pixels);
     convertArms(this.pixels, builder, this.variant, variant);
-    const patch = builder.finish();
-    this.history.push({
-      indices: patch?.indices ?? new Uint16Array(),
-      before: patch?.before ?? new Uint8ClampedArray(),
-      after: patch?.after ?? new Uint8ClampedArray(),
-      variant: { before: this.variant, after: variant },
-    });
-    this.variant = variant;
-    this.emit(true);
+    this.pushModelChange(builder.finish(), variant);
     return true;
   }
 
@@ -377,15 +359,7 @@ export class SkinEditorStore {
     if (variant === this.variant) return;
     this.endStroke();
     this.anchor = undefined;
-    const patch: SkinPatch = {
-      indices: new Uint16Array(),
-      before: new Uint8ClampedArray(),
-      after: new Uint8ClampedArray(),
-      variant: { before: this.variant, after: variant },
-    };
-    this.variant = variant;
-    this.history.push(patch);
-    this.emit(true);
+    this.pushModelChange(undefined, variant);
   }
 
   undo() {
@@ -408,6 +382,21 @@ export class SkinEditorStore {
     if (patch.variant) this.variant = patch.variant.after;
     this.emit(true);
     return true;
+  }
+
+  /** Record pixel changes and a model change as one undo step. */
+  private pushModelChange(patch: SkinPatch | undefined, variant: SkinVariant) {
+    this.history.push({
+      indices: patch?.indices ?? new Uint16Array(),
+      before: patch?.before ?? new Uint8ClampedArray(),
+      after: patch?.after ?? new Uint8ClampedArray(),
+      variant:
+        variant === this.variant
+          ? undefined
+          : { before: this.variant, after: variant },
+    });
+    this.variant = variant;
+    this.emit(true);
   }
 
   private commit(patch: SkinPatch | undefined) {

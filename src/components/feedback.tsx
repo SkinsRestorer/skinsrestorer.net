@@ -35,6 +35,9 @@ const rateButtonVariants = cva(
   },
 );
 
+const discordLinkClassName =
+  "font-medium text-fd-foreground underline underline-offset-4";
+
 interface FeedbackData {
   opinion: "good" | "bad";
   message: string;
@@ -181,7 +184,7 @@ export function Feedback({ url, version }: { url: string; version: string }) {
           {t("feedback.no")}
         </button>
       </fieldset>
-      <CollapsibleContent className="mt-3">
+      <CollapsibleContent className="mt-3 flex flex-col gap-3">
         {previous ? (
           <div
             ref={thanksRef}
@@ -270,6 +273,16 @@ export function Feedback({ url, version }: { url: string; version: string }) {
             </Button>
           </div>
         )}
+        {/* Readers who rate a page down often need support, which anonymous
+            feedback cannot give them. */}
+        {activeOpinion === "bad" ? (
+          <p className="text-sm text-fd-muted-foreground">
+            {t.rich("feedback.cannotReplyAskDiscord", {
+              // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+              discord: <a className={discordLinkClassName} href="/discord" />,
+            })}
+          </p>
+        ) : null}
       </CollapsibleContent>
     </Collapsible>
   );

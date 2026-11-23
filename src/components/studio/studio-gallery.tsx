@@ -3,6 +3,7 @@
 import { ImageOff, LoaderCircle, Search } from "lucide-react";
 import {
   type KeyboardEvent,
+  memo,
   useEffect,
   useId,
   useRef,
@@ -274,8 +275,16 @@ function storeThumbnail(textureUrl: string, png: Blob) {
   for (const listener of thumbnailListeners) listener();
 }
 
-/** Offscreen catalog entries do not download a PNG or decode a thumbnail. */
-function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
+/**
+ * Offscreen catalog entries do not download a PNG or decode a thumbnail.
+ * Catalog entries keep their identity, so a focus move or a search key
+ * press does not render every thumbnail again.
+ */
+const GalleryThumbnail = memo(function GalleryThumbnail({
+  skin,
+}: {
+  skin: GallerySkin;
+}) {
   const t = useT();
   const frame = useRef<HTMLSpanElement>(null);
   // Another entry with the same texture may load it first.
@@ -352,4 +361,4 @@ function GalleryThumbnail({ skin }: { skin: GallerySkin }) {
       )}
     </span>
   );
-}
+});

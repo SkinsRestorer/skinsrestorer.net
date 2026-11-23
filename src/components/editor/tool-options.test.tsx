@@ -64,3 +64,16 @@ test("tool options are translated", () => {
   assert.match(html, /3 пикс\./u);
   assert.match(html, /Темнее/u);
 });
+
+test("shade directions show their shortcut hint", () => {
+  const html = render("shade");
+  for (const label of ["Lighten", "Darken"]) {
+    const item = new RegExp(
+      `<button([^>]*)>(?:(?!</button>).)*${label}</button>`,
+      "u",
+    ).exec(html)?.[1];
+    assert.ok(item, `${label} button`);
+    assert.match(item, /data-base-ui-tooltip-trigger/u);
+    assert.match(item, /aria-keyshortcuts="S"/u);
+  }
+});

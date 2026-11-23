@@ -28,11 +28,16 @@ export class HttpError extends Schema.TaggedError<
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
+export interface HttpReadOptions {
+  timeoutMs?: number;
+  maxBytes?: number;
+}
+
 /** Own the complete response, including transports that resolve after cancellation. */
 export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
   url: string,
   init: RequestInit = {},
-  options: { timeoutMs?: number; maxBytes?: number } = {},
+  options: HttpReadOptions = {},
 ) {
   const client = yield* HttpClient;
   return yield* Effect.acquireUseRelease(
@@ -151,7 +156,7 @@ export const readHttpBytes = Effect.fn("Http.readBytes")(function* (
 export function readHttpText(
   url: string,
   init: RequestInit = {},
-  options: { timeoutMs?: number; maxBytes?: number } = {},
+  options: HttpReadOptions = {},
 ) {
   return readHttpBytes(url, init, options).pipe(
     Effect.map((response) => ({
@@ -167,7 +172,7 @@ export function readHttpJson<A>(
   url: string,
   init: RequestInit,
   schema: Schema.Decoder<A>,
-  options?: { timeoutMs?: number; maxBytes?: number },
+  options?: HttpReadOptions,
 ) {
   return Effect.gen(function* () {
     const response = yield* readHttpText(url, init, options);

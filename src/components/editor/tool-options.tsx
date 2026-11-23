@@ -164,22 +164,30 @@ export function ToolOptions(props: {
             if (shade) props.onShade(shade);
           }}
         >
-          <ToggleGroupItem
-            value="lighten"
-            className="pointer-coarse:h-9"
-            aria-keyshortcuts={editorShortcuts.shade.join(" ")}
-          >
-            <Sun />
-            {t("editor.lighten")}
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="darken"
-            className="pointer-coarse:h-9"
-            aria-keyshortcuts={editorShortcuts.shade.join(" ")}
-          >
-            <Moon />
-            {t("editor.darken")}
-          </ToggleGroupItem>
+          {(
+            [
+              ["lighten", Sun, t("editor.lighten")],
+              ["darken", Moon, t("editor.darken")],
+            ] as const
+          ).map(([value, Icon, label]) => (
+            // S on the active Shade tool switches the direction.
+            <HintTrigger
+              key={value}
+              hints={hints}
+              label={label}
+              commands={["shade"]}
+              render={
+                <ToggleGroupItem
+                  value={value}
+                  className="pointer-coarse:h-9"
+                  aria-keyshortcuts={editorShortcuts.shade.join(" ")}
+                />
+              }
+            >
+              <Icon />
+              {label}
+            </HintTrigger>
+          ))}
         </ToggleGroup>
       )}
       {props.tool === "shade" && (

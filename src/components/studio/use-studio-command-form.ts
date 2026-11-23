@@ -129,8 +129,9 @@ export function useStudioCommandForm(props: {
   );
   /* oxlint-enable react/exhaustive-effect-dependencies */
 
+  // The options show only for a selected skin, so no hint asks for one.
   const generateHint: MessageKey | undefined = !current
-    ? "studio.selectSkinFirst"
+    ? undefined
     : pendingGallery || current.status === "checking"
       ? "studio.openingSkin"
       : current.status === "invalid"

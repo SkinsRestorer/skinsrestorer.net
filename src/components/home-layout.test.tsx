@@ -54,10 +54,15 @@ test("the skip link targets the focusable main landmark that holds the page", ()
   assert.equal(main?.[2], "<h1>Page content</h1>");
 });
 
-test("the language switch shows on translated pages and hides on English-only policies", () => {
+test("the language switch shows on translated pages and hides on pages without a translated URL", () => {
   const languageSwitch = /aria-label="[^"]*Choose a language"/u;
   for (const path of ["/", "/es/pricing"])
     assert.match(render(path), languageSwitch, path);
-  for (const path of ["/privacy-policy", "/terms-of-service", "/cookie-policy"])
+  for (const path of [
+    "/privacy-policy",
+    "/terms-of-service",
+    "/cookie-policy",
+    "/es/missing-page",
+  ])
     assert.doesNotMatch(render(path), languageSwitch, path);
 });

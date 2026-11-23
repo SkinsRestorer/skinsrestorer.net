@@ -125,9 +125,6 @@ export function StudioLibrary(props: {
   onReverted: (skin: StoredSkin) => void;
   /** Two columns in the phone drawer and on wide screens. */
   layout: "rail" | "drawer";
-  /** The close button of the phone drawer. */
-  closeButton?: React.ReactNode;
-  hideHeading?: boolean;
 }) {
   const t = useT();
   const headingId = useId();
@@ -198,13 +195,8 @@ export function StudioLibrary(props: {
       className="flex min-h-0 flex-col gap-2.5"
     >
       <div className="flex items-start gap-1">
-        <h2
-          id={headingId}
-          className={cn(
-            "text-sm font-semibold",
-            props.hideHeading && "sr-only",
-          )}
-        >
+        {/* The Library tab shows this name. */}
+        <h2 id={headingId} className="sr-only">
           {t("common.library")}
         </h2>
         {state.status === "unavailable" ? (
@@ -221,7 +213,6 @@ export function StudioLibrary(props: {
         )}
         <span className="ml-auto flex items-center">
           <AddSkinMenu commands={props.commands} />
-          {props.closeButton}
         </span>
       </div>
       <ul

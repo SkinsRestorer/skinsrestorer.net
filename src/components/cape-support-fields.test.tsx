@@ -78,7 +78,7 @@ test("a loading cape list says so instead of looking empty", () => {
 
 test("a failed cape list explains it and offers a retry", () => {
   const html = renderPicker("failed");
-  assert.ok(html.includes("Failed to load available capes"));
+  assert.ok(html.includes("Could not load available capes"));
   assert.match(html, /<button[^>]*>Try again<\/button>/u);
   assert.ok(!html.includes("Loading capes"));
 });

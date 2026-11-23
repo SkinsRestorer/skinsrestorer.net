@@ -1,7 +1,7 @@
 import {
   hasLocalizedPages,
   isLocale,
-  splitLocalePath,
+  pagePath,
   type Locale,
   type PreferenceStorage,
 } from "./i18n";
@@ -76,8 +76,7 @@ export function pageHasLocale(
   matches: readonly { readonly loaderData?: unknown }[],
 ): boolean {
   if (!hasLocalizedPages(href)) return false;
-  const [pathname = ""] = href.split(/[?#]/u);
-  const path = splitLocalePath(pathname).path;
+  const path = pagePath(href);
   if (path !== "/docs" && !path.startsWith("/docs/")) return true;
   return matches.some(({ loaderData }) => {
     if (typeof loaderData !== "object" || loaderData === null) return false;

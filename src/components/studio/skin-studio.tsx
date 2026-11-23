@@ -534,7 +534,6 @@ export function SkinStudio(props: {
             if (skin.id === current?.skinId) store.selectSkin(skin);
           }}
           layout={layout}
-          hideHeading
         />
       </TabsContent>
       <TabsContent value="gallery">
@@ -1093,8 +1092,10 @@ function TextureDialog(props: {
   const id = useId();
   const form = useForm({
     defaultValues: { reference: "" },
-    onSubmit: ({ value }) => {
+    onSubmit: ({ value, formApi }) => {
       props.onOpen(value.reference.trim());
+      // The next open starts empty instead of showing the last link.
+      formApi.reset();
     },
   });
   return (
@@ -1115,13 +1116,7 @@ function TextureDialog(props: {
               {t("studio.texturesMinecraftNetOnly")}
             </DialogDescription>
           </DialogHeader>
-          <form.Field
-            name="reference"
-            validators={{
-              onSubmit: ({ value }) =>
-                value.trim() ? undefined : "common.textureUrlHash",
-            }}
-          >
+          <form.Field name="reference">
             {(field) => (
               <Field>
                 <FieldLabel htmlFor={id}>

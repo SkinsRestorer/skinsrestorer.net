@@ -36,7 +36,6 @@ import { cn } from "@/lib/utils";
 export function MineSkinKeyField(props: {
   value: string;
   status: CapeStatus;
-  invalid?: boolean;
   onChange: (value: string) => void;
   onBlur: () => void;
   onCheckCapeAccess: () => void;
@@ -46,7 +45,7 @@ export function MineSkinKeyField(props: {
   const statusId = `${id}-status`;
   const { status } = props;
   // A key without the capes grant is a field error, not a hint.
-  const invalid = props.invalid || status === "denied";
+  const invalid = status === "denied";
   const hasStatus = status === "denied" || status === "granted";
   return (
     <Field data-invalid={invalid || undefined}>

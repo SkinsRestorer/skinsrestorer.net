@@ -122,3 +122,37 @@ test("release reads share GitHub results through the Workers cache", async () =>
   assert.equal((await read())?.tag_name, "1.0.0");
   assert.equal(requests, 2);
 });
+
+test("release reads fall back to GitHub when the Workers cache fails", async () => {
+  const caches: SharedCache[] = [
+    {
+      match: () => Promise.reject(new Error("cache offline")),
+      put: () => Promise.reject(new Error("cache offline")),
+    },
+    {
+      // A corrupt entry must not reach the page.
+      match: () => Promise.resolve(new Response("{")),
+      put: () => Promise.resolve(),
+    },
+  ];
+  for (const cache of caches) {
+    let requests = 0;
+    const release = await Effect.runPromise(
+      sharedLatestReleaseEffect(cache).pipe(
+        Effect.provideService(HttpClient, {
+          fetch: () => {
+            requests++;
+            return Promise.resolve(
+              Response.json({
+                html_url: "https://example.test",
+                tag_name: "2.0.0",
+              }),
+            );
+          },
+        }),
+      ),
+    );
+    assert.equal(release?.tag_name, "2.0.0");
+    assert.equal(requests, 1);
+  }
+});

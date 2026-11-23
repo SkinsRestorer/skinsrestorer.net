@@ -24,6 +24,9 @@ export interface EditorSurfaceProps {
   readonly onStatus: (message: Message) => void;
 }
 
+/** The smallest texture scale that draws the pixel grid. Below it, lines crowd the pixels. */
+export const GRID_MIN_SCALE = 6;
+
 export const toolLabels: Record<PaintTool, MessageKey> = {
   pencil: "editor.pencil",
   eraser: "editor.eraser",

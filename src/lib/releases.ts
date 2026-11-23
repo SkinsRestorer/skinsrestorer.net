@@ -77,5 +77,4 @@ export const cachedLatestReleaseEffect = Effect.runSync(
   ),
 );
 
-export const getLatestRelease = (signal?: AbortSignal) =>
-  runHttpEffect(cachedLatestReleaseEffect, signal);
+export const getLatestRelease = () => runHttpEffect(cachedLatestReleaseEffect);

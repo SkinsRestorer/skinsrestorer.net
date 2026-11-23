@@ -14,7 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ComponentProps } from "react";
+import { flushSync } from "react-dom";
 import { useLocale, useT } from "@/lib/i18n-react";
 import type { Locale } from "@/lib/i18n";
 
@@ -31,7 +32,6 @@ const supporterPlanFeatures = [
   "pricing.priorityFeatureRequests",
   "pricing.supporterRoleDiscord",
   "pricing.supportOngoingDevelopment",
-  "pricing.helpKeepProjectAlive",
 ] as const;
 
 const koFiUrl = "https://ko-fi.com/skinsrestorer";
@@ -64,7 +64,7 @@ function PricingPage() {
 
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
           {/* Free Plan */}
-          <Card className="relative flex flex-col">
+          <Card className="flex flex-col">
             <CardHeader>
               <div className="mb-2 flex items-center gap-3">
                 <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
@@ -206,21 +206,18 @@ function PricingPage() {
                 </CardTitle>
               </div>
               <CardDescription>
-                {t("pricing.donateViaPaypalCardMembershipOneTime")}
+                {t("pricing.donateViaPaypalOrCard")}
               </CardDescription>
             </CardHeader>
             <DonationWidget
               href={koFiUrl}
               label={t("pricing.openKoFi")}
-              widget={
-                // oxlint-disable-next-line react/iframe-missing-sandbox -- The Ko-fi checkout opens PayPal and Stripe flows that a sandbox can break, and it cannot be tested without a real payment.
-                <iframe
-                  src={`${koFiUrl}/?hidefeed=true&widget=true&embed=true&preview=true`}
-                  className="w-full border-none"
-                  height="712"
-                  title={t("pricing.koFiDonationWidgetSkinsrestorer")}
-                />
-              }
+              frame={{
+                src: `${koFiUrl}/?hidefeed=true&widget=true&embed=true&preview=true`,
+                className: "w-full border-none",
+                height: 712,
+                title: t("pricing.koFiDonationWidgetSkinsrestorer"),
+              }}
             />
           </Card>
 
@@ -240,16 +237,14 @@ function PricingPage() {
             <DonationWidget
               href={nowPaymentsUrl}
               label={t("pricing.openNowpayments")}
-              widget={
-                // oxlint-disable-next-line react/iframe-missing-sandbox -- The NOWPayments checkout opens wallet and payment flows that a sandbox can break, and it cannot be tested without a real payment.
-                <iframe
-                  src={nowPaymentsUrl}
-                  width="346"
-                  height="623"
-                  className="mx-auto block max-w-full overflow-y-hidden border-none"
-                  title={t("pricing.nowpaymentsCryptoDonationWidget")}
-                />
-              }
+              frame={{
+                src: nowPaymentsUrl,
+                width: 346,
+                height: 623,
+                className:
+                  "mx-auto block max-w-full overflow-y-hidden border-none",
+                title: t("pricing.nowpaymentsCryptoDonationWidget"),
+              }}
             />
           </Card>
         </div>
@@ -265,10 +260,11 @@ function PricingPage() {
 function DonationWidget(props: {
   href: string;
   label: string;
-  widget: ReactNode;
+  frame: ComponentProps<"iframe"> & { title: string };
 }) {
   const t = useT();
   const [shown, setShown] = useState(false);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const link = (
     <a
       href={props.href}
@@ -285,7 +281,11 @@ function DonationWidget(props: {
           type="button"
           variant="outline"
           onClick={() => {
-            setShown(true);
+            // The button unmounts, so move focus to the form that replaces it.
+            flushSync(() => {
+              setShown(true);
+            });
+            frameRef.current?.focus();
           }}
         >
           {t("pricing.showDonationForm")}
@@ -296,7 +296,10 @@ function DonationWidget(props: {
   }
   return (
     <>
-      <CardContent className="flex-1">{props.widget}</CardContent>
+      <CardContent className="flex-1">
+        {/* oxlint-disable-next-line react/iframe-missing-sandbox -- The Ko-fi and NOWPayments checkouts open PayPal, card, and wallet flows that a sandbox can break, and they cannot be tested without a real payment. */}
+        <iframe ref={frameRef} {...props.frame} title={props.frame.title} />
+      </CardContent>
       <CardFooter className="justify-center">
         <p className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground">
           {t("pricing.widgetNotLoading")}

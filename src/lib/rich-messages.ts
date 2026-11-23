@@ -9,6 +9,7 @@ export const richMessages = {
   "capes.mineskinCoupon": ["code", "link"],
   "common.sponsoredByEnderDash": ["link"],
   "consent.allowAnalyticsDetails": ["policy"],
+  "feedback.cannotReplyAskDiscord": ["discord"],
   "home.faqFreeAnswer": ["github", "plans"],
   "home.faqHelpAnswer": ["discord", "guides", "issues"],
   "home.faqIntro": ["docs"],

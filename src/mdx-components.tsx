@@ -40,7 +40,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...defaultMdxComponents,
     Accordion,
     Accordions,
-    Callout,
     Card: DocsCard,
     Step,
     Steps,
@@ -57,6 +56,17 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
         {...(src === undefined ? {} : { src })}
         {...(sizes === undefined ? {} : { sizes })}
       />
+    ),
+    // Like the Fumadocs table, but horizontal swipes inside a wide table do
+    // not trigger browser back and forward gestures.
+    table: (props: ComponentProps<"table">) => (
+      <div
+        className="relative my-6 prose-no-margin overflow-auto overscroll-x-contain"
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users scroll wide tables.
+        tabIndex={0}
+      >
+        <table {...props} />
+      </div>
     ),
     // HTML `ref` attribute conflicts with `forwardRef`
     pre: ({ ref: _ref, ...props }) => (

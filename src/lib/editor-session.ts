@@ -167,7 +167,6 @@ export class EditorSession {
   private generation = 0;
   /** Cancels a recovery read that a newer one replaced. */
   private recoveryRead: AbortController | undefined;
-  private recoveryFilter: { readonly skinId?: string | undefined } | undefined;
 
   constructor(
     store: SkinEditorStore,
@@ -256,8 +255,7 @@ export class EditorSession {
       .then(() => {
         // The released session's draft, for example one kept on close, can
         // now be offered here too.
-        if (this.recoveryShown && !this.disposed)
-          void this.loadRecovery(this.recoveryFilter);
+        if (this.recoveryShown && !this.disposed) void this.loadRecovery();
       });
   }
 
@@ -380,13 +378,10 @@ export class EditorSession {
    * List drafts that are not this editor's own work and that no open editor
    * in another tab owns. A newer call replaces a read that is still running.
    */
-  async loadRecovery(filter?: {
-    readonly skinId?: string | undefined;
-  }): Promise<readonly EditSession[]> {
+  async loadRecovery(): Promise<readonly EditSession[]> {
     const library = this.library;
     if (!library) return [];
     this.recoveryShown = true;
-    this.recoveryFilter = filter;
     this.recoveryRead?.abort();
     const read = new AbortController();
     this.recoveryRead = read;
@@ -401,9 +396,7 @@ export class EditorSession {
       if (read.signal.aborted) return this.state.recovery;
       const recovery = listing.sessions.filter(
         (session) =>
-          session.id !== this.state.sessionId &&
-          !live.has(session.id) &&
-          (!filter || session.skinId === filter.skinId),
+          session.id !== this.state.sessionId && !live.has(session.id),
       );
       const skins = new Set(listing.skins.map((skin) => skin.id));
       const orphans = recovery
@@ -452,10 +445,13 @@ export class EditorSession {
         const skin = await library.run(withLibrary((l) => l.get(skinId)));
         base = await documentOf(skin.current.png, skin.current.variant);
       } catch (cause) {
-        // The skin was removed after this draft was written. Continue it as
-        // new work, so saving creates a skin instead of failing.
-        if (cause instanceof SkinNotFoundError) owner = undefined;
-        base = undefined;
+        // A failed read, such as a busy disk, ends this attempt. Without the
+        // skin, Discard would keep the draft's pixels as if they were saved.
+        if (cause instanceof SkinLibraryError && cause.reason !== "damaged")
+          throw cause;
+        // The skin was removed or cannot be read. Continue the draft as new
+        // work, so saving creates a skin instead of failing.
+        owner = undefined;
       }
     if (this.generation !== generation) return "superseded";
     const sessionId = this.newId();
@@ -582,7 +578,7 @@ export class EditorSession {
     await this.enqueue(() =>
       library.run(withLibrary((l) => l.saveSession(draft))),
     );
-    await this.loadRecovery(this.recoveryFilter);
+    await this.loadRecovery();
   }
 
   /**

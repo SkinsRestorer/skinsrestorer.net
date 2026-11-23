@@ -5,6 +5,7 @@ import { useAsRef } from "@/hooks/use-as-ref";
 import { cn, required } from "@/lib/utils";
 import { describePixel, SKIN_SIZE, skinRegions } from "@/lib/skin-regions";
 import {
+  GRID_MIN_SCALE,
   startTool,
   usesBrush,
   usesMirror,
@@ -300,13 +301,12 @@ export function TextureCanvas(props: TextureCanvasProps) {
         texture.width = SKIN_SIZE;
         texture.height = SKIN_SIZE;
         const shown = store.pixels.slice();
-        texture
-          .getContext("2d")
-          ?.putImageData(
-            new ImageData(shown.slice(), SKIN_SIZE, SKIN_SIZE),
-            0,
-            0,
-          );
+        texture.getContext("2d")?.putImageData(
+          // putImageData copies, so the cache can keep the same array.
+          new ImageData(shown, SKIN_SIZE, SKIN_SIZE),
+          0,
+          0,
+        );
         textureCache.current = { revision, canvas: texture, pixels: shown };
       }
       ctx.drawImage(
@@ -355,7 +355,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
         canvas.height,
       );
 
-      if (showGrid && scale >= 6) {
+      if (showGrid && scale >= GRID_MIN_SCALE) {
         ctx.strokeStyle = foreground;
         ctx.globalAlpha = 0.12;
         ctx.lineWidth = 1;

@@ -201,10 +201,14 @@ function ErrorPage({ reset }: ErrorComponentProps) {
   const router = useRouter();
   return (
     <HomeLayout>
-      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-4 px-4 py-12">
-        <h1 className="text-3xl font-bold">{t("errors.unexpectedTitle")}</h1>
-        <p>{t("common.pleaseReloadPageTryAgain")}</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="m-auto flex max-w-xl flex-col items-center gap-6 px-4 py-12 text-center">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">{t("errors.unexpectedTitle")}</h1>
+          <p className="text-muted-foreground">
+            {t("common.pleaseReloadPageTryAgain")}
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-2">
           <Button
             type="button"
             onClick={() => {
