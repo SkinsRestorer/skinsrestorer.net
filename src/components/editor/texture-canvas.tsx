@@ -9,6 +9,7 @@ import {
   startTool,
   usesBrush,
   usesMirror,
+  wheelScale,
   type EditorSurfaceProps,
 } from "@/components/editor/editor-types";
 import { brushArea, type PixelRect } from "@/lib/skin-paint";
@@ -21,7 +22,7 @@ interface TextureCanvasProps extends EditorSurfaceProps {
   readonly showGrid: boolean;
   /** Pixel indexes to outline, for example from the skin check. */
   readonly highlight?: readonly number[] | undefined;
-  /** Asks for a new scale when two fingers pinch the texture. */
+  /** Asks for a new scale for a pinch or a Ctrl+wheel. */
   readonly onZoom?: (scale: number) => void;
 }
 
@@ -132,23 +133,24 @@ export function TextureCanvas(props: TextureCanvasProps) {
   /** The finger distance and scale when a pinch started. */
   const pinch = useRef<{ distance: number; scale: number } | null>(null);
   /**
-   * The texture point under the pinch center, as a fraction of the canvas
-   * size, where it was on screen, and the scale it was measured at. A new
-   * scale keeps it there.
+   * The texture point under the pinch center or wheel pointer, as a
+   * fraction of the canvas size, where it was on screen, and the scale it
+   * asked for. That scale keeps the point there. A scale that the zoom
+   * limits changed ignores it.
    */
   const anchor = useRef<{
     u: number;
     v: number;
     x: number;
     y: number;
-    from: number;
+    to: number;
   } | null>(null);
 
   useLayoutEffect(() => {
     const point = anchor.current;
     const canvas = canvasRef.current;
     anchor.current = null;
-    if (!point || !canvas || point.from === scale) return;
+    if (!point || !canvas || point.to !== scale) return;
     const rect = canvas.getBoundingClientRect();
     panBy(
       canvas,
@@ -156,6 +158,44 @@ export function TextureCanvas(props: TextureCanvasProps) {
       rect.top + point.v * rect.height - point.y,
     );
   }, [scale]);
+
+  // Ctrl+wheel and touchpad pinches zoom around the pointer. React wheel
+  // listeners are passive, so they cannot stop the browser zoom.
+  useEffect((): (() => void) | undefined => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    /** The unrounded scale, so small touchpad steps add up. */
+    let exact = 0;
+    /** The last scale this listener asked for, and the scale it saw. */
+    let requested = 0;
+    let seen = 0;
+    const onWheel = (event: WheelEvent) => {
+      const { onZoom, scale: current } = propsRef.current;
+      if (!event.ctrlKey || !onZoom) return;
+      event.preventDefault();
+      // Another control changed the scale: start again from it. Until the
+      // requested scale renders, the old one stays and the steps add up.
+      if (current !== seen && current !== requested) exact = current;
+      seen = current;
+      exact = wheelScale(exact, event);
+      const zoomed = Math.round(exact);
+      if (zoomed === current) return;
+      const rect = canvas.getBoundingClientRect();
+      anchor.current = {
+        u: (event.clientX - rect.left) / rect.width,
+        v: (event.clientY - rect.top) / rect.height,
+        x: event.clientX,
+        y: event.clientY,
+        to: zoomed,
+      };
+      requested = zoomed;
+      onZoom(zoomed);
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      canvas.removeEventListener("wheel", onWheel);
+    };
+  }, [propsRef]);
 
   // A stroke changes a few pixels on each sample. Redraw only those, at most
   // once for each animation frame, instead of the whole canvas. The end of
@@ -631,7 +671,7 @@ export function TextureCanvas(props: TextureCanvasProps) {
                     v: (y - rect.top) / rect.height,
                     x,
                     y,
-                    from: current,
+                    to: zoomed,
                   };
                   onZoom(zoomed);
                 }

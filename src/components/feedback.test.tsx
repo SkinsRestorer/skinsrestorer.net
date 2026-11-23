@@ -5,7 +5,11 @@ import { Feedback } from "./feedback";
 
 test("the rating buttons form a group named by the question and expose their state", () => {
   const html = renderToStaticMarkup(
-    <Feedback url="/docs/installation" version="15.12.6" />,
+    <Feedback
+      url="/docs/installation"
+      version="15.12.6"
+      reportUrl="https://github.com/SkinsRestorer/skinsrestorer.net/issues/new"
+    />,
   );
   // A fieldset has the group role.
   const group = /<fieldset[^>]*>/u.exec(html)?.[0] ?? "";

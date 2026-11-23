@@ -253,7 +253,6 @@ export function SkinStudio(props: {
     source,
     store,
     client: library.client,
-    updateSearch,
     onGalleryOpened: () => {
       setDrawer(false);
     },
@@ -706,7 +705,15 @@ export function SkinStudio(props: {
                   editButtonId={editButtonId}
                   keepButtonId={keepButtonId}
                   onKeep={
-                    current.origin === "gallery" ? keepGallery : undefined
+                    // Without storage, the button could only fail.
+                    current.origin === "gallery" &&
+                    library.client &&
+                    library.state.status !== "unavailable"
+                      ? keepGallery
+                      : undefined
+                  }
+                  storageBlocked={
+                    !library.client || library.state.status === "unavailable"
                   }
                   galleryLink={
                     current.galleryId
@@ -848,6 +855,8 @@ function SelectedSkinView(props: {
   onEdit: () => void;
   onUseLatest: () => void;
   onKeep?: (() => void) | undefined;
+  /** The browser cannot keep skins, so Download is the only way to keep one. */
+  storageBlocked?: boolean;
   galleryLink?: string | undefined;
   /** Element ids, so the Studio can move focus here after a view change. */
   headingId?: string;
@@ -862,6 +871,14 @@ function SelectedSkinView(props: {
     selection.status === "ready" && !editable
       ? t("studio.only64646432Skins")
       : undefined;
+  // Library skins have Download in their menu. Offer it here for skins the
+  // library does not hold.
+  const downloadable =
+    selection.status !== "invalid" &&
+    (galleryLink !== undefined ||
+      props.storageBlocked ||
+      selection.keep.kind === "off" ||
+      selection.keep.kind === "removed");
   const [copied, setCopied] = useState(false);
   useEffect((): (() => void) | undefined => {
     if (!copied) return undefined;
@@ -956,40 +973,40 @@ function SelectedSkinView(props: {
           </Button>
         )}
         {galleryLink && (
-          <>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label={t("common.copyGalleryLink")}
-              title={t("common.copyGalleryLink")}
-              onClick={() =>
-                void navigator.clipboard
-                  .writeText(new URL(galleryLink, window.location.origin).href)
-                  .then(
-                    () => {
-                      setCopied(true);
-                      // The icon change alone is easy to miss.
-                      toast.success(t("common.copiedClipboard"));
-                    },
-                    () => toast.error(t("common.failedCopy")),
-                  )
-              }
-            >
-              {copied ? <Check /> : <Link2 />}
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={selection.status !== "ready"}
-              aria-label={t("common.downloadPng")}
-              title={t("common.downloadPng")}
-              onClick={() => {
-                downloadSkin(selection.file, selection.name);
-              }}
-            >
-              <Download />
-            </Button>
-          </>
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={t("common.copyGalleryLink")}
+            title={t("common.copyGalleryLink")}
+            onClick={() =>
+              void navigator.clipboard
+                .writeText(new URL(galleryLink, window.location.origin).href)
+                .then(
+                  () => {
+                    setCopied(true);
+                    // The icon change alone is easy to miss.
+                    toast.success(t("common.copiedClipboard"));
+                  },
+                  () => toast.error(t("common.failedCopy")),
+                )
+            }
+          >
+            {copied ? <Check /> : <Link2 />}
+          </Button>
+        )}
+        {downloadable && (
+          <Button
+            size="icon"
+            variant="ghost"
+            disabled={selection.status !== "ready"}
+            aria-label={t("common.downloadPng")}
+            title={t("common.downloadPng")}
+            onClick={() => {
+              downloadSkin(selection.file, selection.name);
+            }}
+          >
+            <Download />
+          </Button>
         )}
       </div>
     </>

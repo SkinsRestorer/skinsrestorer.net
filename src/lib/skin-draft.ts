@@ -4,7 +4,6 @@ import { importSkinPng, type SkinDocument } from "./skin-document";
 
 export const DRAFT_KEY = "skinsrestorer:editor:draft";
 const DRAFT_VERSION = 1;
-export const HANDOFF_KEY = "skinsrestorer:editor:handoff";
 
 /** The storage methods the editor uses. Every call can throw in a browser. */
 export type KeyValueStorage = Pick<
@@ -20,12 +19,6 @@ const draftSchema = Schema.Struct({
   updatedAt: Schema.Finite,
 });
 const versionSchema = Schema.Struct({ version: Schema.Finite });
-const handoffSchema = Schema.Struct({
-  version: Schema.Literal(DRAFT_VERSION),
-  id: Schema.String,
-  variant: variantSchema,
-  png: Schema.String,
-});
 
 export function bytesToBase64(bytes: Uint8Array) {
   let binary = "";
@@ -112,50 +105,5 @@ export function discardDraft(storage: KeyValueStorage | undefined) {
     return true;
   } catch {
     return false;
-  }
-}
-
-export interface SkinHandoff {
-  readonly id: string;
-  readonly file: File;
-  readonly variant: SkinVariant;
-}
-
-/**
- * Read a handoff that the earlier editor (November 2026) left in this tab's
- * session storage for a `?handoff=` link. Nothing writes handoffs any more.
- */
-export async function readHandoff(
-  storage: Pick<KeyValueStorage, "getItem"> | undefined,
-  id: string,
-): Promise<SkinHandoff | undefined> {
-  let raw: string | null | undefined;
-  try {
-    raw = storage?.getItem(HANDOFF_KEY);
-  } catch {
-    return undefined;
-  }
-  if (!raw) return undefined;
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
-  const record = Schema.decodeUnknownOption(handoffSchema)(value);
-  if (record._tag === "None" || record.value.id !== id) return undefined;
-  try {
-    const bytes = base64ToBytes(record.value.png);
-    // Validate the image before the page shows it as a selected file.
-    await importSkinPng(bytes);
-    return {
-      id,
-      file: new File([bytes], "edited-skin.png", {
-        type: "image/png",
-      }),
-      variant: record.value.variant,
-    };
-  } catch {
-    return undefined;
   }
 }

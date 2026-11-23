@@ -72,10 +72,9 @@ export const Route = createRootRoute({
       // Pages set their own title. This covers not-found and error states.
       { title: getFallbackTitle(matches) },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#B2A711" },
       { name: "application-name", content: "SkinsRestorer" },
       { name: "apple-mobile-web-app-title", content: "SkinsRestorer" },
-      { name: "msapplication-TileColor", content: "#B2A711" },
+      { name: "msapplication-TileColor", content: "#8839EF" },
       { property: "og:site_name", content: "SkinsRestorer" },
       { property: "og:type", content: "website" },
     ],
@@ -137,6 +136,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang={locale} suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/*
+         * Brand purple, the same as the docs and the app's primary color.
+         * HeadContent keeps one meta tag per name, so the light and dark
+         * variants render here.
+         */}
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: light)"
+          content="#8839EF"
+        />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: dark)"
+          content="#CBA6F7"
+        />
       </head>
       <body
         className="flex size-full min-h-svh flex-col font-sans antialiased"

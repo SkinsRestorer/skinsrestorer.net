@@ -2,7 +2,14 @@
 
 import { message, type Message } from "@/lib/messages";
 
-import { Box, RotateCcw, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  Box,
+  Ellipsis,
+  RotateCcw,
+  RotateCw,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SkinViewer, WalkingAnimation } from "skinview3d";
 import {
@@ -18,6 +25,12 @@ import {
 } from "three";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
@@ -395,6 +408,15 @@ export function ModelCanvas(
     hover.current?.redraw();
   };
 
+  const resetView = () => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+    viewer.playerWrapper.rotation.y = 0;
+    viewer.zoom = 0.8;
+    viewer.resetCameraPose();
+    hover.current?.redraw();
+  };
+
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex flex-wrap items-center gap-1">
@@ -434,32 +456,53 @@ export function ModelCanvas(
         >
           <ZoomIn />
         </ViewButton>
+        {/* Phones get one menu for these, so the toolbar fits one row. */}
         <Button
           variant="ghost"
           size="sm"
-          className="pointer-coarse:h-9"
+          className="hidden sm:inline-flex pointer-coarse:h-9"
           disabled={!!failure}
-          onClick={() => {
-            const viewer = viewerRef.current;
-            if (!viewer) return;
-            viewer.playerWrapper.rotation.y = 0;
-            viewer.zoom = 0.8;
-            viewer.resetCameraPose();
-            hover.current?.redraw();
-          }}
+          onClick={resetView}
         >
           {t("editor.resetView")}
         </Button>
         <Toggle
           variant="outline"
           size="sm"
-          className="pointer-coarse:h-9"
+          className="hidden sm:inline-flex pointer-coarse:h-9"
           pressed={animate}
           disabled={!!failure}
           onPressedChange={setAnimate}
         >
           {t("editor.walk")}
         </Toggle>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="sm:hidden pointer-coarse:size-9"
+                aria-label={t("editor.moreViewOptions")}
+                disabled={!!failure}
+              />
+            }
+          >
+            <Ellipsis />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-auto">
+            <DropdownMenuItem onClick={resetView}>
+              {t("editor.resetView")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setAnimate(!animate);
+              }}
+            >
+              {t(animate ? "editor.stopWalking" : "editor.walk")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         {props.actions}
       </div>
       <div

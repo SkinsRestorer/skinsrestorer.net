@@ -150,8 +150,7 @@ export function useStudioCommandForm(props: {
     const chosen = normalizeStudioOptions(value, purpose);
     if (!input || pendingGallery) return;
     const exact: GenerationInput = { ...input, ...chosen, purpose };
-    const fromEditor =
-      current?.origin === "handoff" || current?.origin === "editor";
+    const fromEditor = current?.origin === "editor";
     const route = uploadRoute(chosen);
     const started = performance.now();
     await generation.generate(exact, {

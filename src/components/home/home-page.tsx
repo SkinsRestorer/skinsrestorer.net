@@ -338,13 +338,22 @@ export default function IndexPage() {
             id="installation-title"
             title={t("home.installServer")}
             action={
-              <Link
-                href="/docs/installation/requirements"
-                className={linkClassName}
-              >
-                {t("home.minecraftJavaRequirements")}
-                <ArrowRight aria-hidden="true" className="size-3.5" />
-              </Link>
+              <div className="flex flex-col items-start gap-2 sm:items-end">
+                <Link
+                  href="/docs/installation/requirements"
+                  className={linkClassName}
+                >
+                  {t("home.minecraftJavaRequirements")}
+                  <ArrowRight aria-hidden="true" className="size-3.5" />
+                </Link>
+                <Link
+                  href="/docs/installation/quick-start"
+                  className={linkClassName}
+                >
+                  {t("home.checkFirstSkin")}
+                  <ArrowRight aria-hidden="true" className="size-3.5" />
+                </Link>
+              </div>
             }
           >
             {t("home.pickSoftwareServerRunsEachGuideCovers")}
@@ -546,7 +555,7 @@ export default function IndexPage() {
             </div>
             <Link href="/pricing" className={linkClassName}>
               <Heart aria-hidden="true" className="size-4" />
-              {t("home.becomeSupporter")}
+              {t("pricing.becomeSupporter")}
             </Link>
             <EnderDashSponsor placement="home" className="w-full" />
           </div>

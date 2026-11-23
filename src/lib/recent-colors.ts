@@ -6,7 +6,7 @@ const RECENT_COLOR_LIMIT = 8;
 export const RECENT_COLORS_KEY = "skinsrestorer:editor-recent-colors";
 const VERSION = 1;
 
-export type RecentColorsRead =
+type RecentColorsRead =
   | { readonly status: "found"; readonly colors: Rgba[] }
   | { readonly status: "none" | "corrupt" | "newer" | "unavailable" };
 
@@ -67,6 +67,17 @@ export function readRecentColors(
   for (const color of colors.toReversed())
     list = addRecentColor(list, [color[0], color[1], color[2], color[3]]);
   return { status: "found", colors: list };
+}
+
+/**
+ * The colors to show after a read, or undefined to keep the current ones. An
+ * empty store clears the list, so clearing site data in another tab applies
+ * here too. Corrupt, newer, or blocked storage keeps the colors in memory.
+ */
+export function shownRecentColors(read: RecentColorsRead): Rgba[] | undefined {
+  if (read.status === "found") return read.colors;
+  if (read.status === "none") return [];
+  return undefined;
 }
 
 /**

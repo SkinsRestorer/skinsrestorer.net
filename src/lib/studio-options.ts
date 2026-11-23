@@ -6,7 +6,8 @@ export const NO_CAPE_VALUE = "__no_cape__" as const;
 
 export type UploadMethod = "axolotl" | "mineskin";
 
-export type CapeStatus = "idle" | "loading" | "granted" | "denied";
+/** "missing" means the user asked for a check without entering a key. */
+export type CapeStatus = "idle" | "missing" | "loading" | "granted" | "denied";
 
 /**
  * The options form of the Studio. The skin file and model live in the

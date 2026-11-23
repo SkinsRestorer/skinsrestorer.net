@@ -10,6 +10,7 @@ import {
 import type { SkinEditorStore } from "./skin-editor-store";
 import { SKIN_SIZE } from "./skin-regions";
 import { withLibrary, type LibraryClient } from "./skin-library-client";
+import { timeout, type Timer } from "./location-write";
 import type { Locale } from "./i18n";
 import {
   copyName,
@@ -77,16 +78,6 @@ export type SaveResult =
 
 const SAVE_DELAY_MS = 500;
 
-/** Run `callback` after `ms` milliseconds. The result cancels it. */
-export type Schedule = (callback: () => void, ms: number) => () => void;
-
-const timeout: Schedule = (callback, ms) => {
-  const timer = setTimeout(callback, ms);
-  return () => {
-    clearTimeout(timer);
-  };
-};
-
 /** Each open editor holds a Web Lock with this prefix and its session id. */
 const SESSION_LOCK = "skinsrestorer-session:";
 
@@ -101,7 +92,7 @@ interface EditorSessionOptions {
   readonly now?: () => number;
   readonly saveDelayMs?: number;
   /** Schedules autosave. `setTimeout` by default. */
-  readonly schedule?: Schedule;
+  readonly schedule?: Timer;
   /**
    * Reads the visitor's current language, for copy names. English by
    * default.

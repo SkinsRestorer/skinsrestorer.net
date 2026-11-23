@@ -145,7 +145,7 @@ export function useT() {
   return useMemo(() => createRichTranslator(locale), [locale]);
 }
 
-/** Async notifications use the latest locale without restarting reads or handoffs. */
+/** Async notifications use the latest locale without restarting reads. */
 export function useNotificationT() {
   const current = useAsRef(useT());
   return useMemo<Translator>(

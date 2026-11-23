@@ -58,7 +58,7 @@ function PricingPage() {
             {t("pricing.freeAndSupporterPlans")}
           </h1>
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
-            {t("pricing.skinsrestorerAlwaysWillFreeIfYouLove")}
+            {t("pricing.intro")}
           </p>
         </div>
 
@@ -74,9 +74,7 @@ function PricingPage() {
                   <h2>{t("pricing.free")}</h2>
                 </CardTitle>
               </div>
-              <CardDescription>
-                {t("pricing.everythingYouNeedManageSkinsServer")}
-              </CardDescription>
+              <CardDescription>{t("pricing.freeDescription")}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="mb-6">
@@ -191,11 +189,12 @@ function PricingPage() {
             {t("pricing.oneTimeDonations")}
           </h2>
           <p className="max-w-[600px] text-muted-foreground md:text-lg">
-            {t("pricing.wantSupportSkinsrestorerWithoutRecurringCommitmentYou")}
+            {t("pricing.oneTimeDonationsDescription")}
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
+        {/* items-start keeps a closed card short when the other form opens. */}
+        <div className="mx-auto grid max-w-4xl grid-cols-1 items-start gap-8 md:grid-cols-2">
           {/* Ko-fi Widget */}
           <Card className="flex flex-col">
             <CardHeader>

@@ -71,8 +71,9 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
 
   /** Check the capes grant of this key, only when the user asks. */
   const verify = async (apiKey: string) => {
+    // The key field shows both problems as its own error.
     if (!apiKey) {
-      toast.warning(t("capes.enterMineskinApiKeyLoadCapes"));
+      setKeyStatus("missing");
       return;
     }
     setKeyStatus("loading");
@@ -81,7 +82,6 @@ export function useCapeAccess(options: { readonly keyRequired: boolean }) {
       ({ hasCapeGrant, capes }) => {
         if (!hasCapeGrant) {
           setKeyStatus("denied");
-          toast.error(t("capes.apiKeyDoesNotHaveCapesGrant"));
           return;
         }
         setKeyStatus("granted");

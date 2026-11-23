@@ -33,7 +33,19 @@ test("a key without the capes grant marks the field invalid and names the error"
   assert.ok(error?.[0].includes('role="alert"'));
   assert.equal(
     error?.[1],
-    "Cape support requires an API key with the capes grant.",
+    "Your API key does not have the capes grant. Check your MineSkin plan.",
+  );
+});
+
+test("checking without a key asks for one on the field", () => {
+  const { html, input, describedBy } = render("missing");
+  assert.ok(input.includes('aria-invalid="true"'));
+  assert.match(
+    html,
+    new RegExp(
+      `id="${describedBy}"[^>]*>Enter your MineSkin API key to load capes.<`,
+      "u",
+    ),
   );
 });
 

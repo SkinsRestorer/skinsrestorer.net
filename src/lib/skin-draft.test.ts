@@ -1,16 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createTemplate, importSkinPng, pixelOffset } from "./skin-document";
+import { createTemplate, pixelOffset } from "./skin-document";
 import type { SkinDocument } from "./skin-document";
-import { encodePngSync } from "./png";
 import {
   browserStorage,
-  bytesToBase64,
   DRAFT_KEY,
   discardDraft,
-  HANDOFF_KEY,
   readDraft,
-  readHandoff,
   type KeyValueStorage,
 } from "./skin-draft";
 import { required } from "./utils";
@@ -61,57 +57,6 @@ test("damaged, newer, and blocked storage are reported without throwing", async 
   assert.equal((await readDraft(blockedStorage)).status, "unavailable");
   assert.equal((await readDraft(undefined)).status, "unavailable");
   assert.equal(discardDraft(blockedStorage), false);
-});
-
-/** Store a handoff as the earlier editor did before opening Upload. */
-function storeHandoff(
-  storage: KeyValueStorage,
-  id: string,
-  document: SkinDocument,
-) {
-  storage.setItem(
-    HANDOFF_KEY,
-    JSON.stringify({
-      version: 1,
-      id,
-      variant: document.variant,
-      png: bytesToBase64(encodePngSync(document.pixels, 64, 64)),
-    }),
-  );
-}
-
-test("an earlier handoff restores its pixels and explicit model once per id", async () => {
-  const storage = memoryStorage();
-  const document = createTemplate("classic");
-  // The pixels look classic, but the user chose slim.
-  storeHandoff(storage, "a", { pixels: document.pixels, variant: "slim" });
-  // A draft from this or another tab does not change the handoff.
-  storeDraft(storage, createTemplate("slim"));
-  const handoff = await readHandoff(storage, "a");
-  assert.ok(handoff);
-  assert.equal(handoff.variant, "slim");
-  assert.equal(handoff.file.type, "image/png");
-  const bytes = new Uint8Array(await handoff.file.arrayBuffer());
-  assert.deepEqual(
-    (await importSkinPng(bytes)).document.pixels,
-    document.pixels,
-  );
-  // A different id, such as an old link, gets nothing.
-  assert.equal(await readHandoff(storage, "b"), undefined);
-});
-
-test("a damaged, missing, or blocked handoff reads as gone", async () => {
-  const storage = memoryStorage();
-  assert.equal(await readHandoff(storage, "a"), undefined);
-  storage.data.set(HANDOFF_KEY, "{not json");
-  assert.equal(await readHandoff(storage, "a"), undefined);
-  storage.data.set(
-    HANDOFF_KEY,
-    JSON.stringify({ version: 1, id: "a", variant: "slim", png: "AAAA" }),
-  );
-  assert.equal(await readHandoff(storage, "a"), undefined);
-  assert.equal(await readHandoff(blockedStorage, "a"), undefined);
-  assert.equal(await readHandoff(undefined, "a"), undefined);
 });
 
 test("full storage stays readable, and blocked storage is reported", async () => {

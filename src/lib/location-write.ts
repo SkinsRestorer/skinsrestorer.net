@@ -1,7 +1,7 @@
 /** Run `callback` after `ms` milliseconds. Returns a function that cancels it. */
 export type Timer = (callback: () => void, ms: number) => () => void;
 
-const timeout: Timer = (callback, ms) => {
+export const timeout: Timer = (callback, ms) => {
   const id = setTimeout(callback, ms);
   return () => {
     clearTimeout(id);

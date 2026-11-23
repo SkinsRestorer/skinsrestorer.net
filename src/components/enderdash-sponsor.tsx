@@ -42,8 +42,7 @@ export function EnderDashSponsor({
             // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
             <a
               href={href}
-              target="_blank"
-              rel="sponsored noopener"
+              rel="sponsored"
               className="font-medium text-foreground underline underline-offset-4"
             />
           ),

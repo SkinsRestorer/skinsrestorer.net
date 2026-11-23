@@ -35,7 +35,7 @@ const rateButtonVariants = cva(
   },
 );
 
-const discordLinkClassName =
+const linkClassName =
   "font-medium text-fd-foreground underline underline-offset-4";
 
 interface FeedbackData {
@@ -74,7 +74,16 @@ function parseFeedback(item: string | null): FeedbackData | null {
   return null;
 }
 
-export function Feedback({ url, version }: { url: string; version: string }) {
+export function Feedback({
+  url,
+  version,
+  reportUrl,
+}: {
+  url: string;
+  version: string;
+  /** Opens a GitHub issue about this page. */
+  reportUrl: string;
+}) {
   const t = useT();
   const messageId = useId();
   const questionId = useId();
@@ -276,12 +285,24 @@ export function Feedback({ url, version }: { url: string; version: string }) {
         {/* Readers who rate a page down often need support, which anonymous
             feedback cannot give them. */}
         {activeOpinion === "bad" ? (
-          <p className="text-sm text-fd-muted-foreground">
-            {t.rich("feedback.cannotReplyAskDiscord", {
-              // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
-              discord: <a className={discordLinkClassName} href="/discord" />,
-            })}
-          </p>
+          <div className="flex flex-col gap-1 text-sm text-fd-muted-foreground">
+            <p>
+              {t.rich("feedback.cannotReplyAskDiscord", {
+                // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+                discord: <a className={linkClassName} href="/discord" />,
+              })}
+            </p>
+            <p>
+              <a
+                className={linkClassName}
+                href={reportUrl}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                {t("feedback.reportGithub")}
+              </a>
+            </p>
+          </div>
         ) : null}
       </CollapsibleContent>
     </Collapsible>

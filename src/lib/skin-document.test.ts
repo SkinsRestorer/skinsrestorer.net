@@ -11,7 +11,7 @@ import {
   importSkinPng,
   pixelOffset,
 } from "./skin-document";
-import { regionAt } from "./skin-regions";
+import { classicOnlyArmPixels, regionAt } from "./skin-regions";
 
 function legacyFixture() {
   const pixels = new Uint8ClampedArray(64 * 32 * 4);
@@ -95,6 +95,28 @@ test("other image sizes are rejected with a reason", async () => {
     /128×128.*Resize HD skins/u,
   );
   await assert.rejects(importSkinPng(new Uint8Array(6 * 1024 * 1024)), /5 MB/u);
+});
+
+test("import detection and the skin check agree on the model", async () => {
+  // A slim skin with one faint outer pixel in the fourth arm column.
+  const { pixels } = createTemplate("slim");
+  const outer = classicOnlyArmPixels.find(
+    (index) =>
+      regionAt("classic", index % 64, Math.floor(index / 64))?.layer ===
+      "outer",
+  );
+  assert.ok(outer !== undefined);
+  pixels[outer * 4 + 3] = 1;
+  const imported = await importSkinPng(await exportSkinPng(pixels));
+  assert.equal(imported.document.variant, "classic");
+  const ids = new Set(
+    checkSkin(pixels, imported.document.variant).map((i) => i.id),
+  );
+  assert.ok(!ids.has("possible-classic") && !ids.has("possible-slim"));
+  // With the column empty again, the skin imports as slim and stays quiet.
+  pixels[outer * 4 + 3] = 0;
+  assert.equal(detectVariantFromPixels(pixels), "slim");
+  assert.deepEqual(checkSkin(pixels, "slim"), []);
 });
 
 test("templates are valid skins of the chosen model with an empty outer layer", () => {

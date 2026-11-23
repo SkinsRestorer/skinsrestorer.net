@@ -43,8 +43,7 @@ export function useStudioSearch(search: StudioSearch) {
 
   /** A local skin is selected: the URL no longer names a public skin. */
   const dropSkinReference = () => {
-    if (search.skin || search.texture || search.handoff)
-      void updateSearch(withoutSkinReference);
+    if (search.skin || search.texture) void updateSearch(withoutSkinReference);
   };
 
   const updateSearchRef = useAsRef(updateSearch);
@@ -61,7 +60,6 @@ export function useStudioSearch(search: StudioSearch) {
     source,
     search.skin,
     search.texture,
-    search.handoff,
   ]);
   const previousQueryLocation = useRef(queryLocation);
   const queryWrite = useRef<LocationWrite<string | undefined>>(null);
@@ -121,5 +119,3 @@ export function useStudioSearch(search: StudioSearch) {
     cancelQueryWrite,
   };
 }
-
-export type UpdateSearch = ReturnType<typeof useStudioSearch>["updateSearch"];

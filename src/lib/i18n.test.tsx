@@ -25,10 +25,10 @@ import { getPageHead } from "./seo";
 
 const noop = () => {};
 
-test("locale URLs preserve English permalinks and handoff, texture and section references", () => {
+test("locale URLs preserve English permalinks, skin, texture and section references", () => {
   assert.equal(
-    localizePath("/upload?handoff=abc#result", "ru"),
-    "/ru/upload?handoff=abc#result",
+    localizePath("/upload?skin=abc#result", "ru"),
+    "/ru/upload?skin=abc#result",
   );
   assert.equal(
     localizePath("/ru/editor?texture=abc", "pt-BR"),
@@ -58,7 +58,7 @@ test("locale URLs preserve English permalinks and handoff, texture and section r
 });
 
 test("only pages with translations have localized URLs for the language switcher", () => {
-  assert.equal(hasLocalizedPages("/ru/studio?handoff=abc"), true);
+  assert.equal(hasLocalizedPages("/ru/studio?skin=abc"), true);
   assert.equal(hasLocalizedPages("/docs/installation#setup"), true);
   assert.equal(hasLocalizedPages("/es"), true);
   assert.equal(hasLocalizedPages("/privacy-policy"), false);

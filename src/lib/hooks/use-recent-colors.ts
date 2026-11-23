@@ -3,6 +3,7 @@ import {
   addRecentColor,
   readRecentColors,
   RECENT_COLORS_KEY,
+  shownRecentColors,
   writeRecentColors,
 } from "@/lib/recent-colors";
 import { browserStorage } from "@/lib/skin-draft";
@@ -23,14 +24,15 @@ export function useRecentColors() {
     const load = () => {
       const read = readRecentColors(browserStorage("localStorage"));
       writable.current = read.status !== "newer";
-      if (read.status !== "found") return;
-      current.current = read.colors;
-      setColors(read.colors);
+      const next = shownRecentColors(read);
+      if (!next) return;
+      current.current = next;
+      setColors(next);
     };
     load();
-    // Another tab added a color.
+    // Another tab changed the colors. A null key means it cleared storage.
     const changed = (event: StorageEvent) => {
-      if (event.key === RECENT_COLORS_KEY) load();
+      if (event.key === null || event.key === RECENT_COLORS_KEY) load();
     };
     window.addEventListener("storage", changed);
     return () => {

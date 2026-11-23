@@ -44,7 +44,7 @@ test("docs pages are offered only in the locales they are written in", () => {
 });
 
 test("tool pages exist in every locale and legal pages in none", () => {
-  assert.equal(pageHasLocale("/studio?handoff=abc", "pt-BR", []), true);
+  assert.equal(pageHasLocale("/studio?skin=abc", "pt-BR", []), true);
   assert.equal(pageHasLocale("/", "es", []), true);
   assert.equal(pageHasLocale("/privacy-policy", "ru", []), false);
 });

@@ -5,7 +5,12 @@ import {
 } from "@/lib/messages";
 import type { SkinVariant } from "./skin";
 import type { PatchBuilder } from "./skin-history";
-import { regionAt, SKIN_SIZE, skinRegions } from "./skin-regions";
+import {
+  classicOnlyArmPixels,
+  filledClassicOnlyArmPixels,
+  regionAt,
+  SKIN_SIZE,
+} from "./skin-regions";
 
 export type SkinIssueId =
   | "transparent-base"
@@ -24,19 +29,7 @@ export interface SkinIssue {
   readonly switchVariant?: SkinVariant;
 }
 
-function classicOnlyArmPixels() {
-  const pixels: number[] = [];
-  for (const region of skinRegions("classic")) {
-    if (region.part !== "rightArm" && region.part !== "leftArm") continue;
-    for (let y = region.y; y < region.y + region.height; y++)
-      for (let x = region.x; x < region.x + region.width; x++)
-        if (!regionAt("slim", x, y)) pixels.push(y * SKIN_SIZE + x);
-  }
-  return pixels;
-}
-
-const classicOnly = classicOnlyArmPixels();
-const classicOnlySet = new Set(classicOnly);
+const classicOnlySet = new Set(classicOnlyArmPixels);
 
 /**
  * Find problems that change how the skin looks in Java Edition. The check
@@ -49,9 +42,7 @@ export function checkSkin(
   const issues: SkinIssue[] = [];
   const transparentBase: number[] = [];
   const unused: number[] = [];
-  const filledClassicColumns = classicOnly.filter(
-    (index) => (pixels[index * 4 + 3] ?? 0) > 0,
-  );
+  const filledClassicColumns = filledClassicOnlyArmPixels(pixels);
   const mayBeClassic = variant === "slim" && filledClassicColumns.length > 0;
   const mayBeSlim = variant === "classic" && filledClassicColumns.length === 0;
   for (let index = 0; index < SKIN_SIZE * SKIN_SIZE; index++) {
@@ -103,7 +94,7 @@ export function checkSkin(
       id: "possible-slim",
       title: "editor.maySlimSkin",
       detail: message("editor.fourthArmColumnEmptyCheckPreview"),
-      pixels: classicOnly,
+      pixels: classicOnlyArmPixels,
       switchVariant: "slim",
     });
   return issues;

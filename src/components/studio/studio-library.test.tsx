@@ -77,7 +77,7 @@ test("blocked storage shows its reason as visible text", () => {
     status: "unavailable",
     message: message("library.browserDoesNotLetSiteKeepSkins"),
   });
-  assert.match(html, /<p[^>]*>This browser does not let the site keep skins/u);
+  assert.match(html, /<p[^>]*>This browser does not let the site save skins/u);
   assert.doesNotMatch(html, /No skins yet/u);
 });
 
@@ -88,7 +88,7 @@ test("blocked storage shows a short status and its reason only once", () => {
   });
   assert.match(html, /<output[^>]*title="Not saving"/u);
   assert.equal(
-    html.match(/This browser does not let the site keep skins/gu)?.length,
+    html.match(/This browser does not let the site save skins/gu)?.length,
     1,
   );
 });
@@ -115,4 +115,20 @@ test("a long skin name is truncated with the full name on hover", () => {
   });
   assert.match(html, new RegExp(`<span title="${name}" class="truncate`, "u"));
   assert.doesNotMatch(html, /No skins yet/u);
+});
+
+test("the library grid has one Tab stop, on the first skin", () => {
+  const html = render({
+    status: "ready",
+    listing: {
+      skins: [skin("a", "Harbor"), skin("b", "Forest"), skin("c", "Desert")],
+      sessions: [],
+      damaged: [],
+    },
+  });
+  const grid = html.slice(html.indexOf("<ul"), html.indexOf("</ul>"));
+  // The first skin's select button and its menu button.
+  assert.equal(grid.match(/tabindex="0"/gu)?.length, 2);
+  assert.match(html, /data-skin-id="a" tabindex="0"/u);
+  assert.doesNotMatch(html, /data-skin-id="b" tabindex="0"/u);
 });

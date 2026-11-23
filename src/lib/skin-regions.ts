@@ -191,6 +191,29 @@ export function findRegion(
   return region;
 }
 
+/** Arm pixels on both layers that only the classic model uses. */
+export const classicOnlyArmPixels: readonly number[] = skinRegions(
+  "classic",
+).flatMap((region) => {
+  if (region.part !== "rightArm" && region.part !== "leftArm") return [];
+  const pixels: number[] = [];
+  for (let y = region.y; y < region.y + region.height; y++)
+    for (let x = region.x; x < region.x + region.width; x++)
+      if (!regionAt("slim", x, y)) pixels.push(y * SKIN_SIZE + x);
+  return pixels;
+});
+
+/**
+ * Classic-only arm pixels that are not fully transparent. Any such pixel means
+ * the skin may be classic; none means it may be slim. Import detection and
+ * the skin check share this rule so they never disagree.
+ */
+export function filledClassicOnlyArmPixels(pixels: Uint8ClampedArray) {
+  return classicOnlyArmPixels.filter(
+    (index) => (pixels[index * 4 + 3] ?? 0) > 0,
+  );
+}
+
 const mirrorParts: Record<SkinPart, SkinPart> = {
   head: "head",
   body: "body",

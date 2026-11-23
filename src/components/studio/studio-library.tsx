@@ -14,7 +14,14 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import { useEffect, useEffectEvent, useId, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  useEffect,
+  useEffectEvent,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { SaveStatus } from "@/components/save-status";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +49,7 @@ import {
 import { MAX_SKIN_NAME_LENGTH, type StoredSkin } from "@/lib/skin-library";
 import { useT } from "@/lib/i18n-react";
 import { cn } from "@/lib/utils";
+import { moveGridFocus } from "./gallery-keys";
 import { SkinThumbnail } from "./skin-thumbnail";
 
 const placeholders = ["slot-a", "slot-b", "slot-c", "slot-d"] as const;
@@ -132,7 +140,15 @@ export function StudioLibrary(props: {
   const listing = state.status === "ready" ? state.listing : undefined;
   const drafts = new Set(listing?.sessions.map((session) => session.skinId));
   const [renaming, setRenaming] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string>();
+  const skins = listing?.skins ?? [];
+  // One Tab stop for the whole grid. Arrow keys move between skins.
+  const tabStop =
+    [focusedId, props.selectedId].find(
+      (candidate) => candidate && skins.some((skin) => skin.id === candidate),
+    ) ?? skins[0]?.id;
   const section = useRef<HTMLElement>(null);
+  const grid = useRef<HTMLUListElement>(null);
   const items = useRef(new Map<string, HTMLButtonElement>());
   const emptyAction = useRef<HTMLButtonElement>(null);
   const pendingFocus = useRef<FocusRequest | null>(null);
@@ -141,19 +157,20 @@ export function StudioLibrary(props: {
   /** Move focus once the shown listing has the requested change. */
   const applyFocus = () => {
     const request = pendingFocus.current;
-    const skins = shown.current?.skins;
-    if (!request || !skins) return;
-    const has = (id: string) => skins.some((skin) => skin.id === id);
+    const showing = shown.current?.skins;
+    if (!request || !showing) return;
+    const has = (id: string) => showing.some((skin) => skin.id === id);
     if (request.gone && has(request.gone)) return;
     if (request.appear && !has(request.appear)) return;
     pendingFocus.current = null;
-    // The menu item that started the change is gone, so focus fell back to
-    // the page. Leave focus alone if the user already moved it elsewhere.
+    // The menu item or toast that started the change is gone, so focus fell
+    // back to the page. Leave focus alone if the user already moved it.
     const active = document.activeElement;
     if (
       active &&
       active !== document.body &&
-      !section.current?.contains(active)
+      !section.current?.contains(active) &&
+      !active.closest("[data-sonner-toaster]")
     )
       return;
     // The empty state's buttons show only in the phone drawer. Beside the
@@ -180,12 +197,15 @@ export function StudioLibrary(props: {
   };
 
   const remove = (id: string) => {
-    const skins = listing?.skins ?? [];
     const index = skins.findIndex((skin) => skin.id === id);
     const next = skins[index + 1] ?? skins[index - 1];
-    void actions.remove(id).then((removed) => {
-      if (removed) requestFocus({ target: next?.id ?? EMPTY, gone: id });
-    });
+    void actions
+      .remove(id, (restored) => {
+        requestFocus({ target: restored.id, appear: restored.id });
+      })
+      .then((removed) => {
+        if (removed) requestFocus({ target: next?.id ?? EMPTY, gone: id });
+      });
   };
 
   return (
@@ -216,6 +236,7 @@ export function StudioLibrary(props: {
         </span>
       </div>
       <ul
+        ref={grid}
         className={cn(
           "grid gap-2.5 ph-no-capture",
           props.layout === "drawer"
@@ -240,6 +261,13 @@ export function StudioLibrary(props: {
             }}
             skin={skin}
             selected={skin.id === props.selectedId}
+            tabStop={skin.id === tabStop}
+            onFocus={() => {
+              setFocusedId(skin.id);
+            }}
+            onKeyDown={(event) => {
+              moveGridFocus(event, grid.current);
+            }}
             draft={drafts.has(skin.id)}
             renaming={renaming === skin.id}
             onRename={() => {
@@ -344,6 +372,10 @@ function LibraryItem(props: {
   register: (element: HTMLButtonElement | null) => void;
   skin: StoredSkin;
   selected: boolean;
+  /** Only one skin in the grid takes Tab focus. */
+  tabStop: boolean;
+  onFocus: () => void;
+  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
   draft: boolean;
   renaming: boolean;
   onSelect: () => void;
@@ -368,6 +400,10 @@ function LibraryItem(props: {
       <button
         ref={setButton}
         type="button"
+        data-skin-id={skin.id}
+        tabIndex={props.tabStop ? 0 : -1}
+        onFocus={props.onFocus}
+        onKeyDown={props.onKeyDown}
         aria-current={props.selected || undefined}
         aria-label={t(
           props.draft
@@ -437,6 +473,8 @@ function LibraryItem(props: {
                 variant="ghost"
                 size="icon-sm"
                 aria-label={t("library.moreActionsName", { name: skin.name })}
+                // Tab reaches the menu of the skin that has the Tab stop.
+                tabIndex={props.tabStop ? 0 : -1}
                 className="size-7"
               />
             }

@@ -73,16 +73,7 @@ function manualUpload() {
 }
 
 test("Studio search keeps only known intents and one public reference", () => {
-  // A handoff wins over a texture, and a texture over a gallery skin.
-  assert.deepEqual(
-    studioSearch({
-      intent: "createcustom",
-      texture: "abc",
-      handoff: "id",
-      skin: "boy",
-    }),
-    { intent: "createcustom", handoff: "id" },
-  );
+  // A texture wins over a gallery skin.
   assert.deepEqual(studioSearch({ texture: " abc ", skin: "boy" }), {
     texture: "abc",
   });
@@ -95,7 +86,10 @@ test("Studio search keeps only known intents and one public reference", () => {
     assert.deepEqual(studioSearch({ skin }), {});
   // The router decodes numeric values; gallery IDs can be digits.
   assert.deepEqual(studioSearch({ skin: 2024 }), { skin: "2024" });
-  assert.deepEqual(studioSearch({ handoff: "x".repeat(129) }), {});
+  // Links from before handoffs were removed lose the old reference.
+  assert.deepEqual(studioSearch({ handoff: "id", intent: "skin-url" }), {
+    intent: "skin-url",
+  });
 });
 
 test("Studio search omits defaults and keeps search text only with the gallery", () => {
@@ -155,7 +149,7 @@ test("selecting and clearing a skin keep the list and other URL state", () => {
   assert.deepEqual(fromLibrary, { skin: "red-hat", source: "library" });
   assert.deepEqual(withoutSkinReference(fromLibrary), {});
   assert.deepEqual(
-    withoutSkinReference(studioSearch({ handoff: "id", intent: "skin-url" })),
+    withoutSkinReference(studioSearch({ texture: "abc", intent: "skin-url" })),
     { intent: "skin-url" },
   );
 });

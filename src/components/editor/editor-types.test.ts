@@ -8,7 +8,14 @@ import {
   type PaintTool,
   type Rgba,
 } from "@/lib/skin-paint";
-import { startTool, usesMirror, type EditorSurfaceProps } from "./editor-types";
+import {
+  MAX_ZOOM,
+  MIN_ZOOM,
+  startTool,
+  usesMirror,
+  wheelScale,
+  type EditorSurfaceProps,
+} from "./editor-types";
 
 function surface(tool: PaintTool) {
   const store = new SkinEditorStore();
@@ -59,4 +66,18 @@ test("fill everywhere and the eyedropper never mirror", () => {
   assert.equal(usesMirror("fill", "face"), true);
   assert.equal(usesMirror("fill", "everywhere"), false);
   assert.equal(usesMirror("eyedropper", "face"), false);
+});
+
+const pixels = (deltaY: number) => ({ deltaY, deltaMode: 0 });
+
+test("Ctrl+wheel zooms in on scroll up and stays inside the limits", () => {
+  assert.ok(wheelScale(8, pixels(-100)) > 8);
+  assert.ok(wheelScale(8, pixels(100)) < 8);
+  // Opposite steps cancel, so small touchpad steps add up.
+  const back = wheelScale(wheelScale(8, pixels(-30)), pixels(30));
+  assert.ok(Math.abs(back - 8) < 1e-9);
+  // Firefox reports lines. Three lines zoom about as far as one notch.
+  assert.ok(wheelScale(8, { deltaY: -3, deltaMode: 1 }) > 9);
+  assert.equal(wheelScale(20, pixels(-5000)), MAX_ZOOM);
+  assert.equal(wheelScale(4, pixels(5000)), MIN_ZOOM);
 });

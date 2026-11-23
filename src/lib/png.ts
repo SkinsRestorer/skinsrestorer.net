@@ -175,7 +175,7 @@ export function encodePngSync(
   return assemble(width, height, data);
 }
 
-export interface DecodedPng {
+interface DecodedPng {
   readonly width: number;
   readonly height: number;
   /** Straight RGBA, 8 bits for each channel. */

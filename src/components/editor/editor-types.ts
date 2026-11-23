@@ -27,6 +27,29 @@ export interface EditorSurfaceProps {
 /** The smallest texture scale that draws the pixel grid. Below it, lines crowd the pixels. */
 export const GRID_MIN_SCALE = 6;
 
+/** Texture zoom limits, in CSS pixels for each skin pixel. */
+export const MIN_ZOOM = 3;
+export const MAX_ZOOM = 24;
+
+/** Wheel pixels that halve or double the texture zoom. */
+const WHEEL_HALVING = 300;
+
+/**
+ * The texture scale after a Ctrl+wheel step, inside the zoom limits and
+ * before rounding. Line and page deltas, such as from Firefox, count as
+ * pixels.
+ */
+export function wheelScale(
+  scale: number,
+  event: Pick<WheelEvent, "deltaY" | "deltaMode">,
+) {
+  // DOM_DELTA_LINE is 1 and DOM_DELTA_PAGE is 2. Three lines, a usual
+  // wheel notch, zoom about as far as a 100 px notch in other browsers.
+  const unit = [1, 33, 800][event.deltaMode] ?? 1;
+  const next = scale * 2 ** ((-event.deltaY * unit) / WHEEL_HALVING);
+  return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next));
+}
+
 export const toolLabels: Record<PaintTool, MessageKey> = {
   pencil: "editor.pencil",
   eraser: "editor.eraser",

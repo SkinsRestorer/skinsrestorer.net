@@ -2,7 +2,6 @@
 
 import { ImageOff, LoaderCircle, Search } from "lucide-react";
 import {
-  type KeyboardEvent,
   memo,
   useEffect,
   useId,
@@ -26,7 +25,7 @@ import { searchGallery, type GallerySkin } from "@/lib/skin-gallery";
 import { loadTexturePreviewEffect } from "@/lib/skin-texture";
 import { MAX_GALLERY_QUERY } from "@/lib/studio";
 import { cn } from "@/lib/utils";
-import { galleryKeyTarget } from "./gallery-keys";
+import { moveGridFocus } from "./gallery-keys";
 import { SkinThumbnail } from "./skin-thumbnail";
 
 const placeholders = ["gallery-a", "gallery-b", "gallery-c", "gallery-d"];
@@ -54,27 +53,6 @@ export function StudioGallery(props: {
     [focusedId, props.selectedId].find(
       (candidate) => candidate && skins.some((skin) => skin.id === candidate),
     ) ?? skins[0]?.id;
-  const moveFocus = (event: KeyboardEvent<HTMLButtonElement>) => {
-    const element = list.current;
-    if (!element || event.altKey || event.ctrlKey || event.metaKey) return;
-    const buttons = [
-      ...element.querySelectorAll<HTMLButtonElement>("button[data-skin-id]"),
-    ];
-    const index = buttons.indexOf(event.currentTarget);
-    if (index < 0) return;
-    const columns = getComputedStyle(element)
-      .gridTemplateColumns.split(" ")
-      .filter(Boolean).length;
-    const target = galleryKeyTarget(
-      event.key,
-      index,
-      buttons.length,
-      Math.max(1, columns),
-    );
-    if (target === undefined) return;
-    event.preventDefault();
-    buttons[target]?.focus();
-  };
   const empty = state.status === "ready" && skins.length === 0;
   return (
     <div className="flex min-w-0 flex-col gap-2.5 ph-no-capture">
@@ -163,7 +141,9 @@ export function StudioGallery(props: {
                     onFocus={() => {
                       setFocusedId(skin.id);
                     }}
-                    onKeyDown={moveFocus}
+                    onKeyDown={(event) => {
+                      moveGridFocus(event, list.current);
+                    }}
                     onClick={() => {
                       props.onSelect(skin);
                     }}

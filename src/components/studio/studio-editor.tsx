@@ -28,13 +28,21 @@ import { useAsRef } from "@/hooks/use-as-ref";
 import {
   editorShortcuts,
   toolCommands,
+  useAriaShortcuts,
+  useShortcutHints,
   type EditorCommand,
 } from "@/components/editor/editor-shortcuts";
+import {
+  HintTrigger,
+  ShortcutHints,
+} from "@/components/editor/editor-commands";
 import { ColorControls } from "@/components/editor/color-panel";
 import { toHex } from "@/components/editor/color-hex";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import {
   GRID_MIN_SCALE,
+  MAX_ZOOM,
+  MIN_ZOOM,
   toolLabels,
   usesMirror,
   type EditorInteraction,
@@ -96,10 +104,6 @@ function popupOpen() {
 
 /** Larger hit areas when the main pointer is a finger. */
 const coarse = "pointer-coarse:size-9";
-
-/** Texture zoom limits, in CSS pixels for each skin pixel. */
-const MIN_ZOOM = 3;
-const MAX_ZOOM = 24;
 
 type Confirm =
   | { readonly kind: "changed" | "removed" | "leave" }
@@ -165,6 +169,8 @@ export function StudioEditor(props: {
   /** What a shortcut changed, for screen readers. The controls show it. */
   const [shortcutNote, setShortcutNote] = useState("");
   const [confirm, setConfirm] = useState<Confirm | null>(null);
+  const zoomHints = useShortcutHints();
+  const zoomInKeys = useAriaShortcuts("zoomIn");
   const textureFrame = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const saveButton = useRef<HTMLButtonElement>(null);
@@ -322,6 +328,13 @@ export function StudioEditor(props: {
     setSize(next);
     announce("editor.size", t("editor.sizePx", { size: next }));
   };
+  const zoomTo = useCallback((next: number) => {
+    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next)));
+  }, []);
+  const zoomBy = (step: number) => {
+    zoomTo(scale + step);
+  };
+
   const pointerAction = (next: EditorInteraction) => {
     setInteraction(next);
     announce(
@@ -389,6 +402,23 @@ export function StudioEditor(props: {
       }),
       ...run("move", () => {
         pointerAction("move");
+      }),
+      ...run(
+        "zoomIn",
+        () => {
+          zoomBy(2);
+        },
+        true,
+      ),
+      ...run(
+        "zoomOut",
+        () => {
+          zoomBy(-2);
+        },
+        true,
+      ),
+      ...run("fit", () => {
+        setZoom("fit");
       }),
       ...run(
         "undo",
@@ -513,13 +543,6 @@ export function StudioEditor(props: {
     else setStatus("");
   };
 
-  const zoomTo = useCallback((next: number) => {
-    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next)));
-  }, []);
-  const zoomBy = (step: number) => {
-    zoomTo(scale + step);
-  };
-
   // One confirmation for Cancel, Escape, Back, and links.
   const shown: Confirm | null = confirm ?? (blocked ? { kind: "leave" } : null);
   /** Finish leaving: let a held navigation go on, or close the editor. */
@@ -605,65 +628,69 @@ export function StudioEditor(props: {
           />
           <LayerToggle layer={layer} onLayerChange={changeLayer} />
           <span className="ml-auto flex items-center">
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className={coarse}
-                    aria-label={t("studio.zoomTextureOut")}
-                    disabled={scale <= MIN_ZOOM}
-                    focusableWhenDisabled
-                    onClick={() => {
-                      zoomBy(-2);
-                    }}
-                  />
-                }
-              >
-                <ZoomOut />
-              </TooltipTrigger>
-              <TooltipContent>{t("studio.zoomTextureOut")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className={coarse}
-                    aria-label={t("studio.zoomTexture")}
-                    disabled={scale >= MAX_ZOOM}
-                    focusableWhenDisabled
-                    onClick={() => {
-                      zoomBy(2);
-                    }}
-                  />
-                }
-              >
-                <ZoomIn />
-              </TooltipTrigger>
-              <TooltipContent>{t("studio.zoomTexture")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className={coarse}
-                    aria-label={t("studio.fit")}
-                    aria-pressed={zoom === "fit"}
-                    onClick={() => {
-                      setZoom("fit");
-                    }}
-                  />
-                }
-              >
-                <Maximize />
-              </TooltipTrigger>
-              <TooltipContent>{t("studio.fit")}</TooltipContent>
-            </Tooltip>
+            <ShortcutHints handle={zoomHints} />
+            <HintTrigger
+              hints={zoomHints}
+              label={t("studio.zoomTextureOut")}
+              commands={["zoomOut"]}
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className={coarse}
+                  aria-label={t("studio.zoomTextureOut")}
+                  aria-keyshortcuts={editorShortcuts.zoomOut.join(" ")}
+                  disabled={scale <= MIN_ZOOM}
+                  focusableWhenDisabled
+                  onClick={() => {
+                    zoomBy(-2);
+                  }}
+                />
+              }
+            >
+              <ZoomOut />
+            </HintTrigger>
+            <HintTrigger
+              hints={zoomHints}
+              label={t("studio.zoomTexture")}
+              commands={["zoomIn"]}
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className={coarse}
+                  aria-label={t("studio.zoomTexture")}
+                  aria-keyshortcuts={zoomInKeys}
+                  disabled={scale >= MAX_ZOOM}
+                  focusableWhenDisabled
+                  onClick={() => {
+                    zoomBy(2);
+                  }}
+                />
+              }
+            >
+              <ZoomIn />
+            </HintTrigger>
+            <HintTrigger
+              hints={zoomHints}
+              label={t("studio.fit")}
+              commands={["fit"]}
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className={coarse}
+                  aria-label={t("studio.fit")}
+                  aria-keyshortcuts={editorShortcuts.fit.join(" ")}
+                  aria-pressed={zoom === "fit"}
+                  onClick={() => {
+                    setZoom("fit");
+                  }}
+                />
+              }
+            >
+              <Maximize />
+            </HintTrigger>
             <Tooltip>
               <TooltipTrigger
                 render={

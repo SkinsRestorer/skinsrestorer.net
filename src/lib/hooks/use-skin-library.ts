@@ -178,7 +178,8 @@ export function useSkinLibrary() {
         if (copy) toast(t("library.skinDuplicated", { name: copy.name }));
         return copy;
       }),
-    remove: (id: string) =>
+    /** `onRestored` runs after Undo puts the skin back. */
+    remove: (id: string, onRestored?: (skin: StoredSkin) => void) =>
       act("remove", (c) => c.run(withLibrary((l) => l.remove(id)))).then(
         (removed): RemovedSkin | undefined => {
           if (!removed) return undefined;
@@ -187,8 +188,12 @@ export function useSkinLibrary() {
               label: t("common.undo"),
               onClick: () =>
                 void act("restore", (c) =>
-                  c.run(withLibrary((l) => l.restore(removed))),
-                ),
+                  c
+                    .run(withLibrary((l) => l.restore(removed)))
+                    .then(() => removed.skin),
+                ).then((skin) => {
+                  if (skin) onRestored?.(skin);
+                }),
             },
           });
           return removed;

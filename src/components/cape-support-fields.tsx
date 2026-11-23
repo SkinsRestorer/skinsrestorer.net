@@ -44,9 +44,9 @@ export function MineSkinKeyField(props: {
   const id = useId();
   const statusId = `${id}-status`;
   const { status } = props;
-  // A key without the capes grant is a field error, not a hint.
-  const invalid = status === "denied";
-  const hasStatus = status === "denied" || status === "granted";
+  // A missing key or one without the capes grant is a field error.
+  const invalid = status === "missing" || status === "denied";
+  const hasStatus = invalid || status === "granted";
   return (
     <Field data-invalid={invalid || undefined}>
       <div className="flex items-center gap-2">
@@ -130,9 +130,13 @@ export function MineSkinKeyField(props: {
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
-      {status === "denied" && (
+      {invalid && (
         <FieldError id={statusId}>
-          {t("capes.capeSupportRequiresApiKeyCapesGrant")}
+          {t(
+            status === "missing"
+              ? "capes.enterMineskinApiKeyLoadCapes"
+              : "capes.apiKeyDoesNotHaveCapesGrant",
+          )}
         </FieldError>
       )}
       {status === "granted" && (

@@ -64,7 +64,7 @@ const failureMessages: Record<LibraryFailure, MessageKey> = {
   unavailable: "library.browserDoesNotLetSiteKeepSkins",
   full: "library.browserStorageSiteFull",
   newer: "library.newerVersionSiteChangedSkinsKeptBrowser",
-  closed: "library.anotherTabUpdatedSkinsKeptBrowserReload",
+  closed: "library.anotherTabUpdatedSkinsReloadPage",
   invalid: "library.fileNotSkinPng",
   damaged: "library.keptSkinCouldNotRead",
   failed: "library.browserCouldNotSaveSkin",

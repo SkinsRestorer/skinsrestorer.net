@@ -32,8 +32,12 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  /*
+   * Brand purple, the same as the docs (Catppuccin mauve). White text on it
+   * is 5.4:1, and it is 4.8:1 or more as text on every light surface.
+   */
+  --primary: hsl(266, 85%, 58%);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -44,10 +48,11 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   /*
-   * Components draw focus rings with ring-ring/50. These values keep that
-   * half-strength ring at 3:1 or more on the page, card, and muted surfaces.
+   * Components draw focus rings with ring-ring/50. These darker and lighter
+   * brand purples keep that half-strength ring at 3:1 or more on the page,
+   * card, and muted surfaces in both themes.
    */
-  --ring: oklch(0.145 0 0);
+  --ring: hsl(266, 85%, 30%);
   --chart-2: oklch(0.6 0.118 184.704);
   --radius: 0.625rem;
 }
@@ -59,8 +64,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: hsl(267, 84%, 81%);
+  --primary-foreground: hsl(240, 23%, 9%);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -70,7 +75,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.87 0 0);
+  --ring: hsl(267, 84%, 84%);
   --chart-2: oklch(0.696 0.17 162.48);
 }
 

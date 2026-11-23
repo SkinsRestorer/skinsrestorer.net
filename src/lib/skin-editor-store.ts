@@ -27,7 +27,7 @@ import {
 } from "./skin-regions";
 import { convertArms, transformPart, type PartAction } from "./skin-transform";
 
-export interface SkinEditorSnapshot {
+interface SkinEditorSnapshot {
   /** Changes on every pixel or model change. */
   readonly revision: number;
   readonly variant: SkinVariant;

@@ -28,4 +28,8 @@ export const docsRedirects = [
     source: "/docs/reference/documentation",
     destination: "/docs",
   },
+  {
+    source: "/docs/integrations/avatar-url",
+    destination: "/docs/integrations/discordsrv",
+  },
 ] as const;

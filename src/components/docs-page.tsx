@@ -43,6 +43,17 @@ function formatReviewedDate(date: string, locale: Locale) {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
+const repositoryUrl = "https://github.com/SkinsRestorer/skinsrestorer.net";
+
+/** Open the documentation correction form with the page's source file filled in. */
+function reportIssueUrl(sourceUrl: string, title: string) {
+  return `${repositoryUrl}/issues/new?${new URLSearchParams({
+    template: "documentation.yml",
+    title: `Docs: ${title}`,
+    location: sourceUrl,
+  })}`;
+}
+
 // The mobile table of contents is a disclosure without Escape handling.
 function closeTocPopoverOnEscape(event: KeyboardEvent<HTMLDivElement>) {
   if (event.key !== "Escape") return;
@@ -78,6 +89,7 @@ export const docsClientLoader =
     ) {
       const t = useT();
       const locale = useLocale();
+      const sourceUrl = `${repositoryUrl}/blob/main/content/docs/${page.path}`;
       return (
         <DocsPage
           toc={toc}
@@ -129,7 +141,7 @@ export const docsClientLoader =
                 <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
                 <ViewOptions
                   markdownUrl={`https://skinsrestorer.net${page.url}.mdx`}
-                  githubUrl={`https://github.com/SkinsRestorer/skinsrestorer.net/blob/main/content/docs/${page.path}`}
+                  githubUrl={sourceUrl}
                 />
               </div>
             </div>
@@ -143,6 +155,7 @@ export const docsClientLoader =
             key={page.url}
             url={page.url}
             version={frontmatter.version}
+            reportUrl={reportIssueUrl(sourceUrl, frontmatter.title)}
           />
           <EnderDashSponsor placement="docs-footer" />
         </DocsPage>

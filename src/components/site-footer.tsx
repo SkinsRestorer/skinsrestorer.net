@@ -3,6 +3,29 @@ import { Link } from "fumadocs-core/link";
 import { ArrowUpRight } from "lucide-react";
 import { CookieSettingsButton } from "@/components/cookie-consent-banner";
 import { useT } from "@/lib/i18n-react";
+import { cn } from "@/lib/utils";
+
+/** Links to the legal pages and the cookie settings dialog. */
+export function LegalNav({ className }: { className?: string }) {
+  const t = useT();
+  return (
+    <nav
+      aria-label={t("footer.legal")}
+      className={cn("flex flex-wrap items-center", className)}
+    >
+      <Link href="/terms-of-service" className="hover:text-fd-foreground">
+        {t("common.termsService")}
+      </Link>
+      <Link href="/privacy-policy" className="hover:text-fd-foreground">
+        {t("common.privacyPolicy")}
+      </Link>
+      <Link href="/cookie-policy" className="hover:text-fd-foreground">
+        {t("common.cookiePolicy")}
+      </Link>
+      <CookieSettingsButton className="hover:text-fd-foreground" />
+    </nav>
+  );
+}
 
 export function SiteFooter() {
   const t = useT();
@@ -17,21 +40,7 @@ export function SiteFooter() {
           {/* The prerendered year can lag the client year until the next deploy. */}
           <span suppressHydrationWarning>{year}</span> SkinsRestorer
         </p>
-        <nav
-          aria-label={t("footer.footer")}
-          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-y-2"
-        >
-          <Link href="/terms-of-service" className="hover:text-fd-foreground">
-            {t("common.termsService")}
-          </Link>
-          <Link href="/privacy-policy" className="hover:text-fd-foreground">
-            {t("common.privacyPolicy")}
-          </Link>
-          <Link href="/cookie-policy" className="hover:text-fd-foreground">
-            {t("common.cookiePolicy")}
-          </Link>
-          <CookieSettingsButton className="hover:text-fd-foreground" />
-        </nav>
+        <LegalNav className="justify-center gap-x-4 gap-y-3 sm:gap-y-2" />
         <a
           href="https://www.cloudflare.com"
           className="inline-flex shrink-0 items-center gap-0.5 hover:text-fd-foreground"

@@ -42,7 +42,6 @@ const keys = {
   "Open in Claude(page actions)": "docs.openClaude",
   "Open in Cursor(page actions)": "common.openInCursor",
   "Open in GitHub(page actions)": "docs.openGithub",
-  "Open in Scira AI(page actions)": "docs.openSciraAi",
   "Open(page actions)": "studio.open",
   "Page Not Found(404 not found page)": "common.pageNotFound",
   "Parameters(type table)": "common.parameters",

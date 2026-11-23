@@ -10,6 +10,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import type { ComponentProps } from "react";
 import { DocsCard } from "@/components/docs-card";
+import { DocsTable } from "@/components/docs-table";
 
 type HeadingLevel = "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -57,17 +58,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
         {...(sizes === undefined ? {} : { sizes })}
       />
     ),
-    // Like the Fumadocs table, but horizontal swipes inside a wide table do
-    // not trigger browser back and forward gestures.
-    table: (props: ComponentProps<"table">) => (
-      <div
-        className="relative my-6 prose-no-margin overflow-auto overscroll-x-contain"
-        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users scroll wide tables.
-        tabIndex={0}
-      >
-        <table {...props} />
-      </div>
-    ),
+    table: DocsTable,
     // HTML `ref` attribute conflicts with `forwardRef`
     pre: ({ ref: _ref, ...props }) => (
       // Keep horizontal swipes inside wide code from triggering browser

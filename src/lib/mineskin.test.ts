@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { fetchCapeSupport, uploadMineSkinFile } from "./mineskin";
+import { Effect, Fiber, Result } from "effect";
+import { TestClock } from "effect/testing";
+import { HttpClient } from "./effect-http";
+import {
+  fetchCapeSupport,
+  fetchMineSkinSupportedCapes,
+  type MineSkinUploadOptions,
+  uploadMineSkinFile,
+  uploadMineSkinFileEffect,
+} from "./mineskin";
 import { required } from "./utils";
 import { mockFetch } from "@/test/fakes";
 
@@ -26,25 +35,59 @@ afterEach(() => {
   network = undefined;
 });
 
+/**
+ * Upload with virtual time, so queue polls run without real delays. Each step
+ * lets pending responses settle before the clock moves on.
+ */
+function uploadInVirtualTime(
+  options: MineSkinUploadOptions,
+  respond: () => Response,
+) {
+  const calls: { url: string; init: RequestInit | undefined }[] = [];
+  const upload = Effect.gen(function* () {
+    const fiber = yield* Effect.forkChild(uploadMineSkinFileEffect(options));
+    while (!fiber.pollUnsafe()) {
+      yield* Effect.promise(
+        () =>
+          new Promise<void>((resolve) => {
+            setTimeout(resolve);
+          }),
+      );
+      yield* TestClock.adjust(1000);
+    }
+    return yield* Fiber.join(fiber);
+  }).pipe(
+    Effect.provideService(HttpClient, {
+      fetch: (input, init) => {
+        calls.push({
+          url: input instanceof Request ? input.url : input.toString(),
+          init,
+        });
+        return Promise.resolve(respond());
+      },
+    }),
+    Effect.provide(TestClock.layer()),
+  );
+  return { calls, result: Effect.runPromise(upload) };
+}
+
 test("polls queued uploads and preserves credentials and cape fields", async () => {
   const responses = [
     { success: true, job: { id: "job-id", status: "waiting" } },
     { success: true, job: { id: "job-id", status: "active" } },
     { success: true, job: { id: "job-id", status: "completed" }, skin },
   ];
-  const fetchMock = serve(() =>
-    Promise.resolve(Response.json(responses.shift())),
+  const { calls: fetchMock, result } = uploadInVirtualTime(
+    {
+      file,
+      variant: "slim",
+      capeUuid: "cape-id",
+      apiKey: "  Bearer test-key  ",
+    },
+    () => Response.json(responses.shift()),
   );
 
-  const result = await uploadMineSkinFile({
-    file,
-    variant: "slim",
-    capeUuid: "cape-id",
-    apiKey: "  Bearer test-key  ",
-    pollIntervalMs: 0,
-  });
-
-  assert.deepEqual(result.skin, skin);
+  assert.deepEqual((await result).skin, skin);
   assert.equal(fetchMock.length, 3);
   const [enqueue, ...polls] = fetchMock;
   const form = enqueue?.init?.body;
@@ -73,16 +116,11 @@ test("loads completed job results when the skin is not included", async () => {
       { success: true, job, skin: queued ? false : null },
       { success: true, skin },
     ];
-    const fetchMock = serve(() =>
-      Promise.resolve(Response.json(responses.shift())),
+    const { calls: fetchMock, result: upload } = uploadInVirtualTime(
+      { file, variant: "classic", apiKey: "test-key" },
+      () => Response.json(responses.shift()),
     );
-
-    const result = await uploadMineSkinFile({
-      file,
-      variant: "classic",
-      apiKey: "test-key",
-      pollIntervalMs: 0,
-    });
+    const result = await upload;
 
     assert.deepEqual(result.skin, skin);
     assert.deepEqual("job" in result && result.job, job);
@@ -113,15 +151,11 @@ test("accepts null names in cached, queued, and fetched MineSkin results", async
     ],
   ]) {
     const expectedRequests = responses.length;
-    const calls = serve(() =>
-      Promise.resolve(Response.json(responses.shift())),
+    const { calls, result } = uploadInVirtualTime(
+      { file, variant: "slim" },
+      () => Response.json(responses.shift()),
     );
-    const result = await uploadMineSkinFile({
-      file,
-      variant: "slim",
-      pollIntervalMs: 0,
-    });
-    assert.deepEqual(result.skin, unnamedSkin);
+    assert.deepEqual((await result).skin, unnamedSkin);
     assert.equal(calls.length, expectedRequests);
     assert.equal(calls.filter(({ init }) => init?.method === "POST").length, 1);
   }
@@ -143,9 +177,7 @@ test("rejects missing or failed skin lookups without resubmitting the upload", a
       Promise.resolve(required(responses.shift(), "shift result")),
     );
 
-    await assert.rejects(
-      uploadMineSkinFile({ file, variant: "classic", pollIntervalMs: 0 }),
-    );
+    await assert.rejects(uploadMineSkinFile({ file, variant: "classic" }));
     assert.equal(fetchMock.length, 2);
   }
 });
@@ -231,9 +263,7 @@ test("rejects failed or incomplete results instead of polling forever", async ()
   ];
   for (const response of cases) {
     const fetchMock = serve(() => Promise.resolve(response));
-    await assert.rejects(
-      uploadMineSkinFile({ file, variant: "classic", pollIntervalMs: 0 }),
-    );
+    await assert.rejects(uploadMineSkinFile({ file, variant: "classic" }));
     assert.equal(fetchMock.length, 1);
   }
 });
@@ -250,10 +280,6 @@ test("does not fetch capes when the API key lacks access", async () => {
 });
 
 test("Effect polling uses virtual time and interruption never resubmits an upload", async () => {
-  const { Effect, Fiber } = await import("effect");
-  const { TestClock } = await import("effect/testing");
-  const { HttpClient } = await import("./effect-http");
-  const { uploadMineSkinFileEffect } = await import("./mineskin");
   let calls = 0;
   await Effect.runPromise(
     Effect.gen(function* () {
@@ -282,7 +308,6 @@ test("Effect polling uses virtual time and interruption never resubmits an uploa
 });
 
 test("supported capes are normalized and private fields are validated at the boundary", async () => {
-  const { fetchMineSkinSupportedCapes } = await import("./mineskin");
   serve(() =>
     Promise.resolve(
       Response.json({
@@ -314,10 +339,6 @@ test("supported capes are normalized and private fields are validated at the bou
 });
 
 test("Axolotl uploads wait for generation and time out without resubmitting", async () => {
-  const { Effect, Fiber, Result } = await import("effect");
-  const { TestClock } = await import("effect/testing");
-  const { HttpClient } = await import("./effect-http");
-  const { uploadMineSkinFileEffect } = await import("./mineskin");
   let calls = 0;
   const outcome = await Effect.runPromise(
     Effect.gen(function* () {
@@ -353,10 +374,6 @@ test("Axolotl uploads wait for generation and time out without resubmitting", as
 });
 
 test("queue polling stops after its deadline without resubmitting", async () => {
-  const { Effect, Fiber, Result } = await import("effect");
-  const { TestClock } = await import("effect/testing");
-  const { HttpClient } = await import("./effect-http");
-  const { uploadMineSkinFileEffect } = await import("./mineskin");
   const methods: (string | undefined)[] = [];
   const outcome = await Effect.runPromise(
     Effect.gen(function* () {
@@ -396,10 +413,6 @@ test("MineSkin failures without a message report the response status", async () 
 });
 
 test("queue reads retry transient failures without resubmitting the upload", async () => {
-  const { Effect, Fiber } = await import("effect");
-  const { TestClock } = await import("effect/testing");
-  const { HttpClient } = await import("./effect-http");
-  const { uploadMineSkinFileEffect } = await import("./mineskin");
   const responses: (() => Promise<Response>)[] = [
     () =>
       Promise.resolve(Response.json({ job: { id: "job", status: "waiting" } })),
@@ -447,10 +460,6 @@ test("queue reads retry transient failures without resubmitting the upload", asy
 });
 
 test("persistent queue read failures say the accepted job may still finish", async () => {
-  const { Effect, Fiber, Result } = await import("effect");
-  const { TestClock } = await import("effect/testing");
-  const { HttpClient } = await import("./effect-http");
-  const { uploadMineSkinFileEffect } = await import("./mineskin");
   for (const [failure, expectedReads, messageKey, html] of [
     // The first read plus three retries.
     [{ status: 502 }, 4, "errors.jobStatusUnavailable", false],

@@ -25,8 +25,6 @@ export type SkinSource = "library" | "gallery";
  */
 export interface StudioSearch {
   readonly intent?: StudioPurpose;
-  /** A one-time editor handoff in this tab's session storage. */
-  readonly handoff?: string;
   /** A textures.minecraft.net URL or hash. */
   readonly texture?: string;
   /** A public gallery skin ID. */
@@ -64,18 +62,15 @@ export function skinSource(search: StudioSearch): SkinSource {
 
 /**
  * Validate and normalize Studio search parameters. Unknown values are
- * dropped. One skin reference wins: a handoff, then a texture, then a
- * gallery skin. Defaults are omitted, so equal states have equal URLs.
+ * dropped. One skin reference wins: a texture, then a gallery skin. Defaults are omitted, so equal states have equal URLs.
  */
 export function studioSearch(search: Record<string, unknown>): StudioSearch {
   const result: Mutable<StudioSearch> = {};
   if (search["intent"] === "skin-url" || search["intent"] === "createcustom")
     result.intent = search["intent"];
-  const handoff = stringParam(search["handoff"])?.trim();
   const texture = stringParam(search["texture"])?.trim();
   const skin = stringParam(search["skin"]);
-  if (handoff && handoff.length <= 128) result.handoff = handoff;
-  else if (texture && texture.length <= 512) result.texture = texture;
+  if (texture && texture.length <= 512) result.texture = texture;
   else if (isGalleryId(skin)) result.skin = skin;
   const source =
     search["source"] === "library" || search["source"] === "gallery"
@@ -93,7 +88,7 @@ export function withGallerySkin(
   search: StudioSearch,
   id: string,
 ): StudioSearch {
-  const { handoff: _handoff, texture: _texture, ...rest } = search;
+  const { texture: _texture, ...rest } = search;
   return studioSearch({ ...rest, skin: id, source: skinSource(search) });
 }
 
@@ -102,6 +97,6 @@ export function withGallerySkin(
  * selected. The list stays the one the user sees.
  */
 export function withoutSkinReference(search: StudioSearch): StudioSearch {
-  const { handoff: _handoff, texture: _texture, skin: _skin, ...rest } = search;
+  const { texture: _texture, skin: _skin, ...rest } = search;
   return studioSearch({ ...rest, source: skinSource(search) });
 }

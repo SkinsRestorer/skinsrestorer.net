@@ -8,30 +8,27 @@ import { runHttpEffect } from "@/lib/effect-http";
 import { useLatestTask } from "@/lib/hooks/use-latest-task";
 import { useSkinGallery } from "@/lib/hooks/use-skin-gallery";
 import { useNotificationT, useT } from "@/lib/i18n-react";
-import { browserStorage, readHandoff } from "@/lib/skin-draft";
 import type { GallerySkin } from "@/lib/skin-gallery";
 import { prepareSkinContent } from "@/lib/skin-library";
 import { withLibrary, type LibraryClient } from "@/lib/skin-library-client";
 import type { SkinSelectionStore } from "@/lib/skin-selection";
 import { loadTextureEffect } from "@/lib/skin-texture";
 import type { SkinSource, StudioSearch } from "@/lib/studio";
-import type { UpdateSearch } from "./use-studio-search";
 
 /**
- * Open the public skins that the URL names: a gallery skin, a texture link,
- * or an older editor handoff. Each read is the latest task; a newer choice
- * cancels it. Only reads that the URL started end when the URL drops them.
+ * Open the public skins that the URL names: a gallery skin or a texture
+ * link. Each read is the latest task; a newer choice cancels it. Only reads
+ * that the URL started end when the URL drops them.
  */
 export function useStudioUrlImports(options: {
   readonly search: StudioSearch;
   readonly source: SkinSource;
   readonly store: SkinSelectionStore;
   readonly client: LibraryClient | undefined;
-  readonly updateSearch: UpdateSearch;
   /** A gallery skin opened, so a phone drawer can close. */
   readonly onGalleryOpened: () => void;
 }) {
-  const { search, store, updateSearch } = options;
+  const { search, store } = options;
   const t = useT();
   const notify = useNotificationT();
   const task = useLatestTask();
@@ -161,45 +158,13 @@ export function useStudioUrlImports(options: {
     }
   };
 
-  /**
-   * A handoff is used once, even when it is gone or unreadable, so a reload
-   * or Back does not show the same error again. Other URL state stays.
-   */
-  const dropHandoff = () =>
-    void updateSearch(({ handoff: _used, ...rest }) => rest);
-
-  /** The editor's PNG from an older handoff link. */
-  const openHandoff = (id: string) => {
-    cancelImport();
-    urlImport.current = true;
-    void task.run(
-      () => readHandoff(browserStorage("sessionStorage"), id),
-      (handoff) => {
-        if (handoff)
-          store.select(handoff.file, {
-            origin: "handoff",
-            variant: handoff.variant,
-          });
-        else
-          toast.error(notify("studio.skinEditorNoLongerAvailableOpenEditor"));
-        dropHandoff();
-      },
-      () => {
-        dropHandoff();
-        toast.error(notify("studio.skinEditorCouldNotRead"));
-      },
-    );
-  };
-
   // Only a changed reference starts an import. Clearing it, or returning to
   // an entry for the same skin, keeps the current selection.
   const appliedReference = useRef<StudioSearch>({});
   useEffect(() => {
     const before = appliedReference.current;
     appliedReference.current = search;
-    if (search.handoff) {
-      if (search.handoff !== before.handoff) openHandoff(search.handoff);
-    } else if (search.texture) {
+    if (search.texture) {
       if (search.texture !== before.texture)
         importTexture(search.texture, true);
     } else if (search.skin) {
@@ -207,7 +172,7 @@ export function useStudioUrlImports(options: {
     } else if (urlImport.current) cancelImport();
     // The URL owns these imports; newer choices cancel them.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [search.handoff, search.texture, search.skin]);
+  }, [search.texture, search.skin]);
 
   useEffect(() => {
     if (!wantedGallery || gallery.state.status !== "ready") return;

@@ -1,14 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
+// The Start compiler replaces the handler with an RPC stub in the client build
+// and drops imports that only the handler used, so this stays on the server.
+import {
+  getLatestRelease as readLatestRelease,
+  RELEASE_TTL_SECONDS,
+} from "./releases";
 
 export const getLatestRelease = createServerFn({ method: "GET" }).handler(
-  async () => {
-    // Browsers reuse the answer for the same 120 seconds as the server caches.
+  () => {
+    // Browsers reuse the answer for as long as the server caches it.
     setResponseHeader(
       "Cache-Control",
-      "public, max-age=120, stale-while-revalidate=60",
+      `public, max-age=${RELEASE_TTL_SECONDS}, stale-while-revalidate=60`,
     );
-    const releases = await import("./releases");
-    return releases.getLatestRelease();
+    return readLatestRelease();
   },
 );

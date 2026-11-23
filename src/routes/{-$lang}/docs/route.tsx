@@ -4,7 +4,7 @@ import { deserializePageTree } from "fumadocs-core/source/client";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { useSidebar } from "fumadocs-ui/layouts/docs/slots/sidebar";
 import { useEffect, useMemo } from "react";
-import { CookieSettingsButton } from "@/components/cookie-consent-banner";
+import { LegalNav } from "@/components/site-footer";
 import type { SerializedDocsTree } from "@/lib/docs-tree";
 import { getBaseOptions } from "@/lib/layout-options";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -54,7 +54,8 @@ function DocsLayoutRoute() {
       containerProps={{ className: skipLinkClassName }}
       sidebar={{
         footer: (
-          <CookieSettingsButton className="self-start px-1 pt-2 text-xs text-fd-muted-foreground hover:text-fd-foreground" />
+          // Docs pages have no site footer, so the sidebar carries the legal links.
+          <LegalNav className="gap-x-3 gap-y-1 px-1 pt-2 text-xs text-fd-muted-foreground" />
         ),
       }}
     >

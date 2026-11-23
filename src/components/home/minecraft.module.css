@@ -5,7 +5,6 @@
   background: var(--night);
 }
 
-/* Static stand-in for the dithering shader when WebGL2 is unavailable. */
 .backdrop {
   background: radial-gradient(ellipse at 50% 35%, #4d4a1a, var(--night) 70%);
 }

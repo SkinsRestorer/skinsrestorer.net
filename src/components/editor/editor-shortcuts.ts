@@ -25,6 +25,10 @@ export const editorShortcuts = {
   layer: ["L"],
   paint: ["P"],
   move: ["M"],
+  // "=" is the unshifted "+" key on US layouts.
+  zoomIn: ["+", "="],
+  zoomOut: ["-"],
+  fit: ["0"],
   undo: ["Mod+Z"],
   redo: ["Mod+Shift+Z", "Mod+Y"],
   close: ["Escape"],
@@ -51,7 +55,10 @@ export function ariaShortcuts(
   return commands
     .flatMap((command) => editorShortcuts[command])
     .map((hotkey) =>
-      hotkey.replace("Mod+", platform === "mac" ? "Meta+" : "Control+"),
+      // ARIA separates keys with "+", so the plus key is named "Plus".
+      hotkey === "+"
+        ? "Plus"
+        : hotkey.replace("Mod+", platform === "mac" ? "Meta+" : "Control+"),
     )
     .join(" ");
 }

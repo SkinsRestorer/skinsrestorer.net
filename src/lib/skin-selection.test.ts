@@ -169,12 +169,12 @@ test("detection does not overwrite a model the user already picked", async () =>
   store.dispose();
 });
 
-test("an editor or handoff model wins over detection", async () => {
+test("an editor model wins over detection", async () => {
   const store = new SkinSelectionStore({ preview: autoPreview("classic") });
-  store.select(await skinFile(1), { origin: "handoff", variant: "slim" });
+  store.select(await skinFile(1), { origin: "editor", variant: "slim" });
   await until(() => store.getSnapshot().selection?.status === "ready");
   assert.equal(store.getSnapshot().variant, "slim");
-  assert.equal(store.getSnapshot().selection?.origin, "handoff");
+  assert.equal(store.getSnapshot().selection?.origin, "editor");
   store.dispose();
 });
 

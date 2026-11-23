@@ -17,7 +17,7 @@ const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
 const AXOLOTL_UPLOAD_TIMEOUT_MS = 90_000;
 // Polling stops here. The queued job can still finish on MineSkin.
 const MINESKIN_JOB_DEADLINE = "2 minutes";
-const MINESKIN_POLL_INTERVAL_MS = 1000;
+const MINESKIN_POLL_INTERVAL = "1 second";
 // Job reads are idempotent, so transient failures retry after 1, 2, and 4 s.
 const MINESKIN_POLL_RETRIES = 3;
 const errorsSchema = Schema.optional(
@@ -208,8 +208,6 @@ export interface MineSkinUploadOptions {
   file: File;
   variant: SkinVariant;
   name?: string | undefined;
-  /** Delay between queue reads on the official route. Tests shorten it. */
-  pollIntervalMs?: number;
   capeUuid?: string | undefined;
   apiKey?: string | undefined;
   useCapeProxy?: boolean;
@@ -219,7 +217,6 @@ export interface MineSkinUploadOptions {
 const pollMineSkinJob = Effect.fn("MineSkin.pollJob")(function* (
   queued: MineSkinResponse,
   headers: Record<string, string>,
-  pollIntervalMs: number | undefined,
 ) {
   let data = queued;
   for (;;) {
@@ -248,7 +245,7 @@ const pollMineSkinJob = Effect.fn("MineSkin.pollJob")(function* (
       });
     }
     const jobUrl = `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;
-    yield* Effect.sleep(pollIntervalMs ?? MINESKIN_POLL_INTERVAL_MS);
+    yield* Effect.sleep(MINESKIN_POLL_INTERVAL);
     data = yield* readMineSkinJob(jobUrl, headers);
   }
 });
@@ -259,7 +256,6 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
     file,
     variant,
     name,
-    pollIntervalMs,
     capeUuid,
     apiKey,
     useCapeProxy = false,
@@ -289,7 +285,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
       { method: "POST", headers, body: formData },
       responseSchema,
     );
-    return yield* pollMineSkinJob(queued, headers, pollIntervalMs).pipe(
+    return yield* pollMineSkinJob(queued, headers).pipe(
       Effect.timeoutOrElse({
         duration: MINESKIN_JOB_DEADLINE,
         orElse: () =>

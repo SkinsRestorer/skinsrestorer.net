@@ -5,7 +5,7 @@ import { Effect } from "effect";
 import { TestClock } from "effect/testing";
 import { HttpClient } from "./effect-http";
 import {
-  cachedLatestReleaseEffect,
+  cacheLatestRelease,
   latestReleaseEffect,
   sharedLatestReleaseEffect,
 } from "./releases";
@@ -54,6 +54,7 @@ test("release reads identify the site to the GitHub API", async () => {
 
 test("release reads share a result for 120 seconds before refreshing", async () => {
   let requests = 0;
+  const cachedLatestReleaseEffect = cacheLatestRelease(() => undefined);
   await Effect.runPromise(
     Effect.gen(function* () {
       const first = yield* cachedLatestReleaseEffect;
@@ -101,6 +102,7 @@ test("release reads share GitHub results through the Workers cache", async () =>
   const read = () =>
     Effect.runPromise(
       sharedLatestReleaseEffect(cache).pipe(
+        Effect.map(({ release }) => release),
         Effect.provideService(HttpClient, {
           fetch: () => {
             requests++;
@@ -137,7 +139,7 @@ test("release reads fall back to GitHub when the Workers cache fails", async () 
   ];
   for (const cache of caches) {
     let requests = 0;
-    const release = await Effect.runPromise(
+    const { release } = await Effect.runPromise(
       sharedLatestReleaseEffect(cache).pipe(
         Effect.provideService(HttpClient, {
           fetch: () => {
@@ -155,4 +157,43 @@ test("release reads fall back to GitHub when the Workers cache fails", async () 
     assert.equal(release?.tag_name, "2.0.0");
     assert.equal(requests, 1);
   }
+});
+
+test("an isolate keeps a shared release only until the shared entry expires", async () => {
+  let entry: { release: unknown; fetchedAt: number } | undefined = {
+    release: { html_url: "https://example.test", tag_name: "shared" },
+    fetchedAt: 0,
+  };
+  const cache: SharedCache = {
+    match: () => Promise.resolve(entry && Response.json(entry)),
+    put: () => Promise.resolve(),
+  };
+  let requests = 0;
+  const cachedLatestReleaseEffect = cacheLatestRelease(() => cache);
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      // Another isolate stored the entry 100 seconds ago.
+      yield* TestClock.adjust(100_000);
+      assert.equal((yield* cachedLatestReleaseEffect)?.tag_name, "shared");
+      entry = undefined;
+      yield* TestClock.adjust(19_999);
+      assert.equal((yield* cachedLatestReleaseEffect)?.tag_name, "shared");
+      yield* TestClock.adjust(1);
+      assert.equal((yield* cachedLatestReleaseEffect)?.tag_name, "github");
+      assert.equal(requests, 1);
+    }).pipe(
+      Effect.provideService(HttpClient, {
+        fetch: () => {
+          requests++;
+          return Promise.resolve(
+            Response.json({
+              html_url: "https://example.test",
+              tag_name: "github",
+            }),
+          );
+        },
+      }),
+      Effect.provide(TestClock.layer()),
+    ),
+  );
 });

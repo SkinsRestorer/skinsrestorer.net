@@ -2,12 +2,8 @@ import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { Effect } from "effect";
 import { IDBFactory } from "fake-indexeddb";
-import {
-  EditorSession,
-  documentOf,
-  type Schedule,
-  type SessionLocks,
-} from "./editor-session";
+import { EditorSession, documentOf, type SessionLocks } from "./editor-session";
+import type { Timer } from "./location-write";
 import type { Locale } from "./i18n";
 import { createTemplate, exportSkinPng, pixelOffset } from "./skin-document";
 import { SkinEditorStore } from "./skin-editor-store";
@@ -45,7 +41,7 @@ function manualTimers() {
   let now = 0;
   const pending = new Map<number, { at: number; callback: () => void }>();
   let ids = 0;
-  const schedule: Schedule = (callback, ms) => {
+  const schedule: Timer = (callback, ms) => {
     const id = ++ids;
     pending.set(id, { at: now + ms, callback });
     return () => {
@@ -68,7 +64,7 @@ function editor(
   saveDelayMs = 0,
   locale?: Locale,
   locks?: SessionLocks,
-  schedule?: Schedule,
+  schedule?: Timer,
 ) {
   const store = new SkinEditorStore();
   store.load(createTemplate("classic"));

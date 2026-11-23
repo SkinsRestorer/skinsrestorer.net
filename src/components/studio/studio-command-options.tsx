@@ -21,7 +21,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useT } from "@/lib/i18n-react";
 import type { SkinVariant } from "@/lib/skin";
 import type { SelectedSkin } from "@/lib/skin-selection";
-import { defaultSkinName } from "@/lib/studio";
+import { defaultSkinName, suggestSkinName } from "@/lib/studio";
 import { NO_CAPE_VALUE, type UploadMethod } from "@/lib/studio-options";
 import type { GenerationResult } from "@/lib/studio-generation";
 import { cn, findOption } from "@/lib/utils";
@@ -149,24 +149,43 @@ export function StudioCommandOptions(props: {
 
           {purpose === "createcustom" && (
             <form.Field name="customName">
-              {(field) => (
-                <TextField
-                  // The placeholder repeats the file name, which can hold a
-                  // texture hash.
-                  className="ph-no-capture"
-                  label={t("studio.skinNameOptional")}
-                  description={t("studio.skinNameHint")}
-                  value={field.state.value}
-                  placeholder={defaultSkinName(current.file.name)}
-                  errors={
-                    field.state.meta.isTouched || submitted
-                      ? field.state.meta.errors
-                      : []
-                  }
-                  onChange={field.handleChange}
-                  onBlur={field.handleBlur}
-                />
-              )}
+              {(field) => {
+                const errors =
+                  field.state.meta.isTouched || submitted
+                    ? field.state.meta.errors
+                    : [];
+                // Offer the valid form of the typed name, such as my_skin.
+                const suggestion = suggestSkinName(field.state.value);
+                return (
+                  <TextField
+                    // The placeholder repeats the file name, which can hold a
+                    // texture hash.
+                    className="ph-no-capture"
+                    label={t("studio.skinNameOptional")}
+                    description={t("studio.skinNameHint")}
+                    value={field.state.value}
+                    placeholder={defaultSkinName(current.file.name)}
+                    errors={errors}
+                    onChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                    fix={
+                      errors.length > 0 &&
+                      suggestion && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="self-start"
+                          onClick={() => {
+                            field.handleChange(suggestion);
+                          }}
+                        >
+                          {t("studio.useSuggestedName", { name: suggestion })}
+                        </Button>
+                      )
+                    }
+                  />
+                );
+              }}
             </form.Field>
           )}
 
@@ -228,8 +247,14 @@ export function StudioCommandOptions(props: {
           listeners={{
             onChange: ({ value }) => {
               // Official needs a checked key to apply a cape.
-              if (value === "mineskin" && !capes.keyGranted)
-                form.setFieldValue("capeUuid", NO_CAPE_VALUE);
+              if (
+                value !== "mineskin" ||
+                capes.keyGranted ||
+                form.getFieldValue("capeUuid") === NO_CAPE_VALUE
+              )
+                return;
+              form.setFieldValue("capeUuid", NO_CAPE_VALUE);
+              toast.info(t("studio.capeRemovedOfficialNeedsKey"));
             },
           }}
         >
@@ -374,6 +399,8 @@ function TextField(props: {
   placeholder?: string;
   className?: string;
   errors?: readonly unknown[] | undefined;
+  /** A one-click correction shown under the error. */
+  fix?: React.ReactNode;
   onChange: (value: string) => void;
   onBlur?: () => void;
 }) {
@@ -402,6 +429,7 @@ function TextField(props: {
         </FieldDescription>
       )}
       <LocalizedFieldError errors={props.errors} />
+      {props.fix}
     </Field>
   );
 }
@@ -473,7 +501,10 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
         id: `copy-${id}`,
       });
     } catch {
-      toast.error(t("common.failedCopy"));
+      // Clicking the text selects all of it for a manual copy.
+      toast.error(t("common.failedCopy"), {
+        description: t("studio.selectTextToCopy"),
+      });
     }
   };
   return (
@@ -486,7 +517,7 @@ function CopyField(props: { label: string; value: string; oneLine?: boolean }) {
           aria-labelledby={id}
           title={props.oneLine ? props.value : undefined}
           className={cn(
-            "block rounded-lg border bg-muted py-2 pr-10 pl-2.5 font-mono text-xs/relaxed",
+            "block rounded-lg border bg-muted py-2 pr-10 pl-2.5 font-mono text-xs/relaxed select-all",
             props.oneLine ? "truncate" : "break-all",
           )}
         >

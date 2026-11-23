@@ -15,12 +15,7 @@ import {
   type StoredSkin,
 } from "./skin-library";
 
-export type SelectionOrigin =
-  | "file"
-  | "library"
-  | "editor"
-  | "handoff"
-  | "gallery";
+export type SelectionOrigin = "file" | "library" | "editor" | "gallery";
 
 /** Whether the selected skin is also kept in this browser. */
 type KeepState =

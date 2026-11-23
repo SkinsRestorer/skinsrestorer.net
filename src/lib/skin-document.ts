@@ -2,7 +2,12 @@ import { MessageError } from "./messages";
 import type { SkinVariant } from "./skin";
 import { decodePng, encodePng, PngError } from "./png";
 import type { PixelRect } from "./skin-paint";
-import { findRegion, SKIN_SIZE, skinRegions } from "./skin-regions";
+import {
+  filledClassicOnlyArmPixels,
+  findRegion,
+  SKIN_SIZE,
+  skinRegions,
+} from "./skin-regions";
 
 /** The editor source of truth: straight RGBA pixels and an explicit model. */
 export interface SkinDocument {
@@ -106,21 +111,16 @@ export function convertLegacySkin(legacy: Uint8ClampedArray) {
 }
 
 /**
- * Guess the arm width. Slim skins leave the fourth arm column empty. This is a
- * heuristic and the user always confirms the model.
+ * Guess the arm width. Slim skins leave the fourth arm column empty on both
+ * layers. This is a heuristic and the user always confirms the model.
  */
-export function detectVariantFromPixels(pixels: Uint8ClampedArray) {
-  for (let y = 0; y < 12; y++) {
-    if (
-      pixels[pixelOffset(46, 52 + y) + 3] === 255 ||
-      pixels[pixelOffset(54, 20 + y) + 3] === 255
-    )
-      return "classic" as const;
-  }
-  return "slim" as const;
+export function detectVariantFromPixels(
+  pixels: Uint8ClampedArray,
+): SkinVariant {
+  return filledClassicOnlyArmPixels(pixels).length > 0 ? "classic" : "slim";
 }
 
-export interface ImportedSkin {
+interface ImportedSkin {
   readonly document: SkinDocument;
   readonly legacy: boolean;
 }

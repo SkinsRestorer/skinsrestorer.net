@@ -4,6 +4,7 @@ import {
   addRecentColor,
   readRecentColors,
   RECENT_COLORS_KEY,
+  shownRecentColors,
   writeRecentColors,
 } from "./recent-colors";
 import type { Rgba } from "./skin-paint";
@@ -72,4 +73,18 @@ test("blocked or full storage fails quietly", () => {
   assert.deepEqual(readRecentColors(undefined), { status: "unavailable" });
   assert.equal(writeRecentColors(blockedStorage, colors(1)), false);
   assert.equal(writeRecentColors(undefined, colors(1)), false);
+});
+
+test("cleared storage clears the shown colors; unreadable storage keeps them", () => {
+  const storage = memory();
+  writeRecentColors(storage, colors(2));
+  assert.deepEqual(shownRecentColors(readRecentColors(storage)), colors(2));
+  storage.removeItem(RECENT_COLORS_KEY);
+  assert.deepEqual(shownRecentColors(readRecentColors(storage)), []);
+  assert.equal(shownRecentColors(readRecentColors(memory("{"))), undefined);
+  assert.equal(
+    shownRecentColors(readRecentColors(memory('{"version":99}'))),
+    undefined,
+  );
+  assert.equal(shownRecentColors(readRecentColors(blockedStorage)), undefined);
 });
