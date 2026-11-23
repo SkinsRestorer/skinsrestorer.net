@@ -5,6 +5,8 @@
 
 const posthogHost = "https://t.skinsrestorer.net";
 // The public project token, the same one the browser bundle sends events with.
+// vite.config.ts imports this file in Node, where import.meta.env is not set,
+// so it cannot read VITE_POSTHOG_KEY like src/lib/analytics.ts does.
 const posthogToken = "phc_PiA4lEVOouI4hJ8fsh6wNy1GB3HWe8VcLcjdluef34m";
 export const cspReportUrl = `${posthogHost}/report/?token=${posthogToken}`;
 
@@ -62,11 +64,31 @@ const contentSecurityPolicy = Object.entries(cspDirectives)
   .map(([name, sources]) => `${name} ${sources.join(" ")}`)
   .join("; ");
 
+// Turn off device features the site never uses. Clipboard and payment stay
+// allowed for copy buttons and the donation widgets.
+const permissionsPolicy = [
+  "camera",
+  "microphone",
+  "geolocation",
+  "usb",
+  "serial",
+  "hid",
+  "midi",
+  "browsing-topics",
+]
+  .map((feature) => `${feature}=()`)
+  .join(", ");
+
 export const securityHeaders = {
   "X-DNS-Prefetch-Control": "on",
   "X-XSS-Protection": "0",
   "X-Frame-Options": "SAMEORIGIN",
   "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": permissionsPolicy,
+  // Donation checkouts open PayPal and Stripe in popups that need the opener.
+  "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   // Enforced; violations are still reported to PostHog.
   "Content-Security-Policy": contentSecurityPolicy,
   "Reporting-Endpoints": `posthog="${cspReportUrl}"`,

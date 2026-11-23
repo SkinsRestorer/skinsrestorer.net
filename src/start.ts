@@ -8,7 +8,9 @@ const siteMiddleware = createMiddleware().server(async ({ request, next }) => {
   const redirect = getSiteRedirect(url.pathname);
   if (redirect) {
     const destination = new URL(redirect.destination, url);
-    destination.search = url.search;
+    // Keep the query only on this site. External targets, such as Discord,
+    // must not receive texture links or other parameters.
+    if (destination.origin === url.origin) destination.search = url.search;
     return new Response(null, {
       status: redirect.status,
       headers: { ...securityHeaders, Location: destination.href },
@@ -18,11 +20,16 @@ const siteMiddleware = createMiddleware().server(async ({ request, next }) => {
   for (const [name, value] of Object.entries(securityHeaders)) {
     result.response.headers.set(name, value);
   }
-  if (result.response.headers.get("Content-Type")?.includes("text/html")) {
-    result.response.headers.set(
-      "Content-Language",
-      splitLocalePath(url.pathname).locale,
-    );
+  const { path, locale } = splitLocalePath(url.pathname);
+  // Untranslated docs fall back to English, so only the HTML lang attribute
+  // can name their language. Other localized pages always match their path.
+  const mayFallBack =
+    locale !== "en" && (path === "/docs" || path.startsWith("/docs/"));
+  if (
+    !mayFallBack &&
+    result.response.headers.get("Content-Type")?.includes("text/html")
+  ) {
+    result.response.headers.set("Content-Language", locale);
   }
   return result;
 });

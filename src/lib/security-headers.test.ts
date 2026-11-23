@@ -71,13 +71,7 @@ test("prerendered assets receive the same security headers as the worker", () =>
 });
 
 test("each prerendered page declares exactly its own language", () => {
-  const paths = [
-    ...localizedSitePages,
-    "/docs",
-    "/docs/installation/velocity",
-    "/ru/docs",
-    "/pt-BR/docs/troubleshooting",
-  ];
+  const paths = [...localizedSitePages, "/docs", "/docs/installation/velocity"];
   for (const path of paths) {
     assert.equal(
       headerFor(rules, path, "Content-Language"),
@@ -86,6 +80,28 @@ test("each prerendered page declares exactly its own language", () => {
     );
   }
   assert.equal(headerFor(rules, "/api/search", "Content-Language"), undefined);
+});
+
+test("localized docs that may fall back to English declare no language header", () => {
+  for (const path of ["/ru/docs", "/es/docs/development", "/pt-BR/docs/x"]) {
+    assert.equal(headerFor(rules, path, "Content-Language"), undefined, path);
+  }
+});
+
+test("only hashed build output is cached as immutable", () => {
+  const immutable = "public, max-age=31536000, immutable";
+  assert.equal(
+    headerFor(rules, "/_build/index-abc123.js", "Cache-Control"),
+    immutable,
+  );
+  assert.equal(
+    headerFor(rules, "/_images/logo-96.webp", "Cache-Control"),
+    immutable,
+  );
+  assert.equal(
+    headerFor(rules, "/assets/banner.png", "Cache-Control"),
+    undefined,
+  );
 });
 
 test("_headers stays within Cloudflare limits", () => {
@@ -124,4 +140,30 @@ test("violation reports go to the PostHog report endpoint", () => {
     securityHeaders["Reporting-Endpoints"],
     `posthog="${cspReportUrl}"`,
   );
+});
+
+test("browser hardening headers keep payment popups and clipboard working", () => {
+  assert.equal(
+    securityHeaders["Referrer-Policy"],
+    "strict-origin-when-cross-origin",
+  );
+  assert.equal(
+    securityHeaders["Strict-Transport-Security"],
+    "max-age=31536000; includeSubDomains",
+  );
+  // Ko-fi and NOWPayments open checkout popups that talk back to the page.
+  assert.equal(
+    securityHeaders["Cross-Origin-Opener-Policy"],
+    "same-origin-allow-popups",
+  );
+  const blocked = new Map(
+    securityHeaders["Permissions-Policy"].split(", ").map((entry) => {
+      const [feature = "", allowlist = ""] = entry.split("=");
+      return [feature, allowlist] as const;
+    }),
+  );
+  for (const feature of ["camera", "microphone", "geolocation"])
+    assert.equal(blocked.get(feature), "()", feature);
+  for (const feature of ["payment", "clipboard-write", "fullscreen"])
+    assert.equal(blocked.has(feature), false, feature);
 });

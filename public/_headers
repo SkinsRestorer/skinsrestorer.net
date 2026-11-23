@@ -3,6 +3,10 @@
   X-XSS-Protection: 0
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), serial=(), hid=(), midi=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://t.skinsrestorer.net https://analytics.ahrefs.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://textures.minecraft.net https://cool-skins.skinsrestorer.net https://github.com https://avatars.githubusercontent.com https://yastatic.net; font-src 'self'; connect-src 'self' https://t.skinsrestorer.net https://eu.posthog.com https://analytics.ahrefs.com https://cloudflareinsights.com https://api.mineskin.org https://axolotl.skinsrestorer.net https://textures.minecraft.net https://cool-skins.skinsrestorer.net; frame-src https://ko-fi.com https://nowpayments.io; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; report-uri https://t.skinsrestorer.net/report/?token=phc_PiA4lEVOouI4hJ8fsh6wNy1GB3HWe8VcLcjdluef34m; report-to posthog
   Reporting-Endpoints: posthog="https://t.skinsrestorer.net/report/?token=phc_PiA4lEVOouI4hJ8fsh6wNy1GB3HWe8VcLcjdluef34m"
 
@@ -12,7 +16,13 @@
 /_images/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Vite writes content-hashed JavaScript and CSS here (build.assetsDir).
+/_build/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # Prerendered HTML skips the worker middleware that sets Content-Language.
+# Localized docs are left out: untranslated pages fall back to English, and
+# their HTML lang attribute names the real language.
 /
   Content-Language: en
 /studio
@@ -35,13 +45,31 @@
   Content-Language: en
 /ru
   Content-Language: ru
-/ru/*
+/ru/studio
+  Content-Language: ru
+/ru/upload
+  Content-Language: ru
+/ru/generator
+  Content-Language: ru
+/ru/pricing
   Content-Language: ru
 /es
   Content-Language: es
-/es/*
+/es/studio
+  Content-Language: es
+/es/upload
+  Content-Language: es
+/es/generator
+  Content-Language: es
+/es/pricing
   Content-Language: es
 /pt-BR
   Content-Language: pt-BR
-/pt-BR/*
+/pt-BR/studio
+  Content-Language: pt-BR
+/pt-BR/upload
+  Content-Language: pt-BR
+/pt-BR/generator
+  Content-Language: pt-BR
+/pt-BR/pricing
   Content-Language: pt-BR

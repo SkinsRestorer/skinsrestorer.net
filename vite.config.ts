@@ -42,7 +42,9 @@ export default defineConfig(({ command }) => {
     server: { port: 3000, headers: securityHeaders },
     preview: { port: 3000, headers: securityHeaders },
     resolve: { tsconfigPaths: true },
-    build: { sourcemap: true },
+    // Hashed build output gets its own directory, so `_headers` can cache it
+    // as immutable without touching unhashed files in public/assets.
+    build: { sourcemap: true, assetsDir: "_build" },
     environments: { ssr: { build: { sourcemap: true } } },
     plugins: [
       mdx(MdxConfig),
