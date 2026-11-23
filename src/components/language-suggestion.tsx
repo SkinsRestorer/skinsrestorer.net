@@ -1,5 +1,6 @@
 import { useRouter, useRouterState } from "@tanstack/react-router";
 import { analytics } from "@/lib/analytics";
+import { useAnalyticsConsent } from "@/lib/hooks/use-analytics-consent";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import {
@@ -23,7 +24,8 @@ import { hasMessages, loadMessages, translate } from "@/lib/messages";
  * breaks hydration. The offer shows once: switching, dismissing, letting it
  * close, or picking a language in the switcher all count as an answer. A
  * visitor who lands on a page without a translation gets the offer on the
- * first translated page they open.
+ * first translated page they open. It waits for the analytics choice, so a
+ * visitor never sees two prompts at once.
  */
 export function LanguageSuggestion() {
   const locale = useLocale();
@@ -35,7 +37,10 @@ export function LanguageSuggestion() {
   useEffect(() => {
     if (localized) rememberLocale(browserStorage(), locale);
   }, [locale, localized]);
+  const consent = useAnalyticsConsent();
+  const consentPending = consent === undefined || consent === "pending";
   useEffect((): (() => void) | undefined => {
+    if (consentPending) return undefined;
     const storage = browserStorage();
     const target = languageOffer(storage, navigator.languages, locale);
     if (!target) return undefined;
@@ -114,6 +119,6 @@ export function LanguageSuggestion() {
       settled = true;
       if (shown) toast.dismiss(shown.id);
     };
-  }, [locale, router]);
+  }, [consentPending, locale, router]);
   return null;
 }

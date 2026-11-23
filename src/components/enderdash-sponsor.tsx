@@ -1,5 +1,4 @@
 import { useT } from "@/lib/i18n-react";
-import { ArrowUpRight } from "lucide-react";
 import { Image } from "@/components/image";
 import { cn } from "@/lib/utils";
 
@@ -23,42 +22,10 @@ export function EnderDashSponsor({
   const t = useT();
   const href = getEnderDashHref(placement);
 
-  if (placement === "docs-footer") {
-    return (
-      <aside
-        className={cn(
-          "flex flex-wrap items-center gap-3 border-t py-4 text-sm text-muted-foreground",
-          className,
-        )}
-        aria-label={t("common.sponsor")}
-      >
-        <Image
-          src="/assets/sponsors/enderdash-logo.png"
-          alt=""
-          width={24}
-          height={24}
-        />
-        <p>
-          {t.rich("common.sponsoredByEnderDash", {
-            link: (
-              // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
-              <a
-                href={href}
-                target="_blank"
-                rel="sponsored noopener"
-                className="font-medium text-foreground underline underline-offset-4"
-              />
-            ),
-          })}
-        </p>
-      </aside>
-    );
-  }
-
   return (
     <aside
       className={cn(
-        "flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6",
+        "flex flex-wrap items-center gap-3 border-t py-4 text-sm text-muted-foreground",
         className,
       )}
       aria-label={t("common.sponsor")}
@@ -66,27 +33,22 @@ export function EnderDashSponsor({
       <Image
         src="/assets/sponsors/enderdash-logo.png"
         alt=""
-        width={40}
-        height={40}
-        className="shrink-0"
+        width={24}
+        height={24}
       />
-      <div className="flex flex-1 flex-col gap-1">
-        <p className="text-xs text-muted-foreground">
-          {t("common.sponsorEnderdash")}
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {t("common.runServerCommandsReadLogsManageFiles")}
-        </p>
-      </div>
-      <a
-        href={href}
-        target="_blank"
-        rel="sponsored noopener"
-        className="inline-flex items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
-      >
-        enderdash.com
-        <ArrowUpRight aria-hidden="true" className="size-4" />
-      </a>
+      <p>
+        {t.rich("common.sponsoredByEnderDash", {
+          link: (
+            // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+            <a
+              href={href}
+              target="_blank"
+              rel="sponsored noopener"
+              className="font-medium text-foreground underline underline-offset-4"
+            />
+          ),
+        })}
+      </p>
     </aside>
   );
 }

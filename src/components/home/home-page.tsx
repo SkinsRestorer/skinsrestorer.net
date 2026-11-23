@@ -19,8 +19,7 @@ import { getLatestRelease } from "@/lib/release-server";
 import styles from "./minecraft.module.css";
 import { CopyCommand, HomeFaq } from "./home-interactions";
 import { SkinStage } from "./skin-stage";
-import { useLocale, useT } from "@/lib/i18n-react";
-import { headingFontClassName, usesPixelHeadingFont } from "./heading-font";
+import { useT } from "@/lib/i18n-react";
 
 const githubLink = "https://github.com/SkinsRestorer/SkinsRestorer";
 const releasesLink = `${githubLink}/releases`;
@@ -255,15 +254,13 @@ function SectionHeading({
   children: ReactNode;
   action?: ReactNode;
 }) {
-  const locale = useLocale();
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="flex max-w-xl flex-col gap-2">
         <h2
           id={id}
           className={cn(
-            headingFontClassName(locale),
-            "text-3xl/tight tracking-tight sm:text-4xl",
+            "text-3xl/tight font-semibold tracking-tight sm:text-4xl",
           )}
         >
           {title}
@@ -277,7 +274,6 @@ function SectionHeading({
 
 export default function IndexPage() {
   const t = useT();
-  const locale = useLocale();
   const faqItems = useFaqItems();
   return (
     <div
@@ -294,9 +290,7 @@ export default function IndexPage() {
           <h1
             id="home-title"
             className={cn(
-              headingFontClassName(locale),
-              usesPixelHeadingFont(locale) ? "leading-none" : "leading-tight",
-              "text-5xl tracking-tight text-balance sm:text-6xl xl:text-7xl",
+              "text-5xl/tight font-semibold tracking-tight text-balance sm:text-6xl xl:text-7xl",
             )}
           >
             {t("home.playerSkinsMinecraftServer")}
@@ -558,6 +552,7 @@ export default function IndexPage() {
               <Heart aria-hidden="true" className="size-4" />
               {t("home.becomeSupporter")}
             </Link>
+            <EnderDashSponsor placement="home" className="w-full" />
           </div>
 
           <div className="flex flex-col gap-3">
@@ -606,10 +601,6 @@ export default function IndexPage() {
           </div>
         </div>
       </section>
-
-      <div className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
-        <EnderDashSponsor placement="home" className="border-t pt-8" />
-      </div>
     </div>
   );
 }

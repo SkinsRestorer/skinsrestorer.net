@@ -106,7 +106,6 @@
   "common.remove": "Remove",
   "common.returns": "Returns",
   "common.reviewed": "Reviewed",
-  "common.runServerCommandsReadLogsManageFiles": "Run server commands, read logs, and manage files in your browser.",
   "common.saveCopy": "Save as copy",
   "common.saveLibrary": "Save to library",
   "common.searchFailed": "Search failed",
@@ -117,7 +116,6 @@
   "common.skinSources": "Skin sources",
   "common.skipToContent": "Skip to content",
   "common.sponsor": "Sponsor",
-  "common.sponsorEnderdash": "Sponsor: EnderDash",
   "common.sponsoredByEnderDash": "Sponsored by <link>EnderDash</link>, a dashboard for Minecraft server administration.",
   "common.system": "System",
   "common.tableContents": "Table of Contents",
@@ -293,7 +291,7 @@
   "gallery.search": "Search",
   "gallery.searchGallery": "Search gallery",
   "generator.description": "Generate copyable /sr createcustom commands or extract textures from skin files.",
-  "generator.title": "Custom Skin Generator",
+  "generator.title": "Custom skin generator",
   "home.allCommandsPermissions": "All commands and permissions",
   "home.appliesSkinMinecraftAccountXknat": "Applies the skin of the Minecraft account xknat.",
   "home.becomeSupporter": "Become a supporter",
@@ -596,5 +594,5 @@
   "texture.textureLargerThan5Mb": "The texture is larger than 5 MB.",
   "texture.textureNotValidSkinPng": "The texture is not a valid skin PNG.",
   "upload.description": "Upload a PNG skin and get a copyable /skin url command.",
-  "upload.title": "Skin Upload"
+  "upload.title": "Upload a skin"
 }

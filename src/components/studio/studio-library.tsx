@@ -197,7 +197,7 @@ export function StudioLibrary(props: {
       aria-labelledby={headingId}
       className="flex min-h-0 flex-col gap-2.5"
     >
-      <div className="flex flex-wrap items-center gap-1">
+      <div className="flex items-start gap-1">
         <h2
           id={headingId}
           className={cn(
@@ -212,14 +212,11 @@ export function StudioLibrary(props: {
           <SaveStatus state="unavailable" label={t("library.notSaving")} />
         ) : (
           // A fixed note, not a save state, so it is not announced.
-          <p
-            title={t("library.skinsStayBrowserOnly")}
-            className="inline-flex min-w-0 items-center gap-1 text-xs text-muted-foreground"
-          >
-            <HardDrive aria-hidden="true" className="size-3.5 shrink-0" />
-            <span className="truncate">
-              {t("library.skinsStayBrowserOnly")}
-            </span>
+          // It wraps beside the add button instead of being cut off in the
+          // narrow column.
+          <p className="flex min-w-0 flex-1 items-start gap-1 text-xs text-muted-foreground">
+            <HardDrive aria-hidden="true" className="mt-px size-3.5 shrink-0" />
+            {t("library.skinsStayBrowserOnly")}
           </p>
         )}
         <span className="ml-auto flex items-center">

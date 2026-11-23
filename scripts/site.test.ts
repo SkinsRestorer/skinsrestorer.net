@@ -94,8 +94,8 @@ test(
     for (const [path, heading] of [
       ["/", "Player skins for your Minecraft server"],
       ["/studio", "Skin Studio"],
-      ["/generator", "Custom Skin Generator"],
-      ["/upload", "Skin Upload"],
+      ["/generator", "Custom skin generator"],
+      ["/upload", "Upload a skin"],
       ["/pricing", "Free and supporter plans"],
       ["/privacy-policy", "Privacy Policy"],
       ["/terms-of-service", "Terms of Service"],
