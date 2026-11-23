@@ -13,8 +13,8 @@ import {
   splitLocalePath,
 } from "./i18n";
 import { LocaleProvider } from "./locale-provider";
+import { catalogs } from "./messages/catalogs";
 import {
-  catalogs,
   translate,
   createTranslator,
   MessageError,

@@ -1,14 +1,9 @@
-import { Schema } from "effect";
 import en from "./en.json";
-import ru from "./ru.json";
-import es from "./es.json";
-import ptBR from "./pt-BR.json";
 import type { Locale } from "../i18n";
 
 export type MessageKey = keyof typeof en;
 export type MessageValues = Readonly<Record<string, string | number>>;
-export const messageKeySchema = Schema.declare(isMessageKey);
-export const messageValuesSchema = Schema.declare(isMessageValues);
+export type Catalog = Record<MessageKey, string>;
 
 export interface MessageDescriptor {
   readonly key: MessageKey;
@@ -17,10 +12,57 @@ export interface MessageDescriptor {
 /** Plain strings are external text, never translation keys. */
 export type Message = string | MessageDescriptor;
 
-export const catalogs = { en, ru, es, "pt-BR": ptBR } satisfies Record<
-  Locale,
-  Record<MessageKey, string>
->;
+/**
+ * English is the key source and always present. Other catalogs load on
+ * demand, so a visitor downloads only the language they read. The server
+ * registers every catalog at startup.
+ */
+const loaded: Partial<Record<Locale, Catalog>> = { en };
+const pending = new Map<Locale, Promise<void>>();
+const listeners = new Set<() => void>();
+
+const loaders: Record<Exclude<Locale, "en">, () => Promise<Catalog>> = {
+  ru: () => import("./ru.json").then((module) => module.default),
+  es: () => import("./es.json").then((module) => module.default),
+  "pt-BR": () => import("./pt-BR.json").then((module) => module.default),
+};
+
+export function registerMessages(locale: Locale, catalog: Catalog) {
+  loaded[locale] = catalog;
+  for (const listener of listeners) listener();
+}
+
+export function hasMessages(locale: Locale): boolean {
+  return loaded[locale] !== undefined;
+}
+
+/** Load a catalog once. Resolves at once when it is already present. */
+export function loadMessages(locale: Locale): Promise<void> {
+  if (locale === "en" || hasMessages(locale)) return Promise.resolve();
+  let promise = pending.get(locale);
+  if (!promise) {
+    promise = fetchMessages(locale);
+    pending.set(locale, promise);
+  }
+  return promise;
+}
+
+async function fetchMessages(locale: Exclude<Locale, "en">) {
+  try {
+    registerMessages(locale, await loaders[locale]());
+  } catch (cause) {
+    // A later navigation may retry, for example after a chunk failure.
+    pending.delete(locale);
+    throw cause;
+  }
+}
+
+export function subscribeMessages(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
 
 export function message(
   key: MessageKey,
@@ -36,9 +78,10 @@ export function translate(
 ): string {
   if (!isMessageKey(key))
     throw new Error(`Unknown translation key: ${String(key)}`);
-  const text = catalogs[locale][key];
+  // A catalog that has not loaded yet falls back to English, never a key.
+  const text = (loaded[locale] ?? en)[key];
   return text.replaceAll(/\{(\w+)\}/gu, (match, name: string) =>
-    String(values[name] ?? match),
+    Object.hasOwn(values, name) ? String(values[name]) : match,
   );
 }
 
@@ -73,7 +116,7 @@ export class MessageError extends Error implements LocalizedErrorFields {
   }
 }
 
-function isMessageValues(value: unknown): value is MessageValues {
+export function isMessageValues(value: unknown): value is MessageValues {
   return (
     typeof value === "object" &&
     value !== null &&

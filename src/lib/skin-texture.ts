@@ -1,9 +1,5 @@
-import {
-  errorFields,
-  messageFields,
-  messageKeySchema,
-  messageValuesSchema,
-} from "./messages";
+import { errorFields, messageFields } from "./messages";
+import { messageKeySchema, messageValuesSchema } from "./messages/schema";
 import { Effect, Semaphore, Schema } from "effect";
 import { readHttpBytes } from "./effect-http";
 import { readPngSize } from "./png";

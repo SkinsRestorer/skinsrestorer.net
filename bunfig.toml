@@ -1,2 +1,6 @@
 [install]
 linker = "hoisted"
+
+[test]
+# Tests run like the server, with every translation catalog loaded.
+preload = ["./src/lib/messages/catalogs.ts"]

@@ -57,6 +57,10 @@ test("missing tag values keep the text and missing placeholders stay visible", (
     html(formatRich("Broken <a>link and </b> stray", { a: docs })),
     "<div>Broken &lt;a&gt;link and &lt;/b&gt; stray</div>",
   );
+  assert.equal(
+    html(formatRich("<toString>{constructor}</toString>")),
+    "<div>{constructor}</div>",
+  );
 });
 
 test("the translator formats catalog messages by key in each locale", () => {
@@ -71,4 +75,18 @@ test("the translator formats catalog messages by key in each locale", () => {
     "<div>Steve, изменено <time>1 minutes ago</time></div>",
   );
   assert.equal(t("common.allowAnalytics"), "Разрешить аналитику");
+});
+
+test("rich values must name each tag and placeholder of the message", () => {
+  const t = createRichTranslator("en");
+  // @ts-expect-error A misspelled name would drop the link silently.
+  void t.rich("home.faqIntro", { doc: docs });
+  // @ts-expect-error A forgotten placeholder would render as {time}.
+  void t.rich("studio.draftChanged", { name: "Steve" });
+  // @ts-expect-error Messages without markup are not rich messages.
+  void t.rich("common.allowAnalytics", {});
+  assert.equal(
+    html(t.rich("home.faqIntro", { docs })),
+    '<div>Short answers. The <a href="/docs">documentation</a> has the details.</div>',
+  );
 });

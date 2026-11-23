@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { findUnusedKeys, validateCatalogs } from "./validate";
+import {
+  findUnusedKeys,
+  validateCatalogs,
+  validateRichNames,
+} from "./validate";
 
 test("catalog validation detects English keys, missing or extra messages and parameter drift", () => {
   assert.deepEqual(
@@ -71,19 +75,47 @@ test("rich-text tags must match English and stay balanced", () => {
   );
 });
 
-test("unused key detection reads quoted keys and allows keys built at runtime", () => {
-  const keys = ["editor.lighten", "editor.darken", "common.copy", "home.old"];
+test("translations cannot nest, move, or swap rich-text tags and placeholders", () => {
+  const en = { "home.faq": "Read <a>the <b>guide</b></a> and {n} more." };
+  const check = (translation: string) =>
+    validateCatalogs({ en, ru: { "home.faq": translation } });
+  assert.deepEqual(check("{n} more: <a><b>guide</b> here</a>."), []);
+  for (const translation of [
+    "Read <b>the <a>guide</a></b> and {n} more.",
+    "Read <a>the</a> <b>guide</b> and {n} more.",
+    "Read <a>the <b>guide</b> and {n}</a> more.",
+  ])
+    assert.deepEqual(check(translation), [
+      "ru: rich-text tags differ for home.faq",
+    ]);
+});
+
+test("rich message declarations must match the English tags and placeholders", () => {
+  const english = { "home.faq": "Read <docs>the guide</docs> {count} times." };
+  assert.deepEqual(
+    validateRichNames(english, { "home.faq": ["count", "docs"] }),
+    [],
+  );
+  assert.deepEqual(
+    validateRichNames(english, {
+      "home.faq": ["docs"],
+      "home.gone": ["link"],
+    }),
+    [
+      "Rich message home.faq declares docs, English has count,docs",
+      "Unknown rich message key: home.gone",
+    ],
+  );
+});
+
+test("unused key detection reads quoted keys", () => {
+  const keys = ["editor.lighten", "common.copy", "home.old"];
   const sources = [
-    'announce(t(`editor.${next}`)); t("common.copy");',
+    't(next === "lighten" ? "editor.lighten" : "editor.darken"); t("common.copy");',
     "const label = 'home.title';",
   ];
-  assert.deepEqual(findUnusedKeys(keys, sources), [
-    "editor.lighten",
-    "editor.darken",
-    "home.old",
+  assert.deepEqual(findUnusedKeys(keys, sources), ["home.old"]);
+  assert.deepEqual(findUnusedKeys(["editor.face"], ["t(`editor.${next}`)"]), [
+    "editor.face",
   ]);
-  assert.deepEqual(
-    findUnusedKeys(keys, sources, ["editor.lighten", "editor.darken"]),
-    ["home.old"],
-  );
 });

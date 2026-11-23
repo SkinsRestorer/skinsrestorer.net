@@ -147,6 +147,7 @@
         "allow": [
           "@fontsource-variable/*",
           "@/lib/analytics",
+          "@/lib/messages/catalogs",
           "@/lib/stale-chunks"
         ]
       }

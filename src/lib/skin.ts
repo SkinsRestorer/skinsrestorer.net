@@ -4,10 +4,9 @@ import {
   MessageError,
   errorFields,
   messageFields,
-  messageKeySchema,
-  messageValuesSchema,
   type MessageKey,
 } from "./messages";
+import { messageKeySchema, messageValuesSchema } from "./messages/schema";
 
 import { Context, Effect, Schema } from "effect";
 import { detectVariantFromPixels } from "./skin-document";

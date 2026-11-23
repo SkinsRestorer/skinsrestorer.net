@@ -6,24 +6,52 @@ import {
   Fragment,
   isValidElement,
   useContext,
+  useEffect,
   useMemo,
   useCallback,
+  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import type { Locale } from "./i18n";
 import {
   createTranslator,
+  hasMessages,
+  loadMessages,
+  subscribeMessages,
   translate,
   type Translator,
   type MessageKey,
   type MessageValues,
   type Message,
 } from "./messages";
+import type { RichMessageKey, RichMessageValues } from "./rich-messages";
 
 export const LocaleContext = createContext<Locale>("en");
 
 export function useLocale() {
   return useContext(LocaleContext);
+}
+
+/**
+ * The locale to show for the URL's locale. The router changes the URL before
+ * the root route has loaded the new catalog. Until the catalog arrives, the
+ * previous language stays, so text never flashes in English. Use it for all
+ * text that follows the URL, including the document language.
+ */
+export function useShownLocale(locale: Locale): Locale {
+  const ready = useSyncExternalStore(
+    subscribeMessages,
+    () => hasMessages(locale),
+    () => hasMessages(locale),
+  );
+  const [shown, setShown] = useState(locale);
+  if (ready && shown !== locale) setShown(locale);
+  useEffect(() => {
+    // Navigation retries a failed load, so this request may fail quietly.
+    if (!ready) loadMessages(locale).catch(() => undefined);
+  }, [locale, ready]);
+  return ready ? locale : shown;
 }
 
 /**
@@ -80,11 +108,15 @@ function renderRich(nodes: readonly RichNode[], values: RichValues): ReactNode {
   const rendered = nodes.map((node): ReactNode => {
     if (typeof node === "string") return node;
     if ("placeholder" in node) {
-      const value = values[node.placeholder];
+      const value = Object.hasOwn(values, node.placeholder)
+        ? values[node.placeholder]
+        : undefined;
       return value === undefined ? `{${node.placeholder}}` : value;
     }
     const chunks = renderRich(node.children, values);
-    const wrapper = values[node.tag];
+    const wrapper = Object.hasOwn(values, node.tag)
+      ? values[node.tag]
+      : undefined;
     return isValidElement(wrapper)
       ? cloneElement(wrapper, undefined, chunks)
       : chunks;
@@ -104,7 +136,7 @@ export function formatRich(text: string, values: RichValues = {}): ReactNode {
 
 export function createRichTranslator(locale: Locale) {
   return Object.assign(createTranslator(locale), {
-    rich: (key: MessageKey, values?: RichValues) =>
+    rich: <K extends RichMessageKey>(key: K, values: RichMessageValues<K>) =>
       formatRich(translate(locale, key), values),
   });
 }

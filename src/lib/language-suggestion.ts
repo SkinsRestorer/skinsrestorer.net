@@ -3,7 +3,42 @@ import {
   isLocale,
   splitLocalePath,
   type Locale,
+  type PreferenceStorage,
 } from "./i18n";
+
+const answerKey = "skinsrestorer:language-suggestion";
+
+/** Picking a language in the switcher also answers the offer. */
+export type LanguageAnswer = "switched" | "dismissed" | "ignored" | "chose";
+
+export function recordLanguageAnswer(
+  storage: PreferenceStorage | undefined,
+  answer: LanguageAnswer,
+): void {
+  try {
+    storage?.setItem(answerKey, answer);
+  } catch {
+    // The offer may show again on a later page.
+  }
+}
+
+/**
+ * The locale to offer, if any. The offer shows until the visitor answers it
+ * once. Without storage it never shows, because it would return on every
+ * page.
+ */
+export function languageOffer(
+  storage: PreferenceStorage | undefined,
+  languages: readonly string[],
+  current: Locale,
+): Locale | undefined {
+  try {
+    if (!storage || storage.getItem(answerKey)) return undefined;
+  } catch {
+    return undefined;
+  }
+  return suggestedLocale(languages, current);
+}
 
 /**
  * The site locale that best matches the browser's preferred languages, if

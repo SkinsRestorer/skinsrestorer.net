@@ -1,15 +1,12 @@
 import { Console, Effect } from "effect";
-import { catalogs } from "../src/lib/messages";
-import { findUnusedKeys, validateCatalogs } from "../src/lib/messages/validate";
+import { catalogs } from "../src/lib/messages/catalogs";
+import {
+  findUnusedKeys,
+  validateCatalogs,
+  validateRichNames,
+} from "../src/lib/messages/validate";
+import { richMessages } from "../src/lib/rich-messages";
 import { runTool, ToolError, ToolFiles, walkFiles } from "./lib/runtime";
-
-/** Keys built at runtime: t(`editor.${next}`) in the studio editor. */
-const dynamicKeys = [
-  "editor.lighten",
-  "editor.darken",
-  "editor.face",
-  "editor.everywhere",
-];
 
 const check = Effect.gen(function* () {
   const files = yield* ToolFiles;
@@ -23,7 +20,8 @@ const check = Effect.gen(function* () {
   const keys = Object.keys(catalogs.en);
   const errors = [
     ...validateCatalogs(catalogs),
-    ...findUnusedKeys(keys, sources, dynamicKeys).map(
+    ...validateRichNames(catalogs.en, richMessages),
+    ...findUnusedKeys(keys, sources).map(
       (key) => `Unused translation key: ${key}`,
     ),
   ];

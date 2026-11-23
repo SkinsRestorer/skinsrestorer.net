@@ -51,9 +51,46 @@ export function hasLocalizedPages(href: string): boolean {
       "/editor",
       "/pricing",
       "/docs",
+      "/docs.mdx",
     ].includes(path) ||
     path.startsWith("/docs/")
   );
+}
+
+export type PreferenceStorage = Pick<Storage, "getItem" | "setItem">;
+
+/** Local storage, or undefined where the browser blocks it. */
+export function browserStorage(): PreferenceStorage | undefined {
+  try {
+    return localStorage;
+  } catch {
+    return undefined;
+  }
+}
+
+const lastLocaleKey = "skinsrestorer:locale";
+
+/** The locale of the last localized page that this browser showed. */
+export function lastLocale(
+  storage: PreferenceStorage | undefined,
+): Locale | undefined {
+  try {
+    const value = storage?.getItem(lastLocaleKey) ?? undefined;
+    return isLocale(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function rememberLocale(
+  storage: PreferenceStorage | undefined,
+  locale: Locale,
+): void {
+  try {
+    storage?.setItem(lastLocaleKey, locale);
+  } catch {
+    // English-only pages then link to English pages.
+  }
 }
 
 export function localizeHref(href: string, locale: Locale): string {
