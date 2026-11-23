@@ -4,8 +4,8 @@ import type { Nodes, Root } from "mdast";
 import type { VFile } from "vfile";
 
 /**
- * Preserve related guide links and tab labels in both search records and
- * Markdown exports.
+ * Preserve related guide links, tab labels, and accordion titles in both
+ * search records and Markdown exports.
  */
 export function remarkDocsStringify() {
   return (tree: Root, file: VFile) => {
@@ -35,6 +35,10 @@ export function remarkDocsStringify() {
       if (node.name === "Tab") {
         const value = attribute("value");
         label = value ? `**${value}**` : undefined;
+      } else if (node.name === "Accordion") {
+        // A collapsed section reads as a subsection in plain Markdown.
+        const title = attribute("title");
+        label = title ? `### ${title}` : undefined;
       } else {
         const title = attribute("title") ?? "Related guide";
         const href = attribute("href");
@@ -55,7 +59,7 @@ export function remarkDocsStringify() {
 }
 
 /** Elements whose label attribute is written before their content. */
-const labeledElements = new Set(["Card", "Tab"]);
+const labeledElements = new Set(["Accordion", "Card", "Tab"]);
 
 /** Keep navigation components readable in search and Markdown exports. */
 export const docsStringify = {

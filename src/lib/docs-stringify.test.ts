@@ -82,6 +82,30 @@ implementation 'net.skinsrestorer:skinsrestorer-api:15.0.0'
   assert.doesNotMatch(markdown, /<Tabs|<Tab/u);
 });
 
+test("each accordion keeps its title as a heading in Markdown", () => {
+  const markdown = String(
+    extract(`<Accordions multiple>
+<Accordion title="Player commands" id="player-commands">
+
+| Syntax | Permission |
+| --- | --- |
+| \`/skin\` | \`skinsrestorer.command\` |
+
+</Accordion>
+<Accordion title="Admin commands" id="admin-commands">
+
+| Syntax | Permission |
+| --- | --- |
+| \`/sr\` | \`skinsrestorer.admincommand\` |
+
+</Accordion>
+</Accordions>`)["markdown"],
+  );
+  assert.match(markdown, /### Player commands\s+\| Syntax/u);
+  assert.match(markdown, /### Admin commands\s+\| Syntax/u);
+  assert.doesNotMatch(markdown, /<Accordion/u);
+});
+
 test("consecutive related guides stay separate Markdown blocks", () => {
   const markdown = String(
     extract(`<Cards>

@@ -922,7 +922,7 @@
     "src/lib/skin-library-client.ts": "09c19fa393684d013c3097344cbe8da04ee3eb24314e41a0c4001d8fc62a73b1",
     "src/lib/editor-session.ts": "2b614f8b32ca89c80cb9770843edcd21595c0ae829beabc2eb6d991c5fc7c9b4",
     "src/components/studio/skin-studio.tsx": "1a4d5486afab0630a91dad41e6e86e46b2757a39f64b0b080526c3b2c8f92756",
-    "src/components/studio/studio-library.tsx": "b2d9378d629b9323f3e0599c2d3d86c0c5f19aea44a5cfc20f52d26b9c44e404",
+    "src/components/studio/studio-library.tsx": "d168135e882da1a984e0af6e4c6f898982a7f20fe80be50e55e20fb7de1847b9",
     "src/components/studio/studio-editor.tsx": "0e189020ee86bfd93e8fcddfbecfe82d4e4f3ca0a227529470610f5a69f428f8",
     "src/components/studio/draft-recovery.tsx": "7c81d049eca2e8a574e18b7bf829569b3d4bde99d3e989cfcfcf87df141ad366",
     "src/components/advanced-options.tsx": "9a0789017f818133baf967d67040fb45b00ab1efe86ba1085704f8800fae5d81",
