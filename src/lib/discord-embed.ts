@@ -77,7 +77,8 @@ export function createDiscordEmbed(
   for (;;) {
     const text = {
       type: ComponentType.TextDisplay,
-      content: `## [${markdown(title)}](${url})${description ? `\n${markdown(description)}` : ""}`,
+      // URL.href keeps parentheses, which would end the Markdown link early.
+      content: `## [${markdown(title)}](${url.replaceAll("(", "%28").replaceAll(")", "%29")})${description ? `\n${markdown(description)}` : ""}`,
     } as const;
     const component: APIContainerComponent = {
       type: ComponentType.Container,

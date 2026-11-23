@@ -4,8 +4,13 @@ import { test } from "node:test";
 import { Effect } from "effect";
 import { TestClock } from "effect/testing";
 import { HttpClient } from "./effect-http";
-import { cachedLatestReleaseEffect, latestReleaseEffect } from "./releases";
+import {
+  cachedLatestReleaseEffect,
+  latestReleaseEffect,
+  sharedLatestReleaseEffect,
+} from "./releases";
 import { required } from "./utils";
+import type { SharedCache } from "./worker-cache";
 
 const run = (fetcher: HttpFetch) =>
   Effect.runPromise(
@@ -77,4 +82,43 @@ test("release reads share a result for 120 seconds before refreshing", async () 
       Effect.provide(TestClock.layer()),
     ),
   );
+});
+
+test("release reads share GitHub results through the Workers cache", async () => {
+  const stored = new Map<string, Response>();
+  const cache: SharedCache = {
+    match: (key) => Promise.resolve(stored.get(key)?.clone()),
+    put: (key, response) => {
+      stored.set(key, response);
+      return Promise.resolve();
+    },
+  };
+  const responses = [
+    Response.json({ message: "Unavailable" }, { status: 503 }),
+    Response.json({ html_url: "https://example.test", tag_name: "1.0.0" }),
+  ];
+  let requests = 0;
+  const read = () =>
+    Effect.runPromise(
+      sharedLatestReleaseEffect(cache).pipe(
+        Effect.provideService(HttpClient, {
+          fetch: () => {
+            requests++;
+            return Promise.resolve(required(responses.shift(), "response"));
+          },
+        }),
+      ),
+    );
+  // A failed read is not stored, so the next isolate asks GitHub again.
+  assert.equal(await read(), null);
+  assert.equal(stored.size, 0);
+  assert.equal((await read())?.tag_name, "1.0.0");
+  assert.equal(
+    required(stored.values().next().value, "stored").headers.get(
+      "Cache-Control",
+    ),
+    "public, max-age=120",
+  );
+  assert.equal((await read())?.tag_name, "1.0.0");
+  assert.equal(requests, 2);
 });

@@ -1,8 +1,8 @@
-import type { HttpFetch } from "./effect-http";
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { fetchCapeSupport, uploadMineSkinFile } from "./mineskin";
 import { required } from "./utils";
+import { mockFetch } from "@/test/fakes";
 
 const skin = {
   uuid: "skin-id",
@@ -12,19 +12,18 @@ const file = new File([new Uint8Array([1, 2, 3])], "skin.png", {
   type: "image/png",
 });
 
-const originalFetch = globalThis.fetch;
+let network: ReturnType<typeof mockFetch> | undefined;
 
-function mockFetch(implementation: HttpFetch) {
-  const calls: Parameters<HttpFetch>[] = [];
-  globalThis.fetch = Object.assign((...args: Parameters<HttpFetch>) => {
-    calls.push(args);
-    return implementation(...args);
-  }, originalFetch);
-  return calls;
+/** Answer each request with `respond`, replacing any earlier fake. */
+function serve(respond: Parameters<typeof mockFetch>[0]) {
+  network?.restore();
+  network = mockFetch(respond);
+  return network.calls;
 }
 
 afterEach(() => {
-  globalThis.fetch = originalFetch;
+  network?.restore();
+  network = undefined;
 });
 
 test("polls queued uploads and preserves credentials and cape fields", async () => {
@@ -33,7 +32,7 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
     { success: true, job: { id: "job-id", status: "active" } },
     { success: true, job: { id: "job-id", status: "completed" }, skin },
   ];
-  const fetchMock = mockFetch(() =>
+  const fetchMock = serve(() =>
     Promise.resolve(Response.json(responses.shift())),
   );
 
@@ -42,13 +41,13 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
     variant: "slim",
     capeUuid: "cape-id",
     apiKey: "  Bearer test-key  ",
-    waitMs: 0,
+    pollIntervalMs: 0,
   });
 
   assert.deepEqual(result.skin, skin);
   assert.equal(fetchMock.length, 3);
   const [enqueue, ...polls] = fetchMock;
-  const form = enqueue?.[1]?.body;
+  const form = enqueue?.init?.body;
   assert.ok(form instanceof FormData);
   assert.equal(form.get("cape"), "cape-id");
   assert.equal(form.get("variant"), "slim");
@@ -56,9 +55,9 @@ test("polls queued uploads and preserves credentials and cape fields", async () 
   assert.ok(uploaded instanceof File);
   assert.equal(await uploaded.text(), await file.text());
   for (const call of polls) {
-    assert.equal(call[0], "https://api.mineskin.org/v2/queue/job-id");
+    assert.equal(call.url, "https://api.mineskin.org/v2/queue/job-id");
     assert.equal(
-      new Headers(call[1]?.headers).get("Authorization"),
+      new Headers(call.init?.headers).get("Authorization"),
       "Bearer test-key",
     );
   }
@@ -74,7 +73,7 @@ test("loads completed job results when the skin is not included", async () => {
       { success: true, job, skin: queued ? false : null },
       { success: true, skin },
     ];
-    const fetchMock = mockFetch(() =>
+    const fetchMock = serve(() =>
       Promise.resolve(Response.json(responses.shift())),
     );
 
@@ -82,19 +81,18 @@ test("loads completed job results when the skin is not included", async () => {
       file,
       variant: "classic",
       apiKey: "test-key",
-      waitMs: 0,
+      pollIntervalMs: 0,
     });
 
     assert.deepEqual(result.skin, skin);
     assert.deepEqual("job" in result && result.job, job);
     assert.equal(fetchMock.length, queued ? 3 : 2);
     const request = required(fetchMock.at(-1), "at result");
-    assert.equal(request[0], `https://api.mineskin.org/v2/skins/${skin.uuid}`);
+    assert.equal(request.url, `https://api.mineskin.org/v2/skins/${skin.uuid}`);
     assert.equal(
-      new Headers(request[1]?.headers).get("Authorization"),
+      new Headers(request.init?.headers).get("Authorization"),
       "Bearer test-key",
     );
-    globalThis.fetch = originalFetch;
   }
 });
 
@@ -115,18 +113,17 @@ test("accepts null names in cached, queued, and fetched MineSkin results", async
     ],
   ]) {
     const expectedRequests = responses.length;
-    const calls = mockFetch(() =>
+    const calls = serve(() =>
       Promise.resolve(Response.json(responses.shift())),
     );
     const result = await uploadMineSkinFile({
       file,
       variant: "slim",
-      waitMs: 0,
+      pollIntervalMs: 0,
     });
     assert.deepEqual(result.skin, unnamedSkin);
     assert.equal(calls.length, expectedRequests);
-    assert.equal(calls.filter(([, init]) => init?.method === "POST").length, 1);
-    globalThis.fetch = originalFetch;
+    assert.equal(calls.filter(({ init }) => init?.method === "POST").length, 1);
   }
 });
 
@@ -142,21 +139,20 @@ test("rejects missing or failed skin lookups without resubmitting the upload", a
       }),
       response,
     ];
-    const fetchMock = mockFetch(() =>
+    const fetchMock = serve(() =>
       Promise.resolve(required(responses.shift(), "shift result")),
     );
 
     await assert.rejects(
-      uploadMineSkinFile({ file, variant: "classic", waitMs: 0 }),
+      uploadMineSkinFile({ file, variant: "classic", pollIntervalMs: 0 }),
     );
     assert.equal(fetchMock.length, 2);
-    globalThis.fetch = originalFetch;
   }
 });
 
 test("accepts immediate proxy results without forwarding the API key", async () => {
   const proxySkin = { url: "skinsrestorer-axolotl://v2.test-payload" };
-  const fetchMock = mockFetch(() =>
+  const fetchMock = serve(() =>
     Promise.resolve(
       Response.json({
         success: true,
@@ -175,7 +171,7 @@ test("accepts immediate proxy results without forwarding the API key", async () 
   });
   assert.deepEqual(result.skin, proxySkin);
   assert.equal(fetchMock.length, 1);
-  const [url, options] = required(fetchMock[0], "proxy request");
+  const { url, init: options } = required(fetchMock[0], "proxy request");
   assert.equal(url, "https://axolotl.skinsrestorer.net/mineskin/skins");
   assert.equal(new Headers(options?.headers).has("Authorization"), false);
   assert.ok(options?.body instanceof FormData);
@@ -192,7 +188,7 @@ test("rejects missing proxy results and errors without retrying the upload", asy
     { success: false, errors: [{ message: "Rejected" }] },
     { error: "Proxy unavailable" },
   ]) {
-    const calls = mockFetch(() => Promise.resolve(Response.json(body)));
+    const calls = serve(() => Promise.resolve(Response.json(body)));
     await assert.rejects(
       uploadMineSkinFile({
         file,
@@ -202,12 +198,11 @@ test("rejects missing proxy results and errors without retrying the upload", asy
       }),
     );
     assert.equal(calls.length, 1);
-    globalThis.fetch = originalFetch;
   }
 });
 
 test("the official MineSkin route still requires full skin metadata", async () => {
-  const calls = mockFetch(() =>
+  const calls = serve(() =>
     Promise.resolve(
       Response.json({
         success: true,
@@ -235,17 +230,16 @@ test("rejects failed or incomplete results instead of polling forever", async ()
     Response.json({ success: true }),
   ];
   for (const response of cases) {
-    const fetchMock = mockFetch(() => Promise.resolve(response));
+    const fetchMock = serve(() => Promise.resolve(response));
     await assert.rejects(
-      uploadMineSkinFile({ file, variant: "classic", waitMs: 0 }),
+      uploadMineSkinFile({ file, variant: "classic", pollIntervalMs: 0 }),
     );
     assert.equal(fetchMock.length, 1);
-    globalThis.fetch = originalFetch;
   }
 });
 
 test("does not fetch capes when the API key lacks access", async () => {
-  const fetchMock = mockFetch(() =>
+  const fetchMock = serve(() =>
     Promise.resolve(Response.json({ success: true, grants: {} })),
   );
   assert.deepEqual(await fetchCapeSupport("test-key"), {
@@ -289,7 +283,7 @@ test("Effect polling uses virtual time and interruption never resubmits an uploa
 
 test("supported capes are normalized and private fields are validated at the boundary", async () => {
   const { fetchMineSkinSupportedCapes } = await import("./mineskin");
-  mockFetch(() =>
+  serve(() =>
     Promise.resolve(
       Response.json({
         capes: [
@@ -392,11 +386,106 @@ test("queue polling stops after its deadline without resubmitting", async () => 
 });
 
 test("MineSkin failures without a message report the response status", async () => {
-  mockFetch(() =>
+  serve(() =>
     Promise.resolve(Response.json({ success: false }, { status: 403 })),
   );
   await assert.rejects(fetchCapeSupport("test-key"), {
     messageKey: "errors.mineskinStatus",
     message: "MineSkin could not process the request (status 403).",
   });
+});
+
+test("queue reads retry transient failures without resubmitting the upload", async () => {
+  const { Effect, Fiber } = await import("effect");
+  const { TestClock } = await import("effect/testing");
+  const { HttpClient } = await import("./effect-http");
+  const { uploadMineSkinFileEffect } = await import("./mineskin");
+  const responses: (() => Promise<Response>)[] = [
+    () =>
+      Promise.resolve(Response.json({ job: { id: "job", status: "waiting" } })),
+    () => Promise.resolve(Response.json({ success: false }, { status: 503 })),
+    () => Promise.reject(new TypeError("Network down")),
+    () => Promise.resolve(Response.json({ success: false }, { status: 429 })),
+    () =>
+      Promise.resolve(
+        Response.json({ job: { id: "job", status: "completed" }, skin }),
+      ),
+  ];
+  const methods: (string | undefined)[] = [];
+  const result = await Effect.runPromise(
+    Effect.gen(function* () {
+      const upload = yield* Effect.forkChild(
+        uploadMineSkinFileEffect({ file, variant: "classic" }),
+      );
+      // Poll interval, then retries after 1, 2, and 4 seconds.
+      yield* TestClock.adjust(1000);
+      assert.equal(methods.length, 2);
+      yield* TestClock.adjust(1000);
+      assert.equal(methods.length, 3);
+      yield* TestClock.adjust(2000);
+      assert.equal(methods.length, 4);
+      yield* TestClock.adjust(4000);
+      return yield* Fiber.join(upload);
+    }).pipe(
+      Effect.provideService(HttpClient, {
+        fetch: (_url, init) => {
+          methods.push(init?.method);
+          return required(responses.shift(), "response")();
+        },
+      }),
+      Effect.provide(TestClock.layer()),
+    ),
+  );
+  assert.deepEqual(result.skin, skin);
+  assert.deepEqual(methods, [
+    "POST",
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  ]);
+});
+
+test("persistent queue read failures say the accepted job may still finish", async () => {
+  const { Effect, Fiber, Result } = await import("effect");
+  const { TestClock } = await import("effect/testing");
+  const { HttpClient } = await import("./effect-http");
+  const { uploadMineSkinFileEffect } = await import("./mineskin");
+  for (const [failure, expectedReads, messageKey, html] of [
+    // The first read plus three retries.
+    [{ status: 502 }, 4, "errors.jobStatusUnavailable", false],
+    // Proxy error pages are HTML, but their status is still transient.
+    [{ status: 503 }, 4, "errors.jobStatusUnavailable", true],
+    // A definite answer from MineSkin is not retried.
+    [{ status: 404 }, 1, "errors.mineskinStatus", false],
+  ] as const) {
+    const methods: (string | undefined)[] = [];
+    const outcome = await Effect.runPromise(
+      Effect.gen(function* () {
+        const upload = yield* Effect.forkChild(
+          Effect.result(uploadMineSkinFileEffect({ file, variant: "classic" })),
+        );
+        yield* TestClock.adjust(60_000);
+        return yield* Fiber.join(upload);
+      }).pipe(
+        Effect.provideService(HttpClient, {
+          fetch: (_url, init) => {
+            methods.push(init?.method);
+            return Promise.resolve(
+              methods.length === 1
+                ? Response.json({ job: { id: "job", status: "waiting" } })
+                : html
+                  ? new Response("<html>Service unavailable</html>", failure)
+                  : Response.json({ success: false }, failure),
+            );
+          },
+        }),
+        Effect.provide(TestClock.layer()),
+      ),
+    );
+    assert.ok(Result.isFailure(outcome));
+    assert.equal(outcome.failure.messageKey, messageKey);
+    assert.equal(methods.filter((method) => method === "POST").length, 1);
+    assert.equal(methods.length, 1 + expectedReads);
+  }
 });

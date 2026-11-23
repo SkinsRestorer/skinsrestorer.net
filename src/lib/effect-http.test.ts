@@ -329,6 +329,7 @@ test("non-JSON error pages report the HTTP status", async () => {
     ),
     {
       reason: "response",
+      status: 502,
       messageKey: "errors.serviceStatus",
       message: "The service answered with status 502.",
     },

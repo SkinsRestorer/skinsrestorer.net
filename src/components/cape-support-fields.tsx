@@ -145,7 +145,6 @@ export function MineSkinKeyField(props: {
   );
 }
 
-/** Fixed placeholder slots while the cape list loads. */
 /** Enough slots to fill the list's full height, so loading does not shift it. */
 const CAPE_PLACEHOLDERS = Array.from(
   { length: 11 },

@@ -1,9 +1,6 @@
-import {
-  messageFields,
-  messageKeySchema,
-  messageValuesSchema,
-} from "./messages";
-import { Effect, Schema } from "effect";
+import { messageFields } from "./messages";
+import { messageKeySchema, messageValuesSchema } from "./messages/schema";
+import { Effect, Schedule, Schema } from "effect";
 import { HttpError, readHttpJson, runHttpEffect } from "./effect-http";
 import type { SkinVariant } from "./skin";
 import { ensureHttpsTextureUrl } from "./textures";
@@ -15,6 +12,9 @@ const MINESKIN_USER_AGENT = "SkinsRestorer-Generator/1.0";
 const AXOLOTL_UPLOAD_TIMEOUT_MS = 90_000;
 // Polling stops here. The queued job can still finish on MineSkin.
 const MINESKIN_JOB_DEADLINE = "2 minutes";
+const MINESKIN_POLL_INTERVAL_MS = 1000;
+// Job reads are idempotent, so transient failures retry after 1, 2, and 4 s.
+const MINESKIN_POLL_RETRIES = 3;
 const errorsSchema = Schema.optional(
   Schema.Array(Schema.Struct({ message: Schema.optional(Schema.String) })),
 );
@@ -67,7 +67,7 @@ const capeSchema = Schema.Struct({
 const capesSchema = Schema.Struct({
   success: Schema.optional(Schema.Boolean),
   errors: errorsSchema,
-  capes: Schema.optional(Schema.mutable(Schema.Array(capeSchema))),
+  capes: Schema.optional(Schema.Array(capeSchema)),
 });
 const grantsSchema = Schema.Struct({
   success: Schema.optional(Schema.Boolean),
@@ -90,6 +90,7 @@ class MineSkinError extends Schema.TaggedError<
 >()("MineSkinError", {
   reason: Schema.Literals(["request", "job", "result"]),
   message: Schema.String,
+  status: Schema.optional(Schema.Finite),
   messageKey: Schema.optional(messageKeySchema),
   messageValues: Schema.optional(messageValuesSchema),
 }) {}
@@ -127,6 +128,7 @@ function mineSkinRequest<A extends MineSkinBody>(
         return Effect.fail(
           MineSkinError.make({
             reason: "request",
+            status: response.status,
             ...(detail !== undefined
               ? { message: detail }
               : messageFields("errors.mineskinStatus", {
@@ -161,11 +163,48 @@ function mineSkinUpload<A extends MineSkinBody>(
   );
 }
 
+const isTransientStatus = (status: number | undefined) =>
+  status !== undefined && (status === 429 || status >= 500);
+
+/**
+ * Network failures, timeouts, rate limits, and server errors can pass. A proxy
+ * often answers a 502 or 503 with an HTML page, which fails JSON decoding.
+ */
+function isTransientPollError(error: HttpError | MineSkinError): boolean {
+  if (error._tag === "HttpError")
+    return error.reason === "response" ? isTransientStatus(error.status) : true;
+  return error.reason === "request" && isTransientStatus(error.status);
+}
+
+/**
+ * Read the state of an accepted job. Transient failures retry, since the read
+ * is idempotent. When they persist, the error says the job may still finish
+ * instead of inviting a second upload.
+ */
+function readMineSkinJob(url: string, headers: Record<string, string>) {
+  return mineSkinRequest(url, { headers }, responseSchema).pipe(
+    Effect.retry({
+      schedule: Schedule.exponential("1 second"),
+      times: MINESKIN_POLL_RETRIES,
+      while: isTransientPollError,
+    }),
+    Effect.mapError((error) =>
+      isTransientPollError(error)
+        ? MineSkinError.make({
+            reason: "job",
+            ...messageFields("errors.jobStatusUnavailable"),
+          })
+        : error,
+    ),
+  );
+}
+
 export interface MineSkinUploadOptions {
   file: File;
   variant: SkinVariant;
   name?: string | undefined;
-  waitMs?: number;
+  /** Delay between queue reads on the official route. Tests shorten it. */
+  pollIntervalMs?: number;
   capeUuid?: string | undefined;
   apiKey?: string | undefined;
   useCapeProxy?: boolean;
@@ -175,7 +214,7 @@ export interface MineSkinUploadOptions {
 const pollMineSkinJob = Effect.fn("MineSkin.pollJob")(function* (
   queued: MineSkinResponse,
   headers: Record<string, string>,
-  waitMs: number | undefined,
+  pollIntervalMs: number | undefined,
 ) {
   let data = queued;
   for (;;) {
@@ -192,10 +231,9 @@ const pollMineSkinJob = Effect.fn("MineSkin.pollJob")(function* (
       });
     if (data.job.status === "completed") {
       if (data.job.result) {
-        const result = yield* mineSkinRequest(
+        const result = yield* readMineSkinJob(
           `${MINESKIN_API_BASE_URL}/skins/${encodeURIComponent(data.job.result)}`,
-          { headers },
-          responseSchema,
+          headers,
         );
         if (result.skin) return { ...data, skin: result.skin };
       }
@@ -205,8 +243,8 @@ const pollMineSkinJob = Effect.fn("MineSkin.pollJob")(function* (
       });
     }
     const jobUrl = `${MINESKIN_API_BASE_URL}/queue/${encodeURIComponent(data.job.id)}`;
-    yield* Effect.sleep(waitMs ?? 1000);
-    data = yield* mineSkinRequest(jobUrl, { headers }, responseSchema);
+    yield* Effect.sleep(pollIntervalMs ?? MINESKIN_POLL_INTERVAL_MS);
+    data = yield* readMineSkinJob(jobUrl, headers);
   }
 });
 
@@ -216,7 +254,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
     file,
     variant,
     name,
-    waitMs,
+    pollIntervalMs,
     capeUuid,
     apiKey,
     useCapeProxy = false,
@@ -229,7 +267,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
     const headers = createMineSkinHeaders(useCapeProxy ? undefined : apiKey);
     if (useCapeProxy) {
       const data = yield* mineSkinUpload(
-        `${AXOLOTL_API_BASE_URL}/skins${waitMs ? `?waitMs=${waitMs}` : ""}`,
+        `${AXOLOTL_API_BASE_URL}/skins`,
         { method: "POST", headers, body: formData },
         axolotlResponseSchema,
         { timeoutMs: AXOLOTL_UPLOAD_TIMEOUT_MS },
@@ -246,7 +284,7 @@ export const uploadMineSkinFileEffect = Effect.fn("MineSkin.upload")(
       { method: "POST", headers, body: formData },
       responseSchema,
     );
-    return yield* pollMineSkinJob(queued, headers, waitMs).pipe(
+    return yield* pollMineSkinJob(queued, headers, pollIntervalMs).pipe(
       Effect.timeoutOrElse({
         duration: MINESKIN_JOB_DEADLINE,
         orElse: () =>
@@ -280,12 +318,12 @@ const fetchMineSkinSupportedCapesEffect = Effect.fn("MineSkin.supportedCapes")(
     );
     return (data.capes ?? [])
       .filter((cape) => cape.supported)
-      .map((cape) =>
-        // The decoded capes are fresh objects that only this function owns.
-        Object.assign(cape, {
-          url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
-        }),
-      );
+      .map((cape): MineSkinCape => ({
+        uuid: cape.uuid,
+        alias: cape.alias,
+        url: ensureHttpsTextureUrl(cape.url) ?? cape.url,
+        supported: true,
+      }));
   },
 );
 const fetchCapeSupportEffect = Effect.fn("MineSkin.capeSupport")(function* (

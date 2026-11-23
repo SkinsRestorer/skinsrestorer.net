@@ -74,3 +74,16 @@ test("omits unsupported URLs instead of creating unsafe buttons", () => {
     1,
   );
 });
+
+test("keeps the title link whole when the page URL has parentheses", () => {
+  const card = createDiscordEmbed({
+    title: "Guide",
+    url: "https://example.com/docs/skin_(slim)",
+  });
+  assert.ok(card);
+  const payload = decodePayload(serializeDiscordEmbed(card));
+  assert.equal(
+    payload.component.components[0]?.content,
+    "## [Guide](https://example.com/docs/skin_%28slim%29)",
+  );
+});

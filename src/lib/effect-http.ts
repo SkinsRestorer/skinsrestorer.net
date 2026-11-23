@@ -1,9 +1,5 @@
-import {
-  type MessageKey,
-  messageFields,
-  messageKeySchema,
-  messageValuesSchema,
-} from "./messages";
+import { type MessageKey, messageFields } from "./messages";
+import { messageKeySchema, messageValuesSchema } from "./messages/schema";
 import { Context, Effect, Layer, Schema } from "effect";
 
 /** The portable fetch call signature, without runtime-specific static helpers. */
@@ -23,6 +19,8 @@ export class HttpError extends Schema.TaggedError<
 >()("HttpError", {
   reason: Schema.Literals(["transport", "response", "timeout"]),
   message: Schema.String,
+  /** The HTTP status of a response that could not be used. */
+  status: Schema.optional(Schema.Finite),
   messageKey: Schema.optional(messageKeySchema),
   messageValues: Schema.optional(messageValuesSchema),
   cause: Schema.optional(Schema.Unknown),
@@ -177,6 +175,7 @@ export function readHttpJson<A>(
     const failure = (key: MessageKey, cause: unknown) =>
       HttpError.make({
         reason: "response",
+        status: response.status,
         ...(response.ok
           ? messageFields(key)
           : messageFields("errors.serviceStatus", { status: response.status })),
