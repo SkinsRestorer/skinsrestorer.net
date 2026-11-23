@@ -6,25 +6,11 @@ import {
   RECENT_COLORS_KEY,
   writeRecentColors,
 } from "./recent-colors";
-import type { KeyValueStorage } from "./skin-draft";
 import type { Rgba } from "./skin-paint";
+import { blockedStorage, memoryStorage } from "@/test/fakes";
 
-function memory(
-  initial?: string,
-): KeyValueStorage & { value?: string | undefined } {
-  const store: KeyValueStorage & { value?: string | undefined } = {
-    value: initial,
-    getItem: (key) =>
-      key === RECENT_COLORS_KEY ? (store.value ?? null) : null,
-    setItem: (_key, value) => {
-      store.value = value;
-    },
-    removeItem: () => {
-      store.value = undefined;
-    },
-  };
-  return store;
-}
+const memory = (initial?: string) =>
+  memoryStorage(initial === undefined ? {} : { [RECENT_COLORS_KEY]: initial });
 
 const colors = (count: number) =>
   Array.from({ length: count }, (_, i): Rgba => [i, 2 * i, 3 * i, 255 - i]);
@@ -82,17 +68,8 @@ test("stored colors survive a reload and are validated", () => {
 });
 
 test("blocked or full storage fails quietly", () => {
-  const throwing: KeyValueStorage = {
-    getItem: () => {
-      throw new Error("SecurityError");
-    },
-    setItem: () => {
-      throw new Error("QuotaExceededError");
-    },
-    removeItem: () => {},
-  };
-  assert.deepEqual(readRecentColors(throwing), { status: "unavailable" });
+  assert.deepEqual(readRecentColors(blockedStorage), { status: "unavailable" });
   assert.deepEqual(readRecentColors(undefined), { status: "unavailable" });
-  assert.equal(writeRecentColors(throwing, colors(1)), false);
+  assert.equal(writeRecentColors(blockedStorage, colors(1)), false);
   assert.equal(writeRecentColors(undefined, colors(1)), false);
 });
