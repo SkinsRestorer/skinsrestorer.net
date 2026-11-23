@@ -20,6 +20,8 @@ export function getPageHead(
     locale?: Locale;
     alternatives?: readonly Locale[];
     contentLocale?: Locale;
+    /** Ancestors of a guide, ending with the page itself. */
+    breadcrumbs?: readonly Breadcrumb[];
   } = {},
 ) {
   const { path: bare, locale: pathLocale } = splitLocalePath(
@@ -69,6 +71,9 @@ export function getPageHead(
             },
           ]
         : []),
+      ...(options.breadcrumbs && options.breadcrumbs.length > 1
+        ? [{ "script:ld+json": getBreadcrumbList(options.breadcrumbs) }]
+        : []),
     ],
     links: [
       { rel: "canonical", href: url },
@@ -84,6 +89,25 @@ export function getPageHead(
         }),
       ),
     ],
+  };
+}
+
+export interface Breadcrumb {
+  name: string;
+  url: string;
+}
+
+/** Lets search results show a guide's section path instead of its URL. */
+function getBreadcrumbList(items: readonly Breadcrumb[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map(({ name, url }, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name,
+      item: new URL(url, siteUrl).href,
+    })),
   };
 }
 

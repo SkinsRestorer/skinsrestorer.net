@@ -7,7 +7,10 @@ export const Route = createFileRoute("/robots.txt")({
         new Response(
           "User-agent: *\nAllow: /\n\nSitemap: https://skinsrestorer.net/sitemap.xml\n",
           {
-            headers: { "Content-Type": "text/plain; charset=utf-8" },
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Cache-Control": "public, max-age=86400",
+            },
           },
         ),
     },

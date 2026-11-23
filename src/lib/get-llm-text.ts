@@ -1,7 +1,13 @@
 import { Effect, Schema } from "effect";
 import type { InferPageType } from "fumadocs-core/source";
 import { flattenTree, type Node } from "fumadocs-core/page-tree";
-import { isLocale, type Locale } from "@/lib/i18n";
+import {
+  docFileInfo,
+  isLocale,
+  localeNames,
+  locales,
+  type Locale,
+} from "@/lib/i18n";
 import { absoluteDocsUrl, formatExportedMarkdown } from "@/lib/llm-markdown";
 import { translate, type MessageKey } from "@/lib/messages";
 import { source } from "@/lib/source";
@@ -76,9 +82,24 @@ const websiteTools = [
   ["/generator", "generator.title", "generator.description"],
 ] as const satisfies readonly (readonly [string, MessageKey, MessageKey])[];
 
+/** One line per language with its own guides, linking its docs home. */
+function translationLines() {
+  return locales.flatMap((locale) => {
+    const home = source.getPage([], locale);
+    const translated = source
+      .getPages(locale)
+      .filter((page) => docFileInfo(page.path).locale === locale).length;
+    return locale === "en" || !home || translated === 0
+      ? []
+      : [
+          `- [${localeNames[locale]}](${absoluteDocsUrl(`${home.url}.mdx`)}): ${translated} translated guides`,
+        ];
+  });
+}
+
 /**
- * The llms.txt index: sidebar sections with links to Markdown pages, then the
- * website tools.
+ * The llms.txt index: sidebar sections with links to Markdown pages, the
+ * translated documentation, then the website tools.
  */
 export function getLLMIndex() {
   const tree = source.getPageTree("en");
@@ -109,6 +130,7 @@ export function getLLMIndex() {
     `> ${home?.data.description ?? "Install, configure, and extend SkinsRestorer."}`,
     `The complete documentation as one file: ${absoluteDocsUrl("/llms-full.txt")}`,
     ...sections,
+    `## Translations\n\nPages without a translation are served in English.\n\n${translationLines().join("\n")}`,
     `## Website tools\n\n${websiteTools
       .map(
         ([path, title, description]) =>

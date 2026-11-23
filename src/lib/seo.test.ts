@@ -101,7 +101,9 @@ test("the home page describes one multilingual website at the root URL", () => {
     const head = getPageHead("/", { locale });
     const script = head.meta.find((tag) => "script:ld+json" in tag);
     assert.ok(script && "script:ld+json" in script);
-    const website = script["script:ld+json"]["@graph"][0];
+    const data = script["script:ld+json"];
+    assert.ok("@graph" in data);
+    const website = data["@graph"][0];
     assert.ok(website);
     assert.equal(website["@id"], `${siteUrl}/#website`);
     assert.equal(website.url, `${siteUrl}/`);
@@ -143,4 +145,35 @@ function hrefLanguages(path: string) {
 test("legal pages list only English, translated pages list every locale", () => {
   assert.deepEqual(hrefLanguages("/privacy-policy"), ["en", "x-default"]);
   assert.deepEqual(hrefLanguages("/ru/pricing"), [...locales, "x-default"]);
+});
+
+test("guides describe their section path as a breadcrumb list", () => {
+  const head = getPageHead("/ru/docs/installation/proxy", {
+    breadcrumbs: [
+      { name: "Документация", url: "/ru/docs" },
+      { name: "Установка", url: "/ru/docs/installation" },
+      { name: "Прокси", url: "/ru/docs/installation/proxy" },
+    ],
+  });
+  const script = head.meta.find((tag) => "script:ld+json" in tag);
+  assert.ok(script && "script:ld+json" in script);
+  assert.deepEqual(script["script:ld+json"], {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      ["Документация", "/ru/docs"],
+      ["Установка", "/ru/docs/installation"],
+      ["Прокси", "/ru/docs/installation/proxy"],
+    ].map(([name, path], index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name,
+      item: `${siteUrl}${path}`,
+    })),
+  });
+  // The docs home has no ancestors to show.
+  const home = getPageHead("/docs", {
+    breadcrumbs: [{ name: "Docs", url: "/docs" }],
+  });
+  assert.ok(!home.meta.some((tag) => "script:ld+json" in tag));
 });
