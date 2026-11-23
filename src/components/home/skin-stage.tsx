@@ -101,6 +101,7 @@ export function SkinStage() {
     { id: 0, command: demoCommands[0] },
   ]);
   const [autoplay, setAutoplay] = useState(true);
+  const [announcement, setAnnouncement] = useState("");
 
   const latest = required(entries.at(-1), "latest chat entry");
   const lastSkinChange = entries.findLast(
@@ -310,6 +311,7 @@ export function SkinStage() {
             aria-pressed={latest.command === item}
             onClick={() => {
               setAutoplay(false);
+              setAnnouncement(t(item.description));
               run(item);
             }}
             className="flex-auto"
@@ -318,12 +320,12 @@ export function SkinStage() {
           </Button>
         ))}
       </fieldset>
-      {/* Announce only commands the visitor picks, not every autoplay step. */}
-      <p
-        aria-live={autoplay ? "off" : "polite"}
-        className="min-h-10 text-sm text-muted-foreground"
-      >
+      <p className="min-h-10 text-sm text-muted-foreground">
         {t(latest.command.description)}
+      </p>
+      {/* Stay mounted and polite so the first picked command is announced, but not autoplay steps. */}
+      <p aria-live="polite" className="sr-only">
+        {announcement}
       </p>
     </div>
   );

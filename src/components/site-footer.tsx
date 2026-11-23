@@ -12,7 +12,11 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t py-6 text-sm text-fd-muted-foreground">
       <div className="mx-auto flex w-full max-w-(--fd-layout-width) flex-col items-center gap-3 px-4 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
-        <p>&copy; {year} SkinsRestorer</p>
+        <p>
+          &copy;{" "}
+          {/* The prerendered year can lag the client year until the next deploy. */}
+          <span suppressHydrationWarning>{year}</span> SkinsRestorer
+        </p>
         <nav
           aria-label={t("footer.footer")}
           className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-y-2"

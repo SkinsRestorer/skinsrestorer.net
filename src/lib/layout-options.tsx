@@ -40,13 +40,7 @@ const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
       <>
-        <Image
-          src="/logo.png"
-          width={32}
-          height={32}
-          alt="SkinsRestorer Logo"
-          priority
-        />
+        <Image src="/logo.png" width={32} height={32} alt="" priority />
         <span className="font-medium">SkinsRestorer</span>
       </>
     ),

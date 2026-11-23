@@ -25,13 +25,19 @@ export default function RootComponent() {
       <meta name="robots" content="noindex" />
       <div className="mx-auto flex w-full max-w-[1400px] flex-1 px-4 py-12">
         <div className="m-auto flex max-w-xl flex-col items-center gap-6 text-center">
-          <img
-            src="/nyan-cat.webp"
-            alt=""
-            width={500}
-            height={500}
-            className="w-full max-w-64 rounded-xl"
-          />
+          <picture>
+            <source
+              media="(prefers-reduced-motion: reduce)"
+              srcSet="/nyan-cat-still.webp"
+            />
+            <img
+              src="/nyan-cat.webp"
+              alt=""
+              width={476}
+              height={280}
+              className="h-auto w-full max-w-64 rounded-xl"
+            />
+          </picture>
           <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold">
               {t("common.404PageNotFound")}

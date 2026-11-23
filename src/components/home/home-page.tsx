@@ -205,19 +205,11 @@ function useFaqItems() {
   return [
     {
       question: t("home.skinsrestorerFree"),
-      answer: (
-        <>
-          {t("home.yesFreeLicensedUnderGpl30")}{" "}
-          <a className={inlineLinkClassName} href={githubLink}>
-            GitHub
-          </a>
-          {t("home.paid")}{" "}
-          <Link className={inlineLinkClassName} href="/pricing">
-            {t("home.supporterPlans")}
-          </Link>{" "}
-          {t("home.optionalTheyComePriorityHelpDiscord")}
-        </>
-      ),
+      answer: t.rich("home.faqFreeAnswer", {
+        // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+        github: <a className={inlineLinkClassName} href={githubLink} />,
+        plans: <Link className={inlineLinkClassName} href="/pricing" />,
+      }),
     },
     {
       question: t("home.doesWorkOnlineModeOfflineMode"),
@@ -229,39 +221,25 @@ function useFaqItems() {
     },
     {
       question: t("home.howDoIUseSkinPngFile"),
-      answer: (
-        <>
-          <Link className={inlineLinkClassName} href="/upload">
-            {t("home.faqUploadPng")}
-          </Link>{" "}
-          {t("home.get")} <code>/skin url</code>{" "}
-          {t("home.commandThenRunGameServerStaffCan")}{" "}
-          <Link className={inlineLinkClassName} href="/generator">
-            {t("home.skinGenerator")}
-          </Link>{" "}
-          {t("home.saveSkinUnderNameEveryPlayerCan")}
-        </>
-      ),
+      answer: t.rich("home.faqSkinFileAnswer", {
+        upload: <Link className={inlineLinkClassName} href="/upload" />,
+        command: <code>/skin url</code>,
+        generator: <Link className={inlineLinkClassName} href="/generator" />,
+      }),
     },
     {
       question: t("home.whereDoIGetHelpReportBug"),
-      answer: (
-        <>
-          {t("home.start")}{" "}
-          <Link className={inlineLinkClassName} href="/docs/troubleshooting">
-            {t("home.troubleshootingGuides")}
-          </Link>
-          {t("home.ifDoesNotFixAsk")}{" "}
-          <a className={inlineLinkClassName} href={discordLink}>
-            Discord
-          </a>{" "}
-          {t("home.includeServerVersionRecentLogReportBugs")}{" "}
-          <a className={inlineLinkClassName} href={`${githubLink}/issues`}>
-            {t("home.githubIssues")}
-          </a>
-          .
-        </>
-      ),
+      answer: t.rich("home.faqHelpAnswer", {
+        guides: (
+          <Link className={inlineLinkClassName} href="/docs/troubleshooting" />
+        ),
+        // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+        discord: <a className={inlineLinkClassName} href={discordLink} />,
+        issues: (
+          // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- t.rich fills in the link text.
+          <a className={inlineLinkClassName} href={`${githubLink}/issues`} />
+        ),
+      }),
     },
   ];
 }
@@ -493,9 +471,17 @@ export default function IndexPage() {
                 >
                   {item.command}
                 </Link>
-                <p className="col-start-1 row-start-2 text-sm text-muted-foreground sm:col-start-2 sm:row-start-1">
-                  {t(item.description)}
-                </p>
+                <div className="col-start-1 row-start-2 flex min-w-0 flex-col gap-0.5 text-sm text-muted-foreground sm:col-start-2 sm:row-start-1">
+                  <p>{t(item.description)}</p>
+                  {item.example === item.command ? null : (
+                    <p className="text-xs break-all">
+                      {t("home.exampleLabel")}{" "}
+                      <code className="font-mono text-foreground">
+                        {item.example}
+                      </code>
+                    </p>
+                  )}
+                </div>
                 <div className="col-start-2 row-span-2 row-start-1 sm:col-start-3 sm:row-span-1">
                   <CopyCommand command={item.example} />
                 </div>
@@ -536,11 +522,9 @@ export default function IndexPage() {
       <section aria-labelledby="faq-title" className="border-t">
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:px-8">
           <SectionHeading id="faq-title" title={t("home.questions")}>
-            {t("home.shortAnswers")}{" "}
-            <Link href="/docs" className={inlineLinkClassName}>
-              {t("home.documentation")}
-            </Link>{" "}
-            {t("home.hasDetails")}
+            {t.rich("home.faqIntro", {
+              docs: <Link href="/docs" className={inlineLinkClassName} />,
+            })}
           </SectionHeading>
           <HomeFaq items={faqItems} />
         </div>
