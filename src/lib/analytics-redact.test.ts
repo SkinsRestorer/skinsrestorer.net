@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { redactEditorParams } from "./analytics-redact";
 
-test("texture hashes and handoff ids are removed from nested event data", () => {
+test("texture hashes are removed from nested event data", () => {
   const event = {
     event: "$pageview",
     properties: {
       $current_url: "https://skinsrestorer.net/editor?texture=abc123&x=1#top",
-      nested: [{ href: "/upload?handoff=4f1e-22" }],
+      nested: [{ href: "/upload?texture=4f1e-22" }],
       count: 3,
     },
   };
@@ -15,7 +15,7 @@ test("texture hashes and handoff ids are removed from nested event data", () => 
     event: "$pageview",
     properties: {
       $current_url: "https://skinsrestorer.net/editor?texture=redacted&x=1#top",
-      nested: [{ href: "/upload?handoff=redacted" }],
+      nested: [{ href: "/upload?texture=redacted" }],
       count: 3,
     },
   });
@@ -41,14 +41,10 @@ test("Mojang texture URLs lose their hash, plain and URL-encoded", () => {
   );
 });
 
-test("texture and handoff values in the fragment are removed", () => {
+test("texture values in the fragment are removed", () => {
   assert.equal(
     redactEditorParams("https://skinsrestorer.net/studio#texture=abc123&y=2"),
     "https://skinsrestorer.net/studio#texture=redacted&y=2",
-  );
-  assert.equal(
-    redactEditorParams("/studio#handoff=4f1e-22"),
-    "/studio#handoff=redacted",
   );
   assert.equal(redactEditorParams("/docs#textures"), "/docs#textures");
 });

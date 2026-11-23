@@ -15,9 +15,6 @@ export const Route = createFileRoute("/api/csp-report")({
         const contentType = request.headers.get("Content-Type");
         if (!contentType || !isCspReportContentType(contentType))
           return new Response(null, { status: 415 });
-        const length = Number(request.headers.get("Content-Length") ?? 0);
-        if (length > MAX_CSP_REPORT_BYTES)
-          return new Response(null, { status: 413 });
         const body = await readBoundedText(request.body, MAX_CSP_REPORT_BYTES);
         if (body === undefined) return new Response(null, { status: 413 });
         const report = sanitizeCspReport(body);

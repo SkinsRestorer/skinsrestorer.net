@@ -105,8 +105,8 @@ function PrivacyPolicyPage() {
         </p>
         <p>
           Before any of this data leaves your browser, the site removes skin
-          texture hashes and editor handoff IDs from addresses and other values.
-          You can change your choice at any time:
+          texture hashes from addresses and other values. You can change your
+          choice at any time:
         </p>
         <p>
           <CookieSettingsButton

@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { Effect, Layer } from "effect";
 import {
+  forwardCspReport,
   isCspReportContentType,
   readBoundedText,
   sanitizeCspReport,
 } from "./csp-report";
+import { HttpClient } from "./effect-http";
 
 const hash = "a3f6c2b1d4e5f60718293a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d";
 
@@ -12,7 +15,7 @@ test("report-uri reports lose queries, fragments, and script samples", () => {
   const body = JSON.stringify({
     "csp-report": {
       "document-uri": `https://skinsrestorer.net/studio?texture=${hash}#top`,
-      referrer: "https://skinsrestorer.net/upload?handoff=4f1e-22",
+      referrer: "https://skinsrestorer.net/upload?skin=red-hat",
       "blocked-uri": "https://evil.example/x.js?id=1",
       "violated-directive": "script-src-elem",
       "source-file": "https://skinsrestorer.net/_build/a.js?v=2",
@@ -128,4 +131,30 @@ test("bodies are read up to the byte limit", async () => {
   assert.equal(await readBoundedText(large.stream, 5), undefined);
   assert.ok(large.cancelled());
   assert.equal(await readBoundedText(null, 5), "");
+});
+
+test("reports go to PostHog with the project token from the environment", async () => {
+  const requests: { url: string; init: RequestInit | undefined }[] = [];
+  const client = Layer.succeed(HttpClient, {
+    fetch: (input, init) => {
+      requests.push({
+        url: input instanceof Request ? input.url : input.toString(),
+        init,
+      });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    },
+  });
+  await Effect.runPromise(
+    forwardCspReport("{}", "application/csp-report").pipe(
+      Effect.provide(client),
+    ),
+  );
+  const token = process.env["VITE_POSTHOG_KEY"];
+  assert.ok(token);
+  assert.equal(requests.length, 1);
+  assert.equal(
+    requests[0]?.url,
+    `https://t.skinsrestorer.net/report/?token=${token}`,
+  );
+  assert.equal(requests[0].init?.body, "{}");
 });

@@ -1,5 +1,5 @@
 // Editor links can carry the skin in the query string or the fragment.
-const textureParam = /([?&#](?:texture|handoff)=)[^&#\s"'\\]*/giu;
+const textureParam = /([?&#]texture=)[^&#\s"'\\]*/giu;
 // A Mojang texture URL names the skin by its hash in the path. Match it
 // URL-encoded too, as it appears inside other links.
 const texturePath =
@@ -16,9 +16,8 @@ function redactValue(value: unknown): unknown {
 }
 
 /**
- * Remove editor texture hashes, Mojang texture URLs, and handoff ids from
- * every string in an analytics event, including page URLs inside session
- * replay data. Objects and arrays change in place.
+ * Remove editor texture hashes and Mojang texture URLs from every string in
+ * an analytics event, including page URLs inside session replay data. Objects and arrays change in place.
  */
 export function redactEditorParams(value: string): string;
 export function redactEditorParams<T extends object>(value: T): T;

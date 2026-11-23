@@ -65,6 +65,16 @@ function CookiePolicyPage() {
             </tr>
             <tr>
               <td>
+                <code>skinsrestorer:locale</code>
+              </td>
+              <td>Local storage</td>
+              <td>
+                The language of the last translated page you viewed, so links on
+                English-only pages keep that language
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <code>docs-feedback-</code> followed by the documentation
                 version and page
               </td>
@@ -100,16 +110,6 @@ function CookiePolicyPage() {
               <td>
                 An editor draft saved by an older version of the site. The
                 Studio moves it into your skin library and then deletes it.
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <code>skinsrestorer:editor:handoff</code>
-              </td>
-              <td>Session storage</td>
-              <td>
-                A one-time skin snapshot from an older editor link. The Studio
-                reads it when you open that link.
               </td>
             </tr>
             <tr>

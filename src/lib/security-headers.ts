@@ -32,8 +32,6 @@ const cspDirectives = {
     // Team avatars on the home page redirect to avatars.githubusercontent.com.
     "https://github.com",
     "https://avatars.githubusercontent.com",
-    // Yandex Browser's built-in translator shows its icons inside the page.
-    "https://yastatic.net",
   ],
   "font-src": ["'self'"],
   "connect-src": [

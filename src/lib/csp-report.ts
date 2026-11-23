@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 import { readHttpBytes } from "./effect-http";
 
-// The public project token, the same one the browser bundle sends events with.
-const posthogToken = "phc_PiA4lEVOouI4hJ8fsh6wNy1GB3HWe8VcLcjdluef34m";
-const POSTHOG_REPORT_URL = `https://t.skinsrestorer.net/report/?token=${posthogToken}`;
+// The public project token that the browser bundle also sends events with.
+// Vite inlines it at build time, in the worker as in the browser.
+const posthogToken: string | undefined = import.meta.env["VITE_POSTHOG_KEY"];
 
 /** Browsers send a few kilobytes per report; anything larger is not a report. */
 export const MAX_CSP_REPORT_BYTES = 64 * 1024;
@@ -64,7 +64,7 @@ function cspReports(report: unknown): unknown {
 /**
  * Remove query strings and fragments from every URL in a CSP report, in both
  * the `report-uri` and the Reporting API format, and drop script samples.
- * Page addresses can carry texture hashes and editor handoff IDs.
+ * Page addresses can carry texture hashes.
  * Returns undefined when the body is not a JSON CSP report.
  */
 export function sanitizeCspReport(body: string): string | undefined {
@@ -107,10 +107,14 @@ export function isCspReportContentType(contentType: string | null) {
   return reportContentTypes.has(type);
 }
 
-/** Forward a sanitized report to PostHog. Failures are dropped, not retried. */
+/**
+ * Forward a sanitized report to PostHog. Failures are dropped, not retried.
+ * Without a project token, the report is dropped.
+ */
 export function forwardCspReport(body: string, contentType: string) {
+  if (!posthogToken) return Effect.void;
   return readHttpBytes(
-    POSTHOG_REPORT_URL,
+    `https://t.skinsrestorer.net/report/?token=${encodeURIComponent(posthogToken)}`,
     { method: "POST", headers: { "Content-Type": contentType }, body },
     { timeoutMs: 5000, maxBytes: 16 * 1024 },
   ).pipe(Effect.asVoid, Effect.ignore);
