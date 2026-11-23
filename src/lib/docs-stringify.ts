@@ -3,7 +3,10 @@ import { replaceSource } from "fumadocs-core/mdx-plugins/stringifier";
 import type { Nodes, Root } from "mdast";
 import type { VFile } from "vfile";
 
-/** Preserve related guide links in both search records and Markdown exports. */
+/**
+ * Preserve related guide links and tab labels in both search records and
+ * Markdown exports.
+ */
 export function remarkDocsStringify() {
   return (tree: Root, file: VFile) => {
     function visit(node: Nodes) {
@@ -11,7 +14,7 @@ export function remarkDocsStringify() {
       if (
         (node.type !== "mdxJsxFlowElement" &&
           node.type !== "mdxJsxTextElement") ||
-        node.name !== "Card"
+        !labeledElements.has(node.name ?? "")
       ) {
         return;
       }
@@ -24,17 +27,27 @@ export function remarkDocsStringify() {
           ? found.value
           : undefined;
       };
-      const title = attribute("title") ?? "Related guide";
-      const href = attribute("href");
-      const link = href ? `[${title}](${href})` : title;
+      let label: string | undefined;
+      if (node.name === "Tab") {
+        const value = attribute("value");
+        label = value ? `**${value}**` : undefined;
+      } else {
+        const title = attribute("title") ?? "Related guide";
+        const href = attribute("href");
+        label = href ? `[${title}](${href})` : title;
+      }
       replaceSource(file, node, (stringifier) => {
         const content = stringifier.inner(node).trim();
-        return content ? `${link}\n\n${content}` : link;
+        if (!label) return content;
+        return content ? `${label}\n\n${content}` : label;
       });
     }
     visit(tree);
   };
 }
+
+/** Elements whose label attribute is written before their content. */
+const labeledElements = new Set(["Card", "Tab"]);
 
 /** Keep navigation components readable in search and Markdown exports. */
 export const docsStringify = {
@@ -44,7 +57,7 @@ export const docsStringify = {
       node.type === "mdxJsxFlowElement" ||
       node.type === "mdxJsxTextElement"
     ) {
-      return node.name === "Card" ? true : "children-only";
+      return labeledElements.has(node.name ?? "") ? true : "children-only";
     }
     return true;
   },

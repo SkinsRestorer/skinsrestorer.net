@@ -4,6 +4,9 @@ import { translate, type MessageKey } from "./messages";
 export const siteUrl = "https://skinsrestorer.net";
 export const siteTitleKey = "seo.siteTitle";
 const siteDescriptionKey = "seo.siteDescription";
+const siteName = "SkinsRestorer";
+/** 1200x630 share image for pages without their own image. */
+export const defaultShareImage = "/og-image.png";
 
 export function getPageHead(
   path: string,
@@ -27,12 +30,14 @@ export function getPageHead(
     ? translate(contentLocale, options.titleKey)
     : options.title;
   const title = pageTitle
-    ? `${pageTitle} - SR`
+    ? pageTitle.includes(siteName)
+      ? pageTitle
+      : `${pageTitle} - ${siteName}`
     : translate(contentLocale, siteTitleKey);
   const description = options.descriptionKey
     ? translate(contentLocale, options.descriptionKey)
     : (options.description ?? translate(contentLocale, siteDescriptionKey));
-  const image = new URL(options.image ?? "/logo.png", siteUrl).href;
+  const image = new URL(options.image ?? defaultShareImage, siteUrl).href;
   const url = new URL(localizePath(bare, contentLocale), siteUrl).href;
   const alternatives =
     options.alternatives ??
@@ -56,18 +61,11 @@ export function getPageHead(
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       { name: "twitter:image", content: image },
-      {
-        name: "twitter:card",
-        content: options.image ? "summary_large_image" : "summary",
-      },
+      { name: "twitter:card", content: "summary_large_image" },
       ...(bare === "/"
         ? [
             {
-              "script:ld+json": getHomeStructuredData(
-                url,
-                description,
-                contentLocale,
-              ),
+              "script:ld+json": getHomeStructuredData(url, description),
             },
           ]
         : []),
@@ -86,24 +84,20 @@ export function getPageHead(
 }
 
 /** Describes the site and the plugin for search engines on the home page. */
-function getHomeStructuredData(
-  url: string,
-  description: string,
-  locale: Locale,
-) {
+function getHomeStructuredData(url: string, description: string) {
   return {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebSite",
         "@id": `${siteUrl}/#website`,
-        name: "SkinsRestorer",
-        url,
-        inLanguage: locale,
+        name: siteName,
+        url: `${siteUrl}/`,
+        inLanguage: locales,
       },
       {
         "@type": "SoftwareApplication",
-        name: "SkinsRestorer",
+        name: siteName,
         description,
         url,
         applicationCategory: "GameApplication",

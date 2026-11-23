@@ -51,3 +51,33 @@ test("related guides without titles preserve the fallback label", () => {
   assert.match(String(result["markdown"]), /\[Related guide\]\(\/docs\)/u);
   assert.match(String(result["markdown"]), /Read the guide\./u);
 });
+
+test("each tab keeps its label before its content in Markdown", () => {
+  const result = extract(`<Tabs items={['Kotlin', 'Groovy']}>
+<Tab value="Kotlin">
+
+\`\`\`kotlin
+implementation("net.skinsrestorer:skinsrestorer-api:15.0.0")
+\`\`\`
+
+</Tab>
+<Tab value="Groovy">
+
+\`\`\`groovy
+implementation 'net.skinsrestorer:skinsrestorer-api:15.0.0'
+\`\`\`
+
+</Tab>
+</Tabs>`);
+  const markdown = String(result["markdown"]);
+  assert.match(
+    markdown,
+    /\*\*Kotlin\*\*\s+```kotlin\nimplementation\("net\.skinsrestorer/u,
+  );
+  assert.match(
+    markdown,
+    /\*\*Groovy\*\*\s+```groovy\nimplementation 'net\.skinsrestorer/u,
+  );
+  assert.ok(markdown.indexOf("**Kotlin**") < markdown.indexOf("**Groovy**"));
+  assert.doesNotMatch(markdown, /<Tabs|<Tab/u);
+});

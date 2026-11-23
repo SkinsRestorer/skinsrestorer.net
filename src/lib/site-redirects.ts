@@ -37,8 +37,6 @@ const aliases: Record<string, string> = {
   "/firewall": "/docs/troubleshooting/firewall",
   "/install": "/docs/installation",
   "/contributors": `${github}/graphs/contributors`,
-  "/docs/troubleshooting/cannot-fetch-new-skins":
-    "/docs/troubleshooting/firewall",
 };
 
 /** Retired pages that moved permanently. The query string is kept. */

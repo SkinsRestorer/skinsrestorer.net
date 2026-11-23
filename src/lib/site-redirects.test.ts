@@ -13,6 +13,25 @@ test("retired documentation and Markdown URLs move permanently to the replacemen
   });
 });
 
+test("the retired troubleshooting page moves permanently, including its Markdown copy", () => {
+  for (const [path, destination] of [
+    [
+      "/docs/troubleshooting/cannot-fetch-new-skins",
+      "/docs/troubleshooting/firewall",
+    ],
+    [
+      "/docs/troubleshooting/cannot-fetch-new-skins.mdx",
+      "/docs/troubleshooting/firewall.mdx",
+    ],
+    [
+      "/es/docs/troubleshooting/cannot-fetch-new-skins.mdx",
+      "/es/docs/troubleshooting/firewall.mdx",
+    ],
+  ] as const) {
+    assert.deepEqual(getSiteRedirect(path), { destination, status: 308 });
+  }
+});
+
 test("the retired editor page moves permanently to the Studio in its locale", () => {
   assert.deepEqual(getSiteRedirect("/editor"), {
     destination: "/studio",
@@ -30,10 +49,6 @@ test("legacy shortcuts resolve with temporary redirects, including trailing slas
     ["/perms/", "/docs/configuration/commands-permissions"],
     ["/install", "/docs/installation"],
     ["/skinedit", "/docs/features/skin-edit"],
-    [
-      "/docs/troubleshooting/cannot-fetch-new-skins",
-      "/docs/troubleshooting/firewall",
-    ],
   ] as const) {
     assert.deepEqual(getSiteRedirect(path), { destination, status: 307 });
   }

@@ -29,8 +29,11 @@ export function generateDocsImage({
         borderBottom: "18px solid #b2a711",
       }}
     >
-      <p style={{ fontSize: 72, fontWeight: 800, margin: 0 }}>{title}</p>
-      <p style={{ fontSize: 40, color: "#ddd", marginTop: 24 }}>
+      {/* Long front matter ends with an ellipsis instead of overflowing. */}
+      <p style={{ fontSize: 72, fontWeight: 800, margin: 0, lineClamp: 2 }}>
+        {title}
+      </p>
+      <p style={{ fontSize: 40, color: "#ddd", marginTop: 24, lineClamp: 3 }}>
         {description}
       </p>
       <p style={{ fontSize: 48, color: "#d4c72e", marginTop: "auto" }}>
