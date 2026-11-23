@@ -6,7 +6,10 @@ export const Route = createFileRoute("/llms.txt")({
       GET: async () => {
         const { getLLMIndex } = await import("@/lib/get-llm-text");
         return new Response(getLLMIndex(), {
-          headers: { "Content-Type": "text/plain; charset=utf-8" },
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "public, max-age=3600",
+          },
         });
       },
     },

@@ -1,8 +1,8 @@
 import { DateTime } from "effect";
 import { createFileRoute } from "@tanstack/react-router";
-import { localizedSitePages } from "@/lib/site-pages";
+import { getSitePageLanguages, localizedSitePages } from "@/lib/site-pages";
 import { siteUrl, getLanguageAlternates } from "@/lib/seo";
-import { docFileInfo, locales, splitLocalePath } from "@/lib/i18n";
+import { docFileInfo, splitLocalePath } from "@/lib/i18n";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -13,13 +13,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           ...localizedSitePages.map((path) => ({
             path,
             lastModified: undefined as Date | undefined,
-            languages: [
-              "/privacy-policy",
-              "/cookie-policy",
-              "/terms-of-service",
-            ].includes(path)
-              ? ["en" as const]
-              : locales,
+            languages: getSitePageLanguages(splitLocalePath(path).path),
           })),
           ...source
             .getLanguages()

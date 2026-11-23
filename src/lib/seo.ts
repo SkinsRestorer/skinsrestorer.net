@@ -1,5 +1,6 @@
 import { locales, localizePath, splitLocalePath, type Locale } from "./i18n";
 import { translate, type MessageKey } from "./messages";
+import { getSitePageLanguages } from "./site-pages";
 
 export const siteUrl = "https://skinsrestorer.net";
 export const siteTitleKey = "seo.siteTitle";
@@ -39,11 +40,8 @@ export function getPageHead(
     : (options.description ?? translate(contentLocale, siteDescriptionKey));
   const image = new URL(options.image ?? defaultShareImage, siteUrl).href;
   const url = new URL(localizePath(bare, contentLocale), siteUrl).href;
-  const alternatives =
-    options.alternatives ??
-    (["/", "/studio", "/upload", "/generator", "/pricing"].includes(bare)
-      ? locales
-      : ["en"]);
+  const alternatives = options.alternatives ?? getSitePageLanguages(bare);
+  const docs = bare === "/docs" || bare.startsWith("/docs/");
   return {
     meta: [
       { title },
@@ -51,6 +49,8 @@ export function getPageHead(
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:url", content: url },
+      // Overrides the root route's "website" for guides.
+      ...(docs ? [{ property: "og:type", content: "article" }] : []),
       {
         property: "og:locale",
         content: { en: "en_US", ru: "ru_RU", es: "es_ES", "pt-BR": "pt_BR" }[
@@ -72,6 +72,10 @@ export function getPageHead(
     ],
     links: [
       { rel: "canonical", href: url },
+      // Agents can read the same guide as Markdown.
+      ...(docs
+        ? [{ rel: "alternate", type: "text/markdown", href: `${url}.mdx` }]
+        : []),
       ...getLanguageAlternates(bare, alternatives).map(
         ({ language, href }) => ({
           rel: "alternate",

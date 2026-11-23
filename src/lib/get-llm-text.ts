@@ -3,6 +3,7 @@ import type { InferPageType } from "fumadocs-core/source";
 import { flattenTree, type Node } from "fumadocs-core/page-tree";
 import { isLocale, type Locale } from "@/lib/i18n";
 import { absoluteDocsUrl, formatExportedMarkdown } from "@/lib/llm-markdown";
+import { translate, type MessageKey } from "@/lib/messages";
 import { source } from "@/lib/source";
 
 type DocsPage = InferPageType<typeof source>;
@@ -68,7 +69,17 @@ const getFullLLMTextEffect = Effect.fn("Docs.getFullText")(function* () {
 const line = (page: DocsPage) =>
   `- [${page.data.title}](${absoluteDocsUrl(`${page.url}.mdx`)}): ${page.data.description}`;
 
-/** The llms.txt index: sidebar sections with links to Markdown pages. */
+/** Browser tools that docs pages send players to. */
+const websiteTools = [
+  ["/studio", "studio.title", "seo.studioDescription"],
+  ["/upload", "upload.title", "seo.uploadDescription"],
+  ["/generator", "generator.title", "generator.description"],
+] as const satisfies readonly (readonly [string, MessageKey, MessageKey])[];
+
+/**
+ * The llms.txt index: sidebar sections with links to Markdown pages, then the
+ * website tools.
+ */
 export function getLLMIndex() {
   const tree = source.getPageTree("en");
   const remaining = pagesByUrl("en");
@@ -98,6 +109,12 @@ export function getLLMIndex() {
     `> ${home?.data.description ?? "Install, configure, and extend SkinsRestorer."}`,
     `The complete documentation as one file: ${absoluteDocsUrl("/llms-full.txt")}`,
     ...sections,
+    `## Website tools\n\n${websiteTools
+      .map(
+        ([path, title, description]) =>
+          `- [${translate("en", title)}](${absoluteDocsUrl(path)}): ${translate("en", description)}`,
+      )
+      .join("\n")}`,
   ].join("\n\n");
 }
 

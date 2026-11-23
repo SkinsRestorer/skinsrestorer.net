@@ -108,3 +108,39 @@ test("the home page describes one multilingual website at the root URL", () => {
     assert.deepEqual(website.inLanguage, locales);
   }
 });
+
+test("guides are articles with a Markdown copy in the language of their text", () => {
+  const head = getPageHead("/es/docs/installation", { contentLocale: "es" });
+  assert.equal(meta(head, "og:type"), "article");
+  assert.deepEqual(
+    head.links.find((link) => "type" in link && link.type === "text/markdown"),
+    {
+      rel: "alternate",
+      type: "text/markdown",
+      href: `${siteUrl}/es/docs/installation.mdx`,
+    },
+  );
+  const fallback = getPageHead("/es/docs/development", { contentLocale: "en" });
+  assert.ok(
+    fallback.links.some(
+      (link) => link.href === `${siteUrl}/docs/development.mdx`,
+    ),
+  );
+});
+
+test("pages outside the docs keep the site type and have no Markdown copy", () => {
+  const head = getPageHead("/studio");
+  assert.equal(meta(head, "og:type"), undefined);
+  assert.ok(!head.links.some((link) => "type" in link));
+});
+
+function hrefLanguages(path: string) {
+  return getPageHead(path)
+    .links.filter((link) => "hrefLang" in link)
+    .map((link) => ("hrefLang" in link ? link.hrefLang : undefined));
+}
+
+test("legal pages list only English, translated pages list every locale", () => {
+  assert.deepEqual(hrefLanguages("/privacy-policy"), ["en", "x-default"]);
+  assert.deepEqual(hrefLanguages("/ru/pricing"), [...locales, "x-default"]);
+});
