@@ -33,9 +33,9 @@ const aliases: Record<string, string> = {
   "/perms": "/docs/reference/commands-permissions",
   "/skinurl": "/upload",
   "/skinedit": "/docs/features/skin-edit",
-  "/unicode":
-    "https://www.mobilefish.com/services/unicode_escape_sequence_converter/unicode_escape_sequence_converter.php",
   "/firewall": "/docs/troubleshooting/firewall",
+  // The Russian plugin locale up to 15.12.6 links this misspelling.
+  "/firewal": "/docs/troubleshooting/firewall",
   "/install": "/docs/installation",
   "/contributors": `${github}/graphs/contributors`,
 };
@@ -48,10 +48,21 @@ export interface SiteRedirect {
   status: 307 | 308;
 }
 
+/**
+ * The retired /llms.mdx/<slug> copies became /docs/<slug>.mdx. Return the new
+ * path, or undefined for any other path.
+ */
+function movedMarkdown(path: string) {
+  if (path !== "/llms.mdx" && !path.startsWith("/llms.mdx/")) return undefined;
+  return `/docs${path.slice("/llms.mdx".length)}.mdx`;
+}
+
 export function getSiteRedirect(pathname: string): SiteRedirect | undefined {
-  const { path, locale } = splitLocalePath(pathname);
-  if (moved[path])
-    return { destination: localizeHref(moved[path], locale), status: 308 };
+  const { path: requested, locale } = splitLocalePath(pathname);
+  if (moved[requested])
+    return { destination: localizeHref(moved[requested], locale), status: 308 };
+  const markdownMove = movedMarkdown(requested);
+  const path = markdownMove ?? requested;
   const markdown = path.endsWith(".mdx");
   const retired = docsRedirects.find(
     (item) => item.source === (markdown ? path.slice(0, -4) : path),
@@ -65,6 +76,8 @@ export function getSiteRedirect(pathname: string): SiteRedirect | undefined {
       status: 308,
     };
   }
+  if (markdownMove)
+    return { destination: localizeHref(markdownMove, locale), status: 308 };
   if (aliases[path])
     return { destination: localizeHref(aliases[path], locale), status: 307 };
   return undefined;

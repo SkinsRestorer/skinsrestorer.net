@@ -72,6 +72,17 @@ test("pages moved to another docs section redirect permanently, with Markdown co
   }
 });
 
+test("retired /llms.mdx Markdown copies move permanently to /docs/*.mdx", () => {
+  for (const [path, destination] of [
+    ["/llms.mdx", "/docs.mdx"],
+    ["/llms.mdx/", "/docs.mdx"],
+    ["/llms.mdx/installation", "/docs/installation.mdx"],
+    ["/llms.mdx/features/skin-url", "/docs/features/skin-upload.mdx"],
+  ] as const) {
+    assert.deepEqual(getSiteRedirect(path), { destination, status: 308 });
+  }
+});
+
 test("the retired editor page moves permanently to the Studio in its locale", () => {
   assert.deepEqual(getSiteRedirect("/editor"), {
     destination: "/studio",
@@ -89,6 +100,7 @@ test("legacy shortcuts resolve with temporary redirects, including trailing slas
     ["/perms/", "/docs/reference/commands-permissions"],
     ["/install", "/docs/installation"],
     ["/skinedit", "/docs/features/skin-edit"],
+    ["/firewal", "/docs/troubleshooting/firewall"],
   ] as const) {
     assert.deepEqual(getSiteRedirect(path), { destination, status: 307 });
   }

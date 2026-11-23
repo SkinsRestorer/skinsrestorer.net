@@ -50,7 +50,7 @@ void test(
         entryPaths.map(async (entry) => {
           const path = localized(entry, language);
           const response = await request(
-            `${path}?handoff=preview-test&intent=createcustom`,
+            `${path}?skin=preview-test&intent=createcustom`,
           );
           assert.equal(response.status, 200, path);
           const html = await response.text();

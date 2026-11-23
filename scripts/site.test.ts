@@ -142,7 +142,7 @@ test(
       ["es", "Subir skin"],
       ["pt-BR", "Enviar skin"],
     ] as const) {
-      const response = await request(`/${locale}/upload?handoff=example`);
+      const response = await request(`/${locale}/upload?skin=example`);
       assert.equal(response.status, 200);
       const html = await response.text();
       assert.ok(html.includes(`<html lang="${locale}"`));
@@ -155,7 +155,7 @@ test(
       for (const language of ["en", "ru", "es", "pt-BR", "x-default"]) {
         assert.ok(html.includes(`hrefLang="${language}"`));
       }
-      assert.ok(!/rel="canonical"[^>]+handoff/u.test(html));
+      assert.ok(!/rel="canonical"[^>]+skin=/u.test(html));
       const translated = await (
         await request(`/${locale}/docs/installation`)
       ).text();
@@ -197,17 +197,17 @@ test(
     );
     assert.ok(docs.includes("discord:component-embed"));
 
-    for (const path of [
-      "/docs.mdx",
-      "/llms.mdx",
-      "/docs/installation.mdx",
-      "/llms.mdx/installation",
-    ]) {
+    for (const path of ["/docs.mdx", "/docs/installation.mdx"]) {
       const response = await request(path);
       assert.equal(response.status, 200, path);
       assert.match(
         response.headers.get("content-type") ?? "",
         /text\/markdown/u,
+        path,
+      );
+      assert.equal(
+        response.headers.get("cache-control"),
+        "public, max-age=3600",
         path,
       );
       // Copied Markdown links absolutely, so it works outside the site.
@@ -349,6 +349,7 @@ test(
       ["/ru/editor", 308, "/ru/studio"],
       ["/docs/features/skin-url", 308, "/docs/features/skin-upload"],
       ["/docs/features/skin-url.mdx", 308, "/docs/features/skin-upload.mdx"],
+      ["/llms.mdx/installation", 308, "/docs/installation.mdx"],
     ] as const) {
       const response = await request(path, { redirect: "manual" });
       assert.equal(response.status, status, path);

@@ -20,6 +20,8 @@ export async function markdownResponse(
       headers: {
         "Content-Type": "text/markdown; charset=utf-8",
         "Content-Language": contentLocale,
+        // Docs change only on deploy, like llms.txt.
+        "Cache-Control": "public, max-age=3600",
         Link: `<${canonical}>; rel="canonical"`,
       },
     },

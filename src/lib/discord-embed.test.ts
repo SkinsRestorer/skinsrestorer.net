@@ -1,11 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { Schema } from "effect";
-import {
-  createDiscordEmbed,
-  discordEmbedScript,
-  serializeDiscordEmbed,
-} from "./discord-embed";
+import { createDiscordEmbed, serializeDiscordEmbed } from "./discord-embed";
 
 // The parts of the Discord component payload these tests read.
 const decodePayload = Schema.decodeUnknownSync(
@@ -28,17 +24,17 @@ const decodePayload = Schema.decodeUnknownSync(
 );
 
 test("serializes page content and navigation as safe, bounded Discord JSON", () => {
-  const [script] = discordEmbedScript({
+  const embed = createDiscordEmbed({
     title: "</script> New guide",
     description: "Read the latest guide",
     url: "https://example.com/guide",
     links: [{ label: "Installation", url: "https://example.com/install" }],
     images: ["https://example.com/image.png"],
   });
-  assert.ok(script);
-  assert.equal(script.id, "discord:component-embed");
-  assert.ok(!script.children.includes("<"));
-  const payload = decodePayload(script.children);
+  assert.ok(embed);
+  const json = serializeDiscordEmbed(embed);
+  assert.ok(!json.includes("<"));
+  const payload = decodePayload(json);
   assert.match(payload.component.components[0]?.content ?? "", /New guide/u);
   assert.equal(
     payload.component.components.at(-1)?.components?.[1]?.url,
@@ -57,20 +53,20 @@ test("serializes page content and navigation as safe, bounded Discord JSON", () 
 });
 
 test("omits unsupported URLs instead of creating unsafe buttons", () => {
-  assert.deepEqual(
+  assert.equal(
     // oxlint-disable-next-line eslint/no-script-url -- Verify that embeds reject script URLs.
-    discordEmbedScript({ title: "Bad", url: "javascript:alert(1)" }),
-    [],
+    createDiscordEmbed({ title: "Bad", url: "javascript:alert(1)" }),
+    undefined,
   );
-  const [script] = discordEmbedScript({
+  const embed = createDiscordEmbed({
     title: "Good",
     url: "https://example.com",
     links: [{ label: "Bad", url: "file:///tmp/data" }],
   });
-  assert.ok(script);
+  assert.ok(embed);
   assert.equal(
-    decodePayload(script.children).component.components.at(-1)?.components
-      ?.length,
+    decodePayload(serializeDiscordEmbed(embed)).component.components.at(-1)
+      ?.components?.length,
     1,
   );
 });

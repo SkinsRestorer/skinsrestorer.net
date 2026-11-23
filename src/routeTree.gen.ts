@@ -20,7 +20,6 @@ import { Route as Char123LangChar125RouteRouteImport } from './routes/{-$lang}/r
 import { Route as ApiCspReportRouteImport } from './routes/api/csp-report'
 import { Route as DiscordEmbedSplatRouteImport } from './routes/discord-embed/$'
 import { Route as DocsOgSplatRouteImport } from './routes/docs-og/$'
-import { Route as LlmsDotmdxSplatRouteImport } from './routes/llms[.]mdx/$'
 import { Route as Char123LangChar125IndexRouteImport } from './routes/{-$lang}/index'
 import { Route as Char123LangChar125DocsRouteRouteImport } from './routes/{-$lang}/docs/route'
 import { Route as Char123LangChar125DocsDotmdxRouteImport } from './routes/{-$lang}/docs[.]mdx'
@@ -86,11 +85,6 @@ const DiscordEmbedSplatRoute = DiscordEmbedSplatRouteImport.update({
 const DocsOgSplatRoute = DocsOgSplatRouteImport.update({
   id: '/docs-og/$',
   path: '/docs-og/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LlmsDotmdxSplatRoute = LlmsDotmdxSplatRouteImport.update({
-  id: '/llms.mdx/$',
-  path: '/llms.mdx/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char123LangChar125IndexRoute = Char123LangChar125IndexRouteImport.update({
@@ -170,7 +164,6 @@ export interface FileRoutesByFullPath {
   '/api/csp-report': typeof ApiCspReportRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
-  '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
   '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
   '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
   '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
@@ -194,7 +187,6 @@ export interface FileRoutesByTo {
   '/api/csp-report': typeof ApiCspReportRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
-  '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
   '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
   '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
   '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
@@ -220,7 +212,6 @@ export interface FileRoutesById {
   '/api/csp-report': typeof ApiCspReportRoute
   '/discord-embed/$': typeof DiscordEmbedSplatRoute
   '/docs-og/$': typeof DocsOgSplatRoute
-  '/llms.mdx/$': typeof LlmsDotmdxSplatRoute
   '/{-$lang}/docs.mdx': typeof Char123LangChar125DocsDotmdxRoute
   '/{-$lang}/generator': typeof Char123LangChar125GeneratorRoute
   '/{-$lang}/pricing': typeof Char123LangChar125PricingRoute
@@ -247,7 +238,6 @@ export interface FileRouteTypes {
     | '/api/csp-report'
     | '/discord-embed/$'
     | '/docs-og/$'
-    | '/llms.mdx/$'
     | '/{-$lang}/docs.mdx'
     | '/{-$lang}/generator'
     | '/{-$lang}/pricing'
@@ -271,7 +261,6 @@ export interface FileRouteTypes {
     | '/api/csp-report'
     | '/discord-embed/$'
     | '/docs-og/$'
-    | '/llms.mdx/$'
     | '/{-$lang}/docs.mdx'
     | '/{-$lang}/generator'
     | '/{-$lang}/pricing'
@@ -296,7 +285,6 @@ export interface FileRouteTypes {
     | '/api/csp-report'
     | '/discord-embed/$'
     | '/docs-og/$'
-    | '/llms.mdx/$'
     | '/{-$lang}/docs.mdx'
     | '/{-$lang}/generator'
     | '/{-$lang}/pricing'
@@ -321,7 +309,6 @@ export interface RootRouteChildren {
   ApiCspReportRoute: typeof ApiCspReportRoute
   DiscordEmbedSplatRoute: typeof DiscordEmbedSplatRoute
   DocsOgSplatRoute: typeof DocsOgSplatRoute
-  LlmsDotmdxSplatRoute: typeof LlmsDotmdxSplatRoute
   ApiDocsTreeLangRoute: typeof ApiDocsTreeLangRoute
   ApiSearchLangRoute: typeof ApiSearchLangRoute
 }
@@ -403,13 +390,6 @@ declare module '@tanstack/react-router' {
       path: '/docs-og/$'
       fullPath: '/docs-og/$'
       preLoaderRoute: typeof DocsOgSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms.mdx/$': {
-      id: '/llms.mdx/$'
-      path: '/llms.mdx/$'
-      fullPath: '/llms.mdx/$'
-      preLoaderRoute: typeof LlmsDotmdxSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/{-$lang}/': {
@@ -548,7 +528,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCspReportRoute: ApiCspReportRoute,
   DiscordEmbedSplatRoute: DiscordEmbedSplatRoute,
   DocsOgSplatRoute: DocsOgSplatRoute,
-  LlmsDotmdxSplatRoute: LlmsDotmdxSplatRoute,
   ApiDocsTreeLangRoute: ApiDocsTreeLangRoute,
   ApiSearchLangRoute: ApiSearchLangRoute,
 }

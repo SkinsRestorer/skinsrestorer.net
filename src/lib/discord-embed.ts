@@ -9,10 +9,8 @@ export interface DiscordEmbedOptions {
   label?: string;
   description?: string;
   url: string;
-  thumbnail?: string;
   images?: readonly string[];
   links?: readonly { label: string; url: string }[];
-  color?: number;
 }
 
 function shorten(value: string, length: number) {
@@ -55,9 +53,6 @@ export function createDiscordEmbed(
   const images = (options.images ?? [])
     .flatMap((value) => publicUrl(value, 2048) ?? [])
     .slice(0, 4);
-  const thumbnail = options.thumbnail
-    ? publicUrl(options.thumbnail, 512)
-    : undefined;
   const links = [
     { label: options.label ?? "View page", url },
     ...(options.links ?? []),
@@ -82,18 +77,8 @@ export function createDiscordEmbed(
     } as const;
     const component: APIContainerComponent = {
       type: ComponentType.Container,
-      ...(options.color === undefined ? {} : { accent_color: options.color }),
       components: [
-        thumbnail
-          ? {
-              type: ComponentType.Section,
-              components: [text],
-              accessory: {
-                type: ComponentType.Thumbnail,
-                media: { url: thumbnail },
-              },
-            }
-          : text,
+        text,
         ...(images.length > 0
           ? [
               {
@@ -127,18 +112,4 @@ export function createDiscordEmbed(
     else if (Array.from(title).length > 16) title = shorten(title, 16);
     else return undefined;
   }
-}
-
-export function discordEmbedScript(options: DiscordEmbedOptions) {
-  const component = createDiscordEmbed(options);
-  // TanStack's HeadContent renders script children with dangerouslySetInnerHTML.
-  return component
-    ? [
-        {
-          id: "discord:component-embed",
-          type: "application/json",
-          children: serializeDiscordEmbed(component),
-        },
-      ]
-    : [];
 }
