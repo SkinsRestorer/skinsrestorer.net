@@ -7,8 +7,11 @@ import {
   type Translator,
 } from "@/lib/messages";
 
+import { useAtom, useAtomValue } from "@effect/atom-react";
+import { Effect } from "effect";
+import { AsyncResult, Atom } from "effect/reactivity";
 import { analytics } from "@/lib/analytics";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { browserStorage, readDraft } from "../skin-draft";
 import {
@@ -26,7 +29,7 @@ import {
   type RemovedSkin,
   type StoredSkin,
 } from "../skin-library";
-import { useLatestTask } from "./use-latest-task";
+import { abortable } from "./use-latest-effect";
 import { useLocale, useNotificationT } from "@/lib/i18n-react";
 
 export type LibraryState =
@@ -39,25 +42,35 @@ export type LibraryState =
       readonly reload?: boolean;
     };
 
-let migration: Promise<MigrationResult> | undefined;
-
-/** Move the old editor draft into the library once per page load. */
-function migrateOnce(client: LibraryClient, t: Translator, locale: string) {
-  const storage = browserStorage();
-  migration ??= migrateLegacyDraft(client, storage, {
-    name: (updatedAt) =>
-      t("library.recoveredDraftName", {
-        date: new Date(updatedAt).toLocaleDateString(locale),
-      }),
-  }).catch(async (): Promise<MigrationResult> =>
-    // The library could not open or write. A readable old draft is still
-    // in place, so the page offers it as a download.
-    (await readDraft(storage)).status === "found"
-      ? { status: "unmoved" }
-      : { status: "unavailable" },
-  );
-  return migration;
+interface MigrationInput {
+  readonly client: LibraryClient;
+  readonly t: Translator;
+  readonly locale: string;
 }
+
+/**
+ * Moves the old editor draft into the library. The hook starts it once per
+ * page load, and it stays alive so a later Studio visit reuses its result.
+ */
+const migrationAtom = Atom.keepAlive(
+  Atom.fn(({ client, t, locale }: MigrationInput) =>
+    Effect.promise(() => {
+      const storage = browserStorage();
+      return migrateLegacyDraft(client, storage, {
+        name: (updatedAt) =>
+          t("library.recoveredDraftName", {
+            date: new Date(updatedAt).toLocaleDateString(locale),
+          }),
+      }).catch(async (): Promise<MigrationResult> =>
+        // The library could not open or write. A readable old draft is still
+        // in place, so the page offers it as a download.
+        (await readDraft(storage)).status === "found"
+          ? { status: "unmoved" }
+          : { status: "unavailable" },
+      );
+    }),
+  ),
+);
 
 /** Another tab upgraded or closed the database for this page. */
 function needsReload(cause: unknown) {
@@ -86,7 +99,65 @@ export function downloadSkin(png: Blob, name: string) {
   void analytics.capture("skin_library_action", { action: "download" });
 }
 
+/**
+ * Library events since the listing atom first read them. The subscription
+ * ends when nothing reads the listing.
+ */
+const libraryEventsAtom = Atom.family((client: LibraryClient) =>
+  Atom.readable((get) => {
+    let events = { changes: 0, closed: false };
+    get.addFinalizer(
+      client.subscribe((event) => {
+        if (event.type === "closed") events = { ...events, closed: true };
+        // Draft writes do not change the skins this list shows.
+        else if (event.type === "changed")
+          events = { ...events, changes: events.changes + 1 };
+        else return;
+        get.setSelf(events);
+      }),
+    );
+    return events;
+  }),
+);
+
+/**
+ * The skins in this browser, read after the draft migration. A change in
+ * this or another tab reads them again and interrupts an older read.
+ */
+const listingAtom = Atom.family((client: LibraryClient) =>
+  Atom.make((get): Effect.Effect<LibraryState> => {
+    if (get(libraryEventsAtom(client)).closed)
+      return Effect.succeed({
+        status: "unavailable",
+        message: message("library.anotherTabUpdatedSkinsReloadPage"),
+        reload: true,
+      });
+    return get.result(migrationAtom).pipe(
+      Effect.andThen(
+        abortable((signal) =>
+          client.run(
+            withLibrary((l) => l.list),
+            signal,
+          ),
+        ),
+      ),
+      Effect.match({
+        onSuccess: (listing): LibraryState => ({ status: "ready", listing }),
+        onFailure: (cause): LibraryState => ({
+          status: "unavailable",
+          message: errorMessage(cause),
+          reload: needsReload(cause),
+        }),
+      }),
+    );
+  }),
+);
+
+/** Server rendering and hydration show the library as loading. */
+const pendingAtom = Atom.readable(() => AsyncResult.initial<LibraryState>());
+
 const subscribeNever = () => () => {};
+const loading: LibraryState = { status: "loading" };
 
 /**
  * The skins kept in this browser. Reads refresh after every change in this
@@ -101,54 +172,16 @@ export function useSkinLibrary() {
     browserLibrary,
     (): undefined => undefined,
   );
-  const [state, setState] = useState<LibraryState>({ status: "loading" });
-  const [migrated, setMigrated] = useState<MigrationResult | undefined>();
-  const task = useLatestTask();
-
-  const reload = useCallback(() => {
-    if (!client) return;
-    void task.run(
-      (signal) =>
-        client.run(
-          withLibrary((l) => l.list),
-          signal,
-        ),
-      (listing) => {
-        setState({ status: "ready", listing });
-      },
-      (cause) => {
-        setState({
-          status: "unavailable",
-          message: errorMessage(cause),
-          reload: needsReload(cause),
-        });
-      },
-    );
-  }, [client, task]);
-
-  useEffect((): (() => void) | undefined => {
-    if (!client) return undefined;
-    let active = true;
-    void migrateOnce(client, t, locale).then((result) => {
-      if (!active) return;
-      setMigrated(result);
-      reload();
-    });
-    const stop = client.subscribe((event) => {
-      if (event.type === "closed")
-        setState({
-          status: "unavailable",
-          message: message("library.anotherTabUpdatedSkinsReloadPage"),
-          reload: true,
-        });
-      // Draft writes do not change the skins this list shows.
-      else if (event.type === "changed") reload();
-    });
-    return () => {
-      active = false;
-      stop();
-    };
-  }, [client, reload, t, locale]);
+  const [migration, migrate] = useAtom(migrationAtom);
+  const listing = useAtomValue(client ? listingAtom(client) : pendingAtom);
+  const unstarted = AsyncResult.isInitial(migration) && !migration.waiting;
+  useEffect(() => {
+    if (client && unstarted) migrate({ client, t, locale });
+  }, [client, unstarted, migrate, t, locale]);
+  const state = AsyncResult.isSuccess(listing) ? listing.value : loading;
+  const migrated = AsyncResult.isSuccess(migration)
+    ? migration.value
+    : undefined;
 
   const act = useCallback(
     async <A>(

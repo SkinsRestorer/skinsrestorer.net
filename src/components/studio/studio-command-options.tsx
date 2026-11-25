@@ -270,9 +270,9 @@ export function StudioCommandOptions(props: {
                         noCapes={capes.supportedCapes.length === 0}
                         onChange={field.handleChange}
                         onBlur={field.handleBlur}
-                        onCheckCapeAccess={() =>
-                          void capes.verify(field.state.value.trim())
-                        }
+                        onCheckCapeAccess={() => {
+                          capes.verify(field.state.value.trim());
+                        }}
                       />
                     </div>
                   )}

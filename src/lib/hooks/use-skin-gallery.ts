@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { runHttpEffect } from "../effect-http";
+import { useAtomRefresh, useAtomValue } from "@effect/atom-react";
+import { Effect } from "effect";
+import { AsyncResult, Atom } from "effect/reactivity";
+import { useEffect, useMemo } from "react";
+import { httpClientLayer } from "../effect-http";
 import { loadGalleryEffect, type GallerySkin } from "../skin-gallery";
-import { useLatestTask } from "./use-latest-task";
 
 export type GalleryState =
   | { readonly status: "idle" | "loading" }
@@ -15,51 +17,58 @@ export type GalleryState =
  * during client navigation, and the catalog does not change in that time.
  */
 let loadedCatalog: readonly GallerySkin[] | undefined;
+
+/**
+ * Loads while Gallery or a skin link reads it. Closing both interrupts the
+ * download, and a failed load starts again on the next read. The server
+ * renders the loading state and never downloads.
+ */
+const galleryAtom = Atom.make(
+  Effect.suspend(() =>
+    loadedCatalog
+      ? Effect.succeed(loadedCatalog)
+      : loadGalleryEffect().pipe(
+          Effect.provide(httpClientLayer),
+          Effect.tap((skins) =>
+            Effect.sync(() => {
+              loadedCatalog = skins;
+            }),
+          ),
+        ),
+  ),
+).pipe(Atom.withServerValueInitial);
+
+type GalleryResult = AsyncResult.AsyncResult<readonly GallerySkin[], unknown>;
+
+const disabledAtom = Atom.readable((): GalleryResult => AsyncResult.initial());
+
 const loading: GalleryState = { status: "loading" };
+const idle: GalleryState = { status: "idle" };
 
 /** One catalog per visit, fetched only for Gallery or an explicit skin link. */
 export function useSkinGallery(enabled: boolean) {
-  // "idle" here means no result yet. While enabled, callers see "loading".
-  const [state, setState] = useState<GalleryState>(() =>
-    loadedCatalog
-      ? { status: "ready", skins: loadedCatalog }
-      : { status: "idle" },
-  );
-  const task = useLatestTask();
-  const status = state.status;
-  useEffect((): (() => void) | undefined => {
-    if (!enabled || status !== "idle") return undefined;
-    void task.run(
-      (signal) => runHttpEffect(loadGalleryEffect(), signal),
-      (skins) => {
-        loadedCatalog = skins;
-        setState({ status: "ready", skins });
-      },
-      () => {
-        setState({ status: "error" });
-      },
-    );
-    return () => {
-      task.cancel();
-    };
-  }, [enabled, status, task]);
-  const retry = () => {
-    setState({ status: "idle" });
-  };
-  const failed = enabled && status === "error";
+  const atom: Atom.Atom<GalleryResult> = enabled ? galleryAtom : disabledAtom;
+  const result = useAtomValue(atom);
+  const retry = useAtomRefresh(atom);
+  const failed = AsyncResult.isFailure(result) && !result.waiting;
   useEffect((): (() => void) | undefined => {
     if (!failed) return undefined;
     // A read is safe to repeat, so a restored connection loads it again.
-    const reload = () => {
-      setState({ status: "idle" });
-    };
-    window.addEventListener("online", reload);
+    window.addEventListener("online", retry);
     return () => {
-      window.removeEventListener("online", reload);
+      window.removeEventListener("online", retry);
     };
-  }, [failed]);
-  return {
-    state: enabled && status === "idle" ? loading : state,
-    retry,
-  };
+  }, [failed, retry]);
+
+  // Callers compare the state between renders, so it changes only with the
+  // result.
+  const state = useMemo((): GalleryState => {
+    if (AsyncResult.isSuccess(result))
+      return { status: "ready", skins: result.value };
+    if (AsyncResult.isFailure(result) && !result.waiting)
+      return { status: "error" };
+    if (enabled) return loading;
+    return loadedCatalog ? { status: "ready", skins: loadedCatalog } : idle;
+  }, [enabled, result]);
+  return { state, retry };
 }

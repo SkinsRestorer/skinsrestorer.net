@@ -1,11 +1,11 @@
 import type { MessageKey } from "@/lib/messages";
 
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 import { analytics } from "@/lib/analytics";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { runHttpEffect } from "@/lib/effect-http";
-import { useLatestTask } from "@/lib/hooks/use-latest-task";
+import { httpClientLayer } from "@/lib/effect-http";
+import { abortable, useLatestEffect } from "@/lib/hooks/use-latest-effect";
 import { useSkinGallery } from "@/lib/hooks/use-skin-gallery";
 import { useNotificationT, useT } from "@/lib/i18n-react";
 import type { GallerySkin } from "@/lib/skin-gallery";
@@ -31,7 +31,7 @@ export function useStudioUrlImports(options: {
   const { search, store } = options;
   const t = useT();
   const notify = useNotificationT();
-  const task = useLatestTask();
+  const task = useLatestEffect();
   /** Only URL-owned reads are cancelled when their reference is removed. */
   const urlImport = useRef(false);
   /** A gallery skin from the URL that waits for the catalog. */
@@ -61,11 +61,10 @@ export function useStudioUrlImports(options: {
   ) => {
     cancelImport();
     urlImport.current = fromUrl;
-    void task.run(
-      async (signal) => {
-        const result = await runHttpEffect(
-          loadTextureEffect(reference),
-          signal,
+    task.run(
+      Effect.gen(function* () {
+        const result = yield* loadTextureEffect(reference).pipe(
+          Effect.provide(httpClientLayer),
         );
         const png = new Blob([result.bytes], {
           type: "image/png",
@@ -74,31 +73,27 @@ export function useStudioUrlImports(options: {
           hash: result.hash.slice(0, 8),
         });
         const client = options.client;
-        if (!client) return { png, name, skin: undefined };
-        try {
-          const { skin } = await client.run(
-            Effect.gen(function* () {
-              const content = yield* prepareSkinContent(png);
-              return yield* withLibrary((l) =>
-                l.add(
-                  {
-                    name,
-                    content,
-                    source: { kind: "texture", textureHash: result.hash },
-                  },
-                  { dedupe: true },
-                ),
-              );
-            }),
-            signal,
-          );
-          return { png, name, skin };
-        } catch {
-          return { png, name, skin: undefined };
-        }
-      },
-      ({ png, name, skin }) => {
-        if (skin) store.selectSkin(skin);
+        const kept = client
+          ? yield* abortable((signal) =>
+              client.run(
+                Effect.gen(function* () {
+                  const content = yield* prepareSkinContent(png);
+                  return yield* withLibrary((l) =>
+                    l.add(
+                      {
+                        name,
+                        content,
+                        source: { kind: "texture", textureHash: result.hash },
+                      },
+                      { dedupe: true },
+                    ),
+                  );
+                }),
+                signal,
+              ),
+            ).pipe(Effect.option)
+          : Option.none();
+        if (Option.isSome(kept)) store.selectSkin(kept.value.skin);
         else
           store.select(new File([png], `${name}.png`, { type: "image/png" }), {
             origin: "file",
@@ -106,10 +101,13 @@ export function useStudioUrlImports(options: {
           });
         onOpened?.();
         void analytics.capture("editor_opened", { source: "texture_url" });
-      },
-      (cause) => {
-        toast.error(t.error(cause));
-      },
+      }).pipe(
+        Effect.catch((cause) =>
+          Effect.sync(() => {
+            toast.error(t.error(cause));
+          }),
+        ),
+      ),
     );
   };
 
@@ -117,27 +115,33 @@ export function useStudioUrlImports(options: {
     cancelImport();
     urlImport.current = true;
     setPendingGallery(skin.id);
-    void task.run(
-      (signal) => runHttpEffect(loadTextureEffect(skin.textureUrl), signal),
-      (result) => {
-        setPendingGallery(undefined);
-        options.onGalleryOpened();
-        store.select(
-          // Named like library skins, so the default custom skin name
-          // follows the gallery name.
-          new File([result.bytes], `${skin.name}.png`, { type: "image/png" }),
-          {
-            origin: "gallery",
-            galleryId: skin.id,
-            name: skin.name,
-            variant: skin.variant,
+    task.run(
+      loadTextureEffect(skin.textureUrl).pipe(
+        Effect.provide(httpClientLayer),
+        Effect.match({
+          onSuccess: (result) => {
+            setPendingGallery(undefined);
+            options.onGalleryOpened();
+            store.select(
+              // Named like library skins, so the default custom skin name
+              // follows the gallery name.
+              new File([result.bytes], `${skin.name}.png`, {
+                type: "image/png",
+              }),
+              {
+                origin: "gallery",
+                galleryId: skin.id,
+                name: skin.name,
+                variant: skin.variant,
+              },
+            );
           },
-        );
-      },
-      () => {
-        setPendingGallery(undefined);
-        setGalleryError("studio.gallerySkinCouldNotOpenedTryAgain");
-      },
+          onFailure: () => {
+            setPendingGallery(undefined);
+            setGalleryError("studio.gallerySkinCouldNotOpenedTryAgain");
+          },
+        }),
+      ),
     );
   };
 

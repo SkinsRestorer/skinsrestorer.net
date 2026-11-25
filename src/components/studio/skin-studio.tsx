@@ -41,6 +41,7 @@ import {
   EditorSession,
   type SaveResult,
 } from "@/lib/editor-session";
+import { abortable } from "@/lib/hooks/use-latest-effect";
 import { useSkinLibrary, downloadSkin } from "@/lib/hooks/use-skin-library";
 import { useSkinSelection } from "@/lib/hooks/use-skin-selection";
 import {
@@ -378,8 +379,8 @@ export function SkinStudio(props: {
     const token = current.token;
     const variant = state.variant;
     cancelImport();
-    void imports.task.run(
-      (signal) =>
+    imports.task.run(
+      abortable((signal) =>
         client.run(
           Effect.gen(function* () {
             const content = yield* prepareSkinContent(current.file, variant);
@@ -392,43 +393,54 @@ export function SkinStudio(props: {
           }),
           signal,
         ),
-      ({ skin }) => {
-        const latest = store.getSnapshot();
-        if (latest.selection?.token !== token || latest.variant !== variant)
-          return;
-        // The save button unmounts with the gallery skin. Move focus to the
-        // kept skin unless the user has moved it elsewhere.
-        const active = document.activeElement;
-        if (!active || active === document.body || active.id === keepButtonId)
-          focusAfter.current = "selection";
-        store.selectSkin(skin);
-        dropSkinReference();
-      },
-      (cause) => {
-        toast.error(t.error(cause));
-      },
+      ).pipe(
+        Effect.match({
+          onSuccess: ({ skin }) => {
+            const latest = store.getSnapshot();
+            if (latest.selection?.token !== token || latest.variant !== variant)
+              return;
+            // The save button unmounts with the gallery skin. Move focus to
+            // the kept skin unless the user has moved it elsewhere.
+            const active = document.activeElement;
+            if (
+              !active ||
+              active === document.body ||
+              active.id === keepButtonId
+            )
+              focusAfter.current = "selection";
+            store.selectSkin(skin);
+            dropSkinReference();
+          },
+          onFailure: (cause) => {
+            toast.error(t.error(cause));
+          },
+        }),
+      ),
     );
   };
   const editSelected = () => {
     if (current?.status !== "ready") return;
     const { token } = current;
     cancelImport();
-    void imports.task.run(
-      () => documentOf(current.file, state.variant),
-      (document) => {
-        // Another skin was selected while this one was decoding.
-        if (store.getSnapshot().selection?.token !== token) return;
-        editor.session.start(document, {
-          skinId: current.skinId,
-          baseRevision: current.revision,
-          name: current.name,
-        });
-        openEditor(current.origin === "gallery");
-        void analytics.capture("skin_edit_opened", { page: props.entry });
-      },
-      (cause) => {
-        toast.error(t.error(cause));
-      },
+    imports.task.run(
+      abortable(() => documentOf(current.file, state.variant)).pipe(
+        Effect.match({
+          onSuccess: (document) => {
+            // Another skin was selected while this one was decoding.
+            if (store.getSnapshot().selection?.token !== token) return;
+            editor.session.start(document, {
+              skinId: current.skinId,
+              baseRevision: current.revision,
+              name: current.name,
+            });
+            openEditor(current.origin === "gallery");
+            void analytics.capture("skin_edit_opened", { page: props.entry });
+          },
+          onFailure: (cause) => {
+            toast.error(t.error(cause));
+          },
+        }),
+      ),
     );
   };
 
