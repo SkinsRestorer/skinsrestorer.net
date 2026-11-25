@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { Effect } from "effect";
 import { act, useEffect } from "react";
 import { render, registerDom } from "@/test/dom";
-import { abortable, useLatestEffect } from "./use-latest-effect";
+import { abortable } from "../latest-effect";
+import { useLatestEffect } from "./use-latest-effect";
 
 registerDom();
 

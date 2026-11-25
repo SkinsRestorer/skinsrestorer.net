@@ -1,6 +1,6 @@
 import { errorMessage, message, type Message } from "@/lib/messages";
 import { Effect } from "effect";
-import { LatestTask } from "./latest-task";
+import { abortable, LatestEffect } from "./latest-effect";
 import { readPngSize } from "./png";
 import type { SkinImageError, SkinVariant } from "./skin";
 import type { StudioPurpose } from "./studio";
@@ -86,7 +86,8 @@ export interface SelectOptions {
 /**
  * Owns the selected skin of one Upload or Generator form. Selection never
  * waits for the library: the library only adds an id to the current
- * selection when its background write finishes. Every late result checks the
+ * selection when its background write finishes. A newer request interrupts
+ * the older detection, model save, or check, and every late result checks the
  * selection token, so an old file, detection, or write cannot replace a newer
  * choice.
  */
@@ -98,9 +99,9 @@ export class SkinSelectionStore {
     previewUrl: null,
   };
   private readonly listeners = new Set<() => void>();
-  private readonly detection = new LatestTask();
-  private readonly variantSync = new LatestTask();
-  private readonly check = new LatestTask();
+  private readonly detection = new LatestEffect();
+  private readonly variantSync = new LatestEffect();
+  private readonly check = new LatestEffect();
   private token = 0;
   /** The user picked a model after the current selection started. */
   private variantChosen = false;
@@ -232,7 +233,7 @@ export class SkinSelectionStore {
       this.takeFirstKept(token)?.(false);
     };
     void this.detection.run(
-      async (signal) => {
+      abortable(async (signal) => {
         // An in-memory copy: a later change to the file on disk cannot change
         // what the form shows or sends.
         const bytes = await file.arrayBuffer();
@@ -270,9 +271,13 @@ export class SkinSelectionStore {
           },
           signal,
         );
-      },
-      () => {},
-      fail,
+      }).pipe(
+        Effect.catch((cause) =>
+          Effect.sync(() => {
+            fail(cause);
+          }),
+        ),
+      ),
     );
   }
 
@@ -325,29 +330,36 @@ export class SkinSelectionStore {
     if (!selection?.skinId || !library) return;
     const { token, skinId } = selection;
     void this.check.run(
-      (signal) => library.run(getSkin(skinId), signal),
-      (skin) => {
-        const current = this.state.selection;
-        if (!current || current.token !== token) return;
-        if (!skin) {
-          this.update(token, { keep: { kind: "removed" }, skinId: undefined });
-          return;
-        }
-        const sameModel =
-          this.variantPending || skin.current.variant === this.state.variant;
-        if (skin.current.hash === current.hash && sameModel)
-          this.update(token, {
-            name: skin.name,
-            revision: skin.revision,
-            keep: { kind: "kept" },
-          });
-        else
-          this.update(token, {
-            name: skin.name,
-            keep: { kind: "changed", latest: skin },
-          });
-      },
-      () => {},
+      abortable((signal) => library.run(getSkin(skinId), signal)).pipe(
+        Effect.match({
+          onSuccess: (skin) => {
+            const current = this.state.selection;
+            if (!current || current.token !== token) return;
+            if (!skin) {
+              this.update(token, {
+                keep: { kind: "removed" },
+                skinId: undefined,
+              });
+              return;
+            }
+            const sameModel =
+              this.variantPending ||
+              skin.current.variant === this.state.variant;
+            if (skin.current.hash === current.hash && sameModel)
+              this.update(token, {
+                name: skin.name,
+                revision: skin.revision,
+                keep: { kind: "kept" },
+              });
+            else
+              this.update(token, {
+                name: skin.name,
+                keep: { kind: "changed", latest: skin },
+              });
+          },
+          onFailure: () => {},
+        }),
+      ),
     );
   }
 
@@ -362,21 +374,28 @@ export class SkinSelectionStore {
     if (!library) return;
     this.variantPending = true;
     void this.variantSync.run(
-      (signal) =>
+      abortable((signal) =>
         library.run(
           withLibrary((store) => store.setVariant(skinId, variant)),
           signal,
         ),
-      (skin) => {
-        this.variantPending = false;
-        if (this.state.variant !== variant) return;
-        this.update(token, { revision: skin.revision });
-      },
-      (cause) => {
-        this.variantPending = false;
-        if (cause instanceof SkinNotFoundError)
-          this.update(token, { keep: { kind: "removed" }, skinId: undefined });
-      },
+      ).pipe(
+        Effect.match({
+          onSuccess: (skin) => {
+            this.variantPending = false;
+            if (this.state.variant !== variant) return;
+            this.update(token, { revision: skin.revision });
+          },
+          onFailure: (cause) => {
+            this.variantPending = false;
+            if (cause instanceof SkinNotFoundError)
+              this.update(token, {
+                keep: { kind: "removed" },
+                skinId: undefined,
+              });
+          },
+        }),
+      ),
     );
   }
 

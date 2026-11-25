@@ -41,7 +41,7 @@ import {
   EditorSession,
   type SaveResult,
 } from "@/lib/editor-session";
-import { abortable } from "@/lib/hooks/use-latest-effect";
+import { abortable } from "@/lib/latest-effect";
 import { useSkinLibrary, downloadSkin } from "@/lib/hooks/use-skin-library";
 import { useSkinSelection } from "@/lib/hooks/use-skin-selection";
 import {

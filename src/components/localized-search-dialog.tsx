@@ -1,5 +1,7 @@
 import { useMatch } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useAtomValue } from "@effect/atom-react";
+import { AsyncResult, Atom } from "effect/reactivity";
+import { useMemo } from "react";
 import { useDocsSearch } from "fumadocs-core/search/client";
 import {
   SearchDialog,
@@ -20,6 +22,7 @@ import {
 } from "@/lib/docs-tree";
 import type { Locale } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n-react";
+import { abortable } from "@/lib/latest-effect";
 
 // Shown before the reader types: the pages most readers come for.
 const suggestedPaths = [
@@ -27,6 +30,20 @@ const suggestedPaths = [
   "/docs/troubleshooting",
   "/docs/reference/commands-permissions",
 ];
+
+type TreeResult = AsyncResult.AsyncResult<SerializedDocsTree, unknown>;
+
+/**
+ * The prerendered tree of one locale. Closing the dialog or switching the
+ * locale interrupts the read. The server renders it as loading.
+ */
+const docsTreeAtom = Atom.family((locale: Locale) =>
+  Atom.make(abortable((signal) => readDocsTree(locale, signal))).pipe(
+    Atom.withServerValueInitial,
+  ),
+);
+
+const noTreeAtom = Atom.readable((): TreeResult => AsyncResult.initial());
 
 /**
  * The docs layout already holds the tree. Elsewhere, read the prerendered
@@ -37,26 +54,14 @@ function useDocsTree(locale: Locale) {
     from: "/{-$lang}/docs",
     shouldThrow: false,
   })?.loaderData;
-  const [read, setRead] = useState<{
-    locale: Locale;
-    tree: SerializedDocsTree;
-  }>();
-  useEffect((): (() => void) | undefined => {
-    if (layoutTree) return undefined;
-    const controller = new AbortController();
-    readDocsTree(locale, controller.signal).then(
-      (tree) => {
-        setRead({ locale, tree });
-      },
-      () => {
-        // Without the tree, the dialog shows no suggestions.
-      },
-    );
-    return () => {
-      controller.abort();
-    };
-  }, [layoutTree, locale]);
-  return layoutTree ?? (read?.locale === locale ? read.tree : undefined);
+  const atom: Atom.Atom<TreeResult> = layoutTree
+    ? noTreeAtom
+    : docsTreeAtom(locale);
+  const result = useAtomValue(atom);
+  // Without the tree, the dialog shows no suggestions.
+  return (
+    layoutTree ?? (AsyncResult.isSuccess(result) ? result.value : undefined)
+  );
 }
 
 export default function LocalizedSearchDialog(props: SharedProps) {

@@ -1,5 +1,6 @@
 import { errorMessage, type Message } from "@/lib/messages";
-import { LatestTask } from "./latest-task";
+import { Effect } from "effect";
+import { abortable, LatestEffect } from "./latest-effect";
 import type {
   MineSkinCompletedResponse,
   MineSkinUploadOptions,
@@ -69,15 +70,15 @@ export function generationResult(
 }
 
 /**
- * One generation at a time. A new request or `cancel` drops the previous
- * one, and a failed upload is never sent again on its own. The state keeps
+ * One generation at a time. A new request or `cancel` interrupts the previous
+ * one and aborts its upload, and a failed upload is never sent again on its own. The state keeps
  * its input, so a view shows it only for the exact same choices.
  */
 export class StudioGeneration {
   private readonly upload: Upload;
   private state: GenerationState = { status: "idle" };
   private readonly listeners = new Set<() => void>();
-  private readonly task = new LatestTask();
+  private readonly task = new LatestEffect();
 
   constructor(upload: Upload) {
     this.upload = upload;
@@ -107,25 +108,28 @@ export class StudioGeneration {
   generate(input: GenerationInput, options: MineSkinUploadOptions) {
     this.set({ status: "pending", input });
     return this.task.run(
-      (signal) => this.upload(options, signal),
-      (response) => {
-        this.set({
-          status: "done",
-          input,
-          result: generationResult(input, response),
-        });
-      },
-      (cause) => {
-        this.set({
-          status: "failed",
-          input,
-          message: errorMessage(cause),
-        });
-      },
+      abortable((signal) => this.upload(options, signal)).pipe(
+        Effect.match({
+          onSuccess: (response) => {
+            this.set({
+              status: "done",
+              input,
+              result: generationResult(input, response),
+            });
+          },
+          onFailure: (cause) => {
+            this.set({
+              status: "failed",
+              input,
+              message: errorMessage(cause),
+            });
+          },
+        }),
+      ),
     );
   }
 
-  /** Stop waiting for the current upload. Its late result is dropped. */
+  /** Stop waiting for the current upload and abort it. */
   cancel() {
     this.task.cancel();
     if (this.state.status === "pending") this.set({ status: "idle" });

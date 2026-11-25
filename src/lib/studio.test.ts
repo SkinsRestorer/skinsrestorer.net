@@ -264,6 +264,34 @@ test("a result is hidden for other choices and a superseded upload never publish
   assert.equal(calls.length, 2);
 });
 
+test("a newer generation aborts the older upload and only the newer one publishes", async () => {
+  const { calls, upload } = manualUpload();
+  const generation = new StudioGeneration(upload);
+  const first = input();
+  const second = input({ variant: "slim" });
+  const firstRun = generation.generate(first, {
+    file: first.file,
+    variant: "classic",
+  });
+  const secondRun = generation.generate(second, {
+    file: second.file,
+    variant: "slim",
+  });
+  assert.equal(calls[0]?.signal.aborted, true);
+  assert.equal(calls[1]?.signal.aborted, false);
+  // The superseded call settles without waiting for its upload.
+  await firstRun;
+  calls[0].resolve(response("old"));
+  calls[1].resolve(response("new", "https://minesk.in/new"));
+  await secondRun;
+  assert.equal(generation.for(first).status, "idle");
+  const state = generation.for(second);
+  assert.equal(
+    state.status === "done" && state.result.url,
+    "https://minesk.in/new",
+  );
+});
+
 test("the Axolotl cape route posts the selected bytes without the user key", async () => {
   const server = mockFetch(() =>
     Response.json({

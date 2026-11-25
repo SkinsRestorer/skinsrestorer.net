@@ -158,6 +158,33 @@ test("a late detection result never replaces a newer file", async () => {
   store.dispose();
 });
 
+test("a newer file interrupts the older detection, so its failure is never reported", async () => {
+  const failures: number[] = [];
+  const preview = manualPreview();
+  const store = new SkinSelectionStore({
+    preview: preview.preview,
+    events: {
+      failed: (token) => {
+        failures.push(token);
+      },
+    },
+  });
+  store.selectFiles([await skinFile(1, "old.png")]);
+  await preview.next(1);
+  store.selectFiles([await skinFile(2, "new.png")]);
+  await preview.next(2);
+  const [old] = preview.pending;
+  assert.equal(old?.signal.aborted, true);
+  // Let the aborted request reject.
+  await new Promise((resolve) => {
+    setTimeout(resolve, 5);
+  });
+  assert.deepEqual(failures, []);
+  assert.equal(store.getSnapshot().selection?.status, "checking");
+  store.dispose();
+  assert.equal(preview.pending[1]?.signal.aborted, true);
+});
+
 test("detection does not overwrite a model the user already picked", async () => {
   const preview = manualPreview();
   const store = new SkinSelectionStore({ preview: preview.preview });

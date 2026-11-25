@@ -10,10 +10,13 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { Link } from "fumadocs-core/link";
-import { type ReactNode, useEffect, useState } from "react";
+import { useAtomValue } from "@effect/atom-react";
+import { AsyncResult, Atom } from "effect/reactivity";
+import type { ReactNode } from "react";
 import { EnderDashSponsor } from "@/components/enderdash-sponsor";
 import { Image } from "@/components/image";
 import { Button } from "@/components/ui/button";
+import { abortable } from "@/lib/latest-effect";
 import { getLatestRelease } from "@/lib/release-server";
 import styles from "./minecraft.module.css";
 import { CopyCommand, HomeFaq } from "./home-interactions";
@@ -34,21 +37,19 @@ const inlineLinkClassName = "text-foreground underline underline-offset-4";
 // GitHub redirects this to the newest release, so the link works before the tag loads.
 const latestReleaseLink = `${releasesLink}/latest`;
 
+/**
+ * Read once per page load and kept while the page stays open, so returning to
+ * the home page shows the tag at once. The server renders it without a tag.
+ */
+const latestReleaseAtom = Atom.make(
+  abortable((signal) => getLatestRelease({ signal })),
+).pipe(Atom.keepAlive, Atom.withServerValueInitial);
+
 function LatestRelease() {
   const t = useT();
-  const [data, setData] =
-    useState<Awaited<ReturnType<typeof getLatestRelease>>>(null);
-  useEffect(() => {
-    const controller = new AbortController();
-    void getLatestRelease({ signal: controller.signal })
-      .then((release) => {
-        if (!controller.signal.aborted) setData(release);
-      })
-      .catch(() => {});
-    return () => {
-      controller.abort();
-    };
-  }, []);
+  const result = useAtomValue(latestReleaseAtom);
+  // A failed read keeps the link to the newest release without a tag.
+  const data = AsyncResult.isSuccess(result) ? result.value : null;
 
   // The label stays the same and the tag fills a reserved slot, so the row does not shift.
   return (

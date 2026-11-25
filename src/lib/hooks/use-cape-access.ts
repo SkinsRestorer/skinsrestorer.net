@@ -3,7 +3,7 @@ import { Effect, Option } from "effect";
 import { AsyncResult, Atom } from "effect/reactivity";
 import { useState } from "react";
 import { toast } from "sonner";
-import { abortable } from "./use-latest-effect";
+import { abortable } from "../latest-effect";
 
 import {
   fetchCapeSupport,

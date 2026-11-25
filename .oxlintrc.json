@@ -469,14 +469,17 @@
   },
   "overrides": [
     {
-      // These hooks hold async React state in Effect atoms.
+      // These modules hold async state in Effect atoms.
       "files": [
+        "src/components/home/home-page.tsx",
+        "src/components/localized-search-dialog.tsx",
         "src/lib/hooks/use-cape-access.ts",
         "src/lib/hooks/use-latest-effect.ts",
         "src/lib/hooks/use-latest-effect.dom.test.tsx",
         "src/lib/hooks/use-skin-gallery.ts",
         "src/lib/hooks/use-skin-library.ts",
-        "src/lib/hooks/use-skin-library.dom.test.tsx"
+        "src/lib/hooks/use-skin-library.dom.test.tsx",
+        "src/lib/latest-effect.ts"
       ],
       "rules": {
         "effecttsgo/unstable-api-usage": "off"

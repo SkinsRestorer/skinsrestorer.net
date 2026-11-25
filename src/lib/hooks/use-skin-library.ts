@@ -29,7 +29,7 @@ import {
   type RemovedSkin,
   type StoredSkin,
 } from "../skin-library";
-import { abortable } from "./use-latest-effect";
+import { abortable } from "../latest-effect";
 import { useLocale, useNotificationT } from "@/lib/i18n-react";
 
 export type LibraryState =
